@@ -36,6 +36,15 @@ public final class MasteryLayout {
     public final int statusBottom;
     public final int dockHeight;
 
+    public final int backButtonX;
+    public final int backButtonWidth;
+    public final int respecButtonX;
+    public final int respecButtonWidth;
+    public final int closeButtonX;
+    public final int closeButtonWidth;
+    public final int headerContentLeft;
+    public final int headerContentRight;
+
     private final float[] nodeX;
     private final float[] nodeY;
     private final float[] nodeRadius;
@@ -66,6 +75,15 @@ public final class MasteryLayout {
         headerTop = marginY;
         headerRight = screenWidth - marginX;
         headerBottom = headerTop + headerHeight;
+
+        backButtonWidth = Math.min(104, Math.max(64, screenWidth / 7));
+        closeButtonWidth = Math.min(64, Math.max(46, screenWidth / 12));
+        respecButtonWidth = Math.min(78, Math.max(58, screenWidth / 10));
+        backButtonX = headerLeft + 7;
+        closeButtonX = headerRight - 7 - closeButtonWidth;
+        respecButtonX = closeButtonX - 6 - respecButtonWidth;
+        headerContentLeft = backButtonX + backButtonWidth + 13;
+        headerContentRight = respecButtonX - 12;
 
         int bodyTop = headerBottom + Math.max(5, Math.round(screenHeight * 0.02F));
         int bodyBottom = screenHeight - marginY;
@@ -281,14 +299,18 @@ public final class MasteryLayout {
     }
 
     public int nodeAt(double mouseX, double mouseY) {
+        int nearest = -1;
+        double nearestDistance = Double.MAX_VALUE;
         for (int i = 0; i < nodeX.length; i++) {
             double dx = mouseX - nodeX[i];
             double dy = mouseY - nodeY[i];
-            if (dx * dx + dy * dy <= nodeHit[i] * nodeHit[i]) {
-                return i;
+            double distance = dx * dx + dy * dy;
+            if (distance <= nodeHit[i] * nodeHit[i] && distance < nearestDistance) {
+                nearest = i;
+                nearestDistance = distance;
             }
         }
-        return -1;
+        return nearest;
     }
 
     public int neighbour(int from, int dirX, int dirY) {

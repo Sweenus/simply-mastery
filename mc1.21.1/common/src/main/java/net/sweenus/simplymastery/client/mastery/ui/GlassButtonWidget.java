@@ -54,7 +54,8 @@ public class GlassButtonWidget extends ButtonWidget {
                 ? MasteryTheme.mix(MasteryTheme.INK_DIM, MasteryTheme.INK, lit)
                 : MasteryTheme.INK_MUTED;
         MinecraftClient client = MinecraftClient.getInstance();
-        UiDraw.centeredText(context, client.textRenderer, getMessage(), (x0 + x1) * 0.5F,
+        Text fitted = UiDraw.fit(client.textRenderer, getMessage(), Math.max(1, getWidth() - 8));
+        UiDraw.centeredText(context, client.textRenderer, fitted, (x0 + x1) * 0.5F,
                 y0 + (getHeight() - 8) * 0.5F, MasteryTheme.argb(ink, alpha), 1.0F, false);
     }
 }

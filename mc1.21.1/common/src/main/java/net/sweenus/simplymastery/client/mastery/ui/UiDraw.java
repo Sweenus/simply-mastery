@@ -5,6 +5,8 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 
 public final class UiDraw {
@@ -383,5 +385,39 @@ public final class UiDraw {
     public static void rightText(DrawContext context, TextRenderer renderer, Text value, float right, float y,
                                  int argb, float scale, boolean shadow) {
         text(context, renderer, value, right - renderer.getWidth(value) * scale, y, argb, scale, shadow);
+    }
+
+    public static Text fit(TextRenderer renderer, Text value, int maxWidth) {
+        if (maxWidth <= 0) {
+            return Text.empty();
+        }
+        if (renderer.getWidth(value) <= maxWidth) {
+            return value;
+        }
+        String suffix = "…";
+        int suffixWidth = renderer.getWidth(suffix);
+        if (maxWidth < suffixWidth) {
+            return Text.empty();
+        }
+        int available = maxWidth - suffixWidth;
+        return Text.literal(renderer.trimToWidth(value, available).getString() + suffix);
+    }
+
+    public static void liveItem(DrawContext context, ItemStack stack, float x, float y, float scale, float depth) {
+        MatrixStack matrices = context.getMatrices();
+        matrices.push();
+        try {
+            matrices.translate(x, y, depth);
+            matrices.scale(scale, scale, 1.0F);
+            context.drawItem(stack, 0, 0);
+        } finally {
+            matrices.pop();
+        }
+    }
+
+    public static void textureIcon(DrawContext context, Identifier texture, float cx, float cy, int size) {
+        int x = Math.round(cx - size * 0.5F);
+        int y = Math.round(cy - size * 0.5F);
+        context.drawTexture(texture, x, y, 0.0F, 0.0F, size, size, 16, 16);
     }
 }
