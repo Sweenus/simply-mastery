@@ -12,6 +12,7 @@ import net.sweenus.simplymastery.client.mastery.ui.MasteryTheme;
 import net.sweenus.simplymastery.client.mastery.SimplyMasteryScreen;
 import net.sweenus.simplymastery.config.MasteryConfig;
 import net.sweenus.simplymastery.mastery.definition.MasteryProfile;
+import net.sweenus.simplymastery.mastery.definition.MasteryProfileRegistry;
 import net.sweenus.simplyswords.client.screen.RunicForgeScreen;
 import net.sweenus.simplyswords.screen.RunicForgeScreenHandler;
 import org.spongepowered.asm.mixin.Mixin;
@@ -52,7 +53,7 @@ public abstract class RunicForgeScreenMixin extends HandledScreen<RunicForgeScre
             return;
         }
         ItemStack stack = handler.getForgeInventory().getStack(RunicForgeScreenHandler.WEAPON_SLOT);
-        boolean supported = MasteryProfile.resolve(stack).isPresent();
+        boolean supported = MasteryProfileRegistry.resolveClient(stack).isPresent();
         boolean cursorEmpty = handler.getCursorStack().isEmpty();
         simplymastery$button.active = MasteryConfig.SERVER.enabled && supported && cursorEmpty;
         Text tooltip = !MasteryConfig.SERVER.enabled

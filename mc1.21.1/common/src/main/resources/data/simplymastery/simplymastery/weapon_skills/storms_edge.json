@@ -27,7 +27,7 @@
   ],
   "nodes": [
     {"id":"guard_root","branch":"guard","x":0.88,"y":0.22,"cost":1,"requires":[],"effect":{"type":"simplymastery:none"}},
-    {"id":"charged_pursuit","branch":"guard","x":0.56,"y":0.22,"cost":1,"requires":["guard_root"],"effect":{"type":"simplymastery:stormstep","duration_ticks":40,"amplifier":1}},
+    {"id":"charged_pursuit","branch":"guard","x":0.56,"y":0.22,"cost":1,"requires":["guard_root"],"effect":{"type":"simplymastery:stormstep","parameters":{"duration_ticks":40,"amplifier":1}}},
     {"id":"eye_of_storm","branch":"guard","x":0.16,"y":0.17,"cost":2,"capstone":true,"choice_group":"guard_capstone","requires":["charged_pursuit"],"effect":{"type":"simplymastery:none"}},
     {"id":"thunderhead","branch":"guard","x":0.16,"y":0.27,"cost":2,"capstone":true,"choice_group":"guard_capstone","requires":["charged_pursuit"],"effect":{"type":"simplymastery:none"}},
     {"id":"tempo_root","branch":"tempo","x":0.88,"y":0.50,"cost":1,"requires":[],"effect":{"type":"simplymastery:none"}},

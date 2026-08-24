@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "id": "simplymastery_coverage_test",
+  "version": "1.0.0",
+  "name": "Simply Mastery Coverage Test",
+  "environment": "*",
+  "entrypoints": {
+    "fabric-gametest": [
+      "net.sweenus.simplymastery.fabric.gametest.SimplyMasteryCoverageGameTest"
+    ]
+  },
+  "depends": {
+    "fabricloader": "*",
+    "fabric-gametest-api-v1": "*",
+    "minecraft": "1.21.1",
+    "simplymastery": "*"
+  }
+}

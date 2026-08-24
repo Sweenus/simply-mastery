@@ -24,6 +24,12 @@ public final class UnlockNodePacket extends BaseC2SMessage {
                 profileId, nodeId, Operation.UNLOCK, clientActionId);
     }
 
+    public static UnlockNodePacket respec(int screenSyncId, int definitionEpoch, long expectedMutationRevision,
+                                          Identifier profileId, long clientActionId) {
+        return new UnlockNodePacket(MasteryNetwork.PROTOCOL_VERSION, screenSyncId, definitionEpoch,
+                expectedMutationRevision, profileId, "", Operation.RESPEC, clientActionId);
+    }
+
     private UnlockNodePacket(int protocolVersion, int screenSyncId, int definitionEpoch,
                              long expectedMutationRevision, Identifier profileId, String nodeId,
                              Operation operation, long clientActionId) {
@@ -99,6 +105,7 @@ public final class UnlockNodePacket extends BaseC2SMessage {
     }
 
     enum Operation {
-        UNLOCK
+        UNLOCK,
+        RESPEC
     }
 }

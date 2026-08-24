@@ -17,6 +17,13 @@ public final class MasteryComponents {
                     .packetCodec(MasteryState.PACKET_CODEC)
                     .build()
     );
+    public static final RegistrySupplier<ComponentType<MasteryCooldownState>> MASTERY_COOLDOWNS = TYPES.register(
+            "mastery_cooldowns",
+            () -> ComponentType.<MasteryCooldownState>builder()
+                    .codec(MasteryCooldownState.CODEC)
+                    .packetCodec(MasteryCooldownState.PACKET_CODEC)
+                    .build()
+    );
 
     private MasteryComponents() {
     }

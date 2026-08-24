@@ -1,7 +1,7 @@
 package net.sweenus.simplymastery.mastery.definition;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.Registries;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.util.Identifier;
 
 import java.util.LinkedHashMap;
@@ -11,28 +11,46 @@ import java.util.Optional;
 
 public final class MasteryProfile {
 
-    public static final Identifier STORMS_EDGE_ID = Identifier.of("simplymastery", "storms_edge");
-    public static final Identifier STORMS_EDGE_ITEM = Identifier.of("simplyswords", "storms_edge");
-    public static final int DEFINITION_EPOCH = 1;
-    public static final MasteryProfile STORMS_EDGE = createStormsEdge();
+    public static final int CURRENT_SCHEMA = 1;
+    public static final int MAX_NODES = 128;
+    public static final int MAX_PROFILE_JSON_BYTES = 262_144;
+    public static final int MAX_CANONICAL_JSON_BYTES = 1_048_576;
+    public static final Codec<MasteryProfile> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            Codec.INT.fieldOf("schema").forGetter(MasteryProfile::schema),
+            Identifier.CODEC.fieldOf("id").forGetter(MasteryProfile::id),
+            Codec.INT.fieldOf("profile_version").forGetter(MasteryProfile::version),
+            Selector.CODEC.listOf().fieldOf("selectors").forGetter(MasteryProfile::selectors),
+            Branch.CODEC.listOf().fieldOf("branches").forGetter(MasteryProfile::branches),
+            Node.CODEC.listOf().fieldOf("nodes").forGetter(MasteryProfile::nodes),
+            Migration.CODEC.listOf().optionalFieldOf("migrations", List.of()).forGetter(MasteryProfile::migrations)
+    ).apply(instance, MasteryProfile::new));
 
+    private final int schema;
     private final Identifier id;
     private final int version;
+    private final List<Selector> selectors;
     private final List<Branch> branches;
     private final List<Node> nodes;
+    private final List<Migration> migrations;
     private final Map<String, Node> nodesById;
 
-    private MasteryProfile(Identifier id, int version, List<Branch> branches, List<Node> nodes) {
+    public MasteryProfile(int schema, Identifier id, int version, List<Selector> selectors,
+                          List<Branch> branches, List<Node> nodes, List<Migration> migrations) {
+        this.schema = schema;
         this.id = id;
         this.version = version;
+        this.selectors = List.copyOf(selectors);
         this.branches = List.copyOf(branches);
         this.nodes = List.copyOf(nodes);
+        this.migrations = List.copyOf(migrations);
         this.nodesById = new LinkedHashMap<>();
         for (Node node : nodes) {
-            if (nodesById.put(node.id(), node) != null) {
-                throw new IllegalArgumentException("Duplicate mastery node " + node.id());
-            }
+            nodesById.putIfAbsent(node.id(), node);
         }
+    }
+
+    public int schema() {
+        return schema;
     }
 
     public Identifier id() {
@@ -43,6 +61,10 @@ public final class MasteryProfile {
         return version;
     }
 
+    public List<Selector> selectors() {
+        return selectors;
+    }
+
     public List<Branch> branches() {
         return branches;
     }
@@ -51,60 +73,97 @@ public final class MasteryProfile {
         return nodes;
     }
 
+    public List<Migration> migrations() {
+        return migrations;
+    }
+
     public Optional<Node> node(String id) {
         return Optional.ofNullable(nodesById.get(id));
     }
 
-    public static Optional<MasteryProfile> resolve(ItemStack stack) {
-        if (stack == null || stack.isEmpty()) {
-            return Optional.empty();
-        }
-        return supportsItemId(Registries.ITEM.getId(stack.getItem()))
-                ? Optional.of(STORMS_EDGE)
-                : Optional.empty();
-    }
-
-    public static boolean supportsItemId(Identifier itemId) {
-        return STORMS_EDGE_ITEM.equals(itemId);
-    }
-
-    private static MasteryProfile createStormsEdge() {
-        List<Branch> branches = List.of(
-                new Branch("guard", "branch.simplymastery.guard", 0xFF72D9E8),
-                new Branch("tempo", "branch.simplymastery.tempo", 0xFFA984F4),
-                new Branch("storm", "branch.simplymastery.storm", 0xFFE8B65A)
-        );
-        List<Node> nodes = List.of(
-                node("guard_root", "guard", .88, .22, 1, false, "", List.of(), "none"),
-                node("charged_pursuit", "guard", .56, .22, 1, false, "", List.of("guard_root"), "stormstep"),
-                node("eye_of_storm", "guard", .16, .17, 2, true, "guard_capstone", List.of("charged_pursuit"), "none"),
-                node("thunderhead", "guard", .16, .27, 2, true, "guard_capstone", List.of("charged_pursuit"), "none"),
-                node("tempo_root", "tempo", .88, .50, 1, false, "", List.of(), "none"),
-                node("afterimage", "tempo", .56, .50, 1, false, "", List.of("tempo_root"), "none"),
-                node("flashpoint", "tempo", .16, .45, 2, true, "tempo_capstone", List.of("afterimage"), "none"),
-                node("conduction", "tempo", .16, .55, 2, true, "tempo_capstone", List.of("afterimage"), "none"),
-                node("storm_root", "storm", .88, .78, 1, false, "", List.of(), "none"),
-                node("pressure_front", "storm", .56, .78, 1, false, "", List.of("storm_root"), "none"),
-                node("skybreaker", "storm", .16, .73, 2, true, "storm_capstone", List.of("pressure_front"), "none"),
-                node("tempest_wake", "storm", .16, .83, 2, true, "storm_capstone", List.of("pressure_front"), "none")
-        );
-        return new MasteryProfile(STORMS_EDGE_ID, 1, branches, nodes);
-    }
-
-    private static Node node(String id, String branch, double x, double y, int cost, boolean capstone,
-                             String choiceGroup, List<String> requires, String effect) {
-        return new Node(id, branch, x, y, cost, capstone, choiceGroup, requires, effect,
-                "skill.simplymastery." + id, "skill.simplymastery." + id + ".description");
+    public record Selector(Optional<Identifier> item, Optional<Identifier> formFamily, int priority) {
+        public static final Codec<Selector> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                Identifier.CODEC.optionalFieldOf("item").forGetter(Selector::item),
+                Identifier.CODEC.optionalFieldOf("form_family").forGetter(Selector::formFamily),
+                Codec.INT.optionalFieldOf("priority", 0).forGetter(Selector::priority)
+        ).apply(instance, Selector::new));
     }
 
     public record Branch(String id, String nameKey, int color) {
+        public static final Codec<Branch> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                Codec.STRING.fieldOf("id").forGetter(Branch::id),
+                Codec.STRING.fieldOf("name").forGetter(Branch::nameKey),
+                Codec.STRING.fieldOf("color").xmap(Branch::parseColor, Branch::formatColor).forGetter(Branch::color)
+        ).apply(instance, Branch::new));
+
+        private static int parseColor(String value) {
+            String hex = value.startsWith("#") ? value.substring(1) : value;
+            if (hex.length() != 6) {
+                throw new IllegalArgumentException("Branch color must contain six hexadecimal digits: " + value);
+            }
+            return 0xFF000000 | Integer.parseInt(hex, 16);
+        }
+
+        private static String formatColor(int value) {
+            return "#%06X".formatted(value & 0xFFFFFF);
+        }
     }
 
     public record Node(String id, String branch, double x, double y, int cost, boolean capstone,
-                       String choiceGroup, List<String> requires, String effect,
-                       String nameKey, String descriptionKey) {
+                       String choiceGroup, List<String> requires, Effect effect,
+                       String nameKey, String descriptionKey, Optional<Identifier> icon) {
+        public static final Codec<Node> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                Codec.STRING.fieldOf("id").forGetter(Node::id),
+                Codec.STRING.fieldOf("branch").forGetter(Node::branch),
+                Codec.DOUBLE.fieldOf("x").forGetter(Node::x),
+                Codec.DOUBLE.fieldOf("y").forGetter(Node::y),
+                Codec.INT.fieldOf("cost").forGetter(Node::cost),
+                Codec.BOOL.optionalFieldOf("capstone", false).forGetter(Node::capstone),
+                Codec.STRING.optionalFieldOf("choice_group", "").forGetter(Node::choiceGroup),
+                Codec.STRING.listOf().optionalFieldOf("requires", List.of()).forGetter(Node::requires),
+                Effect.CODEC.fieldOf("effect").forGetter(Node::effect),
+                Codec.STRING.optionalFieldOf("name", "").forGetter(Node::nameKey),
+                Codec.STRING.optionalFieldOf("description", "").forGetter(Node::descriptionKey),
+                Identifier.CODEC.optionalFieldOf("icon").forGetter(Node::icon)
+        ).apply(instance, Node::new));
+
         public Node {
             requires = List.copyOf(requires);
+            if (nameKey.isEmpty()) {
+                nameKey = "skill.simplymastery." + id;
+            }
+            if (descriptionKey.isEmpty()) {
+                descriptionKey = "skill.simplymastery." + id + ".description";
+            }
+        }
+    }
+
+    public record Effect(Identifier type, Map<String, Integer> parameters) {
+        public static final Codec<Effect> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                Identifier.CODEC.fieldOf("type").forGetter(Effect::type),
+                Codec.unboundedMap(Codec.STRING, Codec.INT).optionalFieldOf("parameters", Map.of())
+                        .forGetter(Effect::parameters)
+        ).apply(instance, Effect::new));
+
+        public Effect {
+            parameters = Map.copyOf(parameters);
+        }
+    }
+
+    public record Migration(int fromVersion, int toVersion, Map<String, String> renamedNodes,
+                            Map<String, Integer> removedNodeRefunds) {
+        public static final Codec<Migration> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                Codec.INT.fieldOf("from_version").forGetter(Migration::fromVersion),
+                Codec.INT.fieldOf("to_version").forGetter(Migration::toVersion),
+                Codec.unboundedMap(Codec.STRING, Codec.STRING).optionalFieldOf("renamed_nodes", Map.of())
+                        .forGetter(Migration::renamedNodes),
+                Codec.unboundedMap(Codec.STRING, Codec.INT).optionalFieldOf("removed_node_refunds", Map.of())
+                        .forGetter(Migration::removedNodeRefunds)
+        ).apply(instance, Migration::new));
+
+        public Migration {
+            renamedNodes = Map.copyOf(renamedNodes);
+            removedNodeRefunds = Map.copyOf(removedNodeRefunds);
         }
     }
 }

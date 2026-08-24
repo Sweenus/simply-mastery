@@ -6,7 +6,6 @@ import io.netty.buffer.Unpooled;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.util.Identifier;
-import net.sweenus.simplymastery.mastery.definition.MasteryProfile;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -18,7 +17,7 @@ class MasteryStateCodecTest {
 
     @Test
     void codecRoundTripPreservesState() {
-        MasteryState original = new MasteryState(1, MasteryProfile.STORMS_EDGE_ID, 1, 320,
+        MasteryState original = new MasteryState(1, Identifier.of("simplymastery", "storms_edge"), 1, 320,
                 6, List.of("guard_root", "charged_pursuit", "unknown_from_newer_version"), 7L);
         JsonElement encoded = MasteryState.CODEC.encodeStart(JsonOps.INSTANCE, original).getOrThrow();
         MasteryState decoded = MasteryState.CODEC.parse(JsonOps.INSTANCE, encoded).getOrThrow();
@@ -27,7 +26,7 @@ class MasteryStateCodecTest {
 
     @Test
     void packetCodecRoundTripPreservesState() {
-        MasteryState original = new MasteryState(1, MasteryProfile.STORMS_EDGE_ID, 1, 45,
+        MasteryState original = new MasteryState(1, Identifier.of("simplymastery", "storms_edge"), 1, 45,
                 6, List.of("guard_root", "charged_pursuit"), 2L);
         RegistryByteBuf buffer = new RegistryByteBuf(Unpooled.buffer(), DynamicRegistryManager.EMPTY);
         try {

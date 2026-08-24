@@ -7,6 +7,33 @@ architectury {
     neoForge()
 }
 
+sourceSets {
+    coverageTest {
+        compileClasspath += sourceSets.main.output + configurations.compileClasspath
+        runtimeClasspath += output + sourceSets.main.output + configurations.runtimeClasspath
+    }
+}
+
+loom {
+    createRemapConfigurations(sourceSets.coverageTest)
+    mods {
+        simplymastery_coverage_test {
+            sourceSet sourceSets.coverageTest
+        }
+    }
+    runs {
+        coverageServer {
+            environment "gametestserver"
+            forgeTemplate "gameTestServer"
+            source sourceSets.main
+            source sourceSets.coverageTest
+            vmArg "-Dneoforge.enabledGameTestNamespaces=simplymastery_coverage_test"
+            vmArg "-Dsimplymastery.coverageAudit=true"
+            runDir "build/coverage-gametest"
+        }
+    }
+}
+
 configurations {
     common
     shadowCommon

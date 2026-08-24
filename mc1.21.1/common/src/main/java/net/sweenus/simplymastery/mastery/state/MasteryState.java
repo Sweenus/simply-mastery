@@ -77,6 +77,28 @@ public record MasteryState(int schemaVersion, Identifier profileId, int profileV
                 earnedPoints, unlocked, mutationRevision + 1L);
     }
 
+    public MasteryState awardXp(int amount, int maximumPoints, int baseRequirement, int requirementGrowth) {
+        int points = Math.min(maximumPoints, earnedPoints);
+        long xp = (long) masteryXp + Math.max(0, amount);
+        while (points < maximumPoints) {
+            int requirement = Math.max(1, baseRequirement + points * requirementGrowth);
+            if (xp < requirement) break;
+            xp -= requirement;
+            points++;
+        }
+        if (points >= maximumPoints) xp = 0;
+        int boundedXp = (int) Math.min(Integer.MAX_VALUE, xp);
+        if (boundedXp == masteryXp && points == earnedPoints) return this;
+        return new MasteryState(schemaVersion, profileId, profileVersion, boundedXp,
+                points, unlockedNodeIds, mutationRevision + 1L);
+    }
+
+    public MasteryState respec() {
+        if (unlockedNodeIds.isEmpty()) return this;
+        return new MasteryState(schemaVersion, profileId, profileVersion, masteryXp,
+                earnedPoints, List.of(), mutationRevision + 1L);
+    }
+
     private static void encode(RegistryByteBuf buf, MasteryState state) {
         buf.writeVarInt(state.schemaVersion);
         buf.writeIdentifier(state.profileId);

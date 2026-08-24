@@ -5,7 +5,10 @@ import dev.architectury.utils.EnvExecutor;
 import net.sweenus.simplymastery.client.SimplyMasteryClient;
 import net.sweenus.simplymastery.config.MasteryConfig;
 import net.sweenus.simplymastery.mastery.network.MasteryNetwork;
+import net.sweenus.simplymastery.mastery.definition.MasteryCoverageReport;
 import net.sweenus.simplymastery.mastery.state.MasteryComponents;
+import net.sweenus.simplymastery.mastery.effect.SkillRuntime;
+import net.sweenus.simplymastery.mastery.progression.MasteryProgression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +24,9 @@ public final class SimplyMastery {
         MasteryComponents.register();
         MasteryConfig.init();
         MasteryNetwork.init();
+        SkillRuntime.init();
+        MasteryProgression.init();
+        MasteryCoverageReport.init();
         EnvExecutor.runInEnv(Env.CLIENT, () -> SimplyMasteryClient::init);
         LOGGER.info("Simply Mastery initialized");
     }

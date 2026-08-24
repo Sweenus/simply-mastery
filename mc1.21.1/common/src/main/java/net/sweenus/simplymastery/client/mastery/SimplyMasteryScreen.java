@@ -4,12 +4,15 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
+import net.minecraft.client.gui.screen.ConfirmScreen;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.registry.Registries;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Util;
+import net.minecraft.util.Identifier;
 import net.sweenus.simplymastery.client.mastery.ui.Anim;
 import net.sweenus.simplymastery.client.mastery.ui.GlassButtonWidget;
 import net.sweenus.simplymastery.client.mastery.ui.MasteryLayout;
@@ -19,6 +22,8 @@ import net.sweenus.simplymastery.client.mastery.ui.NodeAnimators;
 import net.sweenus.simplymastery.client.mastery.ui.UiDraw;
 import net.sweenus.simplymastery.config.MasteryConfig;
 import net.sweenus.simplymastery.mastery.definition.MasteryProfile;
+import net.sweenus.simplymastery.mastery.definition.MasteryProfileRegistry;
+import net.sweenus.simplymastery.mastery.network.RequestProfileSyncPacket;
 import net.sweenus.simplymastery.mastery.network.UnlockNodePacket;
 import net.sweenus.simplymastery.mastery.network.UnlockResult;
 import net.sweenus.simplymastery.mastery.state.MasteryState;
@@ -54,6 +59,8 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
     private float flash;
     private long lastFrameMs = Util.getMeasuringTimeMs();
     private boolean switchingView;
+    private MasteryProfile profile;
+    private int definitionEpoch = -1;
 
     public SimplyMasteryScreen(RunicForgeScreenHandler handler, PlayerInventory playerInventory, Text title) {
         super(handler, playerInventory, title);
@@ -63,27 +70,12 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
     @Override
     protected void init() {
         super.init();
-        MasteryProfile profile = MasteryProfile.STORMS_EDGE;
-        layout = new MasteryLayout(profile, width, height);
-
-        branchRgb = new int[profile.branches().size()];
-        for (int i = 0; i < branchRgb.length; i++) {
-            branchRgb[i] = profile.branches().get(i).color() & 0xFFFFFF;
-        }
-        if (animators == null) {
-            animators = new NodeAnimators(layout.nodeCount());
-            entranceSeconds = 0.0F;
-            MasteryUiSounds.openView();
-        }
-        if (ownedSnapshot == null) {
-            MasteryState state = state(profile);
-            ownedSnapshot = new boolean[layout.nodeCount()];
-            for (int i = 0; i < ownedSnapshot.length; i++) {
-                ownedSnapshot[i] = state.owns(profile.nodes().get(i).id());
-                animators.snapOwned(i, ownedSnapshot[i]);
-            }
-            masteryMeter.snap(ownedFraction(profile, state));
-        }
+        MasteryProfileRegistry.Snapshot snapshot = MasteryProfileRegistry.client();
+        profile = snapshot.resolve(authoritativeStack()).map(MasteryProfileRegistry.Resolution::profile)
+                .orElseThrow(() -> new IllegalStateException("Mastery screen opened without a synced profile"));
+        definitionEpoch = snapshot.epoch();
+        rebuildProfile(profile);
+        new RequestProfileSyncPacket(handler.syncId).sendToServer();
 
         int buttonHeight = 18;
         int buttonY = layout.headerTop + (layout.headerBottom - layout.headerTop - buttonHeight) / 2;
@@ -91,6 +83,12 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
         int closeWidth = closeButtonWidth();
         addDrawableChild(new GlassButtonWidget(layout.headerLeft + 7, buttonY, backWidth, buttonHeight,
                 Text.translatable("screen.simplymastery.back"), button -> backToForge(), MasteryTheme.ACCENT));
+        int respecWidth = respecButtonWidth();
+        GlassButtonWidget respec = new GlassButtonWidget(layout.headerRight - 13 - closeWidth - respecWidth, buttonY,
+                respecWidth, buttonHeight, Text.translatable("screen.simplymastery.respec"),
+                button -> confirmRespec(), MasteryTheme.GOLD);
+        respec.active = MasteryConfig.SERVER.respecEnabled;
+        addDrawableChild(respec);
         addDrawableChild(new GlassButtonWidget(layout.headerRight - 7 - closeWidth, buttonY, closeWidth, buttonHeight,
                 Text.translatable("screen.simplymastery.close"), button -> close(), MasteryTheme.DANGER));
     }
@@ -104,14 +102,25 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
             close();
             return;
         }
-        if (MasteryProfile.resolve(authoritativeStack()).isEmpty()) {
+        MasteryProfileRegistry.Snapshot snapshot = MasteryProfileRegistry.client();
+        if (snapshot.epoch() != definitionEpoch) {
+            MasteryProfile replacement = snapshot.resolve(authoritativeStack())
+                    .map(MasteryProfileRegistry.Resolution::profile).orElse(null);
+            if (replacement == null) {
+                backToForge();
+                return;
+            }
+            definitionEpoch = snapshot.epoch();
+            pendingActionId = -1L;
+            profile = replacement;
+            rebuildProfile(replacement);
+        } else if (snapshot.resolve(authoritativeStack()).isEmpty()) {
             backToForge();
         }
     }
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        MasteryProfile profile = MasteryProfile.STORMS_EDGE;
         MasteryState state = state(profile);
         boolean instant = MasteryConfig.CLIENT.reducedMotion;
         float step = frameSeconds();
@@ -220,7 +229,7 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
         int available = state.availablePoints(profile);
         int earned = state.earnedPoints();
         Text points = Text.translatable("screen.simplymastery.points", available, earned);
-        int right = layout.headerRight - 7 - closeButtonWidth() - 12;
+        int right = layout.headerRight - 13 - closeButtonWidth() - respecButtonWidth() - 12;
         int pointsColor = available > 0 ? MasteryTheme.GOLD : MasteryTheme.INK_MUTED;
         if (roomy) {
             int pipSize = 6;
@@ -769,7 +778,6 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
     // --- state --------------------------------------------------------------
 
     private void requestUnlock(int index) {
-        MasteryProfile profile = MasteryProfile.STORMS_EDGE;
         MasteryState state = state(profile);
         MasteryProfile.Node node = profile.nodes().get(index);
         if (nodeState(profile, state, node) != NodeState.REACHABLE) {
@@ -777,8 +785,54 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
             return;
         }
         pendingActionId = ACTION_IDS.incrementAndGet();
-        new UnlockNodePacket(handler.syncId, MasteryProfile.DEFINITION_EPOCH, state.mutationRevision(),
+        new UnlockNodePacket(handler.syncId, definitionEpoch, state.mutationRevision(),
                 profile.id(), node.id(), pendingActionId).sendToServer();
+    }
+
+    private void confirmRespec() {
+        if (client == null) return;
+        MasteryState current = state(profile);
+        if (current.unlockedNodeIds().isEmpty()) {
+            MasteryUiSounds.denied();
+            return;
+        }
+        switchingView = true;
+        MasteryScreenSwitch.run(handler, () -> client.setScreen(new ConfirmScreen(confirmed -> {
+            MasteryScreenSwitch.run(handler, () -> client.setScreen(this));
+            if (confirmed) requestRespec();
+        }, Text.translatable("screen.simplymastery.respec.confirm.title"),
+                Text.translatable("screen.simplymastery.respec.confirm.message",
+                        MasteryConfig.SERVER.respecCostCount, respecPaymentName(),
+                        current.spentPoints(profile)))));
+        switchingView = false;
+    }
+
+    private void requestRespec() {
+        MasteryState current = state(profile);
+        pendingActionId = ACTION_IDS.incrementAndGet();
+        UnlockNodePacket.respec(handler.syncId, definitionEpoch, current.mutationRevision(),
+                profile.id(), pendingActionId).sendToServer();
+    }
+
+    private void rebuildProfile(MasteryProfile replacement) {
+        layout = new MasteryLayout(replacement, width, height);
+        branchRgb = new int[replacement.branches().size()];
+        for (int i = 0; i < branchRgb.length; i++) {
+            branchRgb[i] = replacement.branches().get(i).color() & 0xFFFFFF;
+        }
+        animators = new NodeAnimators(layout.nodeCount());
+        ownedSnapshot = new boolean[layout.nodeCount()];
+        MasteryState state = state(replacement);
+        for (int i = 0; i < ownedSnapshot.length; i++) {
+            ownedSnapshot[i] = state.owns(replacement.nodes().get(i).id());
+            animators.snapOwned(i, ownedSnapshot[i]);
+        }
+        masteryMeter.snap(ownedFraction(replacement, state));
+        hoveredNode = -1;
+        selectedNode = -1;
+        cardNode = -1;
+        entranceSeconds = 0.0F;
+        MasteryUiSounds.openView();
     }
 
     private void syncOwnership(MasteryProfile profile, MasteryState state) {
@@ -843,6 +897,19 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
         return Math.min(64, Math.max(46, width / 12));
     }
 
+    private int respecButtonWidth() {
+        return Math.min(78, Math.max(58, width / 10));
+    }
+
+    private static Text respecPaymentName() {
+        if (MasteryConfig.SERVER.respecUsesTag) {
+            return Text.literal("#" + MasteryConfig.SERVER.respecCostTag.get());
+        }
+        return Registries.ITEM.getOrEmpty(MasteryConfig.SERVER.respecCostItem.get())
+                .map(item -> (Text) item.getName())
+                .orElseGet(() -> Text.literal(MasteryConfig.SERVER.respecCostItem.get().toString()));
+    }
+
     private int contentLeft() {
         return layout.headerLeft + 7 + backButtonWidth() + 13;
     }
@@ -858,7 +925,9 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
     }
 
     private static Text profileName(MasteryProfile profile) {
-        return Text.translatable("profile." + profile.id().getNamespace() + "." + profile.id().getPath());
+        return profile.id().equals(Identifier.of("simplymastery", "storms_edge"))
+                ? Text.translatable("profile.simplymastery.storms_edge")
+                : Text.translatable("profile.simplymastery.family_baseline");
     }
 
     private static float ownedFraction(MasteryProfile profile, MasteryState state) {
