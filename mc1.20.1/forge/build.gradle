@@ -1,0 +1,64 @@
+plugins {
+    id 'com.gradleup.shadow'
+}
+
+architectury {
+    platformSetupLoomIde()
+    forge()
+}
+
+configurations {
+    common
+    shadowCommon
+    compileClasspath.extendsFrom common
+    runtimeClasspath.extendsFrom common
+    developmentForge.extendsFrom common
+}
+
+dependencies {
+    forge "net.minecraftforge:forge:${rootProject.forge_version}"
+    modImplementation "dev.architectury:architectury-forge:${rootProject.architectury_api_version}"
+    modImplementation("me.fzzyhmstrs:fzzy_config:${rootProject.fzz_config_version}+forge") {
+        transitive = false
+    }
+    modImplementation "thedarkcolour:kfflang:${rootProject.kotlinforforge_version}"
+    modImplementation "thedarkcolour:kfflib:${rootProject.kotlinforforge_version}"
+    modImplementation "thedarkcolour:kffmod:${rootProject.kotlinforforge_version}"
+    forgeRuntimeLibrary 'org.jetbrains.kotlin:kotlin-stdlib:2.0.20'
+    forgeRuntimeLibrary 'org.jetbrains.kotlin:kotlin-reflect:2.0.20'
+    forgeRuntimeLibrary 'blue.endless:jankson:1.2.3'
+    forgeRuntimeLibrary "net.peanuuutz.tomlkt:tomlkt-jvm:${rootProject.tomlkt_version}"
+    forgeRuntimeLibrary 'org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.6.3'
+    forgeRuntimeLibrary 'org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.10.2'
+    modImplementation files(rootProject.simplySwordsForgeJar)
+    modRuntimeOnly files(rootProject.simplyTooltipsForgeJar)
+    modRuntimeOnly 'com.github.ZsoltMolnarrr:TinyConfig:2.3.2'
+
+    common(project(path: ':common', configuration: 'namedElements')) { transitive false }
+    shadowCommon(project(path: ':common', configuration: 'transformProductionForge')) { transitive false }
+}
+
+processResources {
+    inputs.property 'version', project.version
+    filesMatching('META-INF/mods.toml') {
+        expand version: project.version
+    }
+}
+
+shadowJar {
+    exclude 'fabric.mod.json'
+    exclude 'architectury.common.json'
+    configurations = [project.configurations.shadowCommon]
+    archiveClassifier.set('dev-shadow')
+}
+
+remapJar {
+    inputFile.set shadowJar.archiveFile
+    dependsOn shadowJar
+    archiveClassifier.set(null)
+    archiveBaseName.set("$rootProject.archives_name-forge-neoforge")
+}
+
+jar {
+    archiveClassifier.set('dev')
+}

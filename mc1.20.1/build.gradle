@@ -1,0 +1,97 @@
+plugins {
+    id 'dev.architectury.loom' version '1.13.469' apply false
+    id 'architectury-plugin' version '3.4.164'
+    id 'com.gradleup.shadow' version '8.3.11' apply false
+}
+
+architectury {
+    minecraft = project.minecraft_version
+}
+
+def suiteRoot = rootDir.parentFile.parentFile
+
+ext {
+    simplySwordsCommonJar = file("${suiteRoot}/SimplySwords-1.20.1/common/build/devlibs/simplyswords-common-${simply_swords_version}-1.20.1-dev.jar")
+    simplySwordsFabricJar = file("${suiteRoot}/SimplySwords-1.20.1/fabric/build/libs/simplyswords-fabric-${simply_swords_version}-1.20.1.jar")
+    simplySwordsForgeJar = file("${suiteRoot}/SimplySwords-1.20.1/forge/build/libs/simplyswords-forge-neoforge-${simply_swords_version}-1.20.1.jar")
+    simplyTooltipsFabricJar = file("${suiteRoot}/simplytooltips-1.20.1/fabric/build/libs/SimplyTooltips-fabric-0.1.5-1.20.1.jar")
+    simplyTooltipsForgeJar = file("${suiteRoot}/simplytooltips-1.20.1/forge/build/libs/SimplyTooltips-forge-0.1.5-1.20.1.jar")
+}
+
+allprojects {
+    group = rootProject.maven_group
+    version = rootProject.mod_version
+}
+
+subprojects {
+    apply plugin: 'dev.architectury.loom'
+    apply plugin: 'architectury-plugin'
+    apply plugin: 'maven-publish'
+
+    base {
+        archivesName = "$rootProject.archives_name-$project.name"
+    }
+
+    repositories {
+        maven {
+            name = 'CurseMaven'
+            url = 'https://www.cursemaven.com'
+            content { includeGroup 'curse.maven' }
+        }
+        maven {
+            name = 'FzzyMaven'
+            url = 'https://maven.fzzyhmstrs.me/'
+        }
+        maven {
+            name = 'KotlinForForge'
+            url = 'https://thedarkcolour.github.io/KotlinForForge/'
+        }
+        maven { url = 'https://jitpack.io' }
+    }
+
+    dependencies {
+        minecraft "net.minecraft:minecraft:$rootProject.minecraft_version"
+        mappings "net.fabricmc:yarn:$rootProject.yarn_mappings:v2"
+    }
+
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(17)
+        }
+        withSourcesJar()
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+        options.release = 17
+    }
+
+    tasks.withType(JavaExec).configureEach {
+        javaLauncher = javaToolchains.launcherFor {
+            languageVersion = JavaLanguageVersion.of(17)
+        }
+    }
+
+    tasks.named('check').configure {
+        dependsOn rootProject.tasks.named('verifyDependencyPins')
+    }
+}
+
+tasks.register('verifyDependencyPins') {
+    doLast {
+        ['simply_swords_fabric_file_id', 'simply_swords_forge_file_id',
+         'simply_tooltips_fabric_file_id', 'simply_tooltips_forge_file_id'].each { key ->
+            def value = providers.gradleProperty(key).orNull
+            if (value == null || !(value ==~ /\d+/)) {
+                throw new GradleException("Invalid dependency pin: $key")
+            }
+        }
+        [simplySwordsCommonJar, simplySwordsFabricJar, simplySwordsForgeJar,
+         simplyTooltipsFabricJar, simplyTooltipsForgeJar].each { artifact ->
+            if (!artifact.isFile()) {
+                throw new GradleException("Missing local development artifact: $artifact")
+            }
+        }
+    }
+}

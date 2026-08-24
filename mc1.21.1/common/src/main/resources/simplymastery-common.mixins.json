@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.sweenus.simplymastery.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "client.HandledScreenMixin",
+    "client.RunicForgeScreenMixin"
+  ],
+  "mixins": [
+    "LivingEntityDamageMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "simplymastery",
+  "version": "${version}",
+  "name": "Simply Mastery",
+  "description": "Every unique weapon remembers.",
+  "authors": [
+    "Sweenus"
+  ],
+  "license": "All Rights Reserved",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "net.sweenus.simplymastery.fabric.SimplyMasteryFabric"
+    ]
+  },
+  "mixins": [
+    "simplymastery-common.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.18.4",
+    "fabric-api": "*",
+    "minecraft": "=1.21.1",
+    "java": ">=21",
+    "architectury": ">=13.0.11",
+    "fzzy_config": ">=0.7.6",
+    "simplyswords": ">=1.70.0"
+  }
+}

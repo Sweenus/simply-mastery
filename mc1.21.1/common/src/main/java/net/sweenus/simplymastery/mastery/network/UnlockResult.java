@@ -1,0 +1,18 @@
+package net.sweenus.simplymastery.mastery.network;
+
+public enum UnlockResult {
+    SUCCESS,
+    DISABLED,
+    INVALID_REQUEST,
+    WRONG_SCREEN,
+    OUT_OF_RANGE,
+    UNSUPPORTED_WEAPON,
+    STALE_DEFINITION,
+    STALE_STATE,
+    UNKNOWN_NODE,
+    ALREADY_OWNED,
+    MISSING_PREREQUISITE,
+    INSUFFICIENT_POINTS,
+    CHOICE_CONFLICT,
+    DUPLICATE_ACTION
+}

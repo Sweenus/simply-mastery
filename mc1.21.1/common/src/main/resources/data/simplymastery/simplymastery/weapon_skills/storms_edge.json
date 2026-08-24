@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "id": "simplymastery:storms_edge",
+  "profile_version": 1,
+  "selectors": [
+    {
+      "item": "simplyswords:storms_edge",
+      "priority": 100
+    }
+  ],
+  "branches": [
+    {
+      "id": "guard",
+      "name": "branch.simplymastery.guard",
+      "color": "#72D9E8"
+    },
+    {
+      "id": "tempo",
+      "name": "branch.simplymastery.tempo",
+      "color": "#A984F4"
+    },
+    {
+      "id": "storm",
+      "name": "branch.simplymastery.storm",
+      "color": "#E8B65A"
+    }
+  ],
+  "nodes": [
+    {"id":"guard_root","branch":"guard","x":0.88,"y":0.22,"cost":1,"requires":[],"effect":{"type":"simplymastery:none"}},
+    {"id":"charged_pursuit","branch":"guard","x":0.56,"y":0.22,"cost":1,"requires":["guard_root"],"effect":{"type":"simplymastery:stormstep","duration_ticks":40,"amplifier":1}},
+    {"id":"eye_of_storm","branch":"guard","x":0.16,"y":0.17,"cost":2,"capstone":true,"choice_group":"guard_capstone","requires":["charged_pursuit"],"effect":{"type":"simplymastery:none"}},
+    {"id":"thunderhead","branch":"guard","x":0.16,"y":0.27,"cost":2,"capstone":true,"choice_group":"guard_capstone","requires":["charged_pursuit"],"effect":{"type":"simplymastery:none"}},
+    {"id":"tempo_root","branch":"tempo","x":0.88,"y":0.50,"cost":1,"requires":[],"effect":{"type":"simplymastery:none"}},
+    {"id":"afterimage","branch":"tempo","x":0.56,"y":0.50,"cost":1,"requires":["tempo_root"],"effect":{"type":"simplymastery:none"}},
+    {"id":"flashpoint","branch":"tempo","x":0.16,"y":0.45,"cost":2,"capstone":true,"choice_group":"tempo_capstone","requires":["afterimage"],"effect":{"type":"simplymastery:none"}},
+    {"id":"conduction","branch":"tempo","x":0.16,"y":0.55,"cost":2,"capstone":true,"choice_group":"tempo_capstone","requires":["afterimage"],"effect":{"type":"simplymastery:none"}},
+    {"id":"storm_root","branch":"storm","x":0.88,"y":0.78,"cost":1,"requires":[],"effect":{"type":"simplymastery:none"}},
+    {"id":"pressure_front","branch":"storm","x":0.56,"y":0.78,"cost":1,"requires":["storm_root"],"effect":{"type":"simplymastery:none"}},
+    {"id":"skybreaker","branch":"storm","x":0.16,"y":0.73,"cost":2,"capstone":true,"choice_group":"storm_capstone","requires":["pressure_front"],"effect":{"type":"simplymastery:none"}},
+    {"id":"tempest_wake","branch":"storm","x":0.16,"y":0.83,"cost":2,"capstone":true,"choice_group":"storm_capstone","requires":["pressure_front"],"effect":{"type":"simplymastery:none"}}
+  ],
+  "migrations": []
+}

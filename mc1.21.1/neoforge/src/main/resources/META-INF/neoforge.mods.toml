@@ -1,0 +1,50 @@
+modLoader = "javafml"
+loaderVersion = "[4,)"
+license = "All Rights Reserved"
+
+[[mixins]]
+config = "simplymastery-common.mixins.json"
+
+[[mods]]
+modId = "simplymastery"
+version = "${version}"
+displayName = "Simply Mastery"
+authors = "Sweenus"
+description = '''
+Every unique weapon remembers.
+'''
+
+[[dependencies.simplymastery]]
+modId = "neoforge"
+mandatory = true
+versionRange = "[21.1.219,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.simplymastery]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.21.1,1.21.2)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.simplymastery]]
+modId = "architectury"
+mandatory = true
+versionRange = "[13.0.11,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.simplymastery]]
+modId = "fzzy_config"
+mandatory = true
+versionRange = "[0.7.6,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.simplymastery]]
+modId = "simplyswords"
+mandatory = true
+versionRange = "[1.70.0,)"
+ordering = "AFTER"
+side = "BOTH"
