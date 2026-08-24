@@ -190,8 +190,7 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
         context.fillGradient(0, 0, width, height,
                 MasteryTheme.argb(MasteryTheme.BACKDROP_TOP, dim * appear),
                 MasteryTheme.argb(MasteryTheme.BACKDROP_BOTTOM, Math.min(0.97F, dim + 0.2F) * appear));
-        int motes = Math.round(64.0F * MasteryConfig.CLIENT.auraParticleDensity);
-        UiDraw.motes(context, width, height, seconds(), motes, MasteryTheme.ACCENT, 0.9F * motion() * appear);
+        UiDraw.motes(context, width, height, seconds(), 48, MasteryTheme.ACCENT, 0.9F * motion() * appear);
         for (int y = 0; y < height; y += 3) {
             context.fill(0, y, width, y + 1, MasteryTheme.argb(0x000000, 0.05F * appear));
         }
@@ -218,51 +217,38 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
         ItemStack stack = displayStack();
         int headerHeight = layout.headerBottom - layout.headerTop;
         boolean roomy = headerHeight >= 40;
-        int contentWidth = layout.headerContentRight - layout.headerContentLeft;
-        int badgeSpace = layout.compact && contentWidth >= 24 ? 22 : 0;
-        int textLeft = layout.headerContentLeft + badgeSpace;
-        int textWidth = Math.max(0, layout.headerContentRight - textLeft);
-
-        if (textWidth < 36) {
-            return;
-        }
+        int textLeft = layout.headerContentLeft + (layout.compact ? 22 : 0);
 
         float nameScale = roomy ? 1.35F : 1.0F;
         float nameY = roomy ? layout.headerTop + 8 : layout.headerTop + (headerHeight - 8) * 0.5F;
-        boolean showPoints = roomy && contentWidth >= 210;
-        boolean showInlinePoints = !roomy && !layout.compact && contentWidth >= 120;
-        int nameSpace = showPoints || showInlinePoints ? Math.max(1, textWidth / 2) : textWidth;
-        Text fittedName = UiDraw.fit(textRenderer, stack.getName(), Math.round(nameSpace / nameScale));
-        UiDraw.text(context, textRenderer, fittedName, textLeft, nameY,
+        UiDraw.text(context, textRenderer, stack.getName(), textLeft, nameY,
                 MasteryTheme.argb(MasteryTheme.INK, alpha), nameScale, true);
         if (roomy) {
-            int nameWidth = Math.round(textRenderer.getWidth(fittedName) * nameScale);
+            int nameWidth = Math.round(textRenderer.getWidth(stack.getName()) * nameScale);
             UiDraw.hGradient(context, textLeft, Math.round(nameY) + 12, textLeft + nameWidth,
                     Math.round(nameY) + 13, MasteryTheme.argb(MasteryTheme.ACCENT, 0.7F * alpha),
                     MasteryTheme.argb(MasteryTheme.ACCENT, 0.0F));
-            UiDraw.text(context, textRenderer, UiDraw.fit(textRenderer, masteryProgress(profile, state), nameSpace),
-                    textLeft, nameY + 16,
+            UiDraw.text(context, textRenderer, masteryProgress(profile, state), textLeft, nameY + 16,
                     MasteryTheme.argb(MasteryTheme.INK_MUTED, alpha), 1.0F, false);
         }
 
         int available = state.availablePoints(profile);
         int earned = state.earnedPoints();
         Text points = Text.translatable("screen.simplymastery.points", available, earned);
-        int right = layout.headerContentRight;
+        int right = layout.headerRight - 13 - layout.closeButtonWidth - layout.respecButtonWidth - 12;
         int pointsColor = available > 0 ? MasteryTheme.GOLD : MasteryTheme.INK_MUTED;
-        if (showPoints) {
+        if (roomy) {
             int pipSize = 6;
             int pipGap = 2;
             int shown = Math.min(earned, 12);
             int pipsWidth = shown * (pipSize + pipGap) - pipGap;
             UiDraw.pips(context, right - pipsWidth, layout.headerTop + 9, shown, Math.min(available, shown),
                     pipSize, pipGap, MasteryTheme.GOLD, alpha);
-            UiDraw.rightText(context, textRenderer, UiDraw.fit(textRenderer, points, contentWidth / 2),
-                    right, layout.headerTop + 24,
+            UiDraw.rightText(context, textRenderer, points, right, layout.headerTop + 24,
                     MasteryTheme.argb(pointsColor, alpha), 1.0F, false);
-        } else if (showInlinePoints) {
-            UiDraw.rightText(context, textRenderer, UiDraw.fit(textRenderer, points, contentWidth / 2),
-                    right, layout.headerTop + (headerHeight - 8) * 0.5F,
+        } else {
+            UiDraw.rightText(context, textRenderer, points, right,
+                    layout.headerTop + (headerHeight - 8) * 0.5F,
                     MasteryTheme.argb(pointsColor, alpha), 1.0F, false);
         }
     }
@@ -330,11 +316,13 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
             float pipX = layout.canvasLeft + 9;
             UiDraw.shape(context, UiDraw.SHAPE_DIAMOND, pipX, labelY + 4.0F, 3.0F,
                     MasteryTheme.argb(rgb, (owned > 0 ? 0.95F : 0.4F) * alpha));
-            Text label = Text.empty().append(Text.translatable(branch.nameKey())).append("  ")
-                    .append(Text.translatable("screen.simplymastery.branch_progress", owned, total));
-            UiDraw.text(context, textRenderer, UiDraw.fit(textRenderer, label,
-                            layout.canvasRight - Math.round(pipX + 10.0F)),
-                    pipX + 7.0F, labelY, MasteryTheme.argb(rgb, 0.92F * alpha), 1.0F, true);
+            Text name = Text.translatable(branch.nameKey());
+            UiDraw.text(context, textRenderer, name, pipX + 7.0F, labelY,
+                    MasteryTheme.argb(rgb, 0.92F * alpha), 1.0F, true);
+            UiDraw.text(context, textRenderer,
+                    Text.translatable("screen.simplymastery.branch_progress", owned, total),
+                    pipX + 12.0F + textRenderer.getWidth(name), labelY,
+                    MasteryTheme.argb(MasteryTheme.INK_MUTED, 0.9F * alpha), 1.0F, false);
         }
     }
 
@@ -462,9 +450,12 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
                 ? MasteryTheme.INK_MUTED : MasteryTheme.mix(rim, 0xFFFFFF, 0.4F), 0.9F * alpha);
         switch (nodeState) {
             case OWNED -> {
-                drawNodeIcon(context, node, index, cx, cy - (capstone ? radius * 0.18F : 0.0F),
-                        glyphSize, glyphColor);
-                checkGlyph(context, cx + radius * 0.38F, cy + radius * 0.42F, glyphSize * 0.55F, glyphColor);
+                if (capstone) {
+                    drawNodeIcon(context, node, index, cx, cy - radius * 0.18F, glyphSize, glyphColor);
+                    checkGlyph(context, cx, cy + radius * 0.44F, glyphSize * 0.6F, glyphColor);
+                } else {
+                    checkGlyph(context, cx, cy, glyphSize, glyphColor);
+                }
             }
             case CONFLICT -> {
                 drawNodeIcon(context, node, index, cx, cy, glyphSize,
@@ -532,13 +523,10 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
                 centerY - 8.0F * scale + driftY, scale, 140.0F);
 
         int nameY = layout.showcaseBottom - footerHeight + 6;
-        Text fittedWeaponName = UiDraw.fit(textRenderer, weaponName,
-                Math.max(1, layout.showcaseRight - layout.showcaseLeft - 20));
-        UiDraw.centeredText(context, textRenderer, fittedWeaponName, centerX, nameY,
+        UiDraw.centeredText(context, textRenderer, weaponName, centerX, nameY,
                 MasteryTheme.argb(MasteryTheme.INK, appear), 1.0F, true);
         if (showProfile) {
-            UiDraw.centeredText(context, textRenderer, UiDraw.fit(textRenderer, profileLabel,
-                            Math.max(1, layout.showcaseRight - layout.showcaseLeft - 20)), centerX, nameY + 11,
+            UiDraw.centeredText(context, textRenderer, profileLabel, centerX, nameY + 11,
                     MasteryTheme.argb(MasteryTheme.ACCENT, 0.85F * appear), 1.0F, false);
         }
 
@@ -546,8 +534,7 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
         int barRight = layout.showcaseRight - 12;
         int barTop = nameY + (showProfile ? 26 : 15);
         UiDraw.bar(context, barLeft, barTop, barRight, barTop + 6, progress, MasteryTheme.ACCENT, appear);
-        UiDraw.centeredText(context, textRenderer, UiDraw.fit(textRenderer, masteryProgress(profile, state),
-                        Math.max(1, barRight - barLeft)), centerX, barTop + 10,
+        UiDraw.centeredText(context, textRenderer, masteryProgress(profile, state), centerX, barTop + 10,
                 MasteryTheme.argb(MasteryTheme.INK_MUTED, 0.9F * appear), 1.0F, false);
         matrices.pop();
     }
@@ -624,16 +611,13 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
                 MasteryTheme.argb(rgb, 0.6F * alpha), MasteryTheme.argb(rgb, 0.0F));
 
         int textX = cardX + 10;
-        UiDraw.text(context, textRenderer, UiDraw.fit(textRenderer, Text.translatable(node.nameKey()), cardWidth - 20),
-                textX, cardY + 8,
+        UiDraw.text(context, textRenderer, Text.translatable(node.nameKey()), textX, cardY + 8,
                 MasteryTheme.argb(MasteryTheme.INK, alpha), 1.0F, true);
         Text branchName = Text.translatable(profile.branches().get(layout.branch(cardNode)).nameKey());
-        UiDraw.text(context, textRenderer, UiDraw.fit(textRenderer, branchName,
-                        node.capstone() ? cardWidth / 2 : cardWidth - 20), textX, cardY + 19,
+        UiDraw.text(context, textRenderer, branchName, textX, cardY + 19,
                 MasteryTheme.argb(rgb, 0.85F * alpha), 1.0F, false);
         if (node.capstone()) {
-            UiDraw.rightText(context, textRenderer, UiDraw.fit(textRenderer,
-                            Text.translatable("screen.simplymastery.capstone"), cardWidth / 2 - 12),
+            UiDraw.rightText(context, textRenderer, Text.translatable("screen.simplymastery.capstone"),
                     cardX + cardWidth - 10, cardY + 19, MasteryTheme.argb(MasteryTheme.GOLD, 0.85F * alpha),
                     1.0F, false);
         }
@@ -644,15 +628,7 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
         int footerY = cardY + cardHeight - 15;
         UiDraw.hGradient(context, textX, footerY - 5, cardX + cardWidth - 10, footerY - 4,
                 MasteryTheme.argb(rgb, 0.35F * alpha), MasteryTheme.argb(rgb, 0.0F));
-        int shownCost = Math.min(node.cost(), 5);
-        UiDraw.pips(context, textX, footerY + 1, shownCost, shownCost, 6, 2, MasteryTheme.GOLD, alpha);
-        int costWidth = Math.max(0, shownCost * 8 - 2);
-        if (node.cost() > shownCost) {
-            Text cost = Text.translatable("screen.simplymastery.cost", node.cost());
-            UiDraw.text(context, textRenderer, cost, textX + costWidth + 4, footerY,
-                    MasteryTheme.argb(MasteryTheme.GOLD, alpha), 1.0F, false);
-            costWidth += 4 + textRenderer.getWidth(cost);
-        }
+        UiDraw.pips(context, textX, footerY + 1, node.cost(), node.cost(), 6, 2, MasteryTheme.GOLD, alpha);
         int stateColor = switch (nodeState) {
             case REACHABLE -> MasteryTheme.GOLD;
             case OWNED -> MasteryTheme.SUCCESS;
@@ -660,8 +636,7 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
             case LOCKED -> MasteryTheme.INK_MUTED;
         };
         UiDraw.rightText(context, textRenderer,
-                UiDraw.fit(textRenderer, nodeStatusText(profile, state, node, nodeState),
-                        Math.max(1, cardWidth - 26 - costWidth)),
+                Text.translatable("screen.simplymastery.node_state." + nodeState.name().toLowerCase(), node.cost()),
                 cardX + cardWidth - 10, footerY, MasteryTheme.argb(stateColor, alpha), 1.0F, false);
         matrices.pop();
     }
@@ -680,9 +655,7 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
             boolean success = result == UnlockResult.SUCCESS;
             int rgb = success ? MasteryTheme.SUCCESS : MasteryTheme.DANGER;
             float lift = (1.0F - Math.min(1.0F, (FEEDBACK_SECONDS - feedbackTimer) / 0.25F)) * 5.0F * motion();
-            Text message = UiDraw.fit(textRenderer,
-                    Text.translatable("message.simplymastery.unlock." + result.name().toLowerCase()),
-                    layout.statusRight - layout.statusLeft - 12);
+            Text message = Text.translatable("message.simplymastery.unlock." + result.name().toLowerCase());
             float messageY = layout.statusTop + 1 - lift;
             UiDraw.shape(context, UiDraw.SHAPE_DIAMOND, layout.statusLeft + 4.0F, messageY + 4.0F, 3.0F,
                     MasteryTheme.argb(rgb, 0.95F * fade));
@@ -698,9 +671,8 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
                             layout.statusRight - layout.statusLeft), layout.statusLeft, layout.statusBottom - 9,
                     MasteryTheme.argb(MasteryTheme.INK_MUTED, 0.75F * appear), 1.0F, false);
         } else {
-            Text hint = UiDraw.fit(textRenderer, Text.translatable("screen.simplymastery.hint"),
-                    layout.statusRight - layout.statusLeft);
-            UiDraw.rightText(context, textRenderer, hint, layout.statusRight, layout.statusBottom - 9,
+            UiDraw.rightText(context, textRenderer, Text.translatable("screen.simplymastery.hint"),
+                    layout.statusRight, layout.statusBottom - 9,
                     MasteryTheme.argb(MasteryTheme.INK_MUTED, 0.75F * appear), 1.0F, false);
         }
     }
@@ -1067,9 +1039,7 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
     }
 
     private static Text profileName(MasteryProfile profile) {
-        return profile.id().equals(Identifier.of("simplymastery", "storms_edge"))
-                ? Text.translatable("profile.simplymastery.storms_edge")
-                : Text.translatable("profile.simplymastery.family_baseline");
+        return Text.translatable("profile.simplymastery." + profile.id().getPath());
     }
 
     private static float ownedFraction(MasteryProfile profile, MasteryState state) {

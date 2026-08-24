@@ -42,8 +42,8 @@ class MasteryProfileRegistryTest {
         assertTrue(second.installed());
         assertTrue(second.errors().stream().anyMatch(error -> error.contains("coordinates")));
         assertEquals(epoch + 1, second.snapshot().epoch());
-        assertEquals(0.88, second.snapshot().profiles().get(Identifier.of("simplymastery", "storms_edge"))
-                .node("guard_root").orElseThrow().x());
+        assertEquals(0.90, second.snapshot().profiles().get(Identifier.of("simplymastery", "storms_edge"))
+                .node("storms_edge_signature_opening").orElseThrow().x());
     }
 
     @Test

@@ -33,6 +33,7 @@ public final class SimplyMasteryCoverageGameTest {
     @GameTest(templateName = "fabric-gametest-api-v1:empty", tickLimit = 20)
     public void comboPrimitive(TestContext context) {
         Phase3ContractChecks.requireEffect("combo_surge");
+        Phase3ContractChecks.requireReleasedEffects();
         context.complete();
     }
 }

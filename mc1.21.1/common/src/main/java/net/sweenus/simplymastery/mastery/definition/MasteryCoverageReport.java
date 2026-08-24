@@ -89,6 +89,8 @@ public final class MasteryCoverageReport {
 
         Files.createDirectories(output.getParent());
         Files.writeString(output, render(snapshot, rows, errors), StandardCharsets.UTF_8);
+        MasteryBalanceReport.write(output.resolveSibling("mastery-balance.md"),
+                snapshot.profiles().values().stream().toList());
         return new Result(output, rows.size(), errors);
     }
 

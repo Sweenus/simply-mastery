@@ -20,7 +20,17 @@ final class SkillEffectRegistryTest {
                 Identifier.of("simplymastery", "none"),
                 Identifier.of("simplymastery", "stormstep"),
                 Identifier.of("simplymastery", "echo_strike"),
-                Identifier.of("simplymastery", "combo_surge"))));
+                Identifier.of("simplymastery", "combo_surge"),
+                Identifier.of("simplymastery", "combo_strike"),
+                Identifier.of("simplymastery", "battle_flow"),
+                Identifier.of("simplymastery", "hindering_strike"),
+                Identifier.of("simplymastery", "finishing_strike"),
+                Identifier.of("simplymastery", "soul_mend"),
+                Identifier.of("simplymastery", "kill_flow"),
+                Identifier.of("simplymastery", "counterstrike"),
+                Identifier.of("simplymastery", "guarded_recovery"),
+                Identifier.of("simplymastery", "leeching_strike"),
+                Identifier.of("simplymastery", "cleaving_echo"))));
     }
 
     @Test

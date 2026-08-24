@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MasteryLayoutTest {
@@ -34,8 +35,18 @@ class MasteryLayoutTest {
     @Test
     void directionalNavigationReachesEveryNodeAtCompactAndWideSizes() {
         MasteryProfile profile = ProfileTestFixtures.stormsEdge();
-        assertKeyboardReachable(new MasteryLayout(profile, 427, 240));
+        assertKeyboardReachable(new MasteryLayout(profile, 320, 240));
         assertKeyboardReachable(new MasteryLayout(profile, 1920, 1080));
+    }
+
+    @Test
+    void screenshotScaleKeepsTheWeaponShowcaseOnTheRight() {
+        MasteryLayout layout = new MasteryLayout(ProfileTestFixtures.stormsEdge(), 403, 262);
+        assertFalse(layout.compact);
+        assertTrue(layout.showcaseLeft > layout.canvasRight);
+        assertTrue(layout.showcaseRight - layout.showcaseLeft >= 104);
+        assertFalse(layout.dockDetail);
+        verifyLayout(layout);
     }
 
     private static void verifyLayout(MasteryLayout layout) {

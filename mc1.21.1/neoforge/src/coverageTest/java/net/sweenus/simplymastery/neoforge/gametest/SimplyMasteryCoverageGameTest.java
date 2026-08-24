@@ -37,6 +37,7 @@ public final class SimplyMasteryCoverageGameTest {
     @GameTest(templateName = "coverage_empty", tickLimit = 20)
     public static void comboPrimitive(TestContext context) {
         Phase3ContractChecks.requireEffect("combo_surge");
+        Phase3ContractChecks.requireReleasedEffects();
         context.complete();
     }
 }

@@ -21,7 +21,7 @@ class MasteryProfileValidatorTest {
                 node.descriptionKey(), node.icon()));
         ProfileValidationException exception = assertThrows(ProfileValidationException.class,
                 () -> MasteryProfileValidator.validate(copy(source, nodes), 21));
-        assertTrue(exception.getMessage().contains("node charged_pursuit: dangling prerequisite missing"));
+        assertTrue(exception.getMessage().contains("node " + node.id() + ": dangling prerequisite missing"));
     }
 
     @Test
@@ -29,12 +29,13 @@ class MasteryProfileValidatorTest {
         MasteryProfile source = ProfileTestFixtures.stormsEdge();
         List<MasteryProfile.Node> nodes = new ArrayList<>(source.nodes());
         MasteryProfile.Node root = nodes.getFirst();
+        MasteryProfile.Node child = nodes.get(1);
         nodes.set(0, new MasteryProfile.Node(root.id(), root.branch(), root.x(), root.y(), root.cost(),
-                root.capstone(), root.choiceGroup(), List.of("charged_pursuit"), root.effect(), root.nameKey(),
+                root.capstone(), root.choiceGroup(), List.of(child.id()), root.effect(), root.nameKey(),
                 root.descriptionKey(), root.icon()));
-        MasteryProfile.Node cap = nodes.get(3);
-        MasteryProfile.Node other = nodes.get(2);
-        nodes.set(3, new MasteryProfile.Node(cap.id(), cap.branch(), other.x(), other.y(), cap.cost(), cap.capstone(),
+        MasteryProfile.Node cap = nodes.get(7);
+        MasteryProfile.Node other = nodes.get(8);
+        nodes.set(7, new MasteryProfile.Node(cap.id(), cap.branch(), other.x(), other.y(), cap.cost(), cap.capstone(),
                 cap.choiceGroup(), cap.requires(), new MasteryProfile.Effect(Identifier.of("simplymastery", "stormstep"),
                 java.util.Map.of("duration_ticks", 5000)), cap.nameKey(), cap.descriptionKey(), cap.icon()));
         ProfileValidationException exception = assertThrows(ProfileValidationException.class,

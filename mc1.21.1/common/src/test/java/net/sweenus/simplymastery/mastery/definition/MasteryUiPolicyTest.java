@@ -17,14 +17,17 @@ class MasteryUiPolicyTest {
         MasteryProfile profile = ProfileTestFixtures.stormsEdge();
         assertFalse(MasteryUiPolicy.requiresConfirmation(profile.nodes().get(0), false));
         assertTrue(MasteryUiPolicy.requiresConfirmation(profile.nodes().get(0), true));
-        assertTrue(MasteryUiPolicy.requiresConfirmation(profile.nodes().get(2), false));
+        assertTrue(MasteryUiPolicy.requiresConfirmation(profile.nodes().get(7), false));
     }
 
     @Test
     void authoredIconsResolveToTexturePathsAndMissingIconsRemainEmpty() {
         MasteryProfile source = ProfileTestFixtures.stormsEdge();
         MasteryProfile.Node plain = source.nodes().get(0);
-        assertTrue(MasteryUiPolicy.iconTexture(plain).isEmpty());
+        MasteryProfile.Node missing = new MasteryProfile.Node(plain.id(), plain.branch(), plain.x(), plain.y(),
+                plain.cost(), plain.capstone(), plain.choiceGroup(), plain.requires(), plain.effect(), plain.nameKey(),
+                plain.descriptionKey(), Optional.empty());
+        assertTrue(MasteryUiPolicy.iconTexture(missing).isEmpty());
         MasteryProfile.Node authored = new MasteryProfile.Node(plain.id(), plain.branch(), plain.x(), plain.y(),
                 plain.cost(), plain.capstone(), plain.choiceGroup(), plain.requires(), plain.effect(), plain.nameKey(),
                 plain.descriptionKey(), Optional.of(Identifier.of("example", "skills/wind")));

@@ -107,6 +107,12 @@ public final class MasteryProfileValidator {
             errors.add(where + "translation keys may not exceed 160 characters");
         }
         if (node.effect().parameters().size() > 16) errors.add(where + "effect may not have more than 16 parameters");
+        if (profile.version() >= 2 && node.effect().type().equals(Identifier.of("simplymastery", "none"))) {
+            errors.add(where + "released content may not use the inert effect");
+        }
+        if (profile.version() >= 2 && node.icon().isEmpty()) {
+            errors.add(where + "released content requires an icon override identifier");
+        }
         if (node.capstone() != !node.choiceGroup().isEmpty()) {
             errors.add(where + "capstones require a choice_group and ordinary nodes must not declare one");
         }
@@ -180,6 +186,11 @@ public final class MasteryProfileValidator {
                     .filter(node -> node.branch().equals(branch.id())).toList();
             List<MasteryProfile.Node> roots = branchNodes.stream().filter(node -> node.requires().isEmpty()).toList();
             List<MasteryProfile.Node> capstones = branchNodes.stream().filter(MasteryProfile.Node::capstone).toList();
+            long regularNodes = branchNodes.stream().filter(node -> !node.capstone()).count();
+            if (profile.version() >= 2 && (regularNodes < 7 || regularNodes > 9)) {
+                errors.add("profile " + profile.id() + ", branch " + branch.id()
+                        + ": expected 7-9 regular nodes, found " + regularNodes);
+            }
             if (roots.size() != 1) {
                 errors.add("profile " + profile.id() + ", branch " + branch.id()
                         + ": expected exactly one root, found " + roots.size());
@@ -212,6 +223,10 @@ public final class MasteryProfileValidator {
                 if (cheapest > pointBudget) {
                     errors.add("profile " + profile.id() + ", branch " + branch.id()
                             + ": cheapest capstone route costs " + cheapest + " points, budget is " + pointBudget);
+                }
+                if (profile.version() >= 2 && (cheapest < 6 || cheapest > 8)) {
+                    errors.add("profile " + profile.id() + ", branch " + branch.id()
+                            + ": cheapest capstone route must cost 6-8 points, found " + cheapest);
                 }
             }
         }

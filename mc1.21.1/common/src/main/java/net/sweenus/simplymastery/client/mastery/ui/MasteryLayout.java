@@ -88,7 +88,7 @@ public final class MasteryLayout {
         int bodyTop = headerBottom + Math.max(5, Math.round(screenHeight * 0.02F));
         int bodyBottom = screenHeight - marginY;
         int desiredShowcaseLeft = Math.round(screenWidth * 0.715F);
-        compact = screenWidth - marginX - desiredShowcaseLeft < 104 || screenWidth < 420;
+        compact = screenWidth - marginX - desiredShowcaseLeft < 104;
         dockDetail = compact;
 
         statusBottom = bodyBottom;

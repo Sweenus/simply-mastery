@@ -18,4 +18,12 @@ public final class Phase3ContractChecks {
                 () -> !SkillOriginGuard.run(new SkillOriginGuard.Origin(null, null, "nested"), () -> true));
         if (!outer || SkillOriginGuard.active()) throw new IllegalStateException("Skill recursion guard leaked");
     }
+
+    public static void requireReleasedEffects() {
+        for (String path : new String[]{"combo_strike", "battle_flow", "hindering_strike",
+                "finishing_strike", "soul_mend", "kill_flow", "counterstrike", "guarded_recovery",
+                "leeching_strike", "cleaving_echo"}) {
+            requireEffect(path);
+        }
+    }
 }
