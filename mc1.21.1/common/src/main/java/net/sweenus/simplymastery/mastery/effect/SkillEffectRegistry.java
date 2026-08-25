@@ -370,6 +370,7 @@ public final class SkillEffectRegistry {
         register(new Phase4MasterySkillEffect());
         register(new Phase5MasterySkillEffect());
         register(new Phase6MasterySkillEffect());
+        register(new Phase7MasterySkillEffect());
     }
 
     private SkillEffectRegistry() {
