@@ -93,7 +93,7 @@ public final class MasteryLayout {
 
         statusBottom = bodyBottom;
         statusTop = bodyBottom - 21;
-        dockHeight = dockDetail ? Math.clamp(Math.round(screenHeight * 0.24F), 58, 104) : 0;
+        dockHeight = dockDetail ? Math.clamp(Math.round(screenHeight * 0.28F), 58, 128) : 0;
 
         canvasTop = bodyTop;
         canvasLeft = marginX;

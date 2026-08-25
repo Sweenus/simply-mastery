@@ -44,7 +44,7 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
 
     private static final AtomicLong ACTION_IDS = new AtomicLong();
     private static final float FEEDBACK_SECONDS = 3.2F;
-    private static final int CARD_LINES = 5;
+    private static final int CARD_LINES = 8;
 
     private final PlayerInventory playerInventory;
     private final Anim masteryMeter = new Anim(0.0F, 7.0F);
