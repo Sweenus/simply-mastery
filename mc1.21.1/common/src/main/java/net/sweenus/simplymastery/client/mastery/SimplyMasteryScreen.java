@@ -45,10 +45,13 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
     private static final AtomicLong ACTION_IDS = new AtomicLong();
     private static final float FEEDBACK_SECONDS = 3.2F;
     private static final int CARD_LINES = 8;
+    private static final int FRAME_INSET = 2;
+    private static final int GRID_SPACING = 14;
+    private static final float MICRO_SCALE = 0.5F;
 
     private final PlayerInventory playerInventory;
-    private final Anim masteryMeter = new Anim(0.0F, 7.0F);
-    private final Anim cardFade = new Anim(0.0F, 20.0F);
+    private final Anim masteryMeter = new Anim(0.0F, 13.0F);
+    private final Anim cardFade = new Anim(0.0F, 30.0F);
 
     private MasteryLayout layout;
     private NodeAnimators animators;
@@ -63,6 +66,10 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
     private float feedbackTimer;
     private float entranceSeconds;
     private float flash;
+    private int itemHoverLeft;
+    private int itemHoverTop;
+    private int itemHoverRight;
+    private int itemHoverBottom;
     private float canvasZoom = 1.0F;
     private float canvasPanX;
     private float canvasPanY;
@@ -88,15 +95,16 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
 
         int buttonHeight = 18;
         int buttonY = layout.headerTop + (layout.headerBottom - layout.headerTop - buttonHeight) / 2;
+        int accent = accentRgb();
         addDrawableChild(new GlassButtonWidget(layout.backButtonX, buttonY, layout.backButtonWidth, buttonHeight,
-                Text.translatable("screen.simplymastery.back"), button -> backToForge(), MasteryTheme.ACCENT));
+                Text.translatable("screen.simplymastery.back"), button -> backToForge(), accent));
         GlassButtonWidget respec = new GlassButtonWidget(layout.respecButtonX, buttonY,
                 layout.respecButtonWidth, buttonHeight, Text.translatable("screen.simplymastery.respec"),
-                button -> confirmRespec(), MasteryTheme.GOLD);
+                button -> confirmRespec(), accent);
         respec.active = MasteryConfig.SERVER.respecEnabled;
         addDrawableChild(respec);
         addDrawableChild(new GlassButtonWidget(layout.closeButtonX, buttonY, layout.closeButtonWidth, buttonHeight,
-                Text.translatable("screen.simplymastery.close"), button -> close(), MasteryTheme.DANGER));
+                Text.translatable("screen.simplymastery.close"), button -> close(), accent, true));
     }
 
     @Override
@@ -130,8 +138,8 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
         MasteryState state = state(profile);
         boolean instant = MasteryConfig.CLIENT.reducedMotion;
         float step = frameSeconds();
-        entranceSeconds = instant ? 2.0F : Math.min(2.0F, entranceSeconds + step);
-        flash = Math.max(0.0F, flash - step / 0.45F);
+        entranceSeconds = instant ? 1.2F : Math.min(1.2F, entranceSeconds + step);
+        flash = Math.max(0.0F, flash - step / 0.28F);
         feedbackTimer = Math.max(0.0F, feedbackTimer - step);
 
         int previousHover = hoveredNode;
@@ -158,6 +166,7 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
             cardNode = selectedNode;
         }
 
+        itemHoverRight = itemHoverLeft;
         drawBackground(context, delta, mouseX, mouseY);
         drawCanvas(context, profile, state);
         if (layout.compact) {
@@ -179,39 +188,70 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
         drawStatus(context);
         if (flash > 0.0F) {
             context.fill(0, 0, width, height,
-                    MasteryTheme.argb(MasteryTheme.ACCENT, 0.10F * flash * flash * motion()));
+                    MasteryTheme.argb(accentRgb(), 0.10F * flash * flash * motion()));
         }
+        matrices.pop();
+        drawItemTooltip(context, mouseX, mouseY);
+    }
+
+    /** The weapon on show carries its own item tooltip, as it would in any inventory. */
+    private void drawItemTooltip(DrawContext context, int mouseX, int mouseY) {
+        if (client == null || itemHoverRight <= itemHoverLeft
+                || mouseX < itemHoverLeft || mouseX >= itemHoverRight
+                || mouseY < itemHoverTop || mouseY >= itemHoverBottom) {
+            return;
+        }
+        ItemStack stack = displayStack();
+        if (stack.isEmpty()) {
+            return;
+        }
+        MatrixStack matrices = context.getMatrices();
+        matrices.push();
+        matrices.translate(0.0F, 0.0F, 500.0F);
+        context.drawTooltip(textRenderer, getTooltipFromItem(client, stack), mouseX, mouseY);
         matrices.pop();
     }
 
     @Override
     protected void drawBackground(DrawContext context, float delta, int mouseX, int mouseY) {
-        float appear = MasteryTheme.easeOutCubic(entranceSeconds / 0.28F);
+        float appear = MasteryTheme.easeOutCubic(entranceSeconds / 0.16F);
         float dim = MasteryConfig.CLIENT.backgroundDim;
-        context.fillGradient(0, 0, width, height,
-                MasteryTheme.argb(MasteryTheme.BACKDROP_TOP, dim * appear),
-                MasteryTheme.argb(MasteryTheme.BACKDROP_BOTTOM, Math.min(0.97F, dim + 0.2F) * appear));
-        UiDraw.motes(context, width, height, seconds(), 48, MasteryTheme.ACCENT, 0.9F * motion() * appear);
-        for (int y = 0; y < height; y += 3) {
-            context.fill(0, y, width, y + 1, MasteryTheme.argb(0x000000, 0.05F * appear));
-        }
-        UiDraw.vignette(context, width, height, 0x02040A, 0.5F * appear);
+        int accent = accentRgb();
+        context.fill(0, 0, width, height,
+                MasteryTheme.argb(MasteryTheme.GROUND_DEEP, Math.min(0.97F, dim + 0.2F) * appear));
+        context.fill(FRAME_INSET, FRAME_INSET, width - FRAME_INSET, height - FRAME_INSET,
+                MasteryTheme.argb(MasteryTheme.GROUND, dim * appear));
+        UiDraw.hatch45(context, FRAME_INSET, FRAME_INSET, width - FRAME_INSET, height - FRAME_INSET, 4,
+                MasteryTheme.argb(0xFFFFFF, 0.014F * appear));
+        UiDraw.motes(context, width, height, seconds(), 48, accent, 0.9F * motion() * appear);
+        UiDraw.vignette(context, width, height, MasteryTheme.GROUND_DEEP, 0.5F * appear);
 
-        float panels = MasteryTheme.easeOutCubic((entranceSeconds - 0.08F) / 0.32F);
-        UiDraw.glassPanel(context, layout.headerLeft, layout.headerTop, layout.headerRight, layout.headerBottom,
-                4, MasteryTheme.ACCENT, panels);
-        UiDraw.glassPanel(context, layout.canvasLeft, layout.canvasTop, layout.canvasRight, layout.canvasBottom,
-                6, MasteryTheme.ACCENT, panels);
+        UiDraw.boxOutline(context, FRAME_INSET - 1, FRAME_INSET - 1, width - FRAME_INSET + 1,
+                height - FRAME_INSET + 1, 1, MasteryTheme.argb(MasteryTheme.FRAME_OUTER, 0.95F * appear));
+        UiDraw.boxOutline(context, 0, 0, width, height, 1,
+                MasteryTheme.argb(MasteryTheme.FRAME_INNER, 0.95F * appear));
+        UiDraw.cornerBrackets(context, FRAME_INSET - 1, FRAME_INSET - 1, width - FRAME_INSET + 1,
+                height - FRAME_INSET + 1, 6, 2, MasteryTheme.argb(accent, 0.9F * appear));
+
+        float panels = MasteryTheme.easeOutCubic((entranceSeconds - 0.04F) / 0.18F);
+        UiDraw.panel(context, layout.headerLeft, layout.headerTop, layout.headerRight, layout.headerBottom,
+                MasteryTheme.PANEL, accent, panels);
+        context.fill(layout.headerLeft, layout.headerBottom - 1, layout.headerRight, layout.headerBottom,
+                MasteryTheme.argb(MasteryTheme.RULE, panels));
+        UiDraw.panel(context, layout.canvasLeft, layout.canvasTop, layout.canvasRight, layout.canvasBottom,
+                MasteryTheme.GROUND, accent, panels);
+        UiDraw.gridLines(context, layout.canvasLeft + 1, layout.canvasTop + 1, layout.canvasRight - 1,
+                layout.canvasBottom - 1, GRID_SPACING, MasteryTheme.argb(0xFFFFFF, 0.022F * panels));
         if (!layout.compact) {
-            UiDraw.glassPanel(context, layout.showcaseLeft, layout.showcaseTop, layout.showcaseRight,
-                    layout.showcaseBottom, 6, MasteryTheme.GOLD, panels);
+            UiDraw.panel(context, layout.showcaseLeft, layout.showcaseTop, layout.showcaseRight,
+                    layout.showcaseBottom, MasteryTheme.PANEL, accent, panels);
         }
     }
 
     // --- header -------------------------------------------------------------
 
     private void drawHeader(DrawContext context, MasteryProfile profile, MasteryState state) {
-        float alpha = MasteryTheme.easeOutCubic((entranceSeconds - 0.12F) / 0.3F);
+        float alpha = MasteryTheme.easeOutCubic((entranceSeconds - 0.06F) / 0.16F);
         if (alpha <= 0.01F) {
             return;
         }
@@ -219,45 +259,83 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
         int headerHeight = layout.headerBottom - layout.headerTop;
         boolean roomy = headerHeight >= 40;
         int textLeft = layout.headerContentLeft + (layout.compact ? 22 : 0);
+        int ruleTop = layout.headerTop + 2;
+        int ruleBottom = layout.headerBottom - 2;
+        int accent = accentRgb();
+
+        vRule(context, textLeft - 7, ruleTop, ruleBottom, alpha);
 
         float nameScale = roomy ? 1.35F : 1.0F;
-        float nameY = roomy ? layout.headerTop + 8 : layout.headerTop + (headerHeight - 8) * 0.5F;
-        UiDraw.text(context, textRenderer, stack.getName(), textLeft, nameY,
-                MasteryTheme.argb(MasteryTheme.INK, alpha), nameScale, true);
+        int titleTop = layout.headerTop + (headerHeight - 17) / 2;
+        float nameY = roomy ? titleTop + 6 : layout.headerTop + (headerHeight - 8) * 0.5F;
         if (roomy) {
-            int nameWidth = Math.round(textRenderer.getWidth(stack.getName()) * nameScale);
-            UiDraw.hGradient(context, textLeft, Math.round(nameY) + 12, textLeft + nameWidth,
-                    Math.round(nameY) + 13, MasteryTheme.argb(MasteryTheme.ACCENT, 0.7F * alpha),
-                    MasteryTheme.argb(MasteryTheme.ACCENT, 0.0F));
-            UiDraw.text(context, textRenderer, masteryProgress(profile, state), textLeft, nameY + 16,
-                    MasteryTheme.argb(MasteryTheme.INK_MUTED, alpha), 1.0F, false);
+            microLabel(context, Text.translatable("screen.simplymastery.header.kicker"), textLeft,
+                    titleTop, MasteryTheme.INK_MUTED, alpha);
         }
+        UiDraw.text(context, textRenderer, stack.getName(), textLeft, nameY,
+                MasteryTheme.argb(MasteryTheme.DISPLAY, alpha), nameScale, true);
 
-        int available = state.availablePoints(profile);
-        int earned = state.earnedPoints();
-        Text points = Text.translatable("screen.simplymastery.points", available, earned);
-        int right = layout.headerRight - 13 - layout.closeButtonWidth - layout.respecButtonWidth - 12;
-        int pointsColor = available > 0 ? MasteryTheme.GOLD : MasteryTheme.INK_MUTED;
+        int right = layout.respecButtonX - 6;
         if (roomy) {
-            int pipSize = 6;
-            int pipGap = 2;
-            int shown = Math.min(earned, 12);
-            int pipsWidth = shown * (pipSize + pipGap) - pipGap;
-            UiDraw.pips(context, right - pipsWidth, layout.headerTop + 9, shown, Math.min(available, shown),
-                    pipSize, pipGap, MasteryTheme.GOLD, alpha);
-            UiDraw.rightText(context, textRenderer, points, right, layout.headerTop + 24,
-                    MasteryTheme.argb(pointsColor, alpha), 1.0F, false);
+            int available = state.availablePoints(profile);
+            int floor = textLeft + Math.round(textRenderer.getWidth(stack.getName()) * nameScale) + 10;
+            right = statCell(context, right, floor, ruleTop, ruleBottom,
+                    Text.translatable("screen.simplymastery.header.mastery"),
+                    masteryCount(profile, state), MasteryTheme.INK, alpha, true);
+            right = statCell(context, right, floor, ruleTop, ruleBottom,
+                    Text.translatable("screen.simplymastery.header.spent"),
+                    Text.literal(String.format("%02d", state.spentPoints(profile))),
+                    MasteryTheme.INK, alpha, true);
+            statCell(context, right, floor, ruleTop, ruleBottom,
+                    Text.translatable("screen.simplymastery.header.available"),
+                    Text.literal(String.format("%02d", available)),
+                    available > 0 ? accent : MasteryTheme.INK_FAINT, alpha, false);
         } else {
+            MasteryState current = state;
+            Text points = Text.translatable("screen.simplymastery.points",
+                    current.availablePoints(profile), current.earnedPoints());
             UiDraw.rightText(context, textRenderer, points, right,
                     layout.headerTop + (headerHeight - 8) * 0.5F,
-                    MasteryTheme.argb(pointsColor, alpha), 1.0F, false);
+                    MasteryTheme.argb(current.availablePoints(profile) > 0 ? accent : MasteryTheme.INK_MUTED,
+                            alpha), 1.0F, false);
         }
+    }
+
+    /**
+     * One right-aligned header stat cell (micro label over a numeral), returning the x its
+     * left rule sits on so cells can be chained right to left. A cell that would collide with
+     * the weapon name is dropped rather than overlapped.
+     */
+    private int statCell(DrawContext context, int right, int floor, int ruleTop, int ruleBottom, Text label,
+                         Text value, int valueRgb, float alpha, boolean rule) {
+        int cellWidth = Math.max(Math.round(textRenderer.getWidth(label) * MICRO_SCALE),
+                textRenderer.getWidth(value)) + 12;
+        int left = right - cellWidth;
+        if (left < floor) {
+            return right;
+        }
+        int cellTop = layout.headerTop + (layout.headerBottom - layout.headerTop - 14) / 2;
+        microLabel(context, label, left + 6, cellTop, MasteryTheme.INK_MUTED, alpha);
+        UiDraw.text(context, textRenderer, value, left + 6, cellTop + 6,
+                MasteryTheme.argb(valueRgb, alpha), 1.0F, true);
+        if (rule) {
+            vRule(context, left, ruleTop, ruleBottom, alpha);
+        }
+        return left;
+    }
+
+    private void microLabel(DrawContext context, Text label, float x, float y, int rgb, float alpha) {
+        UiDraw.text(context, textRenderer, label, x, y, MasteryTheme.argb(rgb, alpha), MICRO_SCALE, false);
+    }
+
+    private static void vRule(DrawContext context, int x, int top, int bottom, float alpha) {
+        context.fill(x, top, x + 1, bottom, MasteryTheme.argb(MasteryTheme.RULE, 0.95F * alpha));
     }
 
     // --- canvas -------------------------------------------------------------
 
     private void drawCanvas(DrawContext context, MasteryProfile profile, MasteryState state) {
-        float appear = MasteryTheme.easeOutCubic((entranceSeconds - 0.14F) / 0.34F);
+        float appear = MasteryTheme.easeOutCubic((entranceSeconds - 0.07F) / 0.18F);
         if (appear <= 0.01F) {
             return;
         }
@@ -294,50 +372,90 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
 
     private void drawLanes(DrawContext context, MasteryProfile profile, MasteryState state, float alpha) {
         for (int lane = 0; lane < layout.laneCount(); lane++) {
-            int rgb = branchRgb[lane];
-            int top = Math.round(layout.laneBandTop(lane));
-            int bottom = Math.round(layout.laneBandBottom(lane));
-            context.fillGradient(layout.canvasLeft + 2, top, layout.canvasRight - 2, bottom,
-                    MasteryTheme.argb(rgb, 0.045F * alpha), MasteryTheme.argb(rgb, 0.0F));
-            UiDraw.hGradient(context, layout.canvasLeft + 2, top, layout.canvasRight - 2, top + 1,
-                    MasteryTheme.argb(rgb, 0.22F * alpha), MasteryTheme.argb(rgb, 0.0F));
+            drawBranchRow(context, profile, state, lane, alpha);
+        }
+    }
 
-            MasteryProfile.Branch branch = profile.branches().get(lane);
-            int owned = 0;
-            int total = 0;
-            for (MasteryProfile.Node node : profile.nodes()) {
-                if (node.branch().equals(branch.id())) {
-                    total++;
-                    if (state.owns(node.id())) {
-                        owned++;
-                    }
-                }
+    /**
+     * One branch row: the design's fixed label column, the rule dividing it from the node
+     * field, and the rule closing the row off. Rows with nothing owned and nothing reachable
+     * take the artboard's dimmed "sealed" treatment.
+     */
+    private void drawBranchRow(DrawContext context, MasteryProfile profile, MasteryState state, int lane,
+                               float alpha) {
+        MasteryProfile.Branch branch = profile.branches().get(lane);
+        int rgb = branchRgb[lane];
+        int owned = 0;
+        int total = 0;
+        boolean reachable = false;
+        for (int i = 0; i < profile.nodes().size(); i++) {
+            MasteryProfile.Node node = profile.nodes().get(i);
+            if (!node.branch().equals(branch.id())) {
+                continue;
             }
-            float labelY = layout.laneLabelY(lane);
-            float pipX = layout.canvasLeft + 9;
-            UiDraw.shape(context, UiDraw.SHAPE_DIAMOND, pipX, labelY + 4.0F, 3.0F,
-                    MasteryTheme.argb(rgb, (owned > 0 ? 0.95F : 0.4F) * alpha));
-            Text name = Text.translatable(branch.nameKey());
-            UiDraw.text(context, textRenderer, name, pipX + 7.0F, labelY,
-                    MasteryTheme.argb(rgb, 0.92F * alpha), 1.0F, true);
+            total++;
+            if (state.owns(node.id())) {
+                owned++;
+            } else if (nodeState(profile, state, node) == MasteryNodeState.REACHABLE) {
+                reachable = true;
+            }
+        }
+        boolean sealed = owned == 0 && !reachable;
+        float rowAlpha = alpha * (sealed ? 0.72F : 1.0F);
+        int nameRgb = sealed ? MasteryTheme.INK_SOFT : MasteryTheme.DISPLAY;
+
+        int columnLeft = layout.canvasLeft + 5;
+        int columnRight = layout.laneLabelRight - 5;
+        int columnWidth = Math.max(12, columnRight - columnLeft);
+        int top = Math.round(layout.laneBandTop(lane));
+        int bottom = Math.round(layout.laneBandBottom(lane));
+
+        // Lay the column out top-down, dropping whatever the row is too short to hold.
+        int cursor = top;
+        if (cursor + 4 <= bottom) {
+            if (sealed) {
+                UiDraw.boxOutline(context, columnLeft, cursor, columnLeft + 3, cursor + 3, 1,
+                        MasteryTheme.argb(MasteryTheme.INK_MUTED, 0.9F * rowAlpha));
+            } else {
+                context.fill(columnLeft, cursor, columnLeft + 3, cursor + 3,
+                        MasteryTheme.argb(rgb, 0.95F * rowAlpha));
+            }
+            microLabel(context, Text.translatable(sealed
+                            ? "screen.simplymastery.branch.sealed" : "screen.simplymastery.branch.attuned"),
+                    columnLeft + 5, cursor - 1, MasteryTheme.INK_MUTED, rowAlpha);
+            cursor += 6;
+        }
+        if (cursor + 8 <= bottom) {
             UiDraw.text(context, textRenderer,
-                    Text.translatable("screen.simplymastery.branch_progress", owned, total),
-                    pipX + 12.0F + textRenderer.getWidth(name), labelY,
-                    MasteryTheme.argb(MasteryTheme.INK_MUTED, 0.9F * alpha), 1.0F, false);
+                    UiDraw.fit(textRenderer, Text.translatable(branch.nameKey()), columnWidth),
+                    columnLeft, cursor, MasteryTheme.argb(nameRgb, rowAlpha), 1.0F, true);
+            cursor += 11;
+        }
+        if (cursor + 8 <= bottom) {
+            String ownedText = Integer.toString(owned);
+            UiDraw.text(context, textRenderer, Text.literal(ownedText), columnLeft, cursor,
+                    MasteryTheme.argb(sealed ? MasteryTheme.INK_DIM : rgb, rowAlpha), 1.0F, true);
+            UiDraw.text(context, textRenderer, Text.literal("/ " + total),
+                    columnLeft + textRenderer.getWidth(ownedText) + 3, cursor + 1,
+                    MasteryTheme.argb(MasteryTheme.INK_FAINT, rowAlpha), MICRO_SCALE, false);
+            cursor += 11;
+        }
+        if (cursor + 3 <= bottom) {
+            UiDraw.segmentStrip(context, columnLeft, cursor, columnWidth, 3, total,
+                    total == 0 ? 0.0F : owned / (float) total, 1, rgb, rowAlpha);
+        }
+
+        vRule(context, layout.laneLabelRight, top, bottom, alpha);
+        if (lane < layout.laneCount() - 1) {
+            int ruleY = Math.round(layout.laneRuleY(lane));
+            context.fill(layout.canvasLeft + 2, ruleY, layout.canvasRight - 2, ruleY + 1,
+                    MasteryTheme.argb(MasteryTheme.RULE, 0.95F * alpha));
         }
     }
 
     private void drawEdges(DrawContext context, MasteryProfile profile, MasteryState state) {
         double time = seconds();
         List<MasteryLayout.Edge> edges = layout.edges();
-        for (MasteryLayout.Edge edge : edges) {
-            float reveal = edgeReveal(edge);
-            if (reveal > 0.01F) {
-                UiDraw.pathDashed(context, edge.path(), edge.points(), edge.length(),
-                        edge.length() * reveal, 3.0F, 5.0F, 0.0F, 2.0F,
-                        MasteryTheme.argb(MasteryTheme.SLATE, 0.55F * reveal));
-            }
-        }
         for (int index = 0; index < edges.size(); index++) {
             MasteryLayout.Edge edge = edges.get(index);
             float reveal = edgeReveal(edge);
@@ -354,34 +472,39 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
 
             if (linked || flow > 0.01F) {
                 float drawn = Math.min(limit, edge.length() * flow);
+                // A darker run under the bar stands in for the design's inset bottom shadow.
                 UiDraw.pathRange(context, edge.path(), edge.points(), 0.0F, drawn, 3.0F,
-                        MasteryTheme.argb(rgb, 0.8F * reveal));
-                UiDraw.pathRange(context, edge.path(), edge.points(), 0.0F, drawn, 1.0F,
-                        MasteryTheme.argb(MasteryTheme.mix(rgb, 0xFFFFFF, 0.6F), 0.45F * reveal));
+                        MasteryTheme.argb(MasteryTheme.dim(rgb, 0.55F), 0.8F * reveal));
+                UiDraw.pathRange(context, edge.path(), edge.points(), 0.0F, drawn, 2.0F,
+                        MasteryTheme.argb(rgb, 0.95F * reveal));
                 if (linked) {
                     float cycle = edge.length() + 70.0F;
                     float head = (float) ((time * 46.0 * motion() + index * 23.0) % cycle);
-                    UiDraw.pathRange(context, edge.path(), edge.points(), head - 20.0F, head, 3.0F,
-                            MasteryTheme.argb(MasteryTheme.mix(rgb, 0xFFFFFF, 0.55F), 0.55F * reveal));
+                    UiDraw.pathRange(context, edge.path(), edge.points(), head - 20.0F, head, 2.0F,
+                            MasteryTheme.argb(MasteryTheme.mix(rgb, 0xFFFFFF, 0.55F), 0.7F * reveal));
                 }
             } else if (parentOwned && nodeState(profile, state, child) != MasteryNodeState.CONFLICT) {
-                float shimmer = 0.24F + 0.2F * MasteryTheme.pulse(time, 1.6);
+                float flicker = MasteryTheme.lerp(0.9F, MasteryTheme.flicker(time + index * 0.11, 1.8),
+                        motion());
                 UiDraw.pathDashed(context, edge.path(), edge.points(), edge.length(), limit,
-                        5.0F, 4.0F, (float) (-time * 14.0 * motion()), 2.0F,
-                        MasteryTheme.argb(rgb, shimmer * reveal));
+                        3.0F, 3.0F, 0.0F, 2.0F, MasteryTheme.argb(rgb, flicker * reveal));
+            } else {
+                UiDraw.pathDashed(context, edge.path(), edge.points(), edge.length(), limit,
+                        3.0F, 3.0F, 0.0F, 1.0F,
+                        MasteryTheme.argb(MasteryTheme.LOCKED_DASH, 0.9F * reveal));
             }
         }
     }
 
     private float edgeReveal(MasteryLayout.Edge edge) {
         return MasteryTheme.easeOutCubic(
-                (entranceSeconds - 0.22F - layout.depth(edge.child()) * 0.06F) / 0.32F);
+                (entranceSeconds - 0.11F - layout.depth(edge.child()) * 0.028F) / 0.17F);
     }
 
     private void drawNode(DrawContext context, MasteryProfile profile, MasteryState state, int index) {
         MasteryProfile.Node node = profile.nodes().get(index);
-        float reveal = MasteryTheme.easeOutBack((entranceSeconds - 0.26F
-                - layout.branch(index) * 0.045F - layout.depth(index) * 0.07F) / 0.3F);
+        float reveal = MasteryTheme.easeOutBack((entranceSeconds - 0.13F
+                - layout.branch(index) * 0.022F - layout.depth(index) * 0.032F) / 0.16F);
         if (reveal <= 0.01F) {
             return;
         }
@@ -392,96 +515,113 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
         float burst = animators.burst(index);
         MasteryNodeState nodeState = nodeState(profile, state, node);
         boolean capstone = node.capstone();
-        int kind = capstone ? UiDraw.SHAPE_DIAMOND : UiDraw.SHAPE_HEX;
         int rgb = branchRgb[layout.branch(index)];
         double time = seconds();
 
         float lift = 2.0F * Math.max(hover, focus * 0.6F) * motion();
         float cx = layout.x(index);
         float cy = layout.y(index) - lift;
-        float radius = layout.radius(index) * Math.max(0.2F, reveal) * (1.0F + 0.1F * hover);
+        float half = layout.radius(index) * Math.max(0.2F, reveal) * (1.0F + 0.1F * hover);
+        int x0 = Math.round(cx - half);
+        int y0 = Math.round(cy - half);
+        int x1 = Math.round(cx + half);
+        int y1 = Math.round(cy + half);
 
-        int baseFill = switch (nodeState) {
-            case OWNED, REACHABLE -> MasteryTheme.mix(0x101823, rgb, 0.16F);
-            case CONFLICT -> 0x1B1219;
-            case LOCKED -> 0x0F1620;
-        };
-        int ownedFill = MasteryTheme.mix(rgb, 0x0A111A, 0.42F);
-        int fill = MasteryTheme.mix(baseFill, ownedFill, owned);
-        int rim = switch (nodeState) {
-            case OWNED -> rgb;
-            case REACHABLE -> MasteryTheme.mix(rgb, 0xFFFFFF, 0.15F);
-            case CONFLICT -> MasteryTheme.DANGER;
-            case LOCKED -> MasteryTheme.SLATE;
-        };
-
+        // Ambient light: owned squares breathe, reachable ones run the design's stepped pulse.
         float ambient = switch (nodeState) {
             case OWNED -> 0.55F + 0.18F * MasteryTheme.pulse(time + index, 2.6) * motion();
-            case REACHABLE -> 0.3F + 0.28F * MasteryTheme.pulse(time + index * 0.4, 1.5) * motion();
+            case REACHABLE -> 0.3F + 0.28F * MasteryTheme.stepPulse(time + index * 0.4, 2.2, 6) * motion();
             default -> 0.05F;
         };
         float glow = (ambient + hover * 0.75F + focus * 0.4F) * alpha;
-        UiDraw.shapeGlow(context, kind, cx, cy, radius * 2.3F, rgb, 0.05F * glow, 5);
+        UiDraw.boxGlow(context, cx, cy, half * 2.3F, rgb, 0.05F * glow, 5);
 
-        UiDraw.shape(context, kind, cx, cy, radius, MasteryTheme.argb(fill, 0.94F * alpha));
-        UiDraw.shape(context, kind, cx, cy - radius * 0.3F, radius * 0.66F,
-                MasteryTheme.argb(MasteryTheme.mix(fill, 0xFFFFFF, 0.35F), 0.16F * alpha));
-        UiDraw.shapeOutline(context, kind, cx, cy, radius, capstone ? 2.0F : 1.5F,
-                MasteryTheme.argb(rim, (0.7F + 0.3F * Math.max(hover, focus)) * alpha));
-        if (capstone) {
-            UiDraw.shapeOutline(context, kind, cx, cy, radius - 4.5F, 1.0F,
-                    MasteryTheme.argb(rim, 0.45F * alpha));
-            float ticks = Math.max(hover, focus);
-            if (ticks > 0.01F) {
-                UiDraw.arcTicks(context, cx, cy, radius + 4.0F, 8, (float) (time * 18.0 * motion()), 3.0F, 1.0F,
-                        MasteryTheme.argb(rim, 0.5F * ticks * alpha));
+        switch (nodeState) {
+            case OWNED -> {
+                context.fill(x0, y0, x1, y1, MasteryTheme.argb(rgb, 0.98F * alpha));
+                UiDraw.bevel(context, x0, y0, x1, y1, capstone ? 2 : 1,
+                        (0.8F + 0.4F * Math.max(hover, focus)) * alpha);
+            }
+            case REACHABLE -> {
+                context.fill(x0, y0, x1, y1,
+                        MasteryTheme.argb(rgb, (0.14F + 0.16F * hover) * alpha));
+                UiDraw.boxOutline(context, x0, y0, x1, y1, capstone ? 2 : 1,
+                        MasteryTheme.argb(rgb, (0.85F + 0.15F * Math.max(hover, focus)) * alpha));
+                // mt-pulse: a square halo stepping outward and fading.
+                float pulse = MasteryTheme.stepPulse(time + index * 0.4, 2.2, 6);
+                UiDraw.boxRing(context, cx, cy, half + 1.0F + pulse * 3.0F, 1.0F,
+                        MasteryTheme.argb(rgb, 0.5F * (1.0F - pulse) * alpha * motion()));
+            }
+            case LOCKED, CONFLICT -> {
+                context.fill(x0, y0, x1, y1, MasteryTheme.argb(MasteryTheme.LOCKED_FILL, 0.95F * alpha));
+                UiDraw.bevel(context, x0, y0, x1, y1, 1, 0.4F * alpha);
+                UiDraw.boxOutline(context, x0, y0, x1, y1, 1,
+                        MasteryTheme.argb(MasteryTheme.LOCKED_FRAME, 0.95F * alpha));
             }
         }
-        if (hover > 0.01F || focus > 0.01F) {
-            UiDraw.shapeOutline(context, kind, cx, cy, radius + 2.0F, 1.0F,
-                    MasteryTheme.argb(0xFFFFFF, 0.5F * Math.max(hover, focus) * alpha));
-        }
-        if (focus > 0.01F) {
-            UiDraw.arcTicks(context, cx, cy, radius + 5.0F, 4, (float) (45.0 + time * 34.0 * motion()),
-                    4.0F, 1.5F, MasteryTheme.argb(0xFFFFFF, 0.75F * focus * alpha));
+        if (capstone && nodeState != MasteryNodeState.LOCKED) {
+            UiDraw.boxRing(context, cx, cy, half - 3.0F, 1.0F,
+                    MasteryTheme.argb(nodeState == MasteryNodeState.OWNED
+                            ? MasteryTheme.ON_ACCENT : rgb, 0.45F * alpha));
         }
 
-        float glyphSize = radius * 0.46F;
-        int glyphColor = MasteryTheme.argb(nodeState == MasteryNodeState.LOCKED
-                ? MasteryTheme.INK_MUTED : MasteryTheme.mix(rim, 0xFFFFFF, 0.4F), 0.9F * alpha);
+        // Selection reads as the artboard's detached bracket ring; hover just brightens the rim.
+        if (hover > 0.01F && focus <= 0.01F) {
+            UiDraw.boxRing(context, cx, cy, half + 1.0F, 1.0F,
+                    MasteryTheme.argb(0xFFFFFF, 0.4F * hover * alpha));
+        }
+        if (focus > 0.01F) {
+            float spread = 2.0F + (1.0F - MasteryTheme.easeOutCubic(focus)) * 4.0F;
+            UiDraw.marchingBrackets(context, cx, cy, half, spread, Math.max(3, Math.round(half * 0.55F)), 1,
+                    MasteryTheme.argb(rgb, 0.9F * focus * alpha));
+        }
+
+        float glyphSize = half * 0.46F;
+        int glyphRgb = switch (nodeState) {
+            case OWNED -> MasteryTheme.ON_ACCENT;
+            case REACHABLE -> rgb;
+            default -> MasteryTheme.LOCKED_GLYPH;
+        };
+        int glyphColor = MasteryTheme.argb(glyphRgb, 0.95F * alpha);
         switch (nodeState) {
             case OWNED -> {
                 if (capstone) {
-                    drawNodeIcon(context, node, index, cx, cy - radius * 0.18F, glyphSize, glyphColor);
-                    checkGlyph(context, cx, cy + radius * 0.44F, glyphSize * 0.6F, glyphColor);
+                    drawNodeIcon(context, node, index, cx, cy - half * 0.18F, glyphSize, glyphColor);
+                    checkGlyph(context, cx, cy + half * 0.44F, glyphSize * 0.6F, glyphColor);
                 } else {
                     checkGlyph(context, cx, cy, glyphSize, glyphColor);
                 }
             }
             case CONFLICT -> {
                 drawNodeIcon(context, node, index, cx, cy, glyphSize,
-                        MasteryTheme.argb(MasteryTheme.SLATE, 0.6F * alpha));
-                UiDraw.segment(context, cx - radius * 0.6F, cy + radius * 0.6F,
-                        cx + radius * 0.6F, cy - radius * 0.6F, 2.0F,
-                        MasteryTheme.argb(MasteryTheme.DANGER, 0.9F * alpha));
+                        MasteryTheme.argb(MasteryTheme.LOCKED_GLYPH, 0.6F * alpha));
+                UiDraw.segment(context, cx - half * 0.6F, cy + half * 0.6F,
+                        cx + half * 0.6F, cy - half * 0.6F, 2.0F,
+                        MasteryTheme.argb(MasteryTheme.ACCENT_HOT, 0.9F * alpha));
             }
             case LOCKED -> lockGlyph(context, cx, cy, glyphSize, glyphColor);
             case REACHABLE -> drawNodeIcon(context, node, index, cx, cy, glyphSize, glyphColor);
         }
 
+        if (capstone) {
+            microLabel(context, Text.translatable("screen.simplymastery.capstone_cost", node.cost()),
+                    cx - half, y1 + 2, nodeState == MasteryNodeState.LOCKED
+                            ? MasteryTheme.INK_MUTED : rgb, 0.9F * alpha);
+        }
+
         if (burst > 0.0F) {
             float progress = 1.0F - burst;
-            UiDraw.shapeOutline(context, kind, cx, cy, radius * (1.0F + progress * 2.2F), 2.0F,
+            UiDraw.boxRing(context, cx, cy, half * (1.0F + progress * 2.2F), 2.0F,
                     MasteryTheme.argb(MasteryTheme.mix(rgb, 0xFFFFFF, 0.5F), 0.7F * burst));
-            UiDraw.arcTicks(context, cx, cy, radius + progress * 24.0F, 8, progress * 50.0F,
-                    6.0F * burst, 1.5F, MasteryTheme.argb(rgb, 0.8F * burst));
+            UiDraw.marchingBrackets(context, cx, cy, half, progress * 24.0F,
+                    Math.max(2, Math.round(6.0F * burst)), 1, MasteryTheme.argb(rgb, 0.8F * burst));
         }
     }
 
     // --- showcase -----------------------------------------------------------
 
     private void drawShowcase(DrawContext context, MasteryProfile profile, MasteryState state) {
-        float appear = MasteryTheme.easeOutCubic((entranceSeconds - 0.18F) / 0.36F);
+        float appear = MasteryTheme.easeOutCubic((entranceSeconds - 0.09F) / 0.19F);
         if (appear <= 0.01F) {
             return;
         }
@@ -495,53 +635,70 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
         boolean showProfile = !profileLabel.getString().equals(weaponName.getString());
         double time = seconds();
         float intensity = motion();
+        int accent = accentRgb();
         int centerX = (layout.showcaseLeft + layout.showcaseRight) / 2;
         int footerHeight = showProfile ? 60 : 49;
-        int contentTop = layout.showcaseTop + 8;
-        int contentBottom = layout.showcaseBottom - footerHeight;
-        int centerY = (contentTop + contentBottom) / 2;
-        float aura = Math.min((layout.showcaseRight - layout.showcaseLeft) * 0.46F,
-                (contentBottom - contentTop) * 0.45F);
+        int wellLeft = layout.showcaseLeft + 4;
+        int wellRight = layout.showcaseRight - 4;
+        int wellTop = layout.showcaseTop + 4;
+        int wellBottom = layout.showcaseBottom - footerHeight - 2;
+        int centerY = (wellTop + wellBottom) / 2;
+        float aura = Math.min((wellRight - wellLeft) * 0.46F, (wellBottom - wellTop) * 0.45F);
         float progress = masteryMeter.value();
 
+        // The design's image well: a hatched ground inside detached corner brackets.
+        context.fill(wellLeft, wellTop, wellRight, wellBottom,
+                MasteryTheme.argb(MasteryTheme.WELL, 0.95F * appear));
+        UiDraw.hatch45(context, wellLeft, wellTop, wellRight, wellBottom, 6,
+                MasteryTheme.argb(0xFFFFFF, 0.02F * appear));
+        UiDraw.cornerBrackets(context, wellLeft + 3, wellTop + 3, wellRight - 3, wellBottom - 3, 5, 1,
+                MasteryTheme.argb(MasteryTheme.BRACKET, 0.9F * appear));
+
         float breathe = 1.0F + 0.03F * (float) Math.sin(time * 0.55) * intensity;
-        UiDraw.shapeGlow(context, UiDraw.SHAPE_DISC, centerX, centerY, aura * 1.2F * breathe,
-                MasteryTheme.ACCENT, 0.018F * appear * (0.6F + 0.5F * progress), 14);
-        UiDraw.ring(context, centerX, centerY, aura * 0.94F, 1.0F,
-                MasteryTheme.argb(MasteryTheme.ACCENT, 0.14F * appear));
-        UiDraw.arcTicks(context, centerX, centerY, aura * 0.84F, 18, (float) (time * 9.0 * intensity),
-                4.0F, 1.0F, MasteryTheme.argb(MasteryTheme.ACCENT, (0.12F + 0.22F * progress) * appear));
-        UiDraw.arcTicks(context, centerX, centerY, aura * 1.04F, 12, (float) (-time * 6.0 * intensity),
-                6.0F, 1.0F, MasteryTheme.argb(MasteryTheme.GOLD, (0.08F + 0.18F * progress) * appear));
-        UiDraw.softFloor(context, centerX, centerY + aura * 0.72F, aura * 0.8F, aura * 0.26F,
-                MasteryTheme.ACCENT, 0.16F * appear);
+        UiDraw.boxGlow(context, centerX, centerY, aura * 1.2F * breathe,
+                accent, 0.018F * appear * (0.6F + 0.5F * progress), 14);
+        UiDraw.marchingBrackets(context, centerX, centerY, aura * 0.94F,
+                (float) (Math.sin(time * 0.5) * 2.0) * intensity, 6, 1,
+                MasteryTheme.argb(accent, (0.12F + 0.22F * progress) * appear));
+        UiDraw.marchingBrackets(context, centerX, centerY, aura * 1.04F,
+                (float) (-Math.sin(time * 0.5) * 2.0) * intensity, 4, 1,
+                MasteryTheme.argb(accent, (0.08F + 0.18F * progress) * appear));
 
         float driftX = (float) Math.sin(time * 0.37 + 1.2) * 3.0F * intensity;
         float driftY = ((float) Math.sin(time * 0.90) * 6.0F + (float) Math.sin(time * 0.27) * 2.0F) * intensity;
         float scale = Math.clamp(aura * 1.3F / 16.0F, 1.5F, 12.0F)
                 * (1.0F + (float) Math.sin(time * 0.55) * 0.012F * intensity);
-        UiDraw.liveItem(context, stack, centerX - 8.0F * scale + driftX,
-                centerY - 8.0F * scale + driftY, scale, 140.0F);
+        float itemX = centerX - 8.0F * scale + driftX;
+        float itemY = centerY - 8.0F * scale + driftY;
+        UiDraw.liveItem(context, stack, itemX, itemY, scale, 140.0F);
+        setItemHover(Math.round(itemX), Math.round(itemY + (1.0F - appear) * 18.0F),
+                Math.round(16.0F * scale));
 
+        int textLeft = layout.showcaseLeft + 8;
+        int textRight = layout.showcaseRight - 8;
         int nameY = layout.showcaseBottom - footerHeight + 6;
-        UiDraw.centeredText(context, textRenderer, weaponName, centerX, nameY,
-                MasteryTheme.argb(MasteryTheme.INK, appear), 1.0F, true);
+        context.fill(layout.showcaseLeft + 1, nameY - 5, layout.showcaseRight - 1, nameY - 4,
+                MasteryTheme.argb(MasteryTheme.RULE, appear));
         if (showProfile) {
-            UiDraw.centeredText(context, textRenderer, profileLabel, centerX, nameY + 11,
-                    MasteryTheme.argb(MasteryTheme.ACCENT, 0.85F * appear), 1.0F, false);
+            microLabel(context, UiDraw.fit(textRenderer, profileLabel, (textRight - textLeft) * 2),
+                    textLeft, nameY, MasteryTheme.INK_MUTED, appear);
+            nameY += 6;
         }
+        UiDraw.text(context, textRenderer, UiDraw.fit(textRenderer, weaponName, textRight - textLeft),
+                textLeft, nameY, MasteryTheme.argb(accent, appear), 1.0F, true);
 
-        int barLeft = layout.showcaseLeft + 12;
-        int barRight = layout.showcaseRight - 12;
-        int barTop = nameY + (showProfile ? 26 : 15);
-        UiDraw.bar(context, barLeft, barTop, barRight, barTop + 6, progress, MasteryTheme.ACCENT, appear);
-        UiDraw.centeredText(context, textRenderer, masteryProgress(profile, state), centerX, barTop + 10,
-                MasteryTheme.argb(MasteryTheme.INK_MUTED, 0.9F * appear), 1.0F, false);
+        int barTop = nameY + 16;
+        microLabel(context, Text.translatable("screen.simplymastery.header.mastery"), textLeft, barTop - 7,
+                MasteryTheme.INK_MUTED, appear);
+        UiDraw.rightText(context, textRenderer, masteryCount(profile, state), textRight, barTop - 9,
+                MasteryTheme.argb(MasteryTheme.INK, appear), 1.0F, false);
+        UiDraw.segmentStrip(context, textLeft, barTop, textRight - textLeft, 4,
+                Math.max(1, profile.nodes().size()), progress, 1, accent, appear);
         matrices.pop();
     }
 
     private void drawCompactBadge(DrawContext context) {
-        float appear = MasteryTheme.easeOutCubic((entranceSeconds - 0.18F) / 0.36F);
+        float appear = MasteryTheme.easeOutCubic((entranceSeconds - 0.09F) / 0.19F);
         if (appear <= 0.01F) {
             return;
         }
@@ -550,9 +707,17 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
         }
         int badgeX = layout.headerContentLeft;
         int badgeY = layout.headerTop + (layout.headerBottom - layout.headerTop) / 2 - 8;
-        UiDraw.shapeGlow(context, UiDraw.SHAPE_DISC, badgeX + 8, badgeY + 8, 16.0F,
-                MasteryTheme.ACCENT, 0.05F * appear, 4);
+        UiDraw.boxGlow(context, badgeX + 8, badgeY + 8, 16.0F,
+                accentRgb(), 0.05F * appear, 4);
         UiDraw.liveItem(context, displayStack(), badgeX, badgeY, 1.0F, 140.0F);
+        setItemHover(badgeX, badgeY, 16);
+    }
+
+    private void setItemHover(int x, int y, int size) {
+        itemHoverLeft = x - 1;
+        itemHoverTop = y - 1;
+        itemHoverRight = x + size + 1;
+        itemHoverBottom = y + size + 1;
     }
 
     // --- detail card --------------------------------------------------------
@@ -570,7 +735,7 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
                 ? layout.canvasRight - layout.canvasLeft
                 : Math.clamp(width / 4, 196, 288);
         List<OrderedText> lines = textRenderer.wrapLines(Text.translatable(node.descriptionKey()), cardWidth - 22);
-        int chrome = 10 + 11 + 11 + 9 + 12;
+        int chrome = 28 + 21;
         int lineCount = Math.min(CARD_LINES, lines.size());
         if (layout.dockDetail) {
             lineCount = Math.clamp((layout.dockHeight - chrome) / 10, 1, lineCount);
@@ -601,81 +766,105 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
         matrices.push();
         matrices.translate(0.0F, slide, 0.0F);
 
-        UiDraw.chamferFill(context, cardX + 2, cardY + 3, cardX + cardWidth + 2, cardY + cardHeight + 3, 5,
-                MasteryTheme.argb(0x000000, 0.4F * alpha));
-        UiDraw.chamferGradient(context, cardX, cardY, cardX + cardWidth, cardY + cardHeight, 5,
-                MasteryTheme.argb(MasteryTheme.mix(MasteryTheme.PANEL_TOP, rgb, 0.08F), 0.95F * alpha),
-                MasteryTheme.argb(0x05080E, 0.97F * alpha));
-        UiDraw.chamferOutline(context, cardX, cardY, cardX + cardWidth, cardY + cardHeight, 5,
-                MasteryTheme.argb(rgb, 0.75F * alpha));
-        UiDraw.hGradient(context, cardX + 5, cardY + 1, cardX + cardWidth - 5, cardY + 2,
-                MasteryTheme.argb(rgb, 0.6F * alpha), MasteryTheme.argb(rgb, 0.0F));
+        // Hard offset shadow, no blur, no radius.
+        context.fill(cardX + 2, cardY + 3, cardX + cardWidth + 2, cardY + cardHeight + 3,
+                MasteryTheme.argb(0x000000, 0.45F * alpha));
+        context.fill(cardX, cardY, cardX + cardWidth, cardY + cardHeight,
+                MasteryTheme.argb(MasteryTheme.CARD, 0.97F * alpha));
+        UiDraw.boxOutline(context, cardX, cardY, cardX + cardWidth, cardY + cardHeight, 1,
+                MasteryTheme.argb(rgb, 0.9F * alpha));
 
-        int textX = cardX + 10;
-        UiDraw.text(context, textRenderer, Text.translatable(node.nameKey()), textX, cardY + 8,
-                MasteryTheme.argb(MasteryTheme.INK, alpha), 1.0F, true);
-        Text branchName = Text.translatable(profile.branches().get(layout.branch(cardNode)).nameKey());
-        UiDraw.text(context, textRenderer, branchName, textX, cardY + 19,
-                MasteryTheme.argb(rgb, 0.85F * alpha), 1.0F, false);
-        if (node.capstone()) {
-            UiDraw.rightText(context, textRenderer, Text.translatable("screen.simplymastery.capstone"),
-                    cardX + cardWidth - 10, cardY + 19, MasteryTheme.argb(MasteryTheme.GOLD, 0.85F * alpha),
-                    1.0F, false);
-        }
-        for (int i = 0; i < lineCount; i++) {
-            UiDraw.text(context, textRenderer, lines.get(i), textX, cardY + 32 + i * 10,
-                    MasteryTheme.argb(MasteryTheme.INK_DIM, 0.95F * alpha), 1.0F, false);
-        }
-        int footerY = cardY + cardHeight - 15;
-        UiDraw.hGradient(context, textX, footerY - 5, cardX + cardWidth - 10, footerY - 4,
-                MasteryTheme.argb(rgb, 0.35F * alpha), MasteryTheme.argb(rgb, 0.0F));
-        UiDraw.pips(context, textX, footerY + 1, node.cost(), node.cost(), 6, 2, MasteryTheme.GOLD, alpha);
+        int textX = cardX + 6;
+        int textRight = cardX + cardWidth - 6;
         int stateColor = switch (nodeState) {
-            case REACHABLE -> MasteryTheme.GOLD;
-            case OWNED -> MasteryTheme.SUCCESS;
-            case CONFLICT -> MasteryTheme.DANGER;
+            case REACHABLE, OWNED -> rgb;
+            case CONFLICT -> MasteryTheme.ACCENT_HOT;
             case LOCKED -> MasteryTheme.INK_MUTED;
         };
-        UiDraw.rightText(context, textRenderer,
-                Text.translatable("screen.simplymastery.node_state." + nodeState.name().toLowerCase(), node.cost()),
-                cardX + cardWidth - 10, footerY, MasteryTheme.argb(stateColor, alpha), 1.0F, false);
+        Text stateTag = Text.translatable("screen.simplymastery.node_state."
+                + nodeState.name().toLowerCase(), node.cost());
+
+        UiDraw.text(context, textRenderer, UiDraw.fit(textRenderer, Text.translatable(node.nameKey()),
+                        cardWidth - 12), textX, cardY + 6,
+                MasteryTheme.argb(MasteryTheme.DISPLAY, alpha), 1.0F, true);
+        Text branchName = Text.translatable(profile.branches().get(layout.branch(cardNode)).nameKey());
+        microLabel(context, branchName, textX, cardY + 17, rgb, 0.9F * alpha);
+        if (node.capstone()) {
+            UiDraw.rightText(context, textRenderer, Text.translatable("screen.simplymastery.capstone"),
+                    textRight, cardY + 16, MasteryTheme.argb(rgb, 0.85F * alpha), MICRO_SCALE, false);
+        }
+        context.fill(cardX + 1, cardY + 23, cardX + cardWidth - 1, cardY + 24,
+                MasteryTheme.argb(MasteryTheme.RULE, alpha));
+        for (int i = 0; i < lineCount; i++) {
+            UiDraw.text(context, textRenderer, lines.get(i), textX, cardY + 28 + i * 10,
+                    MasteryTheme.argb(MasteryTheme.BODY, 0.95F * alpha), 1.0F, false);
+        }
+
+        // Footer cells, split by the design's rules: cost on the left, state on the right.
+        int footerY = cardY + cardHeight - 15;
+        context.fill(cardX + 1, footerY - 4, cardX + cardWidth - 1, footerY - 3,
+                MasteryTheme.argb(MasteryTheme.RULE, alpha));
+        microLabel(context, Text.translatable("screen.simplymastery.header.cost"), textX, footerY - 1,
+                MasteryTheme.INK_MUTED, alpha);
+        UiDraw.pips(context, textX + 22, footerY, node.cost(), node.cost(), 4, 2, rgb, alpha);
+        UiDraw.rightText(context, textRenderer, UiDraw.fit(textRenderer, stateTag, cardWidth),
+                textRight, footerY - 1, MasteryTheme.argb(stateColor, alpha), MICRO_SCALE, false);
         matrices.pop();
     }
 
     // --- status -------------------------------------------------------------
 
     private void drawStatus(DrawContext context) {
-        float appear = MasteryTheme.easeOutCubic((entranceSeconds - 0.3F) / 0.3F);
+        float appear = MasteryTheme.easeOutCubic((entranceSeconds - 0.15F) / 0.16F);
         if (appear <= 0.01F) {
             return;
         }
+        int accent = accentRgb();
+        context.fill(layout.statusLeft, layout.statusTop, layout.statusRight, layout.statusTop + 1,
+                MasteryTheme.argb(MasteryTheme.RULE, 0.95F * appear));
+
         UnlockResult result = MasteryClientFeedback.result();
         if (result != null && feedbackTimer > 0.0F) {
             float fade = Math.min(1.0F, feedbackTimer / 0.5F)
                     * Math.min(1.0F, (FEEDBACK_SECONDS - feedbackTimer) / 0.12F);
             boolean success = result == UnlockResult.SUCCESS;
-            int rgb = success ? MasteryTheme.SUCCESS : MasteryTheme.DANGER;
+            int rgb = success ? accent : MasteryTheme.ACCENT_HOT;
             float lift = (1.0F - Math.min(1.0F, (FEEDBACK_SECONDS - feedbackTimer) / 0.25F)) * 5.0F * motion();
             Text message = Text.translatable("message.simplymastery.unlock." + result.name().toLowerCase());
-            float messageY = layout.statusTop + 1 - lift;
-            UiDraw.shape(context, UiDraw.SHAPE_DIAMOND, layout.statusLeft + 4.0F, messageY + 4.0F, 3.0F,
-                    MasteryTheme.argb(rgb, 0.95F * fade));
-            UiDraw.text(context, textRenderer, message, layout.statusLeft + 11.0F, messageY,
+            float messageY = layout.statusTop + 5 - lift;
+            context.fill(layout.statusLeft + 2, Math.round(messageY) + 1, layout.statusLeft + 5,
+                    Math.round(messageY) + 4, MasteryTheme.argb(rgb, 0.95F * fade));
+            UiDraw.text(context, textRenderer, UiDraw.fit(textRenderer, message,
+                            layout.statusRight - layout.statusLeft - 10), layout.statusLeft + 8, messageY,
                     MasteryTheme.argb(rgb, fade), 1.0F, true);
             return;
         }
-        if (layout.compact) {
-            MasteryState current = state(profile);
-            Text points = Text.translatable("screen.simplymastery.points",
-                    current.availablePoints(profile), current.earnedPoints());
-            UiDraw.text(context, textRenderer, UiDraw.fit(textRenderer, points,
-                            layout.statusRight - layout.statusLeft), layout.statusLeft, layout.statusBottom - 9,
-                    MasteryTheme.argb(MasteryTheme.INK_MUTED, 0.75F * appear), 1.0F, false);
-        } else {
-            UiDraw.rightText(context, textRenderer, Text.translatable("screen.simplymastery.hint"),
-                    layout.statusRight, layout.statusBottom - 9,
-                    MasteryTheme.argb(MasteryTheme.INK_MUTED, 0.75F * appear), 1.0F, false);
+
+        MasteryState current = state(profile);
+        int available = current.availablePoints(profile);
+        int y = layout.statusTop + 4;
+        if (!layout.compact) {
+            int x = layout.statusLeft + 2;
+            x = keyHint(context, x, y, "lmb", "select", appear);
+            x = keyHint(context, x, y, "lmb2", "unlock", appear);
+            keyHint(context, x, y, "esc", "close", appear);
         }
+        Text unspent = Text.translatable("screen.simplymastery.unspent", available);
+        UiDraw.rightText(context, textRenderer,
+                UiDraw.fit(textRenderer, unspent, layout.statusRight - layout.statusLeft),
+                layout.statusRight - 2, y + 2,
+                MasteryTheme.argb(available > 0 ? accent : MasteryTheme.INK_MUTED, 0.9F * appear),
+                1.0F, false);
+    }
+
+    /** A boxed key beside its action, the artboard's footer legend unit. */
+    private int keyHint(DrawContext context, int x, int y, String key, String action, float appear) {
+        int capRight = UiDraw.keyCap(context, textRenderer, Text.translatable("screen.simplymastery.key." + key),
+                x, y, MasteryTheme.INK_DIM, MasteryTheme.BRACKET, 0.85F * appear);
+        Text label = Text.translatable("screen.simplymastery.key." + action);
+        UiDraw.text(context, textRenderer, label, capRight + 3, y + 3,
+                MasteryTheme.argb(MasteryTheme.INK_MUTED, 0.85F * appear), MICRO_SCALE, false);
+        return capRight + 5 + Math.round(textRenderer.getWidth(label) * MICRO_SCALE);
     }
 
     // --- glyphs -------------------------------------------------------------
@@ -718,7 +907,7 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
         int top = Math.round(cy - size * 0.05F);
         context.fill(Math.round(cx - bodyWidth * 0.5F), top,
                 Math.round(cx + bodyWidth * 0.5F), top + bodyHeight, argb);
-        UiDraw.ring(context, cx, top, size * 0.55F, 1.0F, argb);
+        UiDraw.boxRing(context, cx, top, size * 0.55F, 1.0F, argb);
     }
 
     // --- input --------------------------------------------------------------
@@ -1042,6 +1231,21 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
         return Text.translatable("screen.simplymastery.mastery_progress", owned, profile.nodes().size());
     }
 
+    /** The chrome accent. Per the design this is one colour; we take it from the first branch. */
+    private int accentRgb() {
+        return branchRgb.length > 0 ? branchRgb[0] : MasteryTheme.ACCENT;
+    }
+
+    private static Text masteryCount(MasteryProfile profile, MasteryState state) {
+        int owned = 0;
+        for (MasteryProfile.Node node : profile.nodes()) {
+            if (state.owns(node.id())) {
+                owned++;
+            }
+        }
+        return Text.literal(owned + " / " + profile.nodes().size());
+    }
+
     private static Text profileName(MasteryProfile profile) {
         return Text.translatable("profile.simplymastery." + profile.id().getPath());
     }
@@ -1126,7 +1330,7 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
     }
 
     private float canvasEntranceOffset() {
-        float appear = MasteryTheme.easeOutCubic((entranceSeconds - 0.14F) / 0.34F);
+        float appear = MasteryTheme.easeOutCubic((entranceSeconds - 0.07F) / 0.18F);
         return (1.0F - appear) * 14.0F;
     }
 

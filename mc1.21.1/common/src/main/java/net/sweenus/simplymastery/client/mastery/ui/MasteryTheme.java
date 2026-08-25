@@ -2,35 +2,52 @@ package net.sweenus.simplymastery.client.mastery.ui;
 
 public final class MasteryTheme {
 
-    public static final int BACKDROP_TOP = 0x0A1220;
-    public static final int BACKDROP_BOTTOM = 0x03050A;
-    public static final int PANEL_TOP = 0x16202E;
-    public static final int PANEL_BOTTOM = 0x080D16;
-    public static final int FRAME = 0x2F4B62;
-    public static final int FRAME_LIGHT = 0x76A6C4;
-    public static final int ACCENT = 0x72D9E8;
-    public static final int GOLD = 0xE8B65A;
-    public static final int INK = 0xF2FAFF;
-    public static final int INK_DIM = 0xA9BCCB;
-    public static final int INK_MUTED = 0x6A7D8E;
-    public static final int SUCCESS = 0x7CE8B0;
-    public static final int DANGER = 0xE8798C;
-    public static final int SLATE = 0x3B4A58;
+    // Ground and chrome ------------------------------------------------------
+    public static final int GROUND = 0x14100F;
+    public static final int GROUND_DEEP = 0x070605;
+    public static final int FRAME_OUTER = 0x241C19;
+    public static final int FRAME_INNER = 0x0D0A09;
+    public static final int PANEL = 0x0F0C0B;
+    public static final int CARD = 0x191412;
+    public static final int WELL = 0x0A0807;
+
+    // Rules and edges --------------------------------------------------------
+    public static final int RULE = 0x2F2521;
+    public static final int LOCKED_FRAME = 0x332924;
+    public static final int PIP_EMPTY = 0x3A2E28;
+    public static final int LOCKED_DASH = 0x463731;
+    public static final int BRACKET = 0x4A3C34;
+
+    // Ink --------------------------------------------------------------------
+    public static final int DISPLAY = 0xF7F0E2;
+    public static final int INK = 0xECE2D0;
+    public static final int BODY = 0xC9BCAA;
+    public static final int INK_DIM = 0x9C8B78;
+    public static final int INK_SOFT = 0x8A7C6E;
+    public static final int INK_MUTED = 0x7A6A5C;
+    public static final int INK_FAINT = 0x57483F;
+
+    // Nodes ------------------------------------------------------------------
+    public static final int LOCKED_FILL = 0x1D1715;
+    public static final int LOCKED_GLYPH = 0x57483F;
+    public static final int ON_ACCENT = 0x140F0E;
+    public static final int HOVER_FILL = 0x1A1513;
+
+    // Accent (per-lane overrides come from MasteryProfile.Branch.color) -------
+    public static final int ACCENT = 0xEC3013;
+    public static final int ACCENT_HOT = 0xFF563C;
+
+    // Bevel ------------------------------------------------------------------
+    public static final int BEVEL_LIGHT = 0xFFFFFF;
+    public static final int BEVEL_DARK = 0x000000;
+    public static final float BEVEL_LIGHT_ALPHA = 0.26F;
+    public static final float BEVEL_DARK_ALPHA = 0.40F;
 
     private MasteryTheme() {
     }
 
     public static int argb(int rgb, float alpha) {
         return (Math.clamp(Math.round(alpha * 255.0F), 0, 255) << 24) | (rgb & 0xFFFFFF);
-    }
-
-    public static int fade(int argb, float factor) {
-        int alpha = Math.clamp(Math.round(((argb >>> 24) & 0xFF) * factor), 0, 255);
-        return (alpha << 24) | (argb & 0xFFFFFF);
-    }
-
-    public static int rgb(int argb) {
-        return argb & 0xFFFFFF;
     }
 
     public static int mix(int rgbA, int rgbB, float t) {
@@ -66,21 +83,27 @@ public final class MasteryTheme {
         return 1.0F - u * u * u;
     }
 
-    public static float easeOutQuint(float t) {
-        float u = 1.0F - clamp01(t);
-        return 1.0F - u * u * u * u * u;
-    }
-
     public static float easeOutBack(float t) {
         float u = clamp01(t) - 1.0F;
         return 1.0F + 2.70158F * u * u * u + 1.70158F * u * u;
     }
 
-    public static float easeInOutSine(float t) {
-        return (float) (0.5 - 0.5 * Math.cos(Math.PI * clamp01(t)));
-    }
-
     public static float pulse(double seconds, double period) {
         return (float) (0.5 + 0.5 * Math.sin(seconds * Math.PI * 2.0 / period));
+    }
+
+    /** Quantised {@link #pulse}, matching the design's {@code steps(n, end)} keyframes. */
+    public static float stepPulse(double seconds, double period, int steps) {
+        if (steps <= 1) {
+            return pulse(seconds, period);
+        }
+        double phase = ((seconds % period) + period) % period / period;
+        return (float) (Math.floor(phase * steps) / (steps - 1.0));
+    }
+
+    /** The design's {@code mt-flicker}: a two-state 0.9 / 0.55 opacity swap. */
+    public static float flicker(double seconds, double period) {
+        double phase = ((seconds % period) + period) % period / period;
+        return phase < 0.5 ? 0.9F : 0.55F;
     }
 }

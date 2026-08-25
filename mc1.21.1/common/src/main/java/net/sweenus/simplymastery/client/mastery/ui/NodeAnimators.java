@@ -13,9 +13,9 @@ public final class NodeAnimators {
         owned = new Anim[count];
         burst = new float[count];
         for (int i = 0; i < count; i++) {
-            hover[i] = new Anim(0.0F, 14.0F);
-            focus[i] = new Anim(0.0F, 12.0F);
-            owned[i] = new Anim(0.0F, 6.0F);
+            hover[i] = new Anim(0.0F, 26.0F);
+            focus[i] = new Anim(0.0F, 24.0F);
+            owned[i] = new Anim(0.0F, 12.0F);
         }
     }
 
@@ -39,7 +39,7 @@ public final class NodeAnimators {
             focus[i].advance(deltaSeconds, instant);
             owned[i].advance(deltaSeconds, instant);
             if (burst[i] > 0.0F) {
-                burst[i] = instant ? 0.0F : Math.max(0.0F, burst[i] - deltaSeconds / 0.75F);
+                burst[i] = instant ? 0.0F : Math.max(0.0F, burst[i] - deltaSeconds / 0.42F);
             }
         }
     }

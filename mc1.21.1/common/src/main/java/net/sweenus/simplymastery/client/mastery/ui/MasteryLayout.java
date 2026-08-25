@@ -44,6 +44,7 @@ public final class MasteryLayout {
     public final int closeButtonWidth;
     public final int headerContentLeft;
     public final int headerContentRight;
+    public final int laneLabelRight;
 
     private final float[] nodeX;
     private final float[] nodeY;
@@ -51,9 +52,9 @@ public final class MasteryLayout {
     private final float[] nodeHit;
     private final int[] nodeBranch;
     private final int[] nodeDepth;
-    private final float[] laneLabelY;
     private final float[] laneBandTop;
     private final float[] laneBandBottom;
+    private final float[] laneRuleY;
     private final List<Edge> edges = new ArrayList<>();
     private final Map<String, Integer> indexById = new HashMap<>();
 
@@ -92,7 +93,7 @@ public final class MasteryLayout {
         dockDetail = compact;
 
         statusBottom = bodyBottom;
-        statusTop = bodyBottom - 21;
+        statusTop = bodyBottom - 18;
         dockHeight = dockDetail ? Math.clamp(Math.round(screenHeight * 0.28F), 58, 128) : 0;
 
         canvasTop = bodyTop;
@@ -117,25 +118,27 @@ public final class MasteryLayout {
             canvasBottom = statusTop - 6;
         }
 
+        laneLabelRight = canvasLeft + Math.clamp(Math.round((canvasRight - canvasLeft) * 0.2F), 46, 84);
+
         int laneCount = Math.max(1, branches.size());
         float lanePad = 5.0F;
         float laneHeight = (canvasBottom - canvasTop - lanePad * 2.0F) / laneCount;
-        float labelRow = Math.min(14.0F, laneHeight * 0.24F);
-        float bandHeight = laneHeight - labelRow;
+        float bandPad = Math.min(5.0F, laneHeight * 0.1F);
+        float bandHeight = laneHeight - bandPad * 2.0F;
         int capstoneRadius = Math.round(Math.min(Math.clamp(laneHeight * 0.26F, 11.0F, 22.0F),
                 Math.max(6.0F, (bandHeight - 6.0F) / 4.0F)));
         float smallRadius = Math.clamp(capstoneRadius * 0.58F, 5.0F, 13.0F);
         float laneSpread = Math.max(0.0F, Math.min(bandHeight * 0.5F - capstoneRadius - 1.0F,
                 capstoneRadius * 2.6F));
 
-        laneLabelY = new float[laneCount];
         laneBandTop = new float[laneCount];
         laneBandBottom = new float[laneCount];
+        laneRuleY = new float[laneCount];
         for (int lane = 0; lane < laneCount; lane++) {
             float top = canvasTop + lanePad + lane * laneHeight;
-            laneLabelY[lane] = top + 1.0F;
-            laneBandTop[lane] = top + labelRow;
-            laneBandBottom[lane] = top + laneHeight;
+            laneBandTop[lane] = top + bandPad;
+            laneBandBottom[lane] = top + laneHeight - bandPad;
+            laneRuleY[lane] = top + laneHeight;
         }
 
         float minX = Float.MAX_VALUE;
@@ -145,7 +148,7 @@ public final class MasteryLayout {
             maxX = Math.max(maxX, (float) node.x());
         }
         float spanX = Math.max(0.0001F, maxX - minX);
-        float innerLeft = canvasLeft + capstoneRadius + 9;
+        float innerLeft = laneLabelRight + capstoneRadius + 7;
         float innerRight = canvasRight - smallRadius - 12;
 
         int count = nodes.size();
@@ -234,18 +237,14 @@ public final class MasteryLayout {
             path = new float[]{startX, startY, endX, endY};
             points = 2;
         } else {
-            float midX = (startX + endX) * 0.5F;
-            float chamfer = Math.min(6.0F, Math.min(Math.abs(startY - endY) * 0.5F, Math.abs(startX - endX) * 0.25F));
-            float direction = Math.signum(endY - startY);
+            float midX = Math.round((startX + endX) * 0.5F);
             path = new float[]{
                     startX, startY,
-                    midX + chamfer, startY,
-                    midX, startY + direction * chamfer,
-                    midX, endY - direction * chamfer,
-                    midX - chamfer, endY,
+                    midX, startY,
+                    midX, endY,
                     endX, endY
             };
-            points = 6;
+            points = 4;
         }
         return new Edge(parent, child, path, points, UiDraw.pathLength(path, points));
     }
@@ -274,10 +273,6 @@ public final class MasteryLayout {
         return nodeDepth[index];
     }
 
-    public float laneLabelY(int lane) {
-        return laneLabelY[lane];
-    }
-
     public float laneBandTop(int lane) {
         return laneBandTop[lane];
     }
@@ -286,8 +281,12 @@ public final class MasteryLayout {
         return laneBandBottom[lane];
     }
 
+    public float laneRuleY(int lane) {
+        return laneRuleY[lane];
+    }
+
     public int laneCount() {
-        return laneLabelY.length;
+        return laneBandTop.length;
     }
 
     public List<Edge> edges() {
@@ -302,10 +301,13 @@ public final class MasteryLayout {
         int nearest = -1;
         double nearestDistance = Double.MAX_VALUE;
         for (int i = 0; i < nodeX.length; i++) {
-            double dx = mouseX - nodeX[i];
-            double dy = mouseY - nodeY[i];
-            double distance = dx * dx + dy * dy;
-            if (distance <= nodeHit[i] * nodeHit[i] && distance < nearestDistance) {
+            double dx = Math.abs(mouseX - nodeX[i]);
+            double dy = Math.abs(mouseY - nodeY[i]);
+            if (dx > nodeHit[i] || dy > nodeHit[i]) {
+                continue;
+            }
+            double distance = Math.max(dx, dy);
+            if (distance < nearestDistance) {
                 nearest = i;
                 nearestDistance = distance;
             }
