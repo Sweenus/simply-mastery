@@ -5,6 +5,7 @@ import net.minecraft.test.TestContext;
 import net.neoforged.neoforge.gametest.GameTestHolder;
 import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 import net.sweenus.simplymastery.mastery.effect.Phase3ContractChecks;
+import net.sweenus.simplymastery.mastery.state.Phase1ContractChecks;
 
 @GameTestHolder("simplymastery_coverage_test")
 @PrefixGameTestTemplate(false)
@@ -12,6 +13,7 @@ public final class SimplyMasteryCoverageGameTest {
 
     @GameTest(templateName = "coverage_empty", tickLimit = 20)
     public static void loadedRegistryCoverage(TestContext context) {
+        Phase1ContractChecks.requireFormProgressionFoundation();
         context.complete();
     }
 
@@ -38,6 +40,12 @@ public final class SimplyMasteryCoverageGameTest {
     public static void comboPrimitive(TestContext context) {
         Phase3ContractChecks.requireEffect("combo_surge");
         Phase3ContractChecks.requireReleasedEffects();
+        context.complete();
+    }
+
+    @GameTest(templateName = "coverage_empty", tickLimit = 20)
+    public static void uniqueAbilityIntegration(TestContext context) {
+        Phase3ContractChecks.requireUniqueAbilityIntegration();
         context.complete();
     }
 }

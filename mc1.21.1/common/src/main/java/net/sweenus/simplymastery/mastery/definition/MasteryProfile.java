@@ -20,6 +20,7 @@ public final class MasteryProfile {
             Identifier.CODEC.fieldOf("id").forGetter(MasteryProfile::id),
             Codec.INT.fieldOf("profile_version").forGetter(MasteryProfile::version),
             Selector.CODEC.listOf().fieldOf("selectors").forGetter(MasteryProfile::selectors),
+            Identifier.CODEC.optionalFieldOf("progression_group").forGetter(MasteryProfile::progressionGroup),
             Branch.CODEC.listOf().fieldOf("branches").forGetter(MasteryProfile::branches),
             Node.CODEC.listOf().fieldOf("nodes").forGetter(MasteryProfile::nodes),
             Migration.CODEC.listOf().optionalFieldOf("migrations", List.of()).forGetter(MasteryProfile::migrations)
@@ -29,6 +30,7 @@ public final class MasteryProfile {
     private final Identifier id;
     private final int version;
     private final List<Selector> selectors;
+    private final Optional<Identifier> progressionGroup;
     private final List<Branch> branches;
     private final List<Node> nodes;
     private final List<Migration> migrations;
@@ -36,10 +38,17 @@ public final class MasteryProfile {
 
     public MasteryProfile(int schema, Identifier id, int version, List<Selector> selectors,
                           List<Branch> branches, List<Node> nodes, List<Migration> migrations) {
+        this(schema, id, version, selectors, Optional.empty(), branches, nodes, migrations);
+    }
+
+    public MasteryProfile(int schema, Identifier id, int version, List<Selector> selectors,
+                          Optional<Identifier> progressionGroup, List<Branch> branches,
+                          List<Node> nodes, List<Migration> migrations) {
         this.schema = schema;
         this.id = id;
         this.version = version;
         this.selectors = List.copyOf(selectors);
+        this.progressionGroup = progressionGroup;
         this.branches = List.copyOf(branches);
         this.nodes = List.copyOf(nodes);
         this.migrations = List.copyOf(migrations);
@@ -65,6 +74,14 @@ public final class MasteryProfile {
         return selectors;
     }
 
+    public Optional<Identifier> progressionGroup() {
+        return progressionGroup;
+    }
+
+    public Identifier progressionGroupId() {
+        return progressionGroup.orElse(id);
+    }
+
     public List<Branch> branches() {
         return branches;
     }
@@ -81,12 +98,18 @@ public final class MasteryProfile {
         return Optional.ofNullable(nodesById.get(id));
     }
 
-    public record Selector(Optional<Identifier> item, Optional<Identifier> formFamily, int priority) {
+    public record Selector(Optional<Identifier> item, Optional<Identifier> formStage,
+                           Optional<Identifier> formFamily, int priority) {
         public static final Codec<Selector> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 Identifier.CODEC.optionalFieldOf("item").forGetter(Selector::item),
+                Identifier.CODEC.optionalFieldOf("form_stage").forGetter(Selector::formStage),
                 Identifier.CODEC.optionalFieldOf("form_family").forGetter(Selector::formFamily),
                 Codec.INT.optionalFieldOf("priority", 0).forGetter(Selector::priority)
         ).apply(instance, Selector::new));
+
+        public Selector(Optional<Identifier> item, Optional<Identifier> formFamily, int priority) {
+            this(item, Optional.empty(), formFamily, priority);
+        }
     }
 
     public record Branch(String id, String nameKey, int color) {

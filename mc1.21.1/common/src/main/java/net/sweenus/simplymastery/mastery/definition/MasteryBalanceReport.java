@@ -81,6 +81,44 @@ public final class MasteryBalanceReport {
             case "guarded_recovery" -> new Balance("damage received after cooldown", "defense / recovery");
             case "leeching_strike" -> new Balance("first successful hit after cooldown", "sustain");
             case "cleaving_echo" -> new Balance(combo(effect), "area pressure");
+            case "stormbreak_conduit", "slipstream", "crosswind", "storm_chaser", "flashguard" ->
+                    new Balance("each Stormbreak cast", "active mobility / control");
+            case "capacitor" -> new Balance("each unique corridor hit", "active burst setup");
+            case "afterimage" -> new Balance("once per target per Stormbreak", "path control");
+            case "eye_of_storm" -> new Balance("each Stormbreak cast", "focused active burst");
+            case "thunderhead" -> new Balance("each Stormbreak cast", "active area control");
+            case "static_reserve", "building_voltage" -> new Balance("each successful melee hit", "cooldown cycling");
+            case "charged_pursuit", "feedback_loop", "perpetual_motion" ->
+                    new Balance("each successful refresh", "combat tempo");
+            case "live_wire", "arc_lash" -> new Balance("eligible melee hit after internal cooldown", "lightning pressure");
+            case "quickening_current" -> new Balance("eligible kill during pursuit", "kill-chain mobility");
+            case "unbroken_pace" -> new Balance("damage received while sprinting after cooldown", "defense / mobility");
+            case "flashover" -> new Balance("each successful refresh", "chain burst");
+            case "ionize", "pressure_drop", "updraft" -> new Balance("eligible Stormbreak hit", "storm control");
+            case "fulmination" -> new Balance("Ionized kill", "area burst");
+            case "stormshield" -> new Balance("thunderclap with at least one target", "defense");
+            case "reverberation" -> new Balance("each thunderclap", "delayed area burst");
+            case "judgment_bolt" -> new Balance("each thunderclap with a survivor", "focused burst");
+            case "supercell" -> new Balance("four pulses per Stormbreak", "persistent area control");
+            case "sulfurous_edge", "scorching_brand", "blast_furnace", "backdraft", "crucible_strike" ->
+                    new Balance("each Brimstone eruption", "melee area burst");
+            case "kindling_blows", "flashpoint" -> new Balance("each failed eruption roll", "proc consistency");
+            case "cinder_scatter" -> new Balance("up to three targets per eruption", "ranged pressure");
+            case "chain_reaction" -> new Balance("up to eight eruption kills", "kill-chain area burst");
+            case "lengthened_chain", "furnace_bellows", "stoked_furnace", "shackling_heat" ->
+                    new Balance("each Brimstone Rite", "active area control");
+            case "overpressure" -> new Balance("each successful rite pulse", "active damage ramp");
+            case "snapback" -> new Balance("each successful target jump", "retarget burst");
+            case "molten_wake" -> new Balance("once per second per residual field", "persistent area control");
+            case "executioners_drop" -> new Balance("each Brimstone Rite", "accelerated plunge burst");
+            case "perpetual_furnace" -> new Balance("each Brimstone Rite", "sustained area damage");
+            case "cinder_mantle", "tempered_flesh", "walking_furnace" ->
+                    new Balance("each Brimstone Rite", "active defense");
+            case "heat_sink", "ashen_step" -> new Balance("damage received during Brimstone Rite", "reactive defense");
+            case "furnace_reprisal" -> new Balance("damage received after internal cooldown", "retaliation");
+            case "forged_resolve" -> new Balance("once per rite below health threshold", "emergency defense");
+            case "bulwark_pulse" -> new Balance("rite pulse hitting at least three targets", "area defense");
+            case "last_reprisal" -> new Balance("once per rite on low-health crossing", "emergency reprisal");
             default -> new Balance("event-driven", "utility");
         };
     }

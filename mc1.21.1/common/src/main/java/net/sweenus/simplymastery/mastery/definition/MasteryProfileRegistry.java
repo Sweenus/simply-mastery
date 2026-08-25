@@ -8,6 +8,7 @@ import net.minecraft.registry.Registries;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
 import net.sweenus.simplymastery.config.MasteryConfig;
+import net.sweenus.simplyswords.api.AwakeningFormFamily;
 import net.sweenus.simplyswords.api.AwakeningFormRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -165,6 +166,10 @@ public final class MasteryProfileRegistry {
         return client.resolve(stack).map(Resolution::profile);
     }
 
+    public static Optional<ProgressionResolution> resolveProgressionServer(ItemStack stack) {
+        return server.resolveProgression(stack);
+    }
+
     private static List<MasteryProfile> sorted(Collection<MasteryProfile> profiles) {
         return profiles.stream().sorted(Comparator.comparing(profile -> profile.id().toString())).toList();
     }
@@ -189,37 +194,83 @@ public final class MasteryProfileRegistry {
         public Optional<Resolution> resolve(ItemStack stack) {
             if (stack == null || stack.isEmpty()) return Optional.empty();
             Identifier itemId = Registries.ITEM.getId(stack.getItem());
+            Identifier stageId = AwakeningFormRegistry.getStage(stack)
+                    .filter(stage -> stack.isOf(stage.item())).map(stage -> stage.id()).orElse(null);
             Identifier familyId = AwakeningFormRegistry.get(stack).map(family -> family.baseStage().id()).orElse(null);
-            return resolveIds(itemId, familyId);
+            return resolveIds(itemId, stageId, familyId);
         }
 
         public Optional<Resolution> resolveIds(Identifier itemId, Identifier familyId) {
-            Optional<Resolution> exact = select(itemId, true);
-            return exact.isPresent() || familyId == null ? exact : select(familyId, false);
+            return resolveIds(itemId, null, familyId);
+        }
+
+        public Optional<Resolution> resolveIds(Identifier itemId, Identifier stageId, Identifier familyId) {
+            Optional<Resolution> stage = stageId == null ? Optional.empty()
+                    : select(stageId, SelectorKind.EXACT_FORM_STAGE);
+            if (stage.isPresent()) return stage;
+            Optional<Resolution> item = select(itemId, SelectorKind.EXACT_ITEM);
+            return item.isPresent() || familyId == null ? item : select(familyId, SelectorKind.FORM_FAMILY);
         }
 
         public List<Resolution> matches(ItemStack stack) {
             if (stack == null || stack.isEmpty()) return List.of();
             Identifier itemId = Registries.ITEM.getId(stack.getItem());
-            List<Resolution> exact = matches(itemId, true);
-            if (!exact.isEmpty()) return winners(exact);
-            return AwakeningFormRegistry.get(stack).map(family -> winners(matches(family.baseStage().id(), false)))
+            List<Resolution> stage = AwakeningFormRegistry.getStage(stack).filter(value -> stack.isOf(value.item()))
+                    .map(value -> matches(value.id(), SelectorKind.EXACT_FORM_STAGE)).orElse(List.of());
+            if (!stage.isEmpty()) return winners(stage);
+            List<Resolution> item = matches(itemId, SelectorKind.EXACT_ITEM);
+            if (!item.isEmpty()) return winners(item);
+            return AwakeningFormRegistry.get(stack)
+                    .map(family -> winners(matches(family.baseStage().id(), SelectorKind.FORM_FAMILY)))
                     .orElse(List.of());
         }
 
-        private Optional<Resolution> select(Identifier selectorId, boolean exact) {
-            List<Resolution> winners = winners(matches(selectorId, exact));
+        public Optional<ProgressionResolution> resolveProgression(ItemStack stack) {
+            Optional<Resolution> visible = resolve(stack);
+            if (visible.isPresent()) {
+                MasteryProfile profile = visible.get().profile();
+                return Optional.of(new ProgressionResolution(profile.progressionGroupId(),
+                        Optional.of(profile), List.of(profile.id())));
+            }
+            Optional<AwakeningFormFamily> family = AwakeningFormRegistry.get(stack);
+            if (family.isPresent()) {
+                Set<Identifier> stages = new java.util.LinkedHashSet<>();
+                stages.add(family.get().baseStage().id());
+                family.get().routes().values().forEach(route -> route.stages()
+                        .forEach(stage -> stages.add(stage.id())));
+                Map<Identifier, List<Identifier>> groups = new LinkedHashMap<>();
+                for (MasteryProfile profile : profiles.values()) {
+                    boolean member = profile.selectors().stream()
+                            .flatMap(selector -> selector.formStage().stream()).anyMatch(stages::contains);
+                    if (member) groups.computeIfAbsent(profile.progressionGroupId(), ignored -> new ArrayList<>())
+                            .add(profile.id());
+                }
+                if (groups.size() == 1) {
+                    Map.Entry<Identifier, List<Identifier>> entry = groups.entrySet().iterator().next();
+                    return Optional.of(new ProgressionResolution(entry.getKey(), Optional.empty(), entry.getValue()));
+                }
+            }
+            Identifier itemId = stack == null || stack.isEmpty() ? null : Registries.ITEM.getId(stack.getItem());
+            return BuiltInFamilyProfiles.bankingGroup(itemId).map(group -> new ProgressionResolution(group,
+                    Optional.empty(), BuiltInFamilyProfiles.bankingProfiles(group)));
+        }
+
+        private Optional<Resolution> select(Identifier selectorId, SelectorKind kind) {
+            List<Resolution> winners = winners(matches(selectorId, kind));
             return winners.size() == 1 ? Optional.of(winners.getFirst()) : Optional.empty();
         }
 
-        private List<Resolution> matches(Identifier selectorId, boolean exact) {
+        private List<Resolution> matches(Identifier selectorId, SelectorKind kind) {
             List<Resolution> result = new ArrayList<>();
             for (MasteryProfile profile : profiles.values()) {
                 for (MasteryProfile.Selector selector : profile.selectors()) {
-                    Optional<Identifier> target = exact ? selector.item() : selector.formFamily();
+                    Optional<Identifier> target = switch (kind) {
+                        case EXACT_FORM_STAGE -> selector.formStage();
+                        case EXACT_ITEM -> selector.item();
+                        case FORM_FAMILY -> selector.formFamily();
+                    };
                     if (target.filter(selectorId::equals).isPresent()) {
-                        result.add(new Resolution(profile, selector.priority(),
-                                exact ? SelectorKind.EXACT_ITEM : SelectorKind.FORM_FAMILY));
+                        result.add(new Resolution(profile, selector.priority(), kind));
                     }
                 }
             }
@@ -243,8 +294,16 @@ public final class MasteryProfileRegistry {
     }
 
     public enum SelectorKind {
+        EXACT_FORM_STAGE,
         EXACT_ITEM,
         FORM_FAMILY
+    }
+
+    public record ProgressionResolution(Identifier groupId, Optional<MasteryProfile> visibleProfile,
+                                        List<Identifier> profileIds) {
+        public ProgressionResolution {
+            profileIds = List.copyOf(profileIds);
+        }
     }
 
     public record ReloadResult(boolean installed, Snapshot snapshot, List<String> errors) {

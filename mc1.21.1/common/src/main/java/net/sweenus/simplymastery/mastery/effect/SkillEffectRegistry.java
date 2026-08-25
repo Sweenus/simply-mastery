@@ -363,6 +363,9 @@ public final class SkillEffectRegistry {
                         .forEach(target -> context.access().dealAdditionalDamage(target, node.id(), damage));
             }
         });
+        StormAbilitySkillEffects.all().forEach(SkillEffectRegistry::register);
+        BrimstoneAbilitySkillEffects.all().forEach(SkillEffectRegistry::register);
+        register(new Phase2MasterySkillEffect());
     }
 
     private SkillEffectRegistry() {

@@ -24,13 +24,17 @@ final class MasteryPhase5ContentTest {
     @Test
     void completeCatalogMeetsReleasedTreeGate() {
         Map<Identifier, MasteryProfile> catalog = catalog();
-        assertEquals(46, catalog.size());
+        assertEquals(52, catalog.size());
         MasteryProfileValidator.validateRegistry(catalog.values().stream().toList(), 21);
 
         Set<Identifier> icons = new HashSet<>();
         Set<String> roots = new HashSet<>();
         for (MasteryProfile profile : catalog.values()) {
-            assertEquals(2, profile.version());
+            int expectedVersion = profile.id().getPath().equals("storms_edge") ? 4
+                    : profile.id().getPath().equals("brimstone_claymore")
+                    || List.of("watcher_claymore", "the_devourer", "wickpiercer", "gloampiercer",
+                    "wraithfang", "wraithmaw").contains(profile.id().getPath()) ? 3 : 2;
+            assertEquals(expectedVersion, profile.version());
             assertEquals(3, profile.branches().size());
             assertEquals(27, profile.nodes().size());
             assertTrue(profile.migrations().stream().anyMatch(migration -> migration.fromVersion() == 1
@@ -49,7 +53,7 @@ final class MasteryPhase5ContentTest {
                 assertTrue(icons.add(node.icon().orElseThrow()));
             }
         }
-        assertEquals(1_242, icons.size());
+        assertEquals(1_404, icons.size());
     }
 
     @Test
@@ -94,7 +98,7 @@ final class MasteryPhase5ContentTest {
     @Test
     void balanceLedgerAccountsForEveryNode() {
         String ledger = MasteryBalanceReport.render(catalog().values().stream().toList());
-        assertEquals(1_242, ledger.lines().filter(line -> line.startsWith("| `simplymastery:")).count());
+        assertEquals(1_404, ledger.lines().filter(line -> line.startsWith("| `simplymastery:")).count());
         assertTrue(ledger.contains("Trigger frequency"));
         assertTrue(ledger.contains("Combat role"));
     }

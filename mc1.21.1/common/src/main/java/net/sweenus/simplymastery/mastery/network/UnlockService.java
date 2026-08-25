@@ -13,6 +13,7 @@ import net.sweenus.simplymastery.mastery.definition.MasteryProfileRegistry;
 import net.sweenus.simplymastery.mastery.state.MasteryState;
 import net.sweenus.simplymastery.mastery.state.MasteryStateAccess;
 import net.sweenus.simplymastery.mastery.effect.SkillRuntime;
+import net.sweenus.simplymastery.mastery.effect.StormMasteryRuntime;
 import net.sweenus.simplyswords.screen.RunicForgeScreenHandler;
 import dev.architectury.event.events.common.PlayerEvent;
 
@@ -50,7 +51,7 @@ public final class UnlockService {
             revision = state.mutationRevision();
             if (request.operation() == UnlockNodePacket.Operation.RESPEC) {
                 result = state.mutationRevision() == request.expectedMutationRevision()
-                        ? respec(player, handler, stack, state) : UnlockResult.STALE_STATE;
+                        ? respec(player, handler, stack, profile, state) : UnlockResult.STALE_STATE;
                 if (result == UnlockResult.SUCCESS) revision = state.mutationRevision() + 1L;
             } else {
                 MasteryProfile.Node node = profile.node(request.nodeId()).orElse(null);
@@ -60,7 +61,7 @@ public final class UnlockService {
                     result = UnlockRules.validate(profile, state, node, request.expectedMutationRevision());
                     if (result == UnlockResult.SUCCESS) {
                         MasteryState updated = state.unlock(node.id());
-                        MasteryStateAccess.write(stack, updated);
+                        MasteryStateAccess.write(stack, profile, updated);
                         handler.getForgeInventory().markDirty();
                         handler.sendContentUpdates();
                         revision = updated.mutationRevision();
@@ -112,7 +113,7 @@ public final class UnlockService {
     }
 
     private static UnlockResult respec(ServerPlayerEntity player, RunicForgeScreenHandler handler,
-                                       ItemStack stack, MasteryState state) {
+                                       ItemStack stack, MasteryProfile profile, MasteryState state) {
         if (!MasteryConfig.SERVER.respecEnabled) return UnlockResult.RESPEC_DISABLED;
         if (state.unlockedNodeIds().isEmpty()) return UnlockResult.NOTHING_TO_RESPEC;
         Predicate<ItemStack> payment = paymentPredicate();
@@ -120,10 +121,13 @@ public final class UnlockService {
         boolean free = player.isCreative() && MasteryConfig.SERVER.creativeRespecIsFree;
         int cost = MasteryConfig.SERVER.respecCostCount;
         if (!free && !consumeIfPresent(player.getInventory(), payment, cost)) return UnlockResult.PAYMENT_MISSING;
-        MasteryStateAccess.write(stack, state.respec());
+        MasteryStateAccess.write(stack, profile, state.respec());
         MasteryStateAccess.writeCooldowns(stack,
                 net.sweenus.simplymastery.mastery.state.MasteryCooldownState.EMPTY);
+        MasteryStateAccess.writeRuntime(stack,
+                net.sweenus.simplymastery.mastery.state.MasteryRuntimeState.EMPTY);
         SkillRuntime.clear(player);
+        StormMasteryRuntime.clear(player.getUuid());
         handler.getForgeInventory().markDirty();
         player.getInventory().markDirty();
         handler.sendContentUpdates();

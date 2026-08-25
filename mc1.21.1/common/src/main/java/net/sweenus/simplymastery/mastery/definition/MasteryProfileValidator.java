@@ -127,15 +127,19 @@ public final class MasteryProfileValidator {
         Set<String> seen = new HashSet<>();
         for (int i = 0; i < profile.selectors().size(); i++) {
             MasteryProfile.Selector selector = profile.selectors().get(i);
-            if (selector.item().isPresent() == selector.formFamily().isPresent()) {
+            int targets = (selector.item().isPresent() ? 1 : 0)
+                    + (selector.formStage().isPresent() ? 1 : 0)
+                    + (selector.formFamily().isPresent() ? 1 : 0);
+            if (targets != 1) {
                 errors.add("profile " + profile.id() + ", selector " + i
-                        + ": declare exactly one of item or form_family");
+                        + ": declare exactly one of item, form_stage, or form_family");
             }
             if (selector.priority() < -10000 || selector.priority() > 10000) {
                 errors.add("profile " + profile.id() + ", selector " + i + ": priority is outside [-10000,10000]");
             }
             String key = selector.item().map(id -> "item:" + id)
-                    .orElseGet(() -> selector.formFamily().map(id -> "family:" + id).orElse("invalid"));
+                    .orElseGet(() -> selector.formStage().map(id -> "stage:" + id)
+                            .orElseGet(() -> selector.formFamily().map(id -> "family:" + id).orElse("invalid")));
             if (!seen.add(key + "@" + selector.priority())) {
                 errors.add("profile " + profile.id() + ", selector " + i + ": duplicate selector " + key);
             }
@@ -291,7 +295,9 @@ public final class MasteryProfileValidator {
         for (MasteryProfile profile : profiles) {
             for (MasteryProfile.Selector selector : profile.selectors()) {
                 String key = selector.item().map(id -> "item:" + id)
-                        .orElseGet(() -> selector.formFamily().map(id -> "family:" + id).orElse("invalid"));
+                        .orElseGet(() -> selector.formStage().map(id -> "stage:" + id)
+                                .orElseGet(() -> selector.formFamily().map(id -> "family:" + id)
+                                        .orElse("invalid")));
                 grouped.computeIfAbsent(key, ignored -> new ArrayList<>())
                         .add(new Selection(profile.id(), selector.priority()));
             }

@@ -47,7 +47,7 @@ public final class SkillRuntime {
         if (!MasteryConfig.SERVER.enabled || SkillOriginGuard.active()) return;
         long targetTick = target instanceof ServerPlayerEntity victim ? persistentTick(victim) : 0L;
         if (target instanceof ServerPlayerEntity victim) {
-            dispatchDamageReceived(victim,
+            dispatchDamageReceived(victim, source,
                     source.getAttacker() instanceof LivingEntity attacker ? attacker : null, amount, targetTick);
         }
         if (!source.isOf(DamageTypes.PLAYER_ATTACK)
@@ -131,18 +131,22 @@ public final class SkillRuntime {
         }
     }
 
-    private static void dispatchDamageReceived(ServerPlayerEntity victim, LivingEntity attacker, float amount, long tick) {
-        dispatchDamageReceivedHand(victim, attacker, amount, tick, victim.getMainHandStack(), Hand.MAIN_HAND);
+    private static void dispatchDamageReceived(ServerPlayerEntity victim, DamageSource source,
+                                               LivingEntity attacker, float amount, long tick) {
+        dispatchDamageReceivedHand(victim, source, attacker, amount, tick,
+                victim.getMainHandStack(), Hand.MAIN_HAND);
         if (victim.getOffHandStack() != victim.getMainHandStack()) {
-            dispatchDamageReceivedHand(victim, attacker, amount, tick, victim.getOffHandStack(), Hand.OFF_HAND);
+            dispatchDamageReceivedHand(victim, source, attacker, amount, tick,
+                    victim.getOffHandStack(), Hand.OFF_HAND);
         }
     }
 
-    private static void dispatchDamageReceivedHand(ServerPlayerEntity victim, LivingEntity attacker, float amount,
+    private static void dispatchDamageReceivedHand(ServerPlayerEntity victim, DamageSource source,
+                                                   LivingEntity attacker, float amount,
                                                    long tick, ItemStack stack, Hand hand) {
         Resolved resolved = resolveExact(victim, stack, hand);
         if (resolved == null) return;
-        SkillEffectContext.DamageReceived context = new SkillEffectContext.DamageReceived(victim, attacker, amount,
+        SkillEffectContext.DamageReceived context = new SkillEffectContext.DamageReceived(victim, attacker, amount, source,
                 stack, hand, resolved.profile, resolved.state, tick,
                 new SkillEffectAccess(victim, stack, resolved.profile.id().toString()));
         for (MasteryProfile.Node node : resolved.profile.nodes()) {

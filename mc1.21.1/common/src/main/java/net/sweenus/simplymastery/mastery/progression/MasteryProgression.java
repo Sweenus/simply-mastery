@@ -66,11 +66,15 @@ public final class MasteryProgression {
         }
         ItemStack stack = exactSourceStack(player, source);
         if (stack == null || stack.isEmpty()) return EventResult.pass();
-        MasteryProfile profile = MasteryProfileRegistry.resolveServer(stack).orElse(null);
-        if (profile == null || MasteryConfig.SERVER.disabledProfiles.contains(profile.id())) {
+        MasteryProfileRegistry.ProgressionResolution resolution =
+                MasteryProfileRegistry.resolveProgressionServer(stack).orElse(null);
+        if (resolution == null || (!resolution.profileIds().isEmpty() && resolution.profileIds().stream()
+                .allMatch(MasteryConfig.SERVER.disabledProfiles::contains))) {
             return EventResult.pass();
         }
-        if (!SkillOriginGuard.active()) SkillRuntime.onKill(player, target, stack);
+        MasteryProfile profile = resolution.visibleProfile().orElse(null);
+        if (profile != null && !MasteryConfig.SERVER.disabledProfiles.contains(profile.id())
+                && !SkillOriginGuard.active()) SkillRuntime.onKill(player, target, stack);
         if (!eligible(player, target)) return EventResult.pass();
         long tick = player.getServerWorld().getServer().getOverworld().getTime();
         int repeats = recordKill(player, target, tick);
@@ -80,11 +84,19 @@ public final class MasteryProgression {
         if (xp <= 0) return EventResult.pass();
         int initialPoints = Math.min(MasteryConfig.SERVER.verticalSliceStartingPoints,
                 MasteryConfig.SERVER.maximumEarnedPoints);
-        MasteryState state = MasteryStateAccess.read(stack, profile, initialPoints);
-        MasteryState updated = state.awardXp(xp, MasteryConfig.SERVER.maximumEarnedPoints,
-                MasteryConfig.SERVER.xpBaseRequirement, MasteryConfig.SERVER.xpRequirementGrowth);
-        if (updated != state) {
-            MasteryStateAccess.write(stack, updated);
+        boolean changed;
+        if (profile == null) {
+            changed = MasteryStateAccess.bankXp(stack, resolution.groupId(), initialPoints, xp,
+                    MasteryConfig.SERVER.maximumEarnedPoints, MasteryConfig.SERVER.xpBaseRequirement,
+                    MasteryConfig.SERVER.xpRequirementGrowth);
+        } else {
+            MasteryState state = MasteryStateAccess.read(stack, profile, initialPoints);
+            MasteryState updated = state.awardXp(xp, MasteryConfig.SERVER.maximumEarnedPoints,
+                    MasteryConfig.SERVER.xpBaseRequirement, MasteryConfig.SERVER.xpRequirementGrowth);
+            changed = updated != state;
+            if (changed) MasteryStateAccess.write(stack, profile, updated);
+        }
+        if (changed) {
             player.getInventory().markDirty();
             player.currentScreenHandler.sendContentUpdates();
         }

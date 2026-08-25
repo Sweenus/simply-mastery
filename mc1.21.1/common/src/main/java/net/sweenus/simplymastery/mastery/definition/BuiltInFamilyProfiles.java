@@ -42,10 +42,14 @@ public final class BuiltInFamilyProfiles {
         List<MasteryProfile.Selector> selectors = new ArrayList<>();
         for (String item : family.items()) {
             selectors.add(new MasteryProfile.Selector(Optional.of(id("simplyswords", item)), Optional.empty(),
-                    family.profilePath().equals("storms_edge") ? 100 : 10));
+                    Optional.empty(), family.profilePath().equals("storms_edge") ? 100 : 10));
+        }
+        for (String stage : family.formStages()) {
+            selectors.add(new MasteryProfile.Selector(Optional.empty(), Optional.of(id("simplyswords", stage)),
+                    Optional.empty(), 100));
         }
         if (family.formFamily() != null) {
-            selectors.add(new MasteryProfile.Selector(Optional.empty(),
+            selectors.add(new MasteryProfile.Selector(Optional.empty(), Optional.empty(),
                     Optional.of(id("simplyswords", family.formFamily())), 0));
         }
         List<MasteryProfile.Branch> branches = family.branches().stream()
@@ -56,8 +60,24 @@ public final class BuiltInFamilyProfiles {
         addBranch(nodes, family, family.branches().get(0), .22);
         addBranch(nodes, family, family.branches().get(1), .50);
         addBranch(nodes, family, family.branches().get(2), .78);
-        return new MasteryProfile(1, profileId, 2, selectors, branches, nodes,
-                List.of(new MasteryProfile.Migration(1, 2, migration(family), Map.of())));
+        List<MasteryProfile.Migration> migrations = new ArrayList<>();
+        migrations.add(new MasteryProfile.Migration(1, 2, migration(family), Map.of()));
+        int version = 2;
+        if (family.profilePath().equals("storms_edge")) {
+            version = 4;
+            migrations.add(new MasteryProfile.Migration(2, 3, Map.of(), Map.of()));
+            migrations.add(new MasteryProfile.Migration(3, 4, Map.of(), Map.of()));
+        } else if (family.profilePath().equals("brimstone_claymore")) {
+            version = 3;
+            migrations.add(new MasteryProfile.Migration(2, 3, Map.of(), Map.of()));
+        } else if (phase2Profile(family.profilePath())) {
+            version = 3;
+            migrations.add(new MasteryProfile.Migration(2, 3, Map.of(), Map.of()));
+        }
+        Optional<Identifier> progressionGroup = Optional.ofNullable(family.progressionGroup())
+                .map(path -> id("simplymastery", path));
+        return new MasteryProfile(1, profileId, version, selectors, progressionGroup,
+                branches, nodes, migrations);
     }
 
     private static void addBranch(List<MasteryProfile.Node> nodes, Family family, BranchPlan branch, double y) {
@@ -80,11 +100,137 @@ public final class BuiltInFamilyProfiles {
                                             double x, double y, int cost, boolean capstone, String group,
                                             List<String> requires) {
         String style = branch.style().name().toLowerCase();
+        Optional<MasteryProfile.Effect> authored = authoredEffect(family, branch.id(), slot);
+        MasteryProfile.Effect effect = authored.orElseGet(() -> effect(branch.style(), slot));
+        boolean exactText = phase2Profile(family.profilePath());
+        String nameKey = authored.isPresent()
+                ? "skill.simplymastery." + family.profilePath() + "." + branch.id() + "." + NODE_SLOTS[slot]
+                : "skill.simplymastery.style." + style + "." + NODE_SLOTS[slot];
         return new MasteryProfile.Node(nodeId, branch.id(), x, y, cost, capstone, group, requires,
-                effect(branch.style(), slot), "skill.simplymastery.style." + style + "." + NODE_SLOTS[slot],
-                "effect.simplymastery." + effect(branch.style(), slot).type().getPath() + ".description",
+                effect, nameKey, exactText ? nameKey + ".description"
+                        : "effect.simplymastery." + effect.type().getPath() + ".description",
                 Optional.of(id("simplymastery", "skills/" + family.profilePath() + "/" + branch.id()
                         + "_" + NODE_SLOTS[slot])));
+    }
+
+    private static Optional<MasteryProfile.Effect> authoredEffect(Family family, String branch, int slot) {
+        Optional<MasteryProfile.Effect> storm = authoredStormEffect(family, branch, slot);
+        if (storm.isPresent()) return storm;
+        Optional<MasteryProfile.Effect> phase2 = authoredPhase2Effect(family, branch, slot);
+        if (phase2.isPresent()) return phase2;
+        if (!family.profilePath().equals("brimstone_claymore")) return Optional.empty();
+        return Optional.of(switch (branch + ":" + slot) {
+            case "signature:0" -> effect("sulfurous_edge", "chance_bonus", 5);
+            case "signature:1" -> effect("scorching_brand", "fire_ticks", 100,
+                    "burning_damage_percent", 115);
+            case "signature:2" -> effect("blast_furnace", "radius_tenths", 10,
+                    "damage_percent", 115);
+            case "signature:3" -> effect("kindling_blows", "chance_per_stack", 5,
+                    "max_stacks", 3, "window_ticks", 80);
+            case "signature:4" -> effect("flashpoint", "required_stacks", 3);
+            case "signature:5" -> effect("cinder_scatter", "count", 3,
+                    "range_tenths", 60, "damage_percent", 20, "fire_ticks", 40);
+            case "signature:6" -> effect("backdraft", "pull_tenths", 8, "slowness_ticks", 40);
+            case "signature:7" -> effect("chain_reaction", "damage_percent", 50,
+                    "radius_tenths", 30, "max_detonations", 8);
+            case "signature:8" -> effect("crucible_strike", "radius_percent", 60,
+                    "primary_damage_percent", 200);
+            case "combat:0" -> effect("lengthened_chain", "range_tenths", 40);
+            case "combat:1" -> effect("furnace_bellows", "interval_ticks", 16);
+            case "combat:2" -> effect("stoked_furnace", "growth_hundredths", 15,
+                    "max_radius_tenths", 10);
+            case "combat:3" -> effect("shackling_heat", "pull_tenths", 4,
+                    "slowness_ticks", 40);
+            case "combat:4" -> effect("overpressure", "per_pulse_percent", 10,
+                    "cap_percent", 50);
+            case "combat:5" -> effect("snapback", "damage_percent", 35, "radius_tenths", 30);
+            case "combat:6" -> effect("molten_wake", "duration_ticks", 40,
+                    "interval_ticks", 20, "damage_percent", 20, "min_move_tenths", 15);
+            case "combat:7" -> effect("executioners_drop", "duration_ticks", 60,
+                    "final_damage_percent", 225);
+            case "combat:8" -> effect("perpetual_furnace", "duration_ticks", 200,
+                    "start_percent", 75, "per_pulse_percent", 5, "cap_percent", 150,
+                    "final_damage_percent", 50);
+            case "transformation:0" -> effect("cinder_mantle", "duration_ticks", 80,
+                    "amplifier", 0);
+            case "transformation:1" -> effect("tempered_flesh", "padding_ticks", 18);
+            case "transformation:2" -> effect("heat_sink", "max_stacks", 2,
+                    "window_ticks", 80, "duration_ticks", 80);
+            case "transformation:3" -> effect("furnace_reprisal", "damage_percent", 20,
+                    "cooldown_ticks", 20, "fire_ticks", 40);
+            case "transformation:4" -> effect("forged_resolve", "health_percent", 40,
+                    "resistance_ticks", 60, "absorption_ticks", 80);
+            case "transformation:5" -> effect("ashen_step", "duration_ticks", 60,
+                    "cooldown_ticks", 100);
+            case "transformation:6" -> effect("bulwark_pulse", "target_threshold", 3,
+                    "duration_ticks", 60);
+            case "transformation:7" -> effect("walking_furnace", "radius_percent", 85,
+                    "pull_tenths", 5);
+            case "transformation:8" -> effect("last_reprisal", "health_percent", 35,
+                    "final_damage_percent", 175, "duration_ticks", 60);
+            default -> throw new IllegalArgumentException("Unknown Brimstone Claymore node " + branch + ":" + slot);
+        });
+    }
+
+    private static Optional<MasteryProfile.Effect> authoredPhase2Effect(Family family, String branch, int slot) {
+        List<String> profiles = List.of("watcher_claymore", "the_devourer", "wickpiercer",
+                "gloampiercer", "wraithfang", "wraithmaw");
+        int profile = profiles.indexOf(family.profilePath());
+        if (profile < 0) return Optional.empty();
+        int branchIndex = switch (branch) {
+            case "signature" -> 0;
+            case "combat" -> 1;
+            case "transformation" -> 2;
+            default -> throw new IllegalArgumentException("Unknown branch " + branch);
+        };
+        return Optional.of(effect("phase2_mastery", "kind", profile * 27 + branchIndex * 9 + slot));
+    }
+
+    private static boolean phase2Profile(String profile) {
+        return profile.equals("watcher_claymore") || profile.equals("the_devourer")
+                || profile.equals("wickpiercer") || profile.equals("gloampiercer")
+                || profile.equals("wraithfang") || profile.equals("wraithmaw");
+    }
+
+    private static Optional<MasteryProfile.Effect> authoredStormEffect(Family family, String branch, int slot) {
+        if (!family.profilePath().equals("storms_edge")) return Optional.empty();
+        return Optional.of(switch (branch + ":" + slot) {
+            case "signature:0" -> effect("stormbreak_conduit", "width_tenths", 10,
+                    "slowness_ticks", 30, "amplifier", 0);
+            case "signature:1" -> effect("slipstream", "distance_percent", 120, "speed_percent", 110);
+            case "signature:2" -> effect("crosswind");
+            case "signature:3" -> effect("capacitor", "per_hit_percent", 8, "cap_percent", 40);
+            case "signature:4" -> effect("storm_chaser", "cooldown_percent", 85);
+            case "signature:5" -> effect("flashguard", "duration_ticks", 40, "amplifier", 0);
+            case "signature:6" -> effect("afterimage", "duration_ticks", 40, "damage_percent", 30);
+            case "signature:7" -> effect("eye_of_storm", "radius_percent", 50, "damage_percent", 175);
+            case "signature:8" -> effect("thunderhead", "radius_tenths", 20);
+            case "combat:0" -> effect("static_reserve", "sprint_chance", 40);
+            case "combat:1" -> effect("charged_pursuit", "duration_ticks", 40, "amplifier", 0);
+            case "combat:2" -> effect("building_voltage", "chance_per_stack", 5,
+                    "max_stacks", 4, "window_ticks", 60);
+            case "combat:3" -> effect("live_wire", "damage_percent", 20, "cooldown_ticks", 10);
+            case "combat:4" -> effect("feedback_loop", "window_ticks", 100, "damage_percent", 120);
+            case "combat:5" -> effect("quickening_current", "extension_ticks", 40,
+                    "max_remaining_ticks", 120);
+            case "combat:6" -> effect("unbroken_pace", "duration_ticks", 30, "speed_amplifier", 1,
+                    "resistance_amplifier", 0, "cooldown_ticks", 120);
+            case "combat:7" -> effect("perpetual_motion", "window_ticks", 120, "cooldown_percent", 70);
+            case "combat:8" -> effect("flashover", "targets", 3, "range_tenths", 50, "damage_percent", 35);
+            case "transformation:0" -> effect("ionize", "duration_ticks", 100);
+            case "transformation:1" -> effect("arc_lash", "damage_percent", 30,
+                    "cooldown_ticks", 20, "range_tenths", 50);
+            case "transformation:2" -> effect("pressure_drop", "duration_ticks", 60, "amplifier", 0);
+            case "transformation:3" -> effect("updraft", "knock_up_percent", 150, "slow_falling_ticks", 40);
+            case "transformation:4" -> effect("fulmination", "damage_percent", 25,
+                    "radius_tenths", 30, "max_targets", 8);
+            case "transformation:5" -> effect("stormshield", "duration_ticks", 80, "strong_threshold", 4);
+            case "transformation:6" -> effect("reverberation", "delay_ticks", 15, "damage_percent", 30);
+            case "transformation:7" -> effect("judgment_bolt", "damage_percent", 100);
+            case "transformation:8" -> effect("supercell", "duration_ticks", 80,
+                    "interval_ticks", 20, "damage_percent", 20, "pull_tenths", 8);
+            default -> throw new IllegalArgumentException("Unknown Storm's Edge node " + branch + ":" + slot);
+        });
     }
 
     private static MasteryProfile.Effect effect(Style style, int slot) {
@@ -173,24 +319,51 @@ public final class BuiltInFamilyProfiles {
         Map<String, Family> result = new LinkedHashMap<>();
         add(result, "storms_edge", null, "Storm's Edge", b("Stormbreak", MOBILITY),
                 b("Thunderstep", COMBO), b("Skywrath", IMPACT), "storms_edge");
-        add(result, "watcher_claymore", "watcher_claymore", "The Watcher", b("Unblinking Hunt", EXECUTION),
-                b("Sentinel's Weight", GUARD), b("Devouring Abyss", SUSTAIN), "watcher_claymore", "the_devourer");
-        add(result, "stormscale", "stormscale", "Stormscale", b("Lightning Rod", CONTROL),
-                b("Charged Pursuit", COMBO), b("Ion Containment", IMPACT), "stormscale", "ionbound_stormscale");
-        add(result, "lichblade", "slumbering_lichblade", "Lichblade", b("Soul Anguish", CONTROL),
-                b("Grave Harvest", SUSTAIN), b("Lich Ascendance", EXECUTION), "slumbering_lichblade",
-                "waking_lichblade", "awakened_lichblade");
-        add(result, "relic", "dormant_relic", "Dormant Relic", b("Relic Attunement", GUARD),
-                b("Righteous Standard", SUSTAIN), b("Abyssal Standard", EXECUTION), "dormant_relic",
-                "tainted_relic", "righteous_relic", "sunfire", "harbinger");
-        add(result, "soulrender", "soulrender", "Soulrender", b("Soul Rend", SUSTAIN),
-                b("Stygian Stride", MOBILITY), b("Reaper's Claim", EXECUTION), "soulrender", "soulstalker");
-        add(result, "whisperwind", "whisperwind", "Whisperwind", b("Fatal Flicker", MOBILITY),
-                b("Whispered Tempo", COMBO), b("Dread Rend", EXECUTION), "whisperwind", "dreadwhisper");
-        add(result, "wickpiercer", "wickpiercer", "Wickpiercer", b("Flicker Fury", COMBO),
-                b("Spectral Feint", MOBILITY), b("Phantom Phalanx", CONTROL), "wickpiercer", "gloampiercer");
-        add(result, "wraithfang", "wraithfang", "Wraithfang", b("Spectral Leap", MOBILITY),
-                b("Wraith Hunt", EXECUTION), b("Spectral Downpour", IMPACT), "wraithfang", "wraithmaw");
+        grouped(result, "watcher_claymore", "watcher_claymore", "The Watcher", "watcher_claymore",
+                List.of(), b("Dread Ledger", EXECUTION), b("Final Omen", CONTROL),
+                b("Vitality Theft", SUSTAIN), "watcher_claymore");
+        grouped(result, "the_devourer", null, "The Devourer", "watcher_claymore",
+                List.of("the_devourer"), b("Devouring Mass", CONTROL), b("Consumption", SUSTAIN),
+                b("Reprisal", GUARD), "the_devourer");
+        grouped(result, "stormscale", null, "Stormscale", "stormscale",
+                List.of("stormscale", "awakened_stormscale"), b("Lightning Rod", CONTROL),
+                b("Gathering Charge", COMBO), b("Magnetic Storm", IMPACT), "stormscale");
+        grouped(result, "ionbound_stormscale", null, "Ionbound Stormscale", "stormscale",
+                List.of("ionbound_stormscale"), b("Ion Reserve", GUARD), b("Ion Crusher", IMPACT),
+                b("Paralysis Beam", CONTROL), "ionbound_stormscale");
+        grouped(result, "awakened_lichblade", null, "Awakened Lichblade", "lichblade",
+                List.of("awakened_lichblade"), b("Soul Anguish", CONTROL), b("Siphoned Vitality", SUSTAIN),
+                b("Phylactery Command", EXECUTION), "awakened_lichblade");
+        grouped(result, "sunfire", null, "Sunfire", "relic", List.of("sunfire"),
+                b("Solar Dominion", IMPACT), b("Banner of Renewal", SUSTAIN), b("Undying Ember", GUARD),
+                "sunfire");
+        grouped(result, "harbinger", null, "Harbinger", "relic", List.of("harbinger"),
+                b("Dread Dominion", CONTROL), b("War's Portent", COMBO), b("Foretold Ruin", EXECUTION),
+                "harbinger");
+        grouped(result, "soulrender", null, "Soulrender", "soulrender", List.of("soulrender"),
+                b("Soul Rend", SUSTAIN), b("Stygian Stride", MOBILITY), b("Reaper's Claim", EXECUTION),
+                "soulrender");
+        grouped(result, "soulstalker", null, "Soulstalker", "soulrender", List.of("soulstalker"),
+                b("Hunting Tendrils", EXECUTION), b("Gloam Stride", MOBILITY), b("Cleave and Crash", IMPACT),
+                "soulstalker");
+        grouped(result, "whisperwind", null, "Whisperwind", "whisperwind", List.of("whisperwind"),
+                b("Fatal Flicker", MOBILITY), b("Whispered Tempo", COMBO), b("Bloom Cut", EXECUTION),
+                "whisperwind");
+        grouped(result, "dreadwhisper", null, "Dreadwhisper", "whisperwind", List.of("dreadwhisper"),
+                b("Reaving Front", MOBILITY), b("Corrupted Wound", EXECUTION), b("Gloam Passage", CONTROL),
+                "dreadwhisper");
+        grouped(result, "wickpiercer", null, "Wickpiercer", "wickpiercer", List.of("wickpiercer"),
+                b("Waxen Flight", IMPACT), b("Frenzy Flame", COMBO), b("Deathless Candle", SUSTAIN),
+                "wickpiercer");
+        grouped(result, "gloampiercer", null, "Gloampiercer", "wickpiercer", List.of("gloampiercer"),
+                b("Phantom Ambush", EXECUTION), b("Gloam Barrage", IMPACT), b("Stained Ground", CONTROL),
+                "gloampiercer");
+        grouped(result, "wraithfang", null, "Wraithfang", "wraithfang", List.of("wraithfang"),
+                b("Spectral Throw", IMPACT), b("Wraith Pursuit", MOBILITY), b("Soul Tempo", COMBO),
+                "wraithfang");
+        grouped(result, "wraithmaw", null, "Wraithmaw", "wraithfang", List.of("wraithmaw"),
+                b("Cutlass Muster", IMPACT), b("Orbiting Maw", COMBO), b("Gloam Graveyard", CONTROL),
+                "wraithmaw");
         single(result, "brimstone_claymore", "Brimstone Claymore", "Brimstone", IMPACT,
                 "Furnace Chain", CONTROL, "Cinder Guard", GUARD);
         single(result, "stormbringer", "Stormbringer", "Shock Deflect", GUARD,
@@ -247,13 +420,11 @@ public final class BuiltInFamilyProfiles {
                 "Charger Rank", IMPACT, "Rift Command", CONTROL);
         single(result, "dawnquiver", "Dawnquiver", "Seraph's Draw", EXECUTION,
                 "Dawn Chorus", COMBO, "Sunlance", IMPACT);
-        single(result, "decaying_relic", "Decaying Relic", "Decay", CONTROL,
-                "Relic Pulse", ARCANE, "Unbound Fate", EXECUTION);
-        single(result, "magiscythe", "Magiscythe", "Magistorm", IMPACT,
+        groupedSingle(result, "magiscythe", "Magiscythe", "decaying_relic", "Magistorm", IMPACT,
                 "Reaping Arc", EXECUTION, "Storm Renewal", SUSTAIN);
-        single(result, "magiblade", "Magiblade", "Magisonic", CONTROL,
+        groupedSingle(result, "magiblade", "Magiblade", "decaying_relic", "Magisonic", CONTROL,
                 "Orbiting Warden", GUARD, "Sonic Release", IMPACT);
-        single(result, "magispear", "Magispear", "Magislam", IMPACT,
+        groupedSingle(result, "magispear", "Magispear", "decaying_relic", "Magislam", IMPACT,
                 "Skyward Vault", MOBILITY, "Spear Rain", COMBO);
         single(result, "enigma", "Enigma", "Galeforce", MOBILITY,
                 "Twister Snare", CONTROL, "Eye of Enigma", GUARD);
@@ -275,11 +446,37 @@ public final class BuiltInFamilyProfiles {
                 b(transformation, transformationStyle), profile);
     }
 
+    private static void groupedSingle(Map<String, Family> families, String profile, String display,
+                                      String progressionGroup, String signature, Style signatureStyle,
+                                      String combat, Style combatStyle, String transformation,
+                                      Style transformationStyle) {
+        grouped(families, profile, null, display, progressionGroup, List.of(),
+                b(signature, signatureStyle), b(combat, combatStyle), b(transformation, transformationStyle),
+                profile);
+    }
+
     private static void add(Map<String, Family> families, String profile, String formFamily, String display,
                             BranchPlan signature, BranchPlan combat, BranchPlan transformation, String... items) {
-        families.put(profile, new Family(profile, formFamily, display,
+        grouped(families, profile, formFamily, display, null, List.of(), signature, combat, transformation, items);
+    }
+
+    private static void grouped(Map<String, Family> families, String profile, String formFamily, String display,
+                                String progressionGroup, List<String> formStages, BranchPlan signature,
+                                BranchPlan combat, BranchPlan transformation, String... items) {
+        families.put(profile, new Family(profile, formFamily, progressionGroup, display,
                 List.of(signature.withId("signature"), combat.withId("combat"),
-                        transformation.withId("transformation")), List.of(items)));
+                        transformation.withId("transformation")), List.of(items), formStages));
+    }
+
+    public static Optional<Identifier> bankingGroup(Identifier itemId) {
+        return id("simplyswords", "decaying_relic").equals(itemId)
+                ? Optional.of(id("simplymastery", "decaying_relic")) : Optional.empty();
+    }
+
+    public static List<Identifier> bankingProfiles(Identifier groupId) {
+        if (!id("simplymastery", "decaying_relic").equals(groupId)) return List.of();
+        return List.of(id("simplymastery", "magiscythe"), id("simplymastery", "magiblade"),
+                id("simplymastery", "magispear"));
     }
 
     private static BranchPlan b(String title, Style style) {
@@ -314,11 +511,12 @@ public final class BuiltInFamilyProfiles {
         }
     }
 
-    public record Family(String profilePath, String formFamily, String displayName,
-                         List<BranchPlan> branches, List<String> items) {
+    public record Family(String profilePath, String formFamily, String progressionGroup, String displayName,
+                         List<BranchPlan> branches, List<String> items, List<String> formStages) {
         public Family {
             branches = List.copyOf(branches);
             items = List.copyOf(items);
+            formStages = List.copyOf(formStages);
         }
     }
 }

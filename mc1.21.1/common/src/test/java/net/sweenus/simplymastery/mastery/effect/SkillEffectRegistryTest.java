@@ -30,7 +30,18 @@ final class SkillEffectRegistryTest {
                 Identifier.of("simplymastery", "counterstrike"),
                 Identifier.of("simplymastery", "guarded_recovery"),
                 Identifier.of("simplymastery", "leeching_strike"),
-                Identifier.of("simplymastery", "cleaving_echo"))));
+                Identifier.of("simplymastery", "cleaving_echo"),
+                Identifier.of("simplymastery", "stormbreak_conduit"),
+                Identifier.of("simplymastery", "eye_of_storm"),
+                Identifier.of("simplymastery", "thunderhead"),
+                Identifier.of("simplymastery", "static_reserve"),
+                Identifier.of("simplymastery", "charged_pursuit"),
+                Identifier.of("simplymastery", "building_voltage"),
+                Identifier.of("simplymastery", "supercell"),
+                Identifier.of("simplymastery", "sulfurous_edge"),
+                Identifier.of("simplymastery", "chain_reaction"),
+                Identifier.of("simplymastery", "perpetual_furnace"),
+                Identifier.of("simplymastery", "last_reprisal"))));
     }
 
     @Test

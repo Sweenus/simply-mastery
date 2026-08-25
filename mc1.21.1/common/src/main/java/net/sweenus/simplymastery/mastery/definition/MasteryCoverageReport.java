@@ -21,7 +21,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +54,6 @@ public final class MasteryCoverageReport {
         MasteryProfileRegistry.Snapshot snapshot = MasteryProfileRegistry.server();
         Set<Identifier> declaredUnique = declaredUniqueIds();
         List<Row> rows = new ArrayList<>();
-        Map<Identifier, Identifier> familyWinners = new HashMap<>();
         int errors = 0;
 
         List<Map.Entry<net.minecraft.registry.RegistryKey<Item>, Item>> items = Registries.ITEM.getEntrySet().stream()
@@ -70,21 +68,17 @@ public final class MasteryCoverageReport {
             var family = AwakeningFormRegistry.get(stack).orElse(null);
             boolean unique = item instanceof UniqueWeaponItem || family != null || declaredUnique.contains(itemId);
             List<MasteryProfileRegistry.Resolution> winners = snapshot.matches(stack);
+            boolean banksProgression = snapshot.resolveProgression(stack).isPresent();
             String error = "";
             if (unique && winners.size() != 1) {
-                error = winners.isEmpty() ? "uncovered unique/form" : "ambiguous selector winners";
+                error = winners.isEmpty() && banksProgression ? "" : winners.isEmpty()
+                        ? "uncovered unique/form" : "ambiguous selector winners";
             } else if (!unique && !winners.isEmpty()) {
                 error = "non-unique weapon resolved";
             }
-            if (family != null && winners.size() == 1) {
-                Identifier familyId = family.baseStage().id();
-                Identifier previous = familyWinners.putIfAbsent(familyId, winners.getFirst().profile().id());
-                if (previous != null && !previous.equals(winners.getFirst().profile().id())) {
-                    error = "form family resolves to multiple profiles";
-                }
-            }
             if (!error.isEmpty()) errors++;
-            rows.add(new Row(itemId, item.getClass().getName(), unique, family != null, winners, error));
+            rows.add(new Row(itemId, item.getClass().getName(), unique, family != null,
+                    banksProgression, winners, error));
         }
 
         Files.createDirectories(output.getParent());
@@ -125,8 +119,8 @@ public final class MasteryCoverageReport {
                 .append("Loaded profiles: ").append(snapshot.profiles().size()).append("  \n")
                 .append("Inspected weapons: ").append(rows.size()).append("  \n")
                 .append("Coverage errors: ").append(errors).append("\n\n")
-                .append("| Item ID | Registration / class | Profile | Priority | Version | Form family | Error |\n")
-                .append("|---|---|---|---:|---:|:---:|---|\n");
+                .append("| Item ID | Registration / class | Profile | Priority | Version | Form family | Banks XP | Error |\n")
+                .append("|---|---|---|---:|---:|:---:|:---:|---|\n");
         for (Row row : rows) {
             String profiles = row.winners().isEmpty() ? "—" : row.winners().stream()
                     .map(winner -> winner.profile().id().toString()).reduce((a, b) -> a + ", " + b).orElse("—");
@@ -136,13 +130,14 @@ public final class MasteryCoverageReport {
                     .append(row.unique() ? "unique / `" : "ordinary / `").append(row.itemClass()).append("` | `")
                     .append(profiles).append("` | ").append(priority).append(" | ").append(version).append(" | ")
                     .append(row.formMember() ? "yes" : "no").append(" | ")
+                    .append(row.banksProgression() ? "yes" : "no").append(" | ")
                     .append(row.error().isEmpty() ? "—" : row.error()).append(" |\n");
         }
         return markdown.toString();
     }
 
     private record Row(Identifier item, String itemClass, boolean unique, boolean formMember,
-                       List<MasteryProfileRegistry.Resolution> winners, String error) {
+                       boolean banksProgression, List<MasteryProfileRegistry.Resolution> winners, String error) {
     }
 
     public record Result(Path output, int items, int errors) {

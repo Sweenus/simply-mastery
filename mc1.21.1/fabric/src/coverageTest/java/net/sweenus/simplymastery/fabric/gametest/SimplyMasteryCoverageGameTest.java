@@ -3,11 +3,13 @@ package net.sweenus.simplymastery.fabric.gametest;
 import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
 import net.sweenus.simplymastery.mastery.effect.Phase3ContractChecks;
+import net.sweenus.simplymastery.mastery.state.Phase1ContractChecks;
 
 public final class SimplyMasteryCoverageGameTest {
 
     @GameTest(templateName = "fabric-gametest-api-v1:empty", tickLimit = 20)
     public void loadedRegistryCoverage(TestContext context) {
+        Phase1ContractChecks.requireFormProgressionFoundation();
         context.complete();
     }
 
@@ -34,6 +36,12 @@ public final class SimplyMasteryCoverageGameTest {
     public void comboPrimitive(TestContext context) {
         Phase3ContractChecks.requireEffect("combo_surge");
         Phase3ContractChecks.requireReleasedEffects();
+        context.complete();
+    }
+
+    @GameTest(templateName = "fabric-gametest-api-v1:empty", tickLimit = 20)
+    public void uniqueAbilityIntegration(TestContext context) {
+        Phase3ContractChecks.requireUniqueAbilityIntegration();
         context.complete();
     }
 }

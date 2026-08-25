@@ -47,4 +47,34 @@ class MasteryMigrationAndUnlockTest {
         assertEquals(UnlockResult.CHOICE_CONFLICT,
                 UnlockRules.validate(profile, state, profile.node("storms_edge_signature_release").orElseThrow(), 6L));
     }
+
+    @Test
+    void stormVersionThreeOwnershipSurvivesVersionFourMigration() {
+        MasteryProfile profile = ProfileTestFixtures.stormsEdge();
+        List<String> owned = profile.nodes().stream().map(MasteryProfile.Node::id).toList();
+        MasteryState old = new MasteryState(1, profile.id(), 3, 240, 9, owned, 11L);
+
+        MasteryState migrated = MasteryStateMigrator.migrate(old, profile);
+
+        assertEquals(4, migrated.profileVersion());
+        assertEquals(owned, migrated.unlockedNodeIds());
+        assertEquals(240, migrated.masteryXp());
+        assertEquals(9, migrated.earnedPoints());
+        assertEquals(11L, migrated.mutationRevision());
+    }
+
+    @Test
+    void brimstoneVersionTwoOwnershipSurvivesVersionThreeMigration() {
+        MasteryProfile profile = BuiltInFamilyProfiles.profile("brimstone_claymore");
+        List<String> owned = profile.nodes().stream().map(MasteryProfile.Node::id).toList();
+        MasteryState old = new MasteryState(1, profile.id(), 2, 180, 8, owned, 6L);
+
+        MasteryState migrated = MasteryStateMigrator.migrate(old, profile);
+
+        assertEquals(3, migrated.profileVersion());
+        assertEquals(owned, migrated.unlockedNodeIds());
+        assertEquals(180, migrated.masteryXp());
+        assertEquals(8, migrated.earnedPoints());
+        assertEquals(6L, migrated.mutationRevision());
+    }
 }
