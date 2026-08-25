@@ -35,7 +35,8 @@ final class MasteryPhase5ContentTest {
                     || List.of("watcher_claymore", "the_devourer", "wickpiercer", "gloampiercer",
                     "wraithfang", "wraithmaw", "stormscale", "ionbound_stormscale", "soulrender",
                     "soulstalker", "whisperwind", "dreadwhisper", "awakened_lichblade", "sunfire",
-                    "harbinger").contains(profile.id().getPath()) ? 3 : 2;
+                    "harbinger", "hearthflame", "emberblade", "emberlash", "flamewind",
+                    "molten_edge", "soulpyre").contains(profile.id().getPath()) ? 3 : 2;
             assertEquals(expectedVersion, profile.version());
             assertEquals(3, profile.branches().size());
             assertEquals(27, profile.nodes().size());

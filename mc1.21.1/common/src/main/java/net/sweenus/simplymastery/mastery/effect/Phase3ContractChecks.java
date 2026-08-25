@@ -6,6 +6,7 @@ import net.sweenus.simplyswords.api.ability.BuiltinUniqueAbilities;
 import net.sweenus.simplyswords.api.ability.Phase2UniqueAbilities;
 import net.sweenus.simplyswords.api.ability.Phase3UniqueAbilities;
 import net.sweenus.simplyswords.api.ability.Phase4UniqueAbilities;
+import net.sweenus.simplyswords.api.ability.Phase5UniqueAbilities;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityApi;
 
 public final class Phase3ContractChecks {
@@ -36,6 +37,7 @@ public final class Phase3ContractChecks {
         requireEffect("phase2_mastery");
         requireEffect("phase3_mastery");
         requireEffect("phase4_mastery");
+        requireEffect("phase5_mastery");
         for (String path : new String[]{"stormbreak_conduit", "slipstream", "crosswind", "capacitor",
                 "storm_chaser", "flashguard", "afterimage", "eye_of_storm", "thunderhead",
                 "static_reserve", "charged_pursuit", "building_voltage", "live_wire", "feedback_loop",
@@ -84,6 +86,11 @@ public final class Phase3ContractChecks {
                 || !UniqueAbilityApi.isDefinitionRegistered(Phase4UniqueAbilities.HARBINGER_STANDARD_ID)
                 || !UniqueAbilityApi.isDefinitionRegistered(Phase4UniqueAbilities.HARBINGER_OMEN_ID)) {
             throw new IllegalStateException("Missing unique ability definitions");
+        }
+        for (var definition : Phase5UniqueAbilities.definitions()) {
+            if (!UniqueAbilityApi.isDefinitionRegistered(definition.id())) {
+                throw new IllegalStateException("Missing unique ability definition " + definition.id());
+            }
         }
     }
 }
