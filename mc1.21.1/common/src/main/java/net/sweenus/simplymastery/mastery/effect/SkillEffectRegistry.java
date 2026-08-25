@@ -367,6 +367,7 @@ public final class SkillEffectRegistry {
         BrimstoneAbilitySkillEffects.all().forEach(SkillEffectRegistry::register);
         register(new Phase2MasterySkillEffect());
         register(new Phase3MasterySkillEffect());
+        register(new Phase4MasterySkillEffect());
     }
 
     private SkillEffectRegistry() {

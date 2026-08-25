@@ -122,6 +122,16 @@ class MasteryProfileRegistryTest {
                         Identifier.of("simplyswords", "awakened_lichblade"),
                         Identifier.of("simplyswords", "slumbering_lichblade"))
                         .orElseThrow().profile().id());
+        assertEquals(Identifier.of("simplymastery", "sunfire"),
+                snapshot.resolveIds(Identifier.of("simplyswords", "dormant_relic"),
+                        Identifier.of("simplyswords", "sunfire"),
+                        Identifier.of("simplyswords", "dormant_relic"))
+                        .orElseThrow().profile().id());
+        assertEquals(Identifier.of("simplymastery", "harbinger"),
+                snapshot.resolveIds(Identifier.of("simplyswords", "dormant_relic"),
+                        Identifier.of("simplyswords", "harbinger"),
+                        Identifier.of("simplyswords", "dormant_relic"))
+                        .orElseThrow().profile().id());
     }
 
     @Test

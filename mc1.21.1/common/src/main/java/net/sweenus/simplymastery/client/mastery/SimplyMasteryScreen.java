@@ -25,6 +25,7 @@ import net.sweenus.simplymastery.client.mastery.ui.MasteryUiSounds;
 import net.sweenus.simplymastery.client.mastery.ui.NodeAnimators;
 import net.sweenus.simplymastery.client.mastery.ui.UiDraw;
 import net.sweenus.simplymastery.config.MasteryConfig;
+import net.sweenus.simplymastery.mastery.RunicForgeMasteryContext;
 import net.sweenus.simplymastery.mastery.definition.MasteryProfile;
 import net.sweenus.simplymastery.mastery.definition.MasteryProfileRegistry;
 import net.sweenus.simplymastery.mastery.network.RequestProfileSyncPacket;
@@ -79,7 +80,7 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
     protected void init() {
         super.init();
         MasteryProfileRegistry.Snapshot snapshot = MasteryProfileRegistry.client();
-        profile = snapshot.resolve(authoritativeStack()).map(MasteryProfileRegistry.Resolution::profile)
+        profile = snapshot.resolve(identityStack()).map(MasteryProfileRegistry.Resolution::profile)
                 .orElseThrow(() -> new IllegalStateException("Mastery screen opened without a synced profile"));
         definitionEpoch = snapshot.epoch();
         rebuildProfile(profile);
@@ -109,7 +110,7 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
         }
         MasteryProfileRegistry.Snapshot snapshot = MasteryProfileRegistry.client();
         if (snapshot.epoch() != definitionEpoch) {
-            MasteryProfile replacement = snapshot.resolve(authoritativeStack())
+            MasteryProfile replacement = snapshot.resolve(identityStack())
                     .map(MasteryProfileRegistry.Resolution::profile).orElse(null);
             if (replacement == null) {
                 backToForge();
@@ -119,7 +120,7 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
             pendingActionId = -1L;
             profile = replacement;
             rebuildProfile(replacement);
-        } else if (snapshot.resolve(authoritativeStack()).isEmpty()) {
+        } else if (snapshot.resolve(identityStack()).isEmpty()) {
             backToForge();
         }
     }
@@ -1011,12 +1012,15 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
     }
 
     private ItemStack authoritativeStack() {
-        return handler.getForgeInventory().getStack(RunicForgeScreenHandler.WEAPON_SLOT);
+        return RunicForgeMasteryContext.stateStack(handler);
+    }
+
+    private ItemStack identityStack() {
+        return RunicForgeMasteryContext.identityStack(handler);
     }
 
     private ItemStack displayStack() {
-        ItemStack preview = handler.getPreviewStack();
-        return preview.isEmpty() ? authoritativeStack() : preview;
+        return identityStack();
     }
 
     private static Text respecPaymentName() {

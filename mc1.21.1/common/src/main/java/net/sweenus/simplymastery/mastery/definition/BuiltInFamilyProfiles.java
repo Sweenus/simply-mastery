@@ -70,7 +70,8 @@ public final class BuiltInFamilyProfiles {
         } else if (family.profilePath().equals("brimstone_claymore")) {
             version = 3;
             migrations.add(new MasteryProfile.Migration(2, 3, Map.of(), Map.of()));
-        } else if (phase2Profile(family.profilePath()) || phase3Profile(family.profilePath())) {
+        } else if (phase2Profile(family.profilePath()) || phase3Profile(family.profilePath())
+                || phase4Profile(family.profilePath())) {
             version = 3;
             migrations.add(new MasteryProfile.Migration(2, 3, Map.of(), Map.of()));
         }
@@ -102,7 +103,8 @@ public final class BuiltInFamilyProfiles {
         String style = branch.style().name().toLowerCase();
         Optional<MasteryProfile.Effect> authored = authoredEffect(family, branch.id(), slot);
         MasteryProfile.Effect effect = authored.orElseGet(() -> effect(branch.style(), slot));
-        boolean exactText = phase2Profile(family.profilePath()) || phase3Profile(family.profilePath());
+        boolean exactText = phase2Profile(family.profilePath()) || phase3Profile(family.profilePath())
+                || phase4Profile(family.profilePath());
         String nameKey = authored.isPresent()
                 ? "skill.simplymastery." + family.profilePath() + "." + branch.id() + "." + NODE_SLOTS[slot]
                 : "skill.simplymastery.style." + style + "." + NODE_SLOTS[slot];
@@ -120,6 +122,8 @@ public final class BuiltInFamilyProfiles {
         if (phase2.isPresent()) return phase2;
         Optional<MasteryProfile.Effect> phase3 = authoredPhase3Effect(family, branch, slot);
         if (phase3.isPresent()) return phase3;
+        Optional<MasteryProfile.Effect> phase4 = authoredPhase4Effect(family, branch, slot);
+        if (phase4.isPresent()) return phase4;
         if (!family.profilePath().equals("brimstone_claymore")) return Optional.empty();
         return Optional.of(switch (branch + ":" + slot) {
             case "signature:0" -> effect("sulfurous_edge", "chance_bonus", 5);
@@ -212,6 +216,24 @@ public final class BuiltInFamilyProfiles {
         return profile.equals("stormscale") || profile.equals("ionbound_stormscale")
                 || profile.equals("soulrender") || profile.equals("soulstalker")
                 || profile.equals("whisperwind") || profile.equals("dreadwhisper");
+    }
+
+    private static Optional<MasteryProfile.Effect> authoredPhase4Effect(Family family, String branch, int slot) {
+        List<String> profiles = List.of("awakened_lichblade", "sunfire", "harbinger");
+        int profile = profiles.indexOf(family.profilePath());
+        if (profile < 0) return Optional.empty();
+        int branchIndex = switch (branch) {
+            case "signature" -> 0;
+            case "combat" -> 1;
+            case "transformation" -> 2;
+            default -> throw new IllegalArgumentException("Unknown branch " + branch);
+        };
+        return Optional.of(effect("phase4_mastery", "kind", profile * 27 + branchIndex * 9 + slot));
+    }
+
+    private static boolean phase4Profile(String profile) {
+        return profile.equals("awakened_lichblade") || profile.equals("sunfire")
+                || profile.equals("harbinger");
     }
 
     private static Optional<MasteryProfile.Effect> authoredStormEffect(Family family, String branch, int slot) {

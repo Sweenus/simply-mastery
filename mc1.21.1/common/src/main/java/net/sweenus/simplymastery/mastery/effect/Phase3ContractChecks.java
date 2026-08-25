@@ -5,6 +5,7 @@ import net.sweenus.simplymastery.SimplyMastery;
 import net.sweenus.simplyswords.api.ability.BuiltinUniqueAbilities;
 import net.sweenus.simplyswords.api.ability.Phase2UniqueAbilities;
 import net.sweenus.simplyswords.api.ability.Phase3UniqueAbilities;
+import net.sweenus.simplyswords.api.ability.Phase4UniqueAbilities;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityApi;
 
 public final class Phase3ContractChecks {
@@ -34,6 +35,7 @@ public final class Phase3ContractChecks {
     public static void requireUniqueAbilityIntegration() {
         requireEffect("phase2_mastery");
         requireEffect("phase3_mastery");
+        requireEffect("phase4_mastery");
         for (String path : new String[]{"stormbreak_conduit", "slipstream", "crosswind", "capacitor",
                 "storm_chaser", "flashguard", "afterimage", "eye_of_storm", "thunderhead",
                 "static_reserve", "charged_pursuit", "building_voltage", "live_wire", "feedback_loop",
@@ -74,7 +76,13 @@ public final class Phase3ContractChecks {
                 || !UniqueAbilityApi.isDefinitionRegistered(Phase3UniqueAbilities.WHISPERWIND_DASH_ID)
                 || !UniqueAbilityApi.isDefinitionRegistered(Phase3UniqueAbilities.WHISPERWIND_RESET_ID)
                 || !UniqueAbilityApi.isDefinitionRegistered(Phase3UniqueAbilities.DREADWHISPER_REAVE_ID)
-                || !UniqueAbilityApi.isDefinitionRegistered(Phase3UniqueAbilities.DREADWHISPER_WOUND_ID)) {
+                || !UniqueAbilityApi.isDefinitionRegistered(Phase3UniqueAbilities.DREADWHISPER_WOUND_ID)
+                || !UniqueAbilityApi.isDefinitionRegistered(Phase4UniqueAbilities.LICHBLADE_AURA_ID)
+                || !UniqueAbilityApi.isDefinitionRegistered(Phase4UniqueAbilities.LICHBLADE_CHANNEL_ID)
+                || !UniqueAbilityApi.isDefinitionRegistered(Phase4UniqueAbilities.SUNFIRE_STANDARD_ID)
+                || !UniqueAbilityApi.isDefinitionRegistered(Phase4UniqueAbilities.SUNFIRE_REGEN_ID)
+                || !UniqueAbilityApi.isDefinitionRegistered(Phase4UniqueAbilities.HARBINGER_STANDARD_ID)
+                || !UniqueAbilityApi.isDefinitionRegistered(Phase4UniqueAbilities.HARBINGER_OMEN_ID)) {
             throw new IllegalStateException("Missing unique ability definitions");
         }
     }

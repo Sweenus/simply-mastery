@@ -11,7 +11,7 @@ import net.sweenus.simplymastery.client.mastery.ui.GlassButtonWidget;
 import net.sweenus.simplymastery.client.mastery.ui.MasteryTheme;
 import net.sweenus.simplymastery.client.mastery.SimplyMasteryScreen;
 import net.sweenus.simplymastery.config.MasteryConfig;
-import net.sweenus.simplymastery.mastery.definition.MasteryProfile;
+import net.sweenus.simplymastery.mastery.RunicForgeMasteryContext;
 import net.sweenus.simplymastery.mastery.definition.MasteryProfileRegistry;
 import net.sweenus.simplyswords.client.screen.RunicForgeScreen;
 import net.sweenus.simplyswords.screen.RunicForgeScreenHandler;
@@ -52,8 +52,9 @@ public abstract class RunicForgeScreenMixin extends HandledScreen<RunicForgeScre
         if (simplymastery$button == null) {
             return;
         }
-        ItemStack stack = handler.getForgeInventory().getStack(RunicForgeScreenHandler.WEAPON_SLOT);
-        boolean supported = MasteryProfileRegistry.resolveClient(stack).isPresent();
+        ItemStack stateStack = RunicForgeMasteryContext.stateStack(handler);
+        boolean supported = MasteryProfileRegistry.resolveClient(
+                RunicForgeMasteryContext.identityStack(handler)).isPresent();
         boolean cursorEmpty = handler.getCursorStack().isEmpty();
         simplymastery$button.active = MasteryConfig.SERVER.enabled && supported && cursorEmpty;
         Text tooltip = !MasteryConfig.SERVER.enabled
@@ -62,7 +63,7 @@ public abstract class RunicForgeScreenMixin extends HandledScreen<RunicForgeScre
                 ? cursorEmpty
                 ? Text.translatable("screen.simplymastery.open.tooltip")
                 : Text.translatable("screen.simplymastery.open.cursor")
-                : stack.isEmpty()
+                : stateStack.isEmpty()
                 ? Text.translatable("screen.simplymastery.open.empty")
                 : Text.translatable("screen.simplymastery.open.unsupported");
         simplymastery$button.setTooltip(Tooltip.of(tooltip));

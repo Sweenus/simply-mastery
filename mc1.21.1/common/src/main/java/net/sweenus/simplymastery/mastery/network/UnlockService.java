@@ -8,6 +8,7 @@ import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.sweenus.simplymastery.config.MasteryConfig;
+import net.sweenus.simplymastery.mastery.RunicForgeMasteryContext;
 import net.sweenus.simplymastery.mastery.definition.MasteryProfile;
 import net.sweenus.simplymastery.mastery.definition.MasteryProfileRegistry;
 import net.sweenus.simplymastery.mastery.state.MasteryState;
@@ -38,8 +39,9 @@ public final class UnlockService {
         long revision = 0L;
         if (result == UnlockResult.SUCCESS) {
             RunicForgeScreenHandler handler = (RunicForgeScreenHandler) player.currentScreenHandler;
-            ItemStack stack = handler.getForgeInventory().getStack(RunicForgeScreenHandler.WEAPON_SLOT);
-            MasteryProfile profile = MasteryProfileRegistry.resolveServer(stack).orElseThrow();
+            ItemStack stack = RunicForgeMasteryContext.stateStack(handler);
+            MasteryProfile profile = MasteryProfileRegistry.resolveServer(
+                    RunicForgeMasteryContext.identityStack(handler)).orElseThrow();
             int initialPoints = Math.min(MasteryConfig.SERVER.verticalSliceStartingPoints,
                     MasteryConfig.SERVER.maximumEarnedPoints);
             MasteryState state = MasteryStateAccess.read(stack, profile, initialPoints);
@@ -101,8 +103,8 @@ public final class UnlockService {
         if (!handler.canUse(player)) {
             return UnlockResult.OUT_OF_RANGE;
         }
-        ItemStack stack = handler.getForgeInventory().getStack(RunicForgeScreenHandler.WEAPON_SLOT);
-        MasteryProfile profile = MasteryProfileRegistry.resolveServer(stack).orElse(null);
+        MasteryProfile profile = MasteryProfileRegistry.resolveServer(
+                RunicForgeMasteryContext.identityStack(handler)).orElse(null);
         if (profile == null || !profile.id().equals(request.profileId())) {
             return UnlockResult.UNSUPPORTED_WEAPON;
         }
