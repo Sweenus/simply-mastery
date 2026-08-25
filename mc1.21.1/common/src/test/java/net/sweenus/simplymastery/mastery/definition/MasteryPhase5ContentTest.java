@@ -33,7 +33,8 @@ final class MasteryPhase5ContentTest {
             int expectedVersion = profile.id().getPath().equals("storms_edge") ? 4
                     : profile.id().getPath().equals("brimstone_claymore")
                     || List.of("watcher_claymore", "the_devourer", "wickpiercer", "gloampiercer",
-                    "wraithfang", "wraithmaw").contains(profile.id().getPath()) ? 3 : 2;
+                    "wraithfang", "wraithmaw", "stormscale", "ionbound_stormscale", "soulrender",
+                    "soulstalker", "whisperwind", "dreadwhisper").contains(profile.id().getPath()) ? 3 : 2;
             assertEquals(expectedVersion, profile.version());
             assertEquals(3, profile.branches().size());
             assertEquals(27, profile.nodes().size());

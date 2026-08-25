@@ -70,7 +70,7 @@ public final class BuiltInFamilyProfiles {
         } else if (family.profilePath().equals("brimstone_claymore")) {
             version = 3;
             migrations.add(new MasteryProfile.Migration(2, 3, Map.of(), Map.of()));
-        } else if (phase2Profile(family.profilePath())) {
+        } else if (phase2Profile(family.profilePath()) || phase3Profile(family.profilePath())) {
             version = 3;
             migrations.add(new MasteryProfile.Migration(2, 3, Map.of(), Map.of()));
         }
@@ -102,7 +102,7 @@ public final class BuiltInFamilyProfiles {
         String style = branch.style().name().toLowerCase();
         Optional<MasteryProfile.Effect> authored = authoredEffect(family, branch.id(), slot);
         MasteryProfile.Effect effect = authored.orElseGet(() -> effect(branch.style(), slot));
-        boolean exactText = phase2Profile(family.profilePath());
+        boolean exactText = phase2Profile(family.profilePath()) || phase3Profile(family.profilePath());
         String nameKey = authored.isPresent()
                 ? "skill.simplymastery." + family.profilePath() + "." + branch.id() + "." + NODE_SLOTS[slot]
                 : "skill.simplymastery.style." + style + "." + NODE_SLOTS[slot];
@@ -118,6 +118,8 @@ public final class BuiltInFamilyProfiles {
         if (storm.isPresent()) return storm;
         Optional<MasteryProfile.Effect> phase2 = authoredPhase2Effect(family, branch, slot);
         if (phase2.isPresent()) return phase2;
+        Optional<MasteryProfile.Effect> phase3 = authoredPhase3Effect(family, branch, slot);
+        if (phase3.isPresent()) return phase3;
         if (!family.profilePath().equals("brimstone_claymore")) return Optional.empty();
         return Optional.of(switch (branch + ":" + slot) {
             case "signature:0" -> effect("sulfurous_edge", "chance_bonus", 5);
@@ -190,6 +192,26 @@ public final class BuiltInFamilyProfiles {
         return profile.equals("watcher_claymore") || profile.equals("the_devourer")
                 || profile.equals("wickpiercer") || profile.equals("gloampiercer")
                 || profile.equals("wraithfang") || profile.equals("wraithmaw");
+    }
+
+    private static Optional<MasteryProfile.Effect> authoredPhase3Effect(Family family, String branch, int slot) {
+        List<String> profiles = List.of("stormscale", "ionbound_stormscale", "soulrender",
+                "soulstalker", "whisperwind", "dreadwhisper");
+        int profile = profiles.indexOf(family.profilePath());
+        if (profile < 0) return Optional.empty();
+        int branchIndex = switch (branch) {
+            case "signature" -> 0;
+            case "combat" -> 1;
+            case "transformation" -> 2;
+            default -> throw new IllegalArgumentException("Unknown branch " + branch);
+        };
+        return Optional.of(effect("phase3_mastery", "kind", profile * 27 + branchIndex * 9 + slot));
+    }
+
+    private static boolean phase3Profile(String profile) {
+        return profile.equals("stormscale") || profile.equals("ionbound_stormscale")
+                || profile.equals("soulrender") || profile.equals("soulstalker")
+                || profile.equals("whisperwind") || profile.equals("dreadwhisper");
     }
 
     private static Optional<MasteryProfile.Effect> authoredStormEffect(Family family, String branch, int slot) {
@@ -341,13 +363,13 @@ public final class BuiltInFamilyProfiles {
                 b("Dread Dominion", CONTROL), b("War's Portent", COMBO), b("Foretold Ruin", EXECUTION),
                 "harbinger");
         grouped(result, "soulrender", null, "Soulrender", "soulrender", List.of("soulrender"),
-                b("Soul Rend", SUSTAIN), b("Stygian Stride", MOBILITY), b("Reaper's Claim", EXECUTION),
+                b("Rendmarks", CONTROL), b("The Reaping", EXECUTION), b("Gravebound", GUARD),
                 "soulrender");
         grouped(result, "soulstalker", null, "Soulstalker", "soulrender", List.of("soulstalker"),
                 b("Hunting Tendrils", EXECUTION), b("Gloam Stride", MOBILITY), b("Cleave and Crash", IMPACT),
                 "soulstalker");
         grouped(result, "whisperwind", null, "Whisperwind", "whisperwind", List.of("whisperwind"),
-                b("Fatal Flicker", MOBILITY), b("Whispered Tempo", COMBO), b("Bloom Cut", EXECUTION),
+                b("Petal Step", MOBILITY), b("Bloom Cut", EXECUTION), b("Zephyr Rhythm", COMBO),
                 "whisperwind");
         grouped(result, "dreadwhisper", null, "Dreadwhisper", "whisperwind", List.of("dreadwhisper"),
                 b("Reaving Front", MOBILITY), b("Corrupted Wound", EXECUTION), b("Gloam Passage", CONTROL),
