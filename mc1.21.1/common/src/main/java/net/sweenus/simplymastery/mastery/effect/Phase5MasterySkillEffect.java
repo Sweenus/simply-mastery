@@ -183,7 +183,7 @@ final class Phase5MasterySkillEffect implements AbilitySkillEffectType {
         };
     }
 
-    private static Phase5AbilityTuning flamewind(Phase5AbilityTuning t, int branch, int slot) {
+    static Phase5AbilityTuning flamewind(Phase5AbilityTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
             case 0 -> t.multiply(s("PERIODIC_DAMAGE_MULTIPLIER"), 1.1, 1);
             case 1 -> t.add(s("RADIUS"), .75, 5).with(s("TARGET_CAP"), 10);
@@ -214,12 +214,14 @@ final class Phase5MasterySkillEffect implements AbilitySkillEffectType {
             case 0 -> t.with(s("REFUND_TICKS"), 6).with(s("COUNT"), 5);
             case 1 -> t.with(s("LOCKOUT_TICKS"), 10).with(s("SECONDARY_DAMAGE_MULTIPLIER"), 1.15);
             case 2 -> t.with(s("COUNT"), 3).with(s("STATUS_DURATION_TICKS"), 80).with(s("STATUS_AMPLIFIER"), 1);
-            case 3 -> t.with(s("FINAL_DAMAGE_MULTIPLIER"), .7).with(s("LOCKOUT_TICKS"), 100);
+            case 3 -> t.with(s("FINAL_DAMAGE_MULTIPLIER"), .7).with(s("LOCKOUT_TICKS"), 100)
+                    .with(s("COOLDOWN_TICKS"), 100);
             case 4 -> t.with(s("PULL_STRENGTH"), .25);
             case 5 -> t.with(s("ABSORPTION"), 2).with(s("TARGET_CAP"), 8).with(s("STATUS_DURATION_TICKS"), 80);
             case 6 -> t.with(s("COUNT"), 3).with(s("REFUND_TICKS"), 25);
             case 7 -> t.with(s("COUNT"), 3).with(s("FINAL_DAMAGE_MULTIPLIER"), 1.4).add(s("COOLDOWN_TICKS"), 40, 350);
-            case 8 -> t.with(s("FINAL_DAMAGE_MULTIPLIER"), 1).with(s("SPREAD_CAP"), 0).with(s("LOCKOUT_TICKS"), 160);
+            case 8 -> t.with(s("FINAL_DAMAGE_MULTIPLIER"), 1).with(s("SPREAD_CAP"), 0)
+                    .with(s("LOCKOUT_TICKS"), 160).with(s("COOLDOWN_TICKS"), 160);
             default -> t;
         };
     }

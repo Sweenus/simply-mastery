@@ -7,6 +7,8 @@ import net.sweenus.simplyswords.api.ability.Phase2UniqueAbilities;
 import net.sweenus.simplyswords.api.ability.Phase3UniqueAbilities;
 import net.sweenus.simplyswords.api.ability.Phase4UniqueAbilities;
 import net.sweenus.simplyswords.api.ability.Phase5UniqueAbilities;
+import net.sweenus.simplyswords.api.ability.Phase5AbilityTuning;
+import net.sweenus.simplyswords.api.ability.Phase6UniqueAbilities;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityApi;
 
 public final class Phase3ContractChecks {
@@ -38,6 +40,7 @@ public final class Phase3ContractChecks {
         requireEffect("phase3_mastery");
         requireEffect("phase4_mastery");
         requireEffect("phase5_mastery");
+        requireEffect("phase6_mastery");
         for (String path : new String[]{"stormbreak_conduit", "slipstream", "crosswind", "capacitor",
                 "storm_chaser", "flashguard", "afterimage", "eye_of_storm", "thunderhead",
                 "static_reserve", "charged_pursuit", "building_voltage", "live_wire", "feedback_loop",
@@ -91,6 +94,20 @@ public final class Phase3ContractChecks {
             if (!UniqueAbilityApi.isDefinitionRegistered(definition.id())) {
                 throw new IllegalStateException("Missing unique ability definition " + definition.id());
             }
+        }
+        for (var definition : Phase6UniqueAbilities.definitions()) {
+            if (!UniqueAbilityApi.isDefinitionRegistered(definition.id())) {
+                throw new IllegalStateException("Missing unique ability definition " + definition.id());
+            }
+        }
+        Phase5AbilityTuning backburn = Phase5MasterySkillEffect.flamewind(
+                Phase5AbilityTuning.EMPTY, 2, 3);
+        Phase5AbilityTuning controlled = Phase5MasterySkillEffect.flamewind(backburn, 2, 7);
+        Phase5AbilityTuning wildfire = Phase5MasterySkillEffect.flamewind(backburn, 2, 8);
+        if (backburn.integer(Phase5AbilityTuning.Setting.COOLDOWN_TICKS, 350) != 100
+                || controlled.integer(Phase5AbilityTuning.Setting.COOLDOWN_TICKS, 350) != 140
+                || wildfire.integer(Phase5AbilityTuning.Setting.COOLDOWN_TICKS, 350) != 160) {
+            throw new IllegalStateException("Invalid Flamewind release cooldown tuning");
         }
     }
 }

@@ -36,7 +36,8 @@ final class MasteryPhase5ContentTest {
                     "wraithfang", "wraithmaw", "stormscale", "ionbound_stormscale", "soulrender",
                     "soulstalker", "whisperwind", "dreadwhisper", "awakened_lichblade", "sunfire",
                     "harbinger", "hearthflame", "emberblade", "emberlash", "flamewind",
-                    "molten_edge", "soulpyre").contains(profile.id().getPath()) ? 3 : 2;
+                    "molten_edge", "soulpyre", "stormbringer", "mjolnir", "thunderbrand",
+                    "tempest", "frostfall", "icewhisper", "livyatan").contains(profile.id().getPath()) ? 3 : 2;
             assertEquals(expectedVersion, profile.version());
             assertEquals(3, profile.branches().size());
             assertEquals(27, profile.nodes().size());
