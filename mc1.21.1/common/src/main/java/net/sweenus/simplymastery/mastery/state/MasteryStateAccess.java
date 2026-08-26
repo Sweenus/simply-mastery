@@ -51,16 +51,23 @@ public final class MasteryStateAccess {
 
     public static boolean bankXp(ItemStack stack, Identifier progressionGroup, int initialPoints, int amount,
                                  int maximumPoints, int baseRequirement, int requirementGrowth) {
-        MasteryPortfolio portfolio = stack.get(MasteryComponents.MASTERY_PORTFOLIO.get());
-        if (portfolio == null) {
-            portfolio = MasteryPortfolio.importLegacy(stack.get(MasteryComponents.MASTERY_STATE.get()),
-                    progressionGroup, initialPoints);
-        }
-        MasteryPortfolio updated = portfolio.awardXp(progressionGroup, initialPoints, amount, maximumPoints,
-                baseRequirement, requirementGrowth);
-        stack.set(MasteryComponents.MASTERY_PORTFOLIO.get(), updated);
-        stack.remove(MasteryComponents.MASTERY_STATE.get());
-        return !updated.equals(portfolio);
+        MasteryPortfolio portfolio = ensurePortfolio(stack, progressionGroup, initialPoints);
+        return applyPortfolio(stack, portfolio, portfolio.awardXp(progressionGroup, initialPoints, amount,
+                maximumPoints, baseRequirement, requirementGrowth));
+    }
+
+    public static boolean grantPoints(ItemStack stack, Identifier progressionGroup, int initialPoints,
+                                     int amount, int maximumPoints) {
+        MasteryPortfolio portfolio = ensurePortfolio(stack, progressionGroup, initialPoints);
+        return applyPortfolio(stack, portfolio,
+                portfolio.grantPoints(progressionGroup, initialPoints, amount, maximumPoints));
+    }
+
+    public static boolean setProgress(ItemStack stack, Identifier progressionGroup, int initialPoints,
+                                      int masteryXp, int earnedPoints, int maximumPoints) {
+        MasteryPortfolio portfolio = ensurePortfolio(stack, progressionGroup, initialPoints);
+        return applyPortfolio(stack, portfolio, portfolio.withProgress(progressionGroup, initialPoints,
+                masteryXp, earnedPoints, maximumPoints));
     }
 
     public static MasteryPortfolio portfolio(ItemStack stack) {
@@ -83,5 +90,19 @@ public final class MasteryStateAccess {
     public static void writeRuntime(ItemStack stack, MasteryRuntimeState state) {
         if (state.values().isEmpty()) stack.remove(MasteryComponents.MASTERY_RUNTIME.get());
         else stack.set(MasteryComponents.MASTERY_RUNTIME.get(), state);
+    }
+
+    private static MasteryPortfolio ensurePortfolio(ItemStack stack, Identifier progressionGroup,
+                                                    int initialPoints) {
+        MasteryPortfolio portfolio = stack.get(MasteryComponents.MASTERY_PORTFOLIO.get());
+        return portfolio != null ? portfolio
+                : MasteryPortfolio.importLegacy(stack.get(MasteryComponents.MASTERY_STATE.get()),
+                        progressionGroup, initialPoints);
+    }
+
+    private static boolean applyPortfolio(ItemStack stack, MasteryPortfolio previous, MasteryPortfolio updated) {
+        stack.set(MasteryComponents.MASTERY_PORTFOLIO.get(), updated);
+        stack.remove(MasteryComponents.MASTERY_STATE.get());
+        return !updated.equals(previous);
     }
 }

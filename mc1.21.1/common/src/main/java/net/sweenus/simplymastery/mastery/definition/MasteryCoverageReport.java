@@ -1,14 +1,12 @@
 package net.sweenus.simplymastery.mastery.definition;
 
 import com.mojang.brigadier.context.CommandContext;
-import dev.architectury.event.events.common.CommandRegistrationEvent;
 import dev.architectury.event.events.common.LifecycleEvent;
 import dev.architectury.platform.Platform;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.SwordItem;
 import net.minecraft.registry.Registries;
-import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -32,10 +30,6 @@ public final class MasteryCoverageReport {
     }
 
     public static void init() {
-        CommandRegistrationEvent.EVENT.register((dispatcher, registry, environment) -> dispatcher.register(
-                CommandManager.literal("simplymastery")
-                        .requires(source -> source.hasPermissionLevel(2))
-                        .then(CommandManager.literal("coverage").executes(MasteryCoverageReport::execute))));
         LifecycleEvent.SERVER_STARTED.register(server -> {
             if (!Boolean.getBoolean("simplymastery.coverageAudit")) return;
             try {
@@ -90,7 +84,7 @@ public final class MasteryCoverageReport {
         return new Result(output, rows.size(), errors + balanceWarnings);
     }
 
-    private static int execute(CommandContext<ServerCommandSource> context) {
+    public static int execute(CommandContext<ServerCommandSource> context) {
         try {
             String configured = System.getProperty("simplymastery.projectDir");
             Path root = configured == null ? Platform.getGameFolder() : Path.of(configured);

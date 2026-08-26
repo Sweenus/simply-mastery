@@ -17,6 +17,7 @@ import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MasteryPortfolioTest {
@@ -112,6 +113,58 @@ class MasteryPortfolioTest {
         MasteryPortfolio portfolio = new MasteryPortfolio(1, groups, loadouts, 0L);
         assertEquals(MasteryPortfolio.MAX_GROUPS, portfolio.groups().size());
         assertEquals(MasteryPortfolio.MAX_LOADOUTS, portfolio.loadouts().size());
+    }
+
+    @Test
+    void grantPointsClampsAtMaximumAndZeroesBankedXp() {
+        MasteryProfile profile = BuiltInFamilyProfiles.profile("soulrender");
+        Identifier group = profile.progressionGroupId();
+        MasteryPortfolio portfolio = MasteryPortfolio.initial(group, 0)
+                .awardXp(group, 0, 250, 21, 100, 25);
+        int bankedXp = portfolio.group(group).orElseThrow().masteryXp();
+        assertTrue(bankedXp > 0);
+
+        MasteryPortfolio granted = portfolio.grantPoints(group, 0, 3, 21);
+        assertEquals(portfolio.group(group).orElseThrow().earnedPoints() + 3,
+                granted.group(group).orElseThrow().earnedPoints());
+        assertEquals(bankedXp, granted.group(group).orElseThrow().masteryXp());
+        assertEquals(portfolio.mutationRevision() + 1L, granted.mutationRevision());
+
+        MasteryPortfolio capped = portfolio.grantPoints(group, 0, 500, 21);
+        assertEquals(21, capped.group(group).orElseThrow().earnedPoints());
+        assertEquals(0, capped.group(group).orElseThrow().masteryXp());
+    }
+
+    @Test
+    void withProgressReturnsSameInstanceWhenNothingMoves() {
+        MasteryProfile profile = BuiltInFamilyProfiles.profile("sunfire");
+        Identifier group = profile.progressionGroupId();
+        MasteryPortfolio portfolio = MasteryPortfolio.initial(group, 4);
+
+        assertSame(portfolio, portfolio.withProgress(group, 4, 0, 4, 21));
+        MasteryPortfolio moved = portfolio.withProgress(group, 4, 180, 9, 21);
+        assertEquals(180, moved.group(group).orElseThrow().masteryXp());
+        assertEquals(9, moved.group(group).orElseThrow().earnedPoints());
+        assertEquals(portfolio.mutationRevision() + 1L, moved.mutationRevision());
+    }
+
+    @Test
+    void clearedProgressNeverLeavesUnaffordableNodesUnlocked() {
+        MasteryProfile profile = BuiltInFamilyProfiles.profile("watcher_claymore");
+        Identifier group = profile.progressionGroupId();
+        MasteryPortfolio portfolio = MasteryPortfolio.initial(group, 0).reconcile(profile, 0)
+                .awardXp(group, 0, 900, 21, 100, 25);
+        MasteryState unlocked = portfolio.activeView(profile, 0).unlock(profile.nodes().getFirst().id());
+        portfolio = portfolio.withState(profile, unlocked, 0);
+
+        MasteryState cleared = portfolio.activeView(profile, 0).respec().withProgress(0, 0, 21);
+        portfolio = portfolio.withState(profile, cleared, 0);
+        MasteryState view = portfolio.activeView(profile, 0);
+
+        assertEquals(0, view.masteryXp());
+        assertEquals(0, view.earnedPoints());
+        assertTrue(view.unlockedNodeIds().isEmpty());
+        assertTrue(view.spentPoints(profile) <= view.earnedPoints());
     }
 
     private static Identifier id(String path) {

@@ -109,6 +109,26 @@ public record MasteryPortfolio(int schemaVersion, List<GroupProgress> groups,
                 current.mutationRevision + 1L);
     }
 
+    public MasteryPortfolio withProgress(Identifier groupId, int initialPoints, int masteryXp,
+                                        int earnedPoints, int maximumPoints) {
+        MasteryPortfolio current = ensureGroup(groupId, initialPoints);
+        GroupProgress group = current.group(groupId).orElseThrow();
+        int points = Math.max(0, Math.min(maximumPoints, earnedPoints));
+        GroupProgress updated = new GroupProgress(groupId, points >= maximumPoints ? 0 : Math.max(0, masteryXp),
+                points);
+        if (updated.equals(group)) return current;
+        current = current.putGroup(updated);
+        return new MasteryPortfolio(CURRENT_SCHEMA, current.groups, current.loadouts,
+                current.mutationRevision + 1L);
+    }
+
+    public MasteryPortfolio grantPoints(Identifier groupId, int initialPoints, int amount, int maximumPoints) {
+        MasteryPortfolio current = ensureGroup(groupId, initialPoints);
+        GroupProgress group = current.group(groupId).orElseThrow();
+        return current.withProgress(groupId, initialPoints, group.masteryXp(),
+                group.earnedPoints() + Math.max(0, amount), maximumPoints);
+    }
+
     private MasteryPortfolio ensureGroup(Identifier id, int initialPoints) {
         return group(id).isPresent() ? this : putGroup(new GroupProgress(id, 0, initialPoints));
     }

@@ -93,6 +93,18 @@ public record MasteryState(int schemaVersion, Identifier profileId, int profileV
                 points, unlockedNodeIds, mutationRevision + 1L);
     }
 
+    public MasteryState withProgress(int masteryXp, int earnedPoints, int maximumPoints) {
+        int points = Math.max(0, Math.min(maximumPoints, earnedPoints));
+        int xp = points >= maximumPoints ? 0 : Math.max(0, masteryXp);
+        if (xp == this.masteryXp && points == this.earnedPoints) return this;
+        return new MasteryState(schemaVersion, profileId, profileVersion, xp,
+                points, unlockedNodeIds, mutationRevision + 1L);
+    }
+
+    public MasteryState grantPoints(int amount, int maximumPoints) {
+        return withProgress(masteryXp, earnedPoints + Math.max(0, amount), maximumPoints);
+    }
+
     public MasteryState respec() {
         if (unlockedNodeIds.isEmpty()) return this;
         return new MasteryState(schemaVersion, profileId, profileVersion, masteryXp,

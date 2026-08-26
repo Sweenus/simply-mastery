@@ -1,6 +1,11 @@
 {
   "mod.simplymastery.name": "Simply Mastery",
   "mod.simplymastery.description": "Every unique weapon remembers.",
+  "commands.simplymastery.result": "%s — %s: %s mastery XP, %s points",
+  "commands.simplymastery.unchanged": "%s — %s already at %s mastery XP, %s points",
+  "commands.simplymastery.failed.disabled": "Simply Mastery is disabled by the server",
+  "commands.simplymastery.failed.no_weapon": "%s is not holding anything",
+  "commands.simplymastery.failed.unsupported": "%s's %s has no mastery profile",
   "screen.simplymastery.open": "Mastery",
   "screen.simplymastery.open.tooltip": "Open this weapon's mastery tree",
   "screen.simplymastery.open.disabled": "Mastery is disabled by the server",

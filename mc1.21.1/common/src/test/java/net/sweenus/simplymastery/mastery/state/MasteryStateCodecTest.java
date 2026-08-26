@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MasteryStateCodecTest {
@@ -53,5 +54,33 @@ class MasteryStateCodecTest {
     void malformedStateIsRejected() {
         JsonElement malformed = com.google.gson.JsonParser.parseString("{\"schema_version\":1}");
         assertTrue(MasteryState.CODEC.parse(JsonOps.INSTANCE, malformed).error().isPresent());
+    }
+
+    @Test
+    void grantPointsClampsAtMaximumAndZeroesBankedXp() {
+        MasteryState state = new MasteryState(1, Identifier.of("simplymastery", "storms_edge"), 1, 320,
+                6, List.of("guard_root"), 7L);
+
+        MasteryState granted = state.grantPoints(3, 21);
+        assertEquals(9, granted.earnedPoints());
+        assertEquals(320, granted.masteryXp());
+        assertEquals(8L, granted.mutationRevision());
+
+        MasteryState capped = state.grantPoints(500, 21);
+        assertEquals(21, capped.earnedPoints());
+        assertEquals(0, capped.masteryXp());
+    }
+
+    @Test
+    void withProgressReturnsSameInstanceWhenNothingMoves() {
+        MasteryState state = new MasteryState(1, Identifier.of("simplymastery", "storms_edge"), 1, 320,
+                6, List.of("guard_root"), 7L);
+
+        assertSame(state, state.withProgress(320, 6, 21));
+        MasteryState moved = state.withProgress(0, 0, 21);
+        assertEquals(0, moved.masteryXp());
+        assertEquals(0, moved.earnedPoints());
+        assertEquals(List.of("guard_root"), moved.unlockedNodeIds());
+        assertEquals(8L, moved.mutationRevision());
     }
 }

@@ -10,6 +10,7 @@ import net.sweenus.simplymastery.mastery.state.MasteryComponents;
 import net.sweenus.simplymastery.mastery.effect.SkillRuntime;
 import net.sweenus.simplymastery.mastery.effect.UniqueAbilityMasteryBridge;
 import net.sweenus.simplymastery.mastery.effect.StormMasteryRuntime;
+import net.sweenus.simplymastery.mastery.progression.MasteryCommands;
 import net.sweenus.simplymastery.mastery.progression.MasteryProgression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +32,7 @@ public final class SimplyMastery {
         UniqueAbilityMasteryBridge.init();
         MasteryProgression.init();
         MasteryCoverageReport.init();
+        MasteryCommands.init();
         EnvExecutor.runInEnv(Env.CLIENT, () -> SimplyMasteryClient::init);
         LOGGER.info("Simply Mastery initialized");
     }
