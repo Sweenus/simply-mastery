@@ -11,6 +11,8 @@
   "screen.simplymastery.back": "Back",
   "screen.simplymastery.close": "Close",
   "screen.simplymastery.respec": "Respec",
+  "screen.simplymastery.prompt.confirm": "Confirm",
+  "screen.simplymastery.prompt.cancel": "Cancel",
   "screen.simplymastery.respec.confirm.title": "Reset mastery?",
   "screen.simplymastery.respec.confirm.message": "This costs %s %s and refunds %s spent points. Earned points and XP progress are retained.",
   "screen.simplymastery.unlock.confirm.title": "Unlock %s?",

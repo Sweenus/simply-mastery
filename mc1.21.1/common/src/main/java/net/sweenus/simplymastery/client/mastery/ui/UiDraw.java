@@ -9,6 +9,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 
+import java.util.List;
+import java.util.function.ToIntFunction;
+
 public final class UiDraw {
 
     private UiDraw() {
@@ -415,6 +418,55 @@ public final class UiDraw {
     public static void rightText(DrawContext context, TextRenderer renderer, Text value, float right, float y,
                                  int argb, float scale, boolean shadow) {
         text(context, renderer, value, right - renderer.getWidth(value) * scale, y, argb, scale, shadow);
+    }
+
+    /** A label broken across lines and scaled to fit, never truncated. */
+    public record Fitted(List<Text> lines, float scale) {
+    }
+
+    public static Fitted fitBlock(TextRenderer renderer, Text value, int maxWidth, int maxLines,
+                                  float minScale) {
+        return fitBlock(renderer::getWidth, value, maxWidth, maxLines, minScale);
+    }
+
+    public static Fitted fitBlock(ToIntFunction<Text> width, Text value, int maxWidth, int maxLines,
+                                  float minScale) {
+        List<Text> lines = List.of(value);
+        if (maxWidth > 0 && width.applyAsInt(value) <= maxWidth) {
+            return new Fitted(lines, 1.0F);
+        }
+        String[] words = value.getString().trim().split("\\s+");
+        if (maxLines >= 2 && words.length >= 2) {
+            int best = 1;
+            int bestWidth = Integer.MAX_VALUE;
+            for (int split = 1; split < words.length; split++) {
+                int widest = Math.max(width.applyAsInt(Text.literal(join(words, 0, split))),
+                        width.applyAsInt(Text.literal(join(words, split, words.length))));
+                if (widest < bestWidth) {
+                    bestWidth = widest;
+                    best = split;
+                }
+            }
+            lines = List.of(Text.literal(join(words, 0, best)),
+                    Text.literal(join(words, best, words.length)));
+        }
+        int widest = 0;
+        for (Text line : lines) {
+            widest = Math.max(widest, width.applyAsInt(line));
+        }
+        float scale = widest <= 0 || maxWidth <= 0 ? 1.0F : Math.min(1.0F, maxWidth / (float) widest);
+        return new Fitted(lines, Math.max(minScale, scale));
+    }
+
+    private static String join(String[] words, int from, int to) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = from; i < to; i++) {
+            if (i > from) {
+                builder.append(' ');
+            }
+            builder.append(words[i]);
+        }
+        return builder.toString();
     }
 
     public static Text fit(TextRenderer renderer, Text value, int maxWidth) {

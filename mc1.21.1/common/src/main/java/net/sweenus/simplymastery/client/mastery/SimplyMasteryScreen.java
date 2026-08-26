@@ -4,7 +4,6 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
-import net.minecraft.client.gui.screen.ConfirmScreen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.screen.narration.NarrationPart;
 import net.minecraft.client.util.math.MatrixStack;
@@ -19,6 +18,7 @@ import net.sweenus.simplymastery.client.mastery.ui.Anim;
 import net.sweenus.simplymastery.client.mastery.ui.GlassButtonWidget;
 import net.sweenus.simplymastery.client.mastery.ui.MasteryLayout;
 import net.sweenus.simplymastery.client.mastery.ui.MasteryNodeState;
+import net.sweenus.simplymastery.client.mastery.ui.MasteryPrompt;
 import net.sweenus.simplymastery.client.mastery.ui.MasteryTheme;
 import net.sweenus.simplymastery.client.mastery.ui.MasteryUiPolicy;
 import net.sweenus.simplymastery.client.mastery.ui.MasteryUiSounds;
@@ -52,6 +52,7 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
     private final PlayerInventory playerInventory;
     private final Anim masteryMeter = new Anim(0.0F, 13.0F);
     private final Anim cardFade = new Anim(0.0F, 30.0F);
+    private final Anim promptFade = new Anim(0.0F, 28.0F);
 
     private MasteryLayout layout;
     private NodeAnimators animators;
@@ -70,6 +71,17 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
     private int itemHoverTop;
     private int itemHoverRight;
     private int itemHoverBottom;
+    private GlassButtonWidget backButton;
+    private GlassButtonWidget respecButton;
+    private GlassButtonWidget closeButton;
+    private GlassButtonWidget promptConfirm;
+    private GlassButtonWidget promptCancel;
+    private MasteryPrompt prompt;
+    private List<OrderedText> promptLines = List.of();
+    private int promptX;
+    private int promptY;
+    private int promptWidth;
+    private int promptHeight;
     private float canvasZoom = 1.0F;
     private float canvasPanX;
     private float canvasPanY;
@@ -96,15 +108,27 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
         int buttonHeight = 18;
         int buttonY = layout.headerTop + (layout.headerBottom - layout.headerTop - buttonHeight) / 2;
         int accent = accentRgb();
-        addDrawableChild(new GlassButtonWidget(layout.backButtonX, buttonY, layout.backButtonWidth, buttonHeight,
-                Text.translatable("screen.simplymastery.back"), button -> backToForge(), accent));
-        GlassButtonWidget respec = new GlassButtonWidget(layout.respecButtonX, buttonY,
+        backButton = addDrawableChild(new GlassButtonWidget(layout.backButtonX, buttonY,
+                layout.backButtonWidth, buttonHeight, Text.translatable("screen.simplymastery.back"),
+                button -> backToForge(), accent));
+        respecButton = addDrawableChild(new GlassButtonWidget(layout.respecButtonX, buttonY,
                 layout.respecButtonWidth, buttonHeight, Text.translatable("screen.simplymastery.respec"),
-                button -> confirmRespec(), accent);
-        respec.active = MasteryConfig.SERVER.respecEnabled;
-        addDrawableChild(respec);
-        addDrawableChild(new GlassButtonWidget(layout.closeButtonX, buttonY, layout.closeButtonWidth, buttonHeight,
-                Text.translatable("screen.simplymastery.close"), button -> close(), accent, true));
+                button -> confirmRespec(), accent));
+        closeButton = addDrawableChild(new GlassButtonWidget(layout.closeButtonX, buttonY,
+                layout.closeButtonWidth, buttonHeight, Text.translatable("screen.simplymastery.close"),
+                button -> close(), accent, true));
+
+        // The prompt's buttons take clicks and focus but are drawn by hand, above its panel.
+        promptCancel = addSelectableChild(new GlassButtonWidget(0, 0, 60, buttonHeight,
+                Text.translatable("screen.simplymastery.prompt.cancel"),
+                button -> closePrompt(), accent));
+        promptConfirm = addSelectableChild(new GlassButtonWidget(0, 0, 60, buttonHeight,
+                Text.translatable("screen.simplymastery.prompt.confirm"),
+                button -> acceptPrompt(), accent, true));
+        if (prompt != null) {
+            layoutPrompt();
+        }
+        applyPromptGating();
     }
 
     @Override
@@ -127,6 +151,8 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
             definitionEpoch = snapshot.epoch();
             pendingActionId = -1L;
             profile = replacement;
+            // The node a prompt refers to may not exist in the replacement definition.
+            closePrompt();
             rebuildProfile(replacement);
         } else if (snapshot.resolve(identityStack()).isEmpty()) {
             backToForge();
@@ -143,7 +169,7 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
         feedbackTimer = Math.max(0.0F, feedbackTimer - step);
 
         int previousHover = hoveredNode;
-        hoveredNode = insideCanvas(mouseX, mouseY)
+        hoveredNode = prompt == null && insideCanvas(mouseX, mouseY)
                 ? layout.nodeAt(toLayoutX(mouseX), toLayoutY(mouseY)) : -1;
         if (hoveredNode != previousHover && hoveredNode >= 0) {
             MasteryUiSounds.hover();
@@ -160,6 +186,7 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
         masteryMeter.advance(step, instant);
         cardFade.target(hoveredNode >= 0 || selectedNode >= 0 ? 1.0F : 0.0F);
         cardFade.advance(step, instant);
+        promptFade.advance(step, instant);
         if (hoveredNode >= 0) {
             cardNode = hoveredNode;
         } else if (selectedNode >= 0) {
@@ -176,7 +203,7 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
         }
         drawHeader(context, profile, state);
         for (Element child : children()) {
-            if (child instanceof Drawable drawable) {
+            if (child instanceof Drawable drawable && child != promptConfirm && child != promptCancel) {
                 drawable.render(context, mouseX, mouseY, delta);
             }
         }
@@ -184,14 +211,19 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
         MatrixStack matrices = context.getMatrices();
         matrices.push();
         matrices.translate(0.0F, 0.0F, 420.0F);
-        drawDetailCard(context, profile, state, mouseX, mouseY);
+        if (prompt == null) {
+            drawDetailCard(context, profile, state, mouseX, mouseY);
+        }
         drawStatus(context);
         if (flash > 0.0F) {
             context.fill(0, 0, width, height,
                     MasteryTheme.argb(accentRgb(), 0.10F * flash * flash * motion()));
         }
+        drawPrompt(context, mouseX, mouseY, delta);
         matrices.pop();
-        drawItemTooltip(context, mouseX, mouseY);
+        if (prompt == null) {
+            drawItemTooltip(context, mouseX, mouseY);
+        }
     }
 
     /** The weapon on show carries its own item tooltip, as it would in any inventory. */
@@ -417,10 +449,22 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
             cursor += 6;
         }
         if (cursor + 8 <= bottom) {
-            UiDraw.text(context, textRenderer,
-                    UiDraw.fit(textRenderer, Text.translatable(branch.nameKey()), columnWidth),
-                    columnLeft, cursor, MasteryTheme.argb(nameRgb, rowAlpha), 1.0F, true);
-            cursor += 11;
+            Text branchName = Text.translatable(branch.nameKey());
+            UiDraw.Fitted name = UiDraw.fitBlock(textRenderer, branchName, columnWidth, 2, 0.5F);
+            int lineHeight = Math.max(6, Math.round(9.0F * name.scale()));
+            int nameHeight = lineHeight * name.lines().size() + 2;
+            if (cursor + nameHeight > bottom) {
+                // Too short a row for two lines: scale one line down rather than truncate it.
+                name = UiDraw.fitBlock(textRenderer, branchName, columnWidth, 1, 0.5F);
+                lineHeight = Math.max(6, Math.round(9.0F * name.scale()));
+                nameHeight = lineHeight + 2;
+            }
+            for (int line = 0; line < name.lines().size(); line++) {
+                UiDraw.text(context, textRenderer, name.lines().get(line), columnLeft,
+                        cursor + line * lineHeight, MasteryTheme.argb(nameRgb, rowAlpha),
+                        name.scale(), true);
+            }
+            cursor += nameHeight;
         }
         if (cursor + 8 <= bottom) {
             String ownedText = Integer.toString(owned);
@@ -853,6 +897,114 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
         return capRight + 11 + Math.round(textRenderer.getWidth(label) * MICRO_SCALE);
     }
 
+    // --- prompt -------------------------------------------------------------
+
+    /** Ask the player a question inside this screen rather than handing off to a vanilla one. */
+    private void openPrompt(MasteryPrompt request) {
+        prompt = request;
+        promptFade.snap(0.0F);
+        promptFade.target(1.0F);
+        hoveredNode = -1;
+        layoutPrompt();
+        applyPromptGating();
+        MasteryUiSounds.openView();
+    }
+
+    private void closePrompt() {
+        if (prompt == null) {
+            return;
+        }
+        prompt = null;
+        promptFade.snap(0.0F);
+        applyPromptGating();
+        setFocused(null);
+    }
+
+    private void acceptPrompt() {
+        MasteryPrompt accepted = prompt;
+        closePrompt();
+        if (accepted != null) {
+            accepted.onConfirm().run();
+        }
+    }
+
+    /** A prompt is modal: the header stops responding while it is up, and vice versa. */
+    private void applyPromptGating() {
+        boolean open = prompt != null;
+        if (backButton != null) {
+            backButton.active = !open;
+            closeButton.active = !open;
+            respecButton.active = !open && MasteryConfig.SERVER.respecEnabled;
+        }
+        if (promptConfirm != null) {
+            promptConfirm.visible = open;
+            promptConfirm.active = open;
+            promptCancel.visible = open;
+            promptCancel.active = open;
+        }
+    }
+
+    /** Measure the box and place its buttons. Re-run on resize so the prompt survives one. */
+    private void layoutPrompt() {
+        if (prompt == null) {
+            return;
+        }
+        promptWidth = Math.clamp(width / 3, 200, 300);
+        promptLines = textRenderer.wrapLines(prompt.message(), promptWidth - 24);
+        promptHeight = 62 + promptLines.size() * 10;
+        promptX = (width - promptWidth) / 2;
+        promptY = Math.max(4, (height - promptHeight) / 2);
+
+        int buttonWidth = Math.clamp(promptWidth / 3, 60, 92);
+        int buttonTop = promptY + promptHeight - 26;
+        int buttonLeft = promptX + (promptWidth - (buttonWidth * 2 + 6)) / 2;
+        promptCancel.setWidth(buttonWidth);
+        promptCancel.setPosition(buttonLeft, buttonTop);
+        promptConfirm.setWidth(buttonWidth);
+        promptConfirm.setPosition(buttonLeft + buttonWidth + 6, buttonTop);
+    }
+
+    private void drawPrompt(DrawContext context, int mouseX, int mouseY, float delta) {
+        if (prompt == null) {
+            return;
+        }
+        float fade = promptFade.value();
+        if (fade <= 0.01F) {
+            return;
+        }
+        int accent = accentRgb();
+        context.fill(0, 0, width, height, MasteryTheme.argb(MasteryTheme.GROUND_DEEP, 0.72F * fade));
+
+        MatrixStack matrices = context.getMatrices();
+        matrices.push();
+        matrices.translate(0.0F, (1.0F - MasteryTheme.easeOutCubic(fade)) * 8.0F, 0.0F);
+
+        int x1 = promptX + promptWidth;
+        int y1 = promptY + promptHeight;
+        context.fill(promptX + 3, promptY + 4, x1 + 3, y1 + 4, MasteryTheme.argb(0x000000, 0.5F * fade));
+        context.fill(promptX, promptY, x1, y1, MasteryTheme.argb(MasteryTheme.CARD, 0.98F * fade));
+        UiDraw.boxOutline(context, promptX, promptY, x1, y1, 1, MasteryTheme.argb(accent, 0.9F * fade));
+        UiDraw.cornerBrackets(context, promptX + 3, promptY + 3, x1 - 3, y1 - 3, 7, 1,
+                MasteryTheme.argb(accent, 0.7F * fade));
+
+        int textX = promptX + 12;
+        UiDraw.text(context, textRenderer,
+                UiDraw.fit(textRenderer, prompt.title(), promptWidth - 24), textX, promptY + 8,
+                MasteryTheme.argb(MasteryTheme.DISPLAY, fade), 1.0F, true);
+        context.fill(promptX + 1, promptY + 20, x1 - 1, promptY + 21,
+                MasteryTheme.argb(MasteryTheme.RULE, fade));
+        for (int i = 0; i < promptLines.size(); i++) {
+            UiDraw.text(context, textRenderer, promptLines.get(i), textX, promptY + 25 + i * 10,
+                    MasteryTheme.argb(MasteryTheme.BODY, 0.95F * fade), 1.0F, false);
+        }
+        int ruleY = promptY + promptHeight - 33;
+        context.fill(promptX + 1, ruleY, x1 - 1, ruleY + 1, MasteryTheme.argb(MasteryTheme.RULE, fade));
+
+        promptCancel.render(context, mouseX, mouseY, delta);
+        promptConfirm.render(context, mouseX, mouseY, delta);
+        matrices.pop();
+    }
+
     // --- glyphs -------------------------------------------------------------
 
     private void drawNodeIcon(DrawContext context, MasteryProfile.Node node, int index, float cx, float cy,
@@ -900,6 +1052,15 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (prompt != null) {
+            for (Element child : children()) {
+                if (child.mouseClicked(mouseX, mouseY, button)) {
+                    setFocused(child);
+                    break;
+                }
+            }
+            return true;
+        }
         for (Element child : children()) {
             if (child.mouseClicked(mouseX, mouseY, button)) {
                 setFocused(child);
@@ -935,6 +1096,9 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
 
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
+        if (prompt != null) {
+            return true;
+        }
         if (layout.compact && canvasZoom > 1.0F
                 && (button == GLFW.GLFW_MOUSE_BUTTON_MIDDLE || button == GLFW.GLFW_MOUSE_BUTTON_RIGHT)) {
             canvasPanX += (float) deltaX;
@@ -946,6 +1110,9 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
+        if (prompt != null) {
+            return true;
+        }
         if (layout.compact && insideCanvas(mouseX, mouseY) && verticalAmount != 0.0) {
             float oldZoom = canvasZoom;
             float worldX = (float) toLayoutX(mouseX);
@@ -966,6 +1133,22 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (prompt != null) {
+            if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
+                closePrompt();
+                return true;
+            }
+            Element focused = getFocused();
+            if ((focused == promptCancel || focused == promptConfirm)
+                    && focused.keyPressed(keyCode, scanCode, modifiers)) {
+                return true;
+            }
+            if (keyCode == GLFW.GLFW_KEY_ENTER || keyCode == GLFW.GLFW_KEY_SPACE) {
+                acceptPrompt();
+                return true;
+            }
+            return keyCode != GLFW.GLFW_KEY_TAB || super.keyPressed(keyCode, scanCode, modifiers);
+        }
         if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
             close();
             return true;
@@ -1005,6 +1188,13 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
     @Override
     protected void addScreenNarrations(NarrationMessageBuilder builder) {
         builder.put(NarrationPart.TITLE, getNarratedTitle());
+        if (prompt != null) {
+            NarrationMessageBuilder promptMessage = builder.nextMessage();
+            promptMessage.put(NarrationPart.TITLE, prompt.title());
+            promptMessage.put(NarrationPart.HINT, prompt.message());
+            addElementNarrations(promptMessage.nextMessage());
+            return;
+        }
         if (profile == null || layout == null) {
             addElementNarrations(builder.nextMessage());
             return;
@@ -1056,20 +1246,13 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
     }
 
     private void confirmUnlock(int index, MasteryProfile.Node node) {
-        if (client == null) {
-            return;
-        }
-        switchingView = true;
-        Text message = node.capstone()
-                ? Text.translatable("screen.simplymastery.unlock.confirm.capstone", node.cost())
-                : Text.translatable("screen.simplymastery.unlock.confirm.message", node.cost());
-        MasteryScreenSwitch.run(handler, () -> client.setScreen(new ConfirmScreen(confirmed -> {
-            MasteryScreenSwitch.run(handler, () -> client.setScreen(this));
-            if (confirmed) {
-                sendUnlock(index);
-            }
-        }, Text.translatable("screen.simplymastery.unlock.confirm.title", Text.translatable(node.nameKey())), message)));
-        switchingView = false;
+        openPrompt(new MasteryPrompt(
+                Text.translatable("screen.simplymastery.unlock.confirm.title",
+                        Text.translatable(node.nameKey())),
+                node.capstone()
+                        ? Text.translatable("screen.simplymastery.unlock.confirm.capstone", node.cost())
+                        : Text.translatable("screen.simplymastery.unlock.confirm.message", node.cost()),
+                () -> sendUnlock(index)));
     }
 
     private void sendUnlock(int index) {
@@ -1091,15 +1274,12 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
             MasteryUiSounds.denied();
             return;
         }
-        switchingView = true;
-        MasteryScreenSwitch.run(handler, () -> client.setScreen(new ConfirmScreen(confirmed -> {
-            MasteryScreenSwitch.run(handler, () -> client.setScreen(this));
-            if (confirmed) requestRespec();
-        }, Text.translatable("screen.simplymastery.respec.confirm.title"),
+        openPrompt(new MasteryPrompt(
+                Text.translatable("screen.simplymastery.respec.confirm.title"),
                 Text.translatable("screen.simplymastery.respec.confirm.message",
                         MasteryConfig.SERVER.respecCostCount, respecPaymentName(),
-                        current.spentPoints(profile)))));
-        switchingView = false;
+                        current.spentPoints(profile)),
+                this::requestRespec));
     }
 
     private void requestRespec() {
