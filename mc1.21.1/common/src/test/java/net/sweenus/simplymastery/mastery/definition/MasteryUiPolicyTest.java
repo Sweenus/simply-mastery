@@ -21,6 +21,19 @@ class MasteryUiPolicyTest {
     }
 
     @Test
+    void achievableNodesDiscountsTheUnreachableHalfOfEveryChoiceGroup() {
+        MasteryProfile profile = ProfileTestFixtures.stormsEdge();
+        for (MasteryProfile.Branch branch : profile.branches()) {
+            long declared = profile.nodes().stream()
+                    .filter(node -> node.branch().equals(branch.id())).count();
+            assertEquals(declared - 1, MasteryUiPolicy.achievableNodes(profile, branch.id()),
+                    "branch " + branch.id() + " has two mutually exclusive capstones");
+        }
+        assertEquals(profile.nodes().size() - profile.branches().size(),
+                MasteryUiPolicy.achievableNodes(profile, null));
+    }
+
+    @Test
     void authoredIconsResolveToTexturePathsAndMissingIconsRemainEmpty() {
         MasteryProfile source = ProfileTestFixtures.stormsEdge();
         MasteryProfile.Node plain = source.nodes().get(0);

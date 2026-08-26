@@ -77,7 +77,7 @@ public final class MasteryLayout {
         headerRight = screenWidth - marginX;
         headerBottom = headerTop + headerHeight;
 
-        backButtonWidth = Math.min(104, Math.max(64, screenWidth / 7));
+        backButtonWidth = Math.min(56, Math.max(38, screenWidth / 12));
         closeButtonWidth = Math.min(64, Math.max(46, screenWidth / 12));
         respecButtonWidth = Math.min(78, Math.max(58, screenWidth / 10));
         backButtonX = headerLeft + 7;
@@ -130,6 +130,7 @@ public final class MasteryLayout {
         float smallRadius = Math.clamp(capstoneRadius * 0.58F, 5.0F, 13.0F);
         float laneSpread = Math.max(0.0F, Math.min(bandHeight * 0.5F - capstoneRadius - 1.0F,
                 capstoneRadius * 2.6F));
+        float branchSpread = Math.max(laneSpread, bandHeight * 0.5F - smallRadius - 1.0F);
 
         laneBandTop = new float[laneCount];
         laneBandBottom = new float[laneCount];
@@ -182,7 +183,9 @@ public final class MasteryLayout {
             float offset = laneSpan <= 0.0001F
                     ? 0.0F
                     : ((float) node.y() - (laneMin + laneMax) * 0.5F) / (laneSpan * 0.5F);
-            nodeY[i] = bandCenter + offset * laneSpread;
+            nodeY[i] = node.capstone()
+                    ? bandCenter + offset * laneSpread
+                    : bandCenter + splay(offset) * branchSpread;
         }
 
         for (int i = 0; i < count; i++) {
@@ -197,6 +200,11 @@ public final class MasteryLayout {
                 }
             }
         }
+    }
+
+    private static float splay(float offset) {
+        float magnitude = Math.abs(offset);
+        return magnitude <= 0.0001F ? 0.0F : Math.signum(offset) * (float) Math.sqrt(magnitude);
     }
 
     private static int branchIndexOf(List<MasteryProfile.Branch> branches, String branchId) {

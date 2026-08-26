@@ -34,14 +34,27 @@ public final class UiDraw {
                 Math.round(cx + half), Math.round(cy + half), Math.max(1, Math.round(thickness)), argb);
     }
 
-    /** Concentric squares standing in for a radial glow falloff. */
+    /**
+     * Concentric squares standing in for a radial glow falloff. Bands are weighted
+     * quadratically so the outer edge fades to nothing instead of ending on a hard step, and
+     * two bands never land on the same rounded extent, which would double that step.
+     */
     public static void boxGlow(DrawContext context, float cx, float cy, float half, int rgb,
                                float alpha, int layers) {
-        if (alpha <= 0.002F || half < 1.0F) {
+        if (alpha <= 0.002F || half < 1.0F || layers <= 0) {
             return;
         }
-        for (int i = layers; i >= 1; i--) {
-            box(context, cx, cy, half * i / layers, MasteryTheme.argb(rgb, alpha));
+        int outer = Math.round(half);
+        int bands = Math.clamp(layers, 1, outer);
+        int previous = -1;
+        for (int i = bands; i >= 1; i--) {
+            int extent = Math.round(outer * i / (float) bands);
+            if (extent == previous) {
+                continue;
+            }
+            previous = extent;
+            float t = 1.0F - (i - 1) / (float) bands;
+            box(context, cx, cy, extent, MasteryTheme.argb(rgb, alpha * t * t));
         }
     }
 
@@ -365,7 +378,7 @@ public final class UiDraw {
     public static int keyCap(DrawContext context, TextRenderer renderer, Text label, int x, int y,
                              int inkRgb, int ruleRgb, float alpha) {
         int textWidth = renderer.getWidth(label);
-        int x1 = x + textWidth + 5;
+        int x1 = x + textWidth + 6;
         int y1 = y + 11;
         boxOutline(context, x, y, x1, y1, 1, MasteryTheme.argb(ruleRgb, 0.9F * alpha));
         text(context, renderer, label, x + 3, y + 2, MasteryTheme.argb(inkRgb, alpha), 1.0F, false);
