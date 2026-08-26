@@ -235,7 +235,8 @@ final class Phase5MasterySkillEffect implements AbilitySkillEffectType {
             case 4 -> t.with(s("ABSORPTION"), 2).with(s("COUNT"), 20).with(s("STATUS_DURATION_TICKS"), 60);
             case 5 -> t.with(s("PERIODIC_DAMAGE_MULTIPLIER"), .6);
             case 6 -> t.with(s("FIRE_TICKS"), 60).with(s("OUTGOING_MULTIPLIER"), 1.12);
-            case 7 -> t.with(s("HEAT_MAX"), 100).with(s("COUNT"), 75).with(s("OUTGOING_MULTIPLIER"), 1.35);
+            case 7 -> t.with(s("HEAT_MAX"), 100).with(s("HEAT_FLOOR"), 75)
+                    .with(s("OUTGOING_MULTIPLIER"), 1.35);
             case 8 -> t.with(s("HEAT_MAX"), 75).with(s("INCOMING_MULTIPLIER"), .5).with(s("OUTGOING_MULTIPLIER"), .35);
             default -> t;
         };
@@ -245,7 +246,7 @@ final class Phase5MasterySkillEffect implements AbilitySkillEffectType {
             case 2 -> t.add(s("RADIUS"), 1, 5).with(s("TARGET_CAP"), 16);
             case 3 -> t.with(s("PULL_STRENGTH"), 1.25).with(s("STATUS_DURATION_TICKS"), 60);
             case 4 -> t.with(s("REFUND_TICKS"), 1).with(s("COUNT"), 3);
-            case 5 -> t.with(s("RANGE"), 5).with(s("PULL_STRENGTH"), 20);
+            case 5 -> t.with(s("RANGE"), 5).with(s("TURN_DEGREES"), 20);
             case 6 -> t.with(s("COUNT"), 3).with(s("HEAT_GAIN"), 15);
             case 7 -> t.with(s("INTERVAL_TICKS"), 8).multiply(s("DAMAGE_MULTIPLIER"), .65, 1);
             case 8 -> t.with(s("SPEED"), 0).with(s("STATUS_AMPLIFIER"), 1).multiply(s("DAMAGE_MULTIPLIER"), 1.8, 1);

@@ -52,6 +52,8 @@ public final class MasteryCoverageReport {
 
     public static Result generate(Path output) throws IOException {
         MasteryProfileRegistry.Snapshot snapshot = MasteryProfileRegistry.server();
+        List<MasteryProfile> profiles = snapshot.profiles().values().stream().toList();
+        int balanceWarnings = MasteryBalanceReport.warnings(profiles).size();
         Set<Identifier> declaredUnique = declaredUniqueIds();
         List<Row> rows = new ArrayList<>();
         int errors = 0;
@@ -82,10 +84,10 @@ public final class MasteryCoverageReport {
         }
 
         Files.createDirectories(output.getParent());
-        Files.writeString(output, render(snapshot, rows, errors), StandardCharsets.UTF_8);
-        MasteryBalanceReport.write(output.resolveSibling("mastery-balance.md"),
-                snapshot.profiles().values().stream().toList());
-        return new Result(output, rows.size(), errors);
+        Files.writeString(output, render(snapshot, rows, errors, balanceWarnings), StandardCharsets.UTF_8);
+        MasteryBalanceReport.write(output.resolveSibling("mastery-balance.md"), profiles);
+        MasteryNodeAuditReport.write(output.resolveSibling("mastery-node-audit.md"), profiles);
+        return new Result(output, rows.size(), errors + balanceWarnings);
     }
 
     private static int execute(CommandContext<ServerCommandSource> context) {
@@ -112,13 +114,15 @@ public final class MasteryCoverageReport {
         return result;
     }
 
-    private static String render(MasteryProfileRegistry.Snapshot snapshot, List<Row> rows, int errors) {
+    private static String render(MasteryProfileRegistry.Snapshot snapshot, List<Row> rows, int errors,
+                                 int balanceWarnings) {
         StringBuilder markdown = new StringBuilder();
         markdown.append("# Simply Mastery unique-weapon coverage\n\n")
                 .append("Definition epoch: ").append(snapshot.epoch()).append("  \n")
                 .append("Loaded profiles: ").append(snapshot.profiles().size()).append("  \n")
                 .append("Inspected weapons: ").append(rows.size()).append("  \n")
-                .append("Coverage errors: ").append(errors).append("\n\n")
+                .append("Coverage errors: ").append(errors).append("  \n")
+                .append("Balance warnings: ").append(balanceWarnings).append("\n\n")
                 .append("| Item ID | Registration / class | Profile | Priority | Version | Form family | Banks XP | Error |\n")
                 .append("|---|---|---|---:|---:|:---:|:---:|---|\n");
         for (Row row : rows) {

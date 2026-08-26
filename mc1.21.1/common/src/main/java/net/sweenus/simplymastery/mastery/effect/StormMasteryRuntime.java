@@ -17,6 +17,7 @@ public final class StormMasteryRuntime {
     static final String OVERDRIVE = "storms_edge/overdrive";
     static final String LIVE_WIRE = "storms_edge/live_wire";
     static final String ARC_LASH = "storms_edge/arc_lash";
+    static final String SPRINT_HIT = "storms_edge/sprint_hit";
     private static final Map<ServerWorld, Map<Mark, Long>> IONIZED = new HashMap<>();
 
     private StormMasteryRuntime() {
@@ -56,10 +57,18 @@ public final class StormMasteryRuntime {
     }
 
     static long extend(ItemStack stack, String key, long tick, int extension, int maximumRemaining) {
-        long current = value(stack, key, tick).expiresAt();
-        long deadline = Math.min(tick + maximumRemaining, Math.max(tick, current) + extension);
-        set(stack, key, 1, deadline, tick);
+        MasteryRuntimeState.Value current = value(stack, key, tick);
+        long deadline = extendedDeadline(current.expiresAt(), tick, extension, maximumRemaining);
+        set(stack, key, current.amount(), deadline, tick);
         return deadline;
+    }
+
+    static long refreshedDeadline(long current, long tick, int duration) {
+        return Math.max(current, tick + duration);
+    }
+
+    static long extendedDeadline(long current, long tick, int extension, int maximumRemaining) {
+        return Math.min(tick + maximumRemaining, Math.max(tick, current) + extension);
     }
 
     static void ionize(ServerWorld world, UUID actor, UUID target, long expiresAt) {

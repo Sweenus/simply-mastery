@@ -190,7 +190,8 @@ final class Phase8MasterySkillEffect implements AbilitySkillEffectType {
             case 1 -> t.add(s("DURATION_TICKS"), 30, 80);
             case 2 -> t.with(s("PER_STACK_MULTIPLIER"), .11);
             case 3 -> t.with(s("COUNT"), 5);
-            case 4 -> t.with(s("STACK_CAP"), 8).with(s("DURATION_TICKS"), 40).with(s("TARGET_CAP"), 120);
+            case 4 -> t.with(s("STACK_CAP"), 8).with(s("DURATION_TICKS"), 40)
+                    .with(s("DURATION_CAP_TICKS"), 120);
             case 5 -> t.with(s("STATUS_DURATION_TICKS"), 20);
             case 6 -> t.add(s("STACK_CAP"), 3, 15).with(s("SECONDARY_DAMAGE_MULTIPLIER"), .05);
             case 7 -> t.with(s("STACK_CAP"), 10).with(s("LOCKOUT_TICKS"), 40);

@@ -269,7 +269,7 @@ final class Phase6MasterySkillEffect implements AbilitySkillEffectType {
             case 1 -> t.add(s("RADIUS"), 1, 5).with(s("TARGET_CAP"), 20);
             case 2 -> t.add(s("STATUS_DURATION_TICKS"), 20, 40);
             case 3 -> t.with(s("LOCKOUT_TICKS"), 60).with(s("SECONDARY_DAMAGE_MULTIPLIER"), .3);
-            case 4 -> t.with(s("FREEZE_TICKS"), 4).with(s("STACK_CAP"), 100);
+            case 4 -> t.with(s("FREEZE_TICKS"), 4).with(s("FREEZE_CAP_TICKS"), 100);
             case 5 -> t.with(s("COUNT"), 60).with(s("OUTGOING_MULTIPLIER"), 1.15);
             case 6 -> t.with(s("RADIUS"), 2).with(s("STATUS_AMPLIFIER"), 1);
             case 7 -> t.multiply(s("RADIUS"), .65, 5).multiply(s("DAMAGE_MULTIPLIER"), 1.8, 1).with(s("RANGE"), 2);

@@ -89,6 +89,7 @@ public final class SkillRuntime {
         COMBOS.clear(id);
         ATTACK_DEDUPLICATION.keySet().removeIf(key -> key.player.equals(id));
         HELD.remove(id);
+        StormMasteryRuntime.clear(id);
     }
 
     private static void tick(ServerPlayerEntity player) {

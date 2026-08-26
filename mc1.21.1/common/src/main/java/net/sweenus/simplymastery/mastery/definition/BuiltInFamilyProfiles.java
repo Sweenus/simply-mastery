@@ -388,7 +388,7 @@ public final class BuiltInFamilyProfiles {
             case "signature:7" -> effect("eye_of_storm", "radius_percent", 50, "damage_percent", 175);
             case "signature:8" -> effect("thunderhead", "radius_tenths", 20);
             case "combat:0" -> effect("static_reserve", "sprint_chance", 40);
-            case "combat:1" -> effect("charged_pursuit", "duration_ticks", 40, "amplifier", 0);
+            case "combat:1" -> effect("charged_pursuit", "duration_ticks", 40, "amplifier", 2);
             case "combat:2" -> effect("building_voltage", "chance_per_stack", 5,
                     "max_stacks", 4, "window_ticks", 60);
             case "combat:3" -> effect("live_wire", "damage_percent", 20, "cooldown_ticks", 10);

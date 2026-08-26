@@ -106,10 +106,16 @@ final class MasteryPhase5ContentTest {
 
     @Test
     void balanceLedgerAccountsForEveryNode() {
-        String ledger = MasteryBalanceReport.render(catalog().values().stream().toList());
+        List<MasteryProfile> profiles = catalog().values().stream().toList();
+        String ledger = MasteryBalanceReport.render(profiles);
         assertEquals(1_404, ledger.lines().filter(line -> line.startsWith("| `simplymastery:")).count());
+        assertTrue(MasteryBalanceReport.warnings(profiles).isEmpty());
+        assertTrue(ledger.contains("Reference nodes: 54"));
+        assertTrue(ledger.contains("Phased nodes: 1350"));
+        assertTrue(ledger.contains("Warnings: 0"));
         assertTrue(ledger.contains("Trigger frequency"));
         assertTrue(ledger.contains("Combat role"));
+        assertFalse(ledger.contains("unclassified"));
     }
 
     private static Map<Identifier, MasteryProfile> catalog() {

@@ -130,14 +130,14 @@ final class Phase2MasterySkillEffect implements AbilitySkillEffectType {
             case 3 -> t.with(s("STAIN_DURATION_TICKS"), 80).with(s("STAIN_AMPLIFIER"), 1)
                     .with(s("STATUS_DURATION_TICKS"), 40);
             case 4 -> t.with(s("BONUS_PER_TRIGGER"), .03).with(s("BONUS_CAP"), .24);
-            case 5 -> mode(t, 8).with(s("BONUS_PER_TRIGGER"), 20).with(s("EXTRA_DURATION_CAP"), 100);
+            case 5 -> mode(t, 8).with(s("DURATION_BONUS_TICKS"), 20).with(s("EXTRA_DURATION_CAP"), 100);
             case 6 -> mode(t, 16).with(s("RUPTURE_THRESHOLD_TICKS"), 160)
                     .with(s("SECONDARY_DAMAGE_MULTIPLIER"), .75).with(s("SECONDARY_TARGET_CAP"), 8);
             case 7 -> mode(t, 32).with(s("LOOSE_TARGET_CAP"), 160).with(s("TARGET_CAP"), 3)
                     .with(s("LAUNCH_SPEED"), .84)
                     .multiply(s("DAMAGE_MULTIPLIER"), .7, 1);
             case 8 -> mode(t, 64).multiply(s("DAMAGE_MULTIPLIER"), 1.75, 1)
-                    .with(s("BONUS_PER_TRIGGER"), 20).with(s("BONUS_CAP"), 160);
+                    .with(s("COOLDOWN_REFUND_TICKS"), 20).with(s("COOLDOWN_REFUND_CAP_TICKS"), 160);
             default -> t;
         };
         return switch (slot) {
@@ -299,10 +299,11 @@ final class Phase2MasterySkillEffect implements AbilitySkillEffectType {
             case 2 -> mode(t, 128).with(s("HASTE_DURATION_TICKS"), 60).with(s("HASTE_AMPLIFIER"), 0);
             case 3 -> mode(t, 256).with(s("DAMAGE_REDUCTION"), .2).with(s("DURATION_TICKS"), 40);
             case 4 -> mode(t, 512).with(s("HASTE_DURATION_TICKS"), 100).with(s("HASTE_AMPLIFIER"), 2)
-                    .with(s("BONUS_PER_TRIGGER"), 20);
+                    .with(s("LOCKOUT_TICKS"), 20);
             case 5 -> mode(t, 1024).with(s("DURATION_TICKS"), 60).with(s("BONUS_PER_TRIGGER"), .05)
                     .with(s("BONUS_CAP"), .2);
-            case 6 -> mode(t, 2048).with(s("BONUS_PER_TRIGGER"), 10).with(s("BONUS_CAP"), 40);
+            case 6 -> mode(t, 2048).with(s("COOLDOWN_REFUND_TICKS"), 10)
+                    .with(s("COOLDOWN_REFUND_CAP_TICKS"), 40);
             case 7 -> mode(t, 4096).with(s("HASTE_DURATION_TICKS"), 80).with(s("HASTE_AMPLIFIER"), 3)
                     .multiply(s("COOLDOWN_TICKS"), .5, 20).multiply(s("DAMAGE_MULTIPLIER"), .8, 1);
             case 8 -> mode(t, 8192).with(s("HASTE_DURATION_TICKS"), 0).with(s("DURATION_TICKS"), 80)
@@ -349,8 +350,8 @@ final class Phase2MasterySkillEffect implements AbilitySkillEffectType {
             case 3 -> t.with(s("BONUS_PER_TRIGGER"), .15);
             case 4 -> mode(t, 16).with(s("RANGE"), 3).with(s("INTERVAL_TICKS"), 40)
                     .with(s("SECONDARY_DAMAGE_MULTIPLIER"), .25).with(s("TARGET_CAP"), 8);
-            case 5 -> mode(t, 32).with(s("RANGE"), 5).with(s("BONUS_PER_TRIGGER"), 40)
-                    .with(s("BONUS_CAP"), 80);
+            case 5 -> mode(t, 32).with(s("RANGE"), 5).with(s("STAIN_EXTENSION_TICKS"), 40)
+                    .with(s("EXTRA_DURATION_CAP"), 80);
             case 6 -> mode(t, 64).with(s("RANGE"), 4).with(s("TARGET_CAP"), 5).with(s("PULL_STRENGTH"), 1);
             case 7 -> mode(t, 128).with(s("RANGE"), 6).with(s("MOVEMENT_SPEED"), .18)
                     .with(s("SECONDARY_DAMAGE_MULTIPLIER"), .6);

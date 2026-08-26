@@ -92,8 +92,14 @@ final class StormAbilitySkillEffects implements AbilitySkillEffectType {
                     .add(BuiltinUniqueAbilities.THUNDERCLAP_RADIUS,
                             parameter(node, "radius_tenths", 20) / 10.0));
             case STATIC_RESERVE -> {
-                if (definition == BuiltinUniqueAbilities.STORMS_EDGE_REFRESH && context.actor().isSprinting()) {
-                    tuning.set(BuiltinUniqueAbilities.REFRESH_CHANCE, parameter(node, "sprint_chance", 40));
+                if (definition == BuiltinUniqueAbilities.STORMS_EDGE_REFRESH) {
+                    boolean sprinting = sprintRefreshEligible(context.actor() instanceof ServerPlayerEntity,
+                            context.actor().isSprinting(), StormMasteryRuntime.value(
+                                    context.stack(), StormMasteryRuntime.SPRINT_HIT, tick).amount());
+                    StormMasteryRuntime.clear(context.stack(), StormMasteryRuntime.SPRINT_HIT);
+                    if (sprinting) {
+                        tuning.set(BuiltinUniqueAbilities.REFRESH_CHANCE, parameter(node, "sprint_chance", 40));
+                    }
                 }
             }
             case BUILDING_VOLTAGE -> {
@@ -174,9 +180,14 @@ final class StormAbilitySkillEffects implements AbilitySkillEffectType {
             case CHARGED_PURSUIT -> {
                 if (event.eventId().equals(BuiltinUniqueAbilities.REFRESH_PROC)) {
                     int duration = parameter(node, "duration_ticks", 40);
-                    StormMasteryRuntime.set(context.stack(), StormMasteryRuntime.PURSUIT, 1, tick + duration, tick);
-                    context.actor().addStatusEffect(new StatusEffectInstance(StatusEffects.SPEED, duration,
-                            parameter(node, "amplifier", 0), false, false, true), context.actor());
+                    int amplifier = parameter(node, "amplifier", 2);
+                    long current = StormMasteryRuntime.value(
+                            context.stack(), StormMasteryRuntime.PURSUIT, tick).expiresAt();
+                    long deadline = StormMasteryRuntime.refreshedDeadline(current, tick, duration);
+                    StormMasteryRuntime.set(context.stack(), StormMasteryRuntime.PURSUIT,
+                            amplifier + 1, deadline, tick);
+                    context.actor().addStatusEffect(new StatusEffectInstance(StatusEffects.SPEED,
+                            (int) Math.max(1, deadline - tick), amplifier, false, false, true), context.actor());
                 }
             }
             case BUILDING_VOLTAGE -> {
@@ -243,6 +254,13 @@ final class StormAbilitySkillEffects implements AbilitySkillEffectType {
                 parameter(node, "resistance_amplifier", 0), false, false, true));
     }
 
+    @Override
+    public void onAttack(SkillEffectContext.Attack context, MasteryProfile.Node node) {
+        if (kind != Kind.STATIC_RESERVE || !context.player().isSprinting()) return;
+        long tick = context.player().getServerWorld().getTime();
+        StormMasteryRuntime.set(context.stack(), StormMasteryRuntime.SPRINT_HIT, 1, tick + 2L, tick);
+    }
+
     private static void liveWire(UniqueAbilityEvent event, MasteryProfile.Node node, long tick) {
         if (!event.eventId().equals(BuiltinUniqueAbilities.MELEE_HIT) || event.target() == null) return;
         UniqueAbilityContext context = event.execution().context();
@@ -256,19 +274,39 @@ final class StormAbilitySkillEffects implements AbilitySkillEffectType {
     private static void quickening(UniqueAbilityEvent event, MasteryProfile.Node node, long tick) {
         LivingEntity target = event.target();
         UniqueAbilityContext context = event.execution().context();
-        if (target == null || target.isAlive()
+        if (!quickeningDamageEvent(event.eventId()) || target == null || target.isAlive()
                 || StormMasteryRuntime.value(context.stack(), StormMasteryRuntime.PURSUIT, tick).amount() == 0) return;
         long deadline = StormMasteryRuntime.extend(context.stack(), StormMasteryRuntime.PURSUIT, tick,
                 parameter(node, "extension_ticks", 40), parameter(node, "max_remaining_ticks", 120));
+        int amplifier = Math.max(0,
+                StormMasteryRuntime.value(context.stack(), StormMasteryRuntime.PURSUIT, tick).amount() - 1);
         context.actor().addStatusEffect(new StatusEffectInstance(StatusEffects.SPEED,
-                (int) Math.max(1, deadline - tick), 0, false, false, true), context.actor());
+                (int) Math.max(1, deadline - tick), amplifier, false, false, true), context.actor());
+    }
+
+    static boolean quickeningDamageEvent(Identifier id) {
+        return id.getNamespace().equals("simplyswords") && quickeningDamagePath(id.getPath());
+    }
+
+    static boolean quickeningDamagePath(String path) {
+        return path.equals("storms_edge_melee/hit")
+                || path.equals("stormbreak/corridor_hit")
+                || path.equals("stormbreak/thunderclap_hit")
+                || path.equals("stormbreak/afterimage_hit")
+                || path.equals("stormbreak/aftershock_hit")
+                || path.equals("stormbreak/judgment_hit")
+                || path.equals("stormbreak/supercell_hit");
+    }
+
+    static boolean sprintRefreshEligible(boolean player, boolean sprinting, int snapshot) {
+        return player ? snapshot > 0 : sprinting;
     }
 
     private static void flashover(UniqueAbilityEvent event, MasteryProfile.Node node) {
         if (!event.eventId().equals(BuiltinUniqueAbilities.REFRESH_PROC) || event.target() == null) return;
         UniqueAbilityContext context = event.execution().context();
-        List<LivingEntity> chain = SimplySwordsAPI.findAbilityChainTargets(context.world(), context.actor(),
-                event.target(), parameter(node, "targets", 3) + 1, parameter(node, "range_tenths", 50) / 10.0);
+        List<LivingEntity> chain = nearbyChainTargets(context, event.target(),
+                parameter(node, "targets", 3), parameter(node, "range_tenths", 50) / 10.0);
         float damage = scaled(event, false, parameter(node, "damage_percent", 35));
         Vec3d previous = event.target().getPos().add(0.0, event.target().getHeight() * 0.5, 0.0);
         int hits = 0;
@@ -288,8 +326,8 @@ final class StormAbilitySkillEffects implements AbilitySkillEffectType {
         UniqueAbilityContext context = event.execution().context();
         if (!StormMasteryRuntime.ionized(context.world(), context.actor().getUuid(), event.target().getUuid())
                 || StormMasteryRuntime.value(context.stack(), StormMasteryRuntime.ARC_LASH, tick).amount() > 0) return;
-        List<LivingEntity> chain = SimplySwordsAPI.findAbilityChainTargets(context.world(), context.actor(),
-                event.target(), 2, parameter(node, "range_tenths", 50) / 10.0);
+        List<LivingEntity> chain = nearbyChainTargets(context, event.target(),
+                1, parameter(node, "range_tenths", 50) / 10.0);
         LivingEntity target = chain.stream().filter(candidate -> candidate != event.target()).findFirst().orElse(null);
         if (target == null) return;
         StormMasteryRuntime.set(context.stack(), StormMasteryRuntime.ARC_LASH, 1,
@@ -319,6 +357,16 @@ final class StormAbilitySkillEffects implements AbilitySkillEffectType {
                 if (++hits >= parameter(node, "max_targets", 8)) return;
             }
         }
+    }
+
+    private static List<LivingEntity> nearbyChainTargets(UniqueAbilityContext context, LivingEntity origin,
+                                                          int targets, double range) {
+        if (origin.isAlive()) {
+            return SimplySwordsAPI.findAbilityChainTargets(
+                    context.world(), context.actor(), origin, targets + 1, range);
+        }
+        return SimplySwordsAPI.findAbilityChainTargetsFromPosition(
+                context.world(), context.actor(), origin.getPos(), targets, range);
     }
 
     private static void stormshield(UniqueAbilityEvent event, MasteryProfile.Node node) {

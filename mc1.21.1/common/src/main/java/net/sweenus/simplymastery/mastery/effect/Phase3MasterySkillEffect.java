@@ -301,7 +301,7 @@ final class Phase3MasterySkillEffect implements AbilitySkillEffectType {
         return switch (slot) {
             case 0 -> t.with(s("CHANCE"), 20);
             case 1 -> t.with(s("ABSORPTION"), 4).with(s("ABSORPTION_DURATION_TICKS"), 100);
-            case 2 -> mode(t, 1024).with(s("PER_STACK_BONUS"), 3).with(s("BONUS_CAP"), 15)
+            case 2 -> mode(t, 1024).with(s("CHANCE_PER_FAILURE"), 3).with(s("CHANCE_BONUS_CAP"), 15)
                     .with(s("STACK_DURATION_TICKS"), 100);
             case 3 -> mode(t, 2048).with(s("DAMAGE_REDUCTION"), .1);
             case 4 -> mode(t, 4096).with(s("STATUS_DURATION_TICKS"), 20).with(s("DAMAGE_REDUCTION"), .3);
