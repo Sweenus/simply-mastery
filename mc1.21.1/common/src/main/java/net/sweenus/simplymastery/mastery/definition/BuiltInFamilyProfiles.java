@@ -73,7 +73,8 @@ public final class BuiltInFamilyProfiles {
         } else if (phase2Profile(family.profilePath()) || phase3Profile(family.profilePath())
                 || phase4Profile(family.profilePath()) || phase5Profile(family.profilePath())
                 || phase6Profile(family.profilePath()) || phase7Profile(family.profilePath())
-                || phase8Profile(family.profilePath()) || phase9Profile(family.profilePath())) {
+                || phase8Profile(family.profilePath()) || phase9Profile(family.profilePath())
+                || phase10Profile(family.profilePath())) {
             version = 3;
             migrations.add(new MasteryProfile.Migration(2, 3, Map.of(), Map.of()));
         }
@@ -108,7 +109,8 @@ public final class BuiltInFamilyProfiles {
         boolean exactText = phase2Profile(family.profilePath()) || phase3Profile(family.profilePath())
                 || phase4Profile(family.profilePath()) || phase5Profile(family.profilePath())
                 || phase6Profile(family.profilePath()) || phase7Profile(family.profilePath())
-                || phase8Profile(family.profilePath()) || phase9Profile(family.profilePath());
+                || phase8Profile(family.profilePath()) || phase9Profile(family.profilePath())
+                || phase10Profile(family.profilePath());
         String nameKey = authored.isPresent()
                 ? "skill.simplymastery." + family.profilePath() + "." + branch.id() + "." + NODE_SLOTS[slot]
                 : "skill.simplymastery.style." + style + "." + NODE_SLOTS[slot];
@@ -138,6 +140,8 @@ public final class BuiltInFamilyProfiles {
         if (phase8.isPresent()) return phase8;
         Optional<MasteryProfile.Effect> phase9 = authoredPhase9Effect(family, branch, slot);
         if (phase9.isPresent()) return phase9;
+        Optional<MasteryProfile.Effect> phase10 = authoredPhase10Effect(family, branch, slot);
+        if (phase10.isPresent()) return phase10;
         if (!family.profilePath().equals("brimstone_claymore")) return Optional.empty();
         return Optional.of(switch (branch + ":" + slot) {
             case "signature:0" -> effect("sulfurous_edge", "chance_bonus", 5);
@@ -350,6 +354,26 @@ public final class BuiltInFamilyProfiles {
                 || profile.equals("caelestis");
     }
 
+    private static Optional<MasteryProfile.Effect> authoredPhase10Effect(Family family, String branch, int slot) {
+        List<String> profiles = List.of("watching_warglaive", "ribboncleaver", "riftmane",
+                "dawnquiver", "dreadtide");
+        int profile = profiles.indexOf(family.profilePath());
+        if (profile < 0) return Optional.empty();
+        int branchIndex = switch (branch) {
+            case "signature" -> 0;
+            case "combat" -> 1;
+            case "transformation" -> 2;
+            default -> throw new IllegalArgumentException("Unknown branch " + branch);
+        };
+        return Optional.of(effect("phase10_mastery", "kind", profile * 27 + branchIndex * 9 + slot));
+    }
+
+    private static boolean phase10Profile(String profile) {
+        return profile.equals("watching_warglaive") || profile.equals("ribboncleaver")
+                || profile.equals("riftmane") || profile.equals("dawnquiver")
+                || profile.equals("dreadtide");
+    }
+
     private static Optional<MasteryProfile.Effect> authoredStormEffect(Family family, String branch, int slot) {
         if (!family.profilePath().equals("storms_edge")) return Optional.empty();
         return Optional.of(switch (branch + ":" + slot) {
@@ -528,8 +552,8 @@ public final class BuiltInFamilyProfiles {
                 "Storm Charge", COMBO, "Chain Tempest", IMPACT);
         single(result, "bramblethorn", "Bramblethorn", "Wild Grasp", CONTROL,
                 "Thorn Dance", COMBO, "Verdant Renewal", SUSTAIN);
-        single(result, "watching_warglaive", "Watching Warglaive", "Unblinking Hunt", EXECUTION,
-                "Warglaive Orbit", COMBO, "Omen Guard", CONTROL);
+        single(result, "watching_warglaive", "Watching Warglaive", "Dreadmark", EXECUTION,
+                "Nightwing Hunt", COMBO, "Sanguine Watch", SUSTAIN);
         single(result, "toxic_longsword", "Longsword of the Plague", "Death Knell", CONTROL,
                 "Plague Tempo", COMBO, "Pestilent Harvest", SUSTAIN);
         single(result, "emberblade", "Emberblade", "Ember Ire", FRENZY,
@@ -572,12 +596,12 @@ public final class BuiltInFamilyProfiles {
                 "Elemental Cadence", COMBO, "Convergence", IMPACT);
         single(result, "flamewind", "Flamewind", "Emberstorm", CONTROL,
                 "Seed Cycle", COMBO, "Wildfire Release", IMPACT);
-        single(result, "ribboncleaver", "Ribboncleaver", "Ribbonwrath", GUARD,
-                "Cleaving Rush", MOBILITY, "Resilient Fury", FRENZY);
-        single(result, "riftmane", "Riftmane", "Vanguard", MOBILITY,
-                "Charger Rank", IMPACT, "Rift Command", CONTROL);
-        single(result, "dawnquiver", "Dawnquiver", "Seraph's Draw", EXECUTION,
-                "Dawn Chorus", COMBO, "Sunlance", IMPACT);
+        single(result, "ribboncleaver", "Ribboncleaver", "Heavy Ribbon", GUARD,
+                "Ribbon Rush", MOBILITY, "Cleaving Promise", FRENZY);
+        single(result, "riftmane", "Riftmane", "Rift Harrier", MOBILITY,
+                "Vanguard Rank", IMPACT, "Spectral Rider", CONTROL);
+        single(result, "dawnquiver", "Dawnquiver", "Lesser Dawn", EXECUTION,
+                "Dawn Chorus", COMBO, "Seraph's Draw", IMPACT);
         groupedSingle(result, "magiscythe", "Magiscythe", "decaying_relic", "Storm Core", IMPACT,
                 "Arc Strikes", CONTROL, "Magewright", SUSTAIN);
         groupedSingle(result, "magiblade", "Magiblade", "decaying_relic", "Repulsion", GUARD,
@@ -592,8 +616,8 @@ public final class BuiltInFamilyProfiles {
                 "Blood Rite", SUSTAIN, "Red Tide", IMPACT);
         single(result, "chompolotl", "Chomp'olotl", "Chompocalypse", CONTROL,
                 "Axolotl Rally", COMBO, "Blue Guardian", SUSTAIN);
-        single(result, "dreadtide", "Dreadtide", "Voidcaller", CONTROL,
-                "Voidcloak", GUARD, "Eldritch Release", EXECUTION);
+        single(result, "dreadtide", "Dreadtide", "Voidcloak", GUARD,
+                "Void Assault", CONTROL, "Corruption Pact", EXECUTION);
         return List.copyOf(result.values());
     }
 
