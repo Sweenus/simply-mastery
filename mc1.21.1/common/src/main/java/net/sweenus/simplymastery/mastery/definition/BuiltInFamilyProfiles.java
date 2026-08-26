@@ -73,7 +73,7 @@ public final class BuiltInFamilyProfiles {
         } else if (phase2Profile(family.profilePath()) || phase3Profile(family.profilePath())
                 || phase4Profile(family.profilePath()) || phase5Profile(family.profilePath())
                 || phase6Profile(family.profilePath()) || phase7Profile(family.profilePath())
-                || phase8Profile(family.profilePath())) {
+                || phase8Profile(family.profilePath()) || phase9Profile(family.profilePath())) {
             version = 3;
             migrations.add(new MasteryProfile.Migration(2, 3, Map.of(), Map.of()));
         }
@@ -108,7 +108,7 @@ public final class BuiltInFamilyProfiles {
         boolean exactText = phase2Profile(family.profilePath()) || phase3Profile(family.profilePath())
                 || phase4Profile(family.profilePath()) || phase5Profile(family.profilePath())
                 || phase6Profile(family.profilePath()) || phase7Profile(family.profilePath())
-                || phase8Profile(family.profilePath());
+                || phase8Profile(family.profilePath()) || phase9Profile(family.profilePath());
         String nameKey = authored.isPresent()
                 ? "skill.simplymastery." + family.profilePath() + "." + branch.id() + "." + NODE_SLOTS[slot]
                 : "skill.simplymastery.style." + style + "." + NODE_SLOTS[slot];
@@ -136,6 +136,8 @@ public final class BuiltInFamilyProfiles {
         if (phase7.isPresent()) return phase7;
         Optional<MasteryProfile.Effect> phase8 = authoredPhase8Effect(family, branch, slot);
         if (phase8.isPresent()) return phase8;
+        Optional<MasteryProfile.Effect> phase9 = authoredPhase9Effect(family, branch, slot);
+        if (phase9.isPresent()) return phase9;
         if (!family.profilePath().equals("brimstone_claymore")) return Optional.empty();
         return Optional.of(switch (branch + ":" + slot) {
             case "signature:0" -> effect("sulfurous_edge", "chance_bonus", 5);
@@ -325,6 +327,27 @@ public final class BuiltInFamilyProfiles {
         return profile.equals("toxic_longsword") || profile.equals("soulkeeper")
                 || profile.equals("soulstealer") || profile.equals("twisted_blade")
                 || profile.equals("shadowsting") || profile.equals("bloodwake");
+    }
+
+    private static Optional<MasteryProfile.Effect> authoredPhase9Effect(Family family, String branch, int slot) {
+        List<String> profiles = List.of("arcanethyst", "stars_edge", "magiscythe", "magiblade",
+                "magispear", "enigma", "caelestis");
+        int profile = profiles.indexOf(family.profilePath());
+        if (profile < 0) return Optional.empty();
+        int branchIndex = switch (branch) {
+            case "signature" -> 0;
+            case "combat" -> 1;
+            case "transformation" -> 2;
+            default -> throw new IllegalArgumentException("Unknown branch " + branch);
+        };
+        return Optional.of(effect("phase9_mastery", "kind", profile * 27 + branchIndex * 9 + slot));
+    }
+
+    private static boolean phase9Profile(String profile) {
+        return profile.equals("arcanethyst") || profile.equals("stars_edge")
+                || profile.equals("magiscythe") || profile.equals("magiblade")
+                || profile.equals("magispear") || profile.equals("enigma")
+                || profile.equals("caelestis");
     }
 
     private static Optional<MasteryProfile.Effect> authoredStormEffect(Family family, String branch, int slot) {
@@ -521,8 +544,8 @@ public final class BuiltInFamilyProfiles {
                 "Tidal Return", COMBO, "Tempest Current", CONTROL);
         single(result, "icewhisper", "Icewhisper", "Permafrost", CONTROL,
                 "Comet Cadence", IMPACT, "Winter Veil", GUARD);
-        single(result, "arcanethyst", "Arcanethyst", "Arcane Assault", CONTROL,
-                "Levitation Rhythm", COMBO, "Gravity Well", IMPACT);
+        single(result, "arcanethyst", "Arcanethyst", "Arcane Spark", ARCANE,
+                "Arcane Suspension", CONTROL, "Amethyst Impact", IMPACT);
         single(result, "thunderbrand", "Thunderbrand", "Thunder Blitz", MOBILITY,
                 "Stored Charge", GUARD, "Chain Release", IMPACT);
         single(result, "hearthflame", "Hearthflame", "Furnace Chains", CONTROL,
@@ -543,8 +566,8 @@ public final class BuiltInFamilyProfiles {
                 "Kindled Tempo", FRENZY, "Chrysalis Guard", GUARD);
         single(result, "hiveheart", "Hiveheart", "Hivemind", CONTROL,
                 "Swarm Cadence", COMBO, "Royal Guard", SUSTAIN);
-        single(result, "stars_edge", "Star's Edge", "Astral Reprise", COMBO,
-                "Constellation Step", MOBILITY, "Falling Star", IMPACT);
+        single(result, "stars_edge", "Star's Edge", "Solar Reprise", FRENZY,
+                "Lunar Reprise", SUSTAIN, "Constellation", MOBILITY);
         single(result, "tempest", "Tempest", "Elemental Vortex", CONTROL,
                 "Elemental Cadence", COMBO, "Convergence", IMPACT);
         single(result, "flamewind", "Flamewind", "Emberstorm", CONTROL,
@@ -555,16 +578,16 @@ public final class BuiltInFamilyProfiles {
                 "Charger Rank", IMPACT, "Rift Command", CONTROL);
         single(result, "dawnquiver", "Dawnquiver", "Seraph's Draw", EXECUTION,
                 "Dawn Chorus", COMBO, "Sunlance", IMPACT);
-        groupedSingle(result, "magiscythe", "Magiscythe", "decaying_relic", "Magistorm", IMPACT,
-                "Reaping Arc", EXECUTION, "Storm Renewal", SUSTAIN);
-        groupedSingle(result, "magiblade", "Magiblade", "decaying_relic", "Magisonic", CONTROL,
-                "Orbiting Warden", GUARD, "Sonic Release", IMPACT);
-        groupedSingle(result, "magispear", "Magispear", "decaying_relic", "Magislam", IMPACT,
-                "Skyward Vault", MOBILITY, "Spear Rain", COMBO);
-        single(result, "enigma", "Enigma", "Galeforce", MOBILITY,
-                "Twister Snare", CONTROL, "Eye of Enigma", GUARD);
-        single(result, "caelestis", "Caelestis", "Astral Breach", ARCANE,
-                "Riftling Command", CONTROL, "Unbound Pact", EXECUTION);
+        groupedSingle(result, "magiscythe", "Magiscythe", "decaying_relic", "Storm Core", IMPACT,
+                "Arc Strikes", CONTROL, "Magewright", SUSTAIN);
+        groupedSingle(result, "magiblade", "Magiblade", "decaying_relic", "Repulsion", GUARD,
+                "Warden Head", CONTROL, "Sonic Judgment", IMPACT);
+        groupedSingle(result, "magispear", "Magispear", "decaying_relic", "Spellpoint", ARCANE,
+                "Spear Rain", COMBO, "Magislam", IMPACT);
+        single(result, "enigma", "Enigma", "Stormchaser", MOBILITY,
+                "Vortex", CONTROL, "Tailwind", SUSTAIN);
+        single(result, "caelestis", "Caelestis", "Rift Host", CONTROL,
+                "Breach Maw", ARCANE, "Unbound Pact", EXECUTION);
         single(result, "bloodwake", "Bloodwake", "Crimson Revelry", FRENZY,
                 "Blood Rite", SUSTAIN, "Red Tide", IMPACT);
         single(result, "chompolotl", "Chomp'olotl", "Chompocalypse", CONTROL,
