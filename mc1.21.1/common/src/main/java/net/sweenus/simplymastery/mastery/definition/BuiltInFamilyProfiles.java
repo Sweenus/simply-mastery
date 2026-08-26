@@ -173,7 +173,7 @@ public final class BuiltInFamilyProfiles {
             case "combat:7" -> effect("executioners_drop", "duration_ticks", 60,
                     "final_damage_percent", 225);
             case "combat:8" -> effect("perpetual_furnace", "duration_ticks", 200,
-                    "start_percent", 75, "per_pulse_percent", 5, "cap_percent", 150,
+                    "start_percent", 75, "per_pulse_percent", 10, "cap_percent", 150,
                     "final_damage_percent", 50);
             case "transformation:0" -> effect("cinder_mantle", "duration_ticks", 80,
                     "amplifier", 0);

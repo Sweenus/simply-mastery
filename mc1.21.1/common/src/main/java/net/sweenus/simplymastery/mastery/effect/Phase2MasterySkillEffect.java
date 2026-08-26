@@ -7,8 +7,6 @@ import net.sweenus.simplyswords.api.ability.Phase2AbilityTuning;
 import net.sweenus.simplyswords.api.ability.Phase2UniqueAbilities;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityContext;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityDefinition;
-import net.sweenus.simplyswords.api.ability.UniqueAbilityEvent;
-import net.sweenus.simplyswords.api.ability.UniqueAbilityPhase;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityTuning;
 
 import java.util.List;
@@ -61,11 +59,13 @@ final class Phase2MasterySkillEffect implements AbilitySkillEffectType {
             case 1 -> t.with(s("STACK_CAP"), 6);
             case 2 -> t.with(s("MARKED_TARGET_CAP"), 7);
             case 3 -> t.with(s("MELEE_BONUS_PER_STACK"), .03).with(s("MELEE_BONUS_CAP"), .18);
-            case 4 -> mode(t, 1).with(s("THRESHOLD"), 4).with(s("RANGE"), 4).with(s("LOCKOUT_TICKS"), 40);
-            case 5 -> mode(t, 2).with(s("THRESHOLD"), 30).with(s("LOCKOUT_TICKS"), 80);
+            case 4 -> mode(t, 1).with(s("THRESHOLD"), 4).with(s("SCAN_RADIUS"), 4)
+                    .with(s("LOCKOUT_TICKS"), 40);
+            case 5 -> mode(t, 2).with(s("REPEAT_WINDOW_TICKS"), 30).with(s("REPEAT_LOCKOUT_TICKS"), 80);
             case 6 -> mode(t, 4).with(s("COOLDOWN_REFUND_TICKS"), 30);
             case 7 -> mode(t, 8).with(s("STACK_CAP"), 3).with(s("MARKED_TARGET_CAP"), 12)
-                    .with(s("SECONDARY_TARGET_CAP"), 3).multiply(s("COOLDOWN_TICKS"), 1.25, 180);
+                    .with(s("SECONDARY_TARGET_CAP"), 3).with(s("IMPACT_RADIUS"), 12)
+                    .with(s("SECONDARY_DAMAGE_MULTIPLIER"), .7).multiply(s("COOLDOWN_TICKS"), 1.25, 180);
             case 8 -> mode(t, 16).with(s("STACK_CAP"), 8).with(s("MARKED_TARGET_CAP"), 1)
                     .with(s("FINAL_PER_STACK_MULTIPLIER"), .2);
             default -> t;
@@ -90,17 +90,18 @@ final class Phase2MasterySkillEffect implements AbilitySkillEffectType {
         return switch (slot) {
             case 0 -> t.with(s("EXECUTE_THRESHOLD"), .28);
             case 1 -> t.multiply(s("ABSORPTION_MULTIPLIER"), 1.15, 1);
-            case 2 -> mode(t, 256).with(s("REVIVE_ABSORPTION"), 4).with(s("STATUS_DURATION_TICKS"), 100);
-            case 3 -> mode(t, 512).with(s("STATUS_DURATION_TICKS"), 60);
-            case 4 -> mode(t, 1024).with(s("THRESHOLD"), 4).with(s("DAMAGE_REDUCTION"), .15);
-            case 5 -> mode(t, 2048).with(s("THRESHOLD"), 30).with(s("RANGE"), 12).with(s("LOCKOUT_TICKS"), 200);
-            case 6 -> mode(t, 4096).with(s("BONUS_PER_TRIGGER"), .05).with(s("BONUS_CAP"), .4)
-                    .with(s("DURATION_TICKS"), 120);
-            case 7 -> mode(t, 8192).with(s("EXECUTE_THRESHOLD"), 0).with(s("ABSORPTION_MULTIPLIER"), 1.5)
-                    .with(s("STATUS_DURATION_TICKS"), 60);
-            case 8 -> mode(t, 16384).with(s("EXECUTE_THRESHOLD"), .35).with(s("THRESHOLD"), 6)
-                    .with(s("ABSORPTION_MULTIPLIER"), 0).with(s("DAMAGE_MULTIPLIER"), .7)
-                    .add(s("COOLDOWN_TICKS"), 100, 180);
+            case 2 -> mode(t, 256).with(s("REVIVE_ABSORPTION"), 4);
+            case 3 -> mode(t, 512);
+            case 4 -> mode(t, 1024).with(s("INCOMING_DREAD_THRESHOLD"), 4).with(s("DAMAGE_REDUCTION"), .15);
+            case 5 -> mode(t, 2048).with(s("LOW_HEALTH_PERCENT"), 30).with(s("TRIGGER_RADIUS"), 12)
+                    .with(s("PASSIVE_COOLDOWN_TICKS"), 200);
+            case 6 -> mode(t, 4096).with(s("CLAIM_BONUS_PER_POINT"), .05).with(s("CLAIM_BONUS_CAP"), .4)
+                    .with(s("CLAIM_DURATION_TICKS"), 120);
+            case 7 -> mode(t, 8192).with(s("EXECUTE_THRESHOLD"), .28).with(s("ABSORPTION_MULTIPLIER"), 1.5)
+                    .with(s("EMBEDDED_DURATION_TICKS"), 60);
+            case 8 -> mode(t, 16384).with(s("EXECUTE_THRESHOLD"), .35)
+                    .with(s("EXECUTE_DREAD_THRESHOLD"), 6)
+                    .with(s("ABSORPTION_MULTIPLIER"), 0).with(s("DAMAGE_MULTIPLIER"), .7);
             default -> t;
         };
     }
@@ -112,10 +113,11 @@ final class Phase2MasterySkillEffect implements AbilitySkillEffectType {
             case 2 -> t.with(s("PULL_STRENGTH"), .34);
             case 3 -> t.with(s("DURATION_TICKS"), 900);
             case 4 -> t.with(s("TARGET_CAP"), 8).with(s("CANDIDATE_CAP"), 32);
-            case 5 -> t.with(s("ACCELERATE_THRESHOLD_TICKS"), 100).with(s("PULSE_INTERVAL_TICKS"), 16);
+            case 5 -> t.with(s("ACCELERATE_THRESHOLD_TICKS"), 100)
+                    .with(s("ACCELERATED_INTERVAL_TICKS"), 16);
             case 6 -> mode(t, 1).with(s("IMPACT_DAMAGE_MULTIPLIER"), 1.25).with(s("IMPACT_RADIUS"), 4.5)
                     .with(s("IMPACT_TARGET_CAP"), 12);
-            case 7 -> mode(t, 2).with(s("RANGE"), 10).with(s("MOVEMENT_SPEED"), .25)
+            case 7 -> mode(t, 2).with(s("FOLLOW_RANGE"), 10).with(s("MOVEMENT_SPEED"), .25)
                     .with(s("DURATION_TICKS"), 600).with(s("RADIUS"), 3)
                     .multiply(s("DAMAGE_MULTIPLIER"), .8, 1);
             case 8 -> mode(t, 4).with(s("RADIUS"), 6).with(s("TARGET_CAP"), 12)
@@ -127,8 +129,7 @@ final class Phase2MasterySkillEffect implements AbilitySkillEffectType {
             case 0 -> t.with(s("LOOSE_TARGET_CAP"), 96).with(s("LAUNCH_SPEED"), .42);
             case 1 -> t.with(s("TENDRIL_CAP"), 5);
             case 2 -> t.with(s("STAIN_TARGET_CAP"), 16).with(s("STAIN_RADIUS"), 1.6);
-            case 3 -> t.with(s("STAIN_DURATION_TICKS"), 80).with(s("STAIN_AMPLIFIER"), 1)
-                    .with(s("STATUS_DURATION_TICKS"), 40);
+            case 3 -> t.with(s("STAIN_DURATION_TICKS"), 80).with(s("STAIN_AMPLIFIER"), 1);
             case 4 -> t.with(s("BONUS_PER_TRIGGER"), .03).with(s("BONUS_CAP"), .24);
             case 5 -> mode(t, 8).with(s("DURATION_BONUS_TICKS"), 20).with(s("EXTRA_DURATION_CAP"), 100);
             case 6 -> mode(t, 16).with(s("RUPTURE_THRESHOLD_TICKS"), 160)
@@ -145,12 +146,14 @@ final class Phase2MasterySkillEffect implements AbilitySkillEffectType {
             case 1 -> t.with(s("REPRISAL_RADIUS"), 4);
             case 2 -> t.with(s("REPRISAL_PULL"), .38);
             case 3 -> t.multiply(s("REPRISAL_DAMAGE_MULTIPLIER"), 1.12, 1);
-            case 4 -> mode(t, 128).with(s("BONUS_PER_TRIGGER"), .25);
-            case 5 -> mode(t, 256).with(s("REVIVE_ABSORPTION"), 3).with(s("STATUS_DURATION_TICKS"), 60);
-            case 6 -> t.with(s("REPRISAL_TARGET_CAP"), 9).with(s("SECONDARY_DAMAGE_MULTIPLIER"), .7);
+            case 4 -> mode(t, 128).with(s("ROUTED_DAMAGE_BONUS"), .25);
+            case 5 -> mode(t, 256).with(s("REVIVE_ABSORPTION"), 3)
+                    .with(s("ABSORPTION_DURATION_TICKS"), 60);
+            case 6 -> t.with(s("REPRISAL_TARGET_CAP"), 9)
+                    .with(s("REPRISAL_SECONDARY_MULTIPLIER"), .7);
             case 7 -> mode(t, 512).with(s("REPRISAL_DAMAGE_MULTIPLIER"), .5)
-                    .with(s("DAMAGE_REDUCTION"), .5).with(s("REPRISAL_TARGET_CAP"), 9)
-                    .with(s("PULL_STRENGTH"), 2).with(s("LOCKOUT_TICKS"), 80);
+                    .with(s("REPRISAL_TARGET_CAP"), 9).with(s("REPRISAL_PUSH_STRENGTH"), 2)
+                    .with(s("REPRISAL_GUARD_TICKS"), 60).with(s("LOCKOUT_TICKS"), 80);
             case 8 -> mode(t, 1024).with(s("REPRISAL_DAMAGE_MULTIPLIER"), 2.25)
                     .with(s("REPRISAL_TARGET_CAP"), 1).with(s("RANGE"), 30).with(s("LOCKOUT_TICKS"), 40);
             default -> t;
@@ -161,16 +164,19 @@ final class Phase2MasterySkillEffect implements AbilitySkillEffectType {
         if (branch == 0) return switch (slot) {
             case 0 -> t.multiply(s("PROJECTILE_DAMAGE_MULTIPLIER"), 1.1, 1);
             case 1 -> t.with(s("PROJECTILE_SPEED"), 1.8);
-            case 2 -> t.with(s("PROJECTILE_LIFETIME"), 100);
-            case 3 -> t.with(s("FIRE_TICKS"), 60);
-            case 4 -> t.with(s("COOLDOWN_TICKS"), 26);
-            case 5 -> t.with(s("PIERCE_COUNT"), 1).with(s("SECONDARY_DAMAGE_MULTIPLIER"), .7);
+            case 2 -> t.with(s("RETURN_TRAIL_RADIUS"), 2.5).with(s("RETURN_TRAIL_DAMAGE_MULTIPLIER"), .5)
+                    .with(s("PROJECTILE_LIFETIME"), 100);
+            case 3 -> t.with(s("PROJECTILE_FIRE_TICKS"), 60);
+            case 4 -> t.with(s("LOYALTY"), 5).with(s("COOLDOWN_TICKS"), 26);
+            case 5 -> t.with(s("PIERCE_COUNT"), 1).with(s("PIERCE_DAMAGE_MULTIPLIER"), .7);
             case 6 -> t.with(s("IMPACT_DAMAGE_MULTIPLIER"), .35).with(s("IMPACT_RADIUS"), 2.5)
-                    .with(s("IMPACT_TARGET_CAP"), 5).with(s("LOCKOUT_TICKS"), 20);
-            case 7 -> mode(t, 1).with(s("PROJECTILE_SPEED"), 2.2).with(s("PROJECTILE_DAMAGE_MULTIPLIER"), 1.8)
-                    .with(s("LOYALTY"), 0).with(s("DURATION_TICKS"), 60);
-            case 8 -> mode(t, 2).with(s("DURATION_TICKS"), 60).with(s("INTERVAL_TICKS"), 20)
-                    .with(s("SECONDARY_DAMAGE_MULTIPLIER"), .45).with(s("PROJECTILE_DAMAGE_MULTIPLIER"), .6)
+                    .with(s("IMPACT_TARGET_CAP"), 5);
+            case 7 -> mode(t, 1).with(s("PROJECTILE_SPEED"), 2.2)
+                    .multiply(s("PROJECTILE_DAMAGE_MULTIPLIER"), 1.8, 1)
+                    .with(s("LOYALTY"), 0).with(s("RETURN_DELAY_TICKS"), 60);
+            case 8 -> mode(t, 2).with(s("ORBIT_DURATION_TICKS"), 60).with(s("INTERVAL_TICKS"), 20)
+                    .with(s("SECONDARY_DAMAGE_MULTIPLIER"), .45)
+                    .multiply(s("PROJECTILE_DAMAGE_MULTIPLIER"), .6, 1)
                     .with(s("COOLDOWN_TICKS"), 100);
             default -> t;
         };
@@ -179,34 +185,33 @@ final class Phase2MasterySkillEffect implements AbilitySkillEffectType {
             case 1 -> t.with(s("STACK_CAP"), 5);
             case 2 -> t.multiply(s("MELEE_BONUS_PER_STACK"), 1.1, 1);
             case 3 -> mode(t, 4).with(s("LOCKOUT_TICKS"), 20);
-            case 4 -> mode(t, 8).with(s("FIRE_TICKS"), 40).with(s("BONUS_PER_TRIGGER"), .2);
+            case 4 -> mode(t, 8).with(s("FIRE_TICKS"), 40).with(s("BURN_DAMAGE_BONUS"), .2);
             case 5 -> mode(t, 16).with(s("DURATION_TICKS"), 40).with(s("BONUS_PER_TRIGGER"), .05)
                     .with(s("BONUS_CAP"), .2);
-            case 6 -> mode(t, 32).with(s("THRESHOLD"), 2).with(s("LOCKOUT_TICKS"), 40);
-            case 7 -> mode(t, 64).with(s("IMPACT_DAMAGE_MULTIPLIER"), .45).with(s("IMPACT_RADIUS"), 3)
-                    .with(s("IMPACT_TARGET_CAP"), 6);
-            case 8 -> mode(t, 128).with(s("STACK_CAP"), 3).with(s("MELEE_BONUS_PER_STACK"), 1.75)
-                    .with(s("THRESHOLD"), 4);
+            case 6 -> mode(t, 32).with(s("TWIN_STACK_GRANT"), 2).with(s("TWIN_LOCKOUT_TICKS"), 40);
+            case 7 -> mode(t, 64).with(s("MELEE_IMPACT_DAMAGE_MULTIPLIER"), .45)
+                    .with(s("MELEE_IMPACT_RADIUS"), 3).with(s("MELEE_IMPACT_TARGET_CAP"), 6);
+            case 8 -> mode(t, 128).with(s("STACK_CAP"), 3)
+                    .multiply(s("MELEE_BONUS_PER_STACK"), 1.75, 1).with(s("ARMOR_IGNORE"), 4);
             default -> t;
         };
         return switch (slot) {
             case 0 -> t.with(s("DAMAGE_REDUCTION"), .1);
-            case 1 -> t.with(s("REVIVE_HEALTH_MULTIPLIER"), 1).with(s("REVIVE_ABSORPTION"), 4)
-                    .with(s("STATUS_DURATION_TICKS"), 100);
+            case 1 -> t.with(s("REVIVE_ABSORPTION"), 4);
             case 2 -> t.with(s("STATUS_DURATION_TICKS"), 140);
-            case 3 -> mode(t, 256).with(s("THRESHOLD"), 30).with(s("STATUS_DURATION_TICKS"), 60)
-                    .with(s("LOCKOUT_TICKS"), 300);
+            case 3 -> mode(t, 256).with(s("LOW_HEALTH_PERCENT"), 30).with(s("GUARD_STATUS_TICKS"), 60)
+                    .with(s("GUARD_LOCKOUT_TICKS"), 300);
             case 4 -> mode(t, 512).with(s("RADIUS"), 6).with(s("TARGET_CAP"), 8)
-                    .with(s("STATUS_DURATION_TICKS"), 80);
-            case 5 -> mode(t, 1024).with(s("DURATION_TICKS"), 100).with(s("DAMAGE_MULTIPLIER"), .6)
-                    .with(s("FIRE_TICKS"), 100);
-            case 6 -> t.with(s("REVIVE_COOLDOWN_MULTIPLIER"), .85).with(s("COOLDOWN_TICKS"), 600);
+                    .with(s("ALLY_STATUS_TICKS"), 80);
+            case 5 -> mode(t, 1024).with(s("REVIVE_WINDOW_TICKS"), 100).with(s("DAMAGE_MULTIPLIER"), .6)
+                    .with(s("REVIVE_FIRE_TICKS"), 100);
+            case 6 -> t.multiply(s("REVIVE_COOLDOWN_MULTIPLIER"), .85, 1)
+                    .with(s("REVIVE_COOLDOWN_FLOOR_TICKS"), 600);
             case 7 -> mode(t, 2048).with(s("REVIVE_HEALTH_MULTIPLIER"), .5)
-                    .with(s("REVIVE_COOLDOWN_MULTIPLIER"), .6).with(s("STATUS_AMPLIFIER"), 1)
+                    .multiply(s("REVIVE_COOLDOWN_MULTIPLIER"), .6, 1).with(s("STATUS_AMPLIFIER"), 1)
                     .with(s("STATUS_DURATION_TICKS"), 80);
-            case 8 -> mode(t, 4096).with(s("REVIVE_HEALTH_MULTIPLIER"), 0).with(s("IMPACT_RADIUS"), 5)
-                    .with(s("IMPACT_DAMAGE_MULTIPLIER"), 2).with(s("IMPACT_TARGET_CAP"), 12)
-                    .with(s("COOLDOWN_TICKS"), 1200);
+            case 8 -> mode(t, 4096).with(s("REVIVE_HEALTH_MULTIPLIER"), 0).with(s("PYRE_RADIUS"), 5)
+                    .with(s("PYRE_DAMAGE_MULTIPLIER"), 2).with(s("PYRE_TARGET_CAP"), 12);
             default -> t;
         };
     }
@@ -360,18 +365,6 @@ final class Phase2MasterySkillEffect implements AbilitySkillEffectType {
                     .add(s("COOLDOWN_TICKS"), 120, 600);
             default -> t;
         };
-    }
-
-    @Override
-    public void onAbilityEvent(UniqueAbilityEvent event, MasteryProfile.Node node) {
-        String executionKey = "execution/" + event.execution().definition().id().getPath();
-        long tick = event.execution().context().world().getTime();
-        if (event.phase() == UniqueAbilityPhase.START) {
-            Phase2MasteryRuntime.set(event.execution().context().stack(), executionKey, 1, tick + 1200, tick);
-        } else if (event.phase() == UniqueAbilityPhase.FINISH || event.phase() == UniqueAbilityPhase.CANCEL) {
-            Phase2MasteryRuntime.clear(event.execution().context().stack(), executionKey);
-            return;
-        }
     }
 
     private static boolean matches(int profile, UniqueAbilityDefinition definition) {
