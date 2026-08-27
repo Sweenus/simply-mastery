@@ -50,9 +50,14 @@ final class Phase3MasterySkillEffect implements AbilitySkillEffectType {
             case 5 -> dreadwhisper(value, branch, slot);
             default -> value;
         };
+        if (definition.cooldownKey().isPresent() && !value.has(s("COOLDOWN_BASE_TICKS"))) {
+            value = value.with(s("COOLDOWN_BASE_TICKS"), tuning.get(Phase3UniqueAbilities.COOLDOWN_TICKS));
+        }
         tuning.set(Phase3UniqueAbilities.TUNING, value);
         if (definition.cooldownKey().isPresent()) {
-            int cooldown = value.integer(s("COOLDOWN_TICKS"), tuning.get(Phase3UniqueAbilities.COOLDOWN_TICKS));
+            int base = value.integer(s("COOLDOWN_BASE_TICKS"),
+                    tuning.get(Phase3UniqueAbilities.COOLDOWN_TICKS));
+            int cooldown = value.integer(s("COOLDOWN_TICKS"), base);
             double multiplier = value.get(s("COOLDOWN_MULTIPLIER"), 1);
             tuning.set(Phase3UniqueAbilities.COOLDOWN_TICKS, (int) Math.round(cooldown * multiplier));
         }
@@ -61,14 +66,15 @@ final class Phase3MasterySkillEffect implements AbilitySkillEffectType {
     private static Phase3AbilityTuning stormscale(Phase3AbilityTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
             case 0 -> t.with(s("RANGE"), 22);
-            case 1 -> t.with(s("RADIUS"), 4).with(s("TARGET_CAP"), 24);
+            case 1 -> t.with(s("RADIUS"), 4);
             case 2 -> t.with(s("ROD_DURATION_TICKS"), 900);
             case 3 -> t.with(s("TETHER_RANGE"), 38);
             case 4 -> t.with(s("TRAVEL_TICKS"), 12);
-            case 5 -> mode(t, 1).with(s("IMPACT_DAMAGE_MULTIPLIER"), .7);
-            case 6 -> mode(t, 2).with(s("REPOSITION_RANGE"), 14).with(s("LOCKOUT_TICKS"), 80);
+            case 5 -> mode(t, 1).with(s("PLANT_DAMAGE_MULTIPLIER"), .7);
+            case 6 -> mode(t, 2).with(s("REPOSITION_RANGE"), 14)
+                    .with(s("REPOSITION_DURATION_COST_TICKS"), 80);
             case 7 -> mode(t, 4).with(s("MOVEMENT_SPEED"), .3).with(s("RADIUS"), 3)
-                    .with(s("DAMAGE_MULTIPLIER"), .75).with(s("GROWTH_CAP"), .4);
+                    .with(s("DAMAGE_MULTIPLIER"), .75).with(s("GROWTH_CAP_LIMIT"), .4);
             case 8 -> mode(t, 8).with(s("RADIUS"), 6).with(s("DAMAGE_MULTIPLIER"), 1.4)
                     .with(s("TETHER_RANGE"), 20).with(s("ROD_DURATION_TICKS"), 600)
                     .with(s("COOLDOWN_MULTIPLIER"), 1.2);
@@ -76,17 +82,18 @@ final class Phase3MasterySkillEffect implements AbilitySkillEffectType {
         };
         if (branch == 1) return switch (slot) {
             case 0 -> t.multiply(s("DAMAGE_MULTIPLIER"), 1.1, 1);
-            case 1 -> t.with(s("GROWTH_PER_HIT"), .015).with(s("GROWTH_CAP"), .8);
+            case 1 -> t.with(s("GROWTH_PER_HIT"), .015);
             case 2 -> t.with(s("GROWTH_CAP"), 1);
-            case 3 -> mode(t, 16).with(s("IMPACT_DAMAGE_MULTIPLIER"), .5).with(s("LOCKOUT_TICKS"), 10);
-            case 4 -> mode(t, 32).with(s("STATUS_DURATION_TICKS"), 60).with(s("DELAY_TICKS"), 4)
-                    .with(s("TARGET_CAP"), 12);
+            case 3 -> mode(t, 16).with(s("SECOND_CHARGE_MULTIPLIER"), .5)
+                    .with(s("DOUBLE_CHARGE_LOCKOUT_TICKS"), 10);
+            case 4 -> mode(t, 32).with(s("CONDUCTIVE_DURATION_TICKS"), 60).with(s("DELAY_TICKS"), 4)
+                    .with(s("CONDUCTIVE_TARGET_CAP"), 12);
             case 5 -> mode(t, 64).with(s("BONUS_CAP"), .2).with(s("PER_STACK_BONUS"), .05);
-            case 6 -> mode(t, 128).with(s("THRESHOLD"), 5).with(s("IMPACT_DAMAGE_MULTIPLIER"), .6);
-            case 7 -> mode(t, 256).with(s("IMPACT_DAMAGE_MULTIPLIER"), .55)
-                    .with(s("GROWTH_PER_HIT"), .02).with(s("RADIUS"), 4.5);
-            case 8 -> mode(t, 512).with(s("COUNT"), 10).with(s("RADIUS"), 6)
-                    .with(s("IMPACT_DAMAGE_MULTIPLIER"), .35).with(s("DURATION_TICKS"), 120)
+            case 6 -> mode(t, 128).with(s("SURGE_INTERVAL"), 5).with(s("EXTRA_PULSE_MULTIPLIER"), .6);
+            case 7 -> mode(t, 256).with(s("INSTANT_PULSE_MULTIPLIER"), .55)
+                    .multiply(s("GROWTH_PER_HIT"), 2, .01).with(s("RADIUS_CAP"), 4.5);
+            case 8 -> mode(t, 512).with(s("COUNT"), 10).with(s("STORED_PULSE_RADIUS"), 6)
+                    .with(s("STORED_PULSE_MULTIPLIER"), .35).with(s("DURATION_TICKS"), 120)
                     .add(s("COOLDOWN_TICKS"), 80, 1000);
             default -> t;
         };
@@ -94,16 +101,16 @@ final class Phase3MasterySkillEffect implements AbilitySkillEffectType {
             case 0 -> t.with(s("PULL_STRENGTH"), .38);
             case 1 -> t.with(s("SLOW_DURATION_TICKS"), 40).with(s("STATUS_AMPLIFIER"), 0);
             case 2 -> t.with(s("DAMAGE_REDUCTION"), .15);
-            case 3 -> mode(t, 1024).with(s("IMPACT_DAMAGE_MULTIPLIER"), .25).with(s("CHAIN_RANGE"), 3)
+            case 3 -> mode(t, 1024).with(s("CHAIN_DAMAGE_MULTIPLIER"), .25).with(s("CHAIN_RANGE"), 3)
                     .with(s("CHAIN_TARGET_CAP"), 3);
             case 4 -> mode(t, 2048).with(s("CENTER_RADIUS"), 1.5)
-                    .with(s("IMPACT_LIFT"), .2);
+                    .with(s("CENTER_DAMAGE_BONUS"), .2).with(s("IMPACT_LIFT"), .2);
             case 5 -> mode(t, 4096).with(s("REVERSE_STRENGTH"), 1.5)
-                    .with(s("STATUS_DURATION_TICKS"), 60).with(s("LOCKOUT_TICKS"), 60);
-            case 6 -> mode(t, 8192).with(s("THRESHOLD"), 6).with(s("ABSORPTION"), 3)
+                    .with(s("REVERSE_WEAKNESS_TICKS"), 60).with(s("REVERSE_LOCKOUT_TICKS"), 60);
+            case 6 -> mode(t, 8192).with(s("WARD_TARGET_THRESHOLD"), 6).with(s("ABSORPTION"), 3)
                     .with(s("BUFF_DURATION_TICKS"), 80).with(s("REFUND_TICKS"), 20)
-                    .with(s("LOCKOUT_TICKS"), 100);
-            case 7 -> mode(t, 16384).with(s("ROOT_RADIUS"), 2.5).with(s("STATUS_DURATION_TICKS"), 20)
+                    .with(s("WARD_LOCKOUT_TICKS"), 100);
+            case 7 -> mode(t, 16384).with(s("ROOT_RADIUS"), 2.5).with(s("ROOT_DURATION_TICKS"), 20)
                     .multiply(s("DAMAGE_MULTIPLIER"), .8, 1).with(s("ROOT_TARGET_CAP"), 8);
             case 8 -> mode(t, 32768).with(s("PULL_STRENGTH"), -2.5)
                     .with(s("EDGE_BONUS"), .35);
@@ -113,51 +120,52 @@ final class Phase3MasterySkillEffect implements AbilitySkillEffectType {
 
     private static Phase3AbilityTuning ionbound(Phase3AbilityTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
-            case 0 -> t.with(s("INTERVAL_TICKS"), 145);
-            case 1 -> t.with(s("THRESHOLD"), .25);
+            case 0 -> t.with(s("RESERVE_INTERVAL_TICKS"), 145);
+            case 1 -> t.with(s("SHIELD_THRESHOLD"), .25);
             case 2 -> t.with(s("SHIELD_DURATION_TICKS"), 50);
-            case 3 -> mode(t, 1).with(s("PULL_STRENGTH"), -2);
-            case 4 -> mode(t, 2).with(s("STACK_DURATION_TICKS"), 200).with(s("STACK_CAP"), 3)
-                    .with(s("PER_STACK_BONUS"), .1);
-            case 5 -> mode(t, 4).with(s("THRESHOLD"), .25).with(s("LOCKOUT_TICKS"), 1200);
-            case 6 -> mode(t, 8).with(s("REFUND_TICKS"), 40);
-            case 7 -> mode(t, 16).with(s("THRESHOLD"), .15).with(s("SHIELD_DURATION_TICKS"), 80)
-                    .with(s("COUNT"), 2).with(s("DAMAGE_REDUCTION"), .25);
-            case 8 -> mode(t, 32).with(s("INTERVAL_TICKS"), 100).with(s("PER_STACK_BONUS"), .15)
-                    .with(s("BONUS_CAP"), .45);
+            case 3 -> mode(t, 1).with(s("SHIELD_PUSH_STRENGTH"), 2);
+            case 4 -> mode(t, 2).with(s("RESERVE_STACK_DURATION_TICKS"), 200)
+                    .with(s("RESERVE_STACK_CAP"), 3).with(s("RESERVE_STACK_BONUS"), .1);
+            case 5 -> mode(t, 4).with(s("SHIELD_LOW_HEALTH_THRESHOLD"), .25)
+                    .with(s("SHIELD_LOCKOUT_TICKS"), 1200);
+            case 6 -> mode(t, 8).with(s("RESERVE_REFUND_TICKS"), 40);
+            case 7 -> mode(t, 16).with(s("SHIELD_THRESHOLD"), .15).with(s("SHIELD_DURATION_TICKS"), 80)
+                    .with(s("SHIELD_CUBE_COST"), 2).with(s("ABILITY_DAMAGE_PENALTY"), .25);
+            case 8 -> mode(t, 32).with(s("RESERVE_INTERVAL_TICKS"), 100)
+                    .with(s("ABILITY_DAMAGE_PER_CUBE"), .15).with(s("ABILITY_DAMAGE_CUBE_CAP"), .45);
             default -> t;
         };
         if (branch == 1) return switch (slot) {
-            case 0 -> t.with(s("RANGE"), 14).with(s("WIDTH"), 7).with(s("HEIGHT"), 5)
-                    .with(s("TARGET_CAP"), 24);
+            case 0 -> t.with(s("RANGE"), 14).with(s("WIDTH"), 7).with(s("HEIGHT"), 5);
             case 1 -> t.with(s("CORRIDOR_MATERIALIZE_TICKS"), 5).with(s("CORRIDOR_HOLD_TICKS"), 7)
                     .with(s("CORRIDOR_CLOSE_TICKS"), 7);
             case 2 -> t.with(s("PULL_STRENGTH"), .4);
             case 3 -> t.multiply(s("DAMAGE_MULTIPLIER"), 1.12, 1);
-            case 4 -> t.with(s("STATUS_DURATION_TICKS"), 60).with(s("TARGET_CAP"), 16);
-            case 5 -> mode(t, 64).with(s("WIDTH"), 2).with(s("PER_STACK_BONUS"), .25);
+            case 4 -> mode(t, 2048).with(s("STATUS_DURATION_TICKS"), 60);
+            case 5 -> mode(t, 64).with(s("FOCUS_LANE_WIDTH"), 2).with(s("FOCUS_DAMAGE_BONUS"), .25);
             case 6 -> t.with(s("LOCKOUT_TICKS"), 30);
             case 7 -> mode(t, 128).with(s("RANGE"), 8).with(s("WIDTH"), 4).with(s("HEIGHT"), 4)
-                    .with(s("TARGET_CAP"), 8).with(s("MOVEMENT_SPEED"), .1)
-                    .with(s("DAMAGE_MULTIPLIER"), 2.2);
-            case 8 -> mode(t, 256).with(s("PULL_STRENGTH"), -3).with(s("DAMAGE_MULTIPLIER"), 1.5)
-                    .with(s("TARGET_CAP"), 24).multiply(s("FINAL_WIDTH"), .75, 1.1);
+                    .with(s("CORRIDOR_TARGET_CAP"), 8).with(s("TRAP_MOVEMENT_SPEED"), .1)
+                    .multiply(s("DAMAGE_MULTIPLIER"), 2.2, 1);
+            case 8 -> mode(t, 256).with(s("BURST_STRENGTH"), 3)
+                    .multiply(s("DAMAGE_MULTIPLIER"), 1.5, 1)
+                    .with(s("CORRIDOR_TARGET_CAP"), 24).with(s("BEAM_WIDTH_MULTIPLIER"), .75);
             default -> t;
         };
         return switch (slot) {
-            case 0 -> t.with(s("WIDTH"), 1.3).with(s("TARGET_CAP"), 16);
+            case 0 -> t.with(s("WIDTH"), 1.3);
             case 1 -> t.with(s("RANGE"), 14);
             case 2 -> t.with(s("INTERVAL_TICKS"), 4);
             case 3 -> t.multiply(s("DAMAGE_MULTIPLIER"), 1.1, 1);
             case 4 -> t.with(s("STATUS_DURATION_TICKS"), 130);
             case 5 -> t.with(s("MOVEMENT_SPEED"), .3);
-            case 6 -> t.with(s("BEAM_DURATION_TICKS"), 72).with(s("DAMAGE_MULTIPLIER"), 1.2).with(s("COUNT"), 1);
-            case 7 -> mode(t, 512).with(s("SPEED"), 5).with(s("WIDTH"), 2)
-                    .with(s("DAMAGE_MULTIPLIER"), .7).with(s("TARGET_CAP"), 24)
+            case 6 -> t.with(s("BEAM_DURATION_TICKS"), 72).multiply(s("DAMAGE_MULTIPLIER"), 1.2, 1);
+            case 7 -> mode(t, 512).with(s("WIDTH"), 2)
+                    .multiply(s("DAMAGE_MULTIPLIER"), .7, 1).with(s("BEAM_TARGET_CAP"), 24)
                     .with(s("STATUS_DURATION_TICKS"), 60);
             case 8 -> mode(t, 1024).with(s("WIDTH"), .7).with(s("BEAM_DURATION_TICKS"), 40)
-                    .with(s("DAMAGE_MULTIPLIER"), 2.25).with(s("TARGET_CAP"), 3)
-                    .with(s("THRESHOLD"), 6).with(s("MOVEMENT_SPEED"), 0);
+                    .multiply(s("DAMAGE_MULTIPLIER"), 2.25, 1).with(s("BEAM_TARGET_CAP"), 3)
+                    .with(s("ARMOR_IGNORE"), 6).with(s("MOVEMENT_SPEED"), 0);
             default -> t;
         };
     }

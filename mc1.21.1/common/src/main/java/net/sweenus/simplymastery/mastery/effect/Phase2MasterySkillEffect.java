@@ -40,7 +40,7 @@ final class Phase2MasterySkillEffect implements AbilitySkillEffectType {
             case 0 -> watcher(value, branch, slot);
             case 1 -> devourer(value, branch, slot);
             case 2 -> wickpiercer(value, branch, slot);
-            case 3 -> gloampiercer(value, branch, slot);
+            case 3 -> gloampiercer(value, branch, slot, definition);
             case 4 -> wraithfang(value, branch, slot);
             case 5 -> wraithmaw(value, branch, slot);
             default -> value;
@@ -216,8 +216,11 @@ final class Phase2MasterySkillEffect implements AbilitySkillEffectType {
         };
     }
 
-    private static Phase2AbilityTuning gloampiercer(Phase2AbilityTuning t, int branch, int slot) {
-        if (branch == 0) return switch (slot) {
+    private static Phase2AbilityTuning gloampiercer(Phase2AbilityTuning t, int branch, int slot,
+                                                    UniqueAbilityDefinition definition) {
+        if (branch == 0) {
+            if (definition != Phase2UniqueAbilities.GLOAMPIERCER_AMBUSH) return t;
+            return switch (slot) {
             case 0 -> t.with(s("PASSIVE_COOLDOWN_TICKS"), 10);
             case 1 -> t.with(s("FIRE_DELAY_TICKS"), 7);
             case 2 -> t.with(s("CONE_DEGREES"), 125).with(s("RANGE"), 14);
@@ -231,8 +234,11 @@ final class Phase2MasterySkillEffect implements AbilitySkillEffectType {
             case 8 -> mode(t, 8).with(s("CLONE_COUNT"), 1).with(s("PROJECTILE_DAMAGE_MULTIPLIER"), 2.2)
                     .with(s("HOMING_TURN_DEGREES"), 10).with(s("CONE_DEGREES"), 70).with(s("RANGE"), 10);
             default -> t;
-        };
-        if (branch == 1) return switch (slot) {
+            };
+        }
+        if (branch == 1) {
+            if (definition != Phase2UniqueAbilities.GLOAMPIERCER_BARRAGE) return t;
+            return switch (slot) {
             case 0 -> t.with(s("SPEAR_COUNT"), 20);
             case 1 -> t.with(s("CLONE_COUNT"), 6);
             case 2 -> t.with(s("FIRE_DELAY_TICKS"), 10).with(s("THRESHOLD"), 10);
@@ -247,17 +253,17 @@ final class Phase2MasterySkillEffect implements AbilitySkillEffectType {
                     .with(s("EXPLOSION_RADIUS"), 1.5).with(s("HOMING_TURN_DEGREES"), 10)
                     .add(s("COOLDOWN_TICKS"), 90, 450);
             default -> t;
-        };
+            };
+        }
         return switch (slot) {
             case 0 -> t.with(s("STAIN_RADIUS"), 1.8);
             case 1 -> t.with(s("STAIN_DURATION_TICKS"), 300);
             case 2 -> t.with(s("STAIN_AMPLIFIER"), 1).with(s("STATUS_DURATION_TICKS"), 60);
             case 3 -> t.with(s("BONUS_PER_TRIGGER"), .15);
             case 4 -> t.with(s("TRIGGER_RADIUS"), 1.5).with(s("EMBEDDED_DURATION_TICKS"), 140);
-            case 5 -> mode(t, 64).with(s("RANGE"), 5).with(s("FIRE_DELAY_TICKS"), 4)
-                    .with(s("SECONDARY_TARGET_CAP"), 6);
+            case 5 -> mode(t, 64).with(s("CHAIN_RANGE"), 5).with(s("CHAIN_DELAY_TICKS"), 4);
             case 6 -> mode(t, 128).with(s("TARGET_CAP"), 6).with(s("PULL_STRENGTH"), 1);
-            case 7 -> mode(t, 256).with(s("RANGE"), 6).with(s("MOVEMENT_SPEED"), .15)
+            case 7 -> mode(t, 256).with(s("GLOAM_MOVE_RANGE"), 6).with(s("MOVEMENT_SPEED"), .15)
                     .with(s("STAIN_DURATION_TICKS"), 200).multiply(s("DAMAGE_MULTIPLIER"), .75, 1);
             case 8 -> mode(t, 512).with(s("STAIN_AMPLIFIER"), 0).with(s("STAIN_DURATION_TICKS"), 100)
                     .with(s("IMPACT_DAMAGE_MULTIPLIER"), .8).with(s("IMPACT_RADIUS"), 2.5)
@@ -269,50 +275,56 @@ final class Phase2MasterySkillEffect implements AbilitySkillEffectType {
     private static Phase2AbilityTuning wraithfang(Phase2AbilityTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
             case 0 -> t.multiply(s("PROJECTILE_DAMAGE_MULTIPLIER"), 1.1, 1);
-            case 1 -> t.with(s("PROJECTILE_SPEED"), 1.85);
+            case 1 -> t.multiply(s("PROJECTILE_SPEED"), 1.85 / 1.5, 1.5);
             case 2 -> t.with(s("LOYALTY"), 2);
             case 3 -> t.with(s("STATUS_DURATION_TICKS"), 60).with(s("STATUS_AMPLIFIER"), 0);
-            case 4 -> t.with(s("BONUS_PER_TRIGGER"), .65).with(s("THRESHOLD"), 40);
-            case 5 -> t.with(s("PIERCE_COUNT"), 1).with(s("SECONDARY_DAMAGE_MULTIPLIER"), .65);
+            case 4 -> t.with(s("FLIGHT_DAMAGE_PER_TICK"), .65).with(s("FLIGHT_DAMAGE_CAP_TICKS"), 40);
+            case 5 -> t.with(s("PIERCE_COUNT"), 1).with(s("PIERCE_DAMAGE_MULTIPLIER"), .65);
             case 6 -> t.with(s("IMPACT_DAMAGE_MULTIPLIER"), .35).with(s("IMPACT_RADIUS"), 2.5)
-                    .with(s("IMPACT_TARGET_CAP"), 5).with(s("LOCKOUT_TICKS"), 20);
-            case 7 -> mode(t, 1).with(s("PROJECTILE_SPEED"), 2.3).with(s("LOYALTY"), 0)
-                    .with(s("PIERCE_COUNT"), 4).with(s("SECONDARY_DAMAGE_MULTIPLIER"), .75)
-                    .with(s("DURATION_TICKS"), 80).with(s("COOLDOWN_TICKS"), 60);
-            case 8 -> mode(t, 2).with(s("PROJECTILE_DAMAGE_MULTIPLIER"), 2.25).with(s("PIERCE_COUNT"), 0)
+                    .with(s("IMPACT_TARGET_CAP"), 5).with(s("BURST_LOCKOUT_TICKS"), 20);
+            case 7 -> mode(t, 1).multiply(s("PROJECTILE_SPEED"), 2.3 / 1.5, 1.5).with(s("LOYALTY"), 0)
+                    .with(s("PIERCE_COUNT"), 4).with(s("PIERCE_DAMAGE_MULTIPLIER"), .75)
+                    .with(s("RETURN_DELAY_TICKS"), 80).add(s("COOLDOWN_TICKS"), 40, 20);
+            case 8 -> mode(t, 2).multiply(s("PROJECTILE_DAMAGE_MULTIPLIER"), 2.25, 1).with(s("PIERCE_COUNT"), 0)
                     .with(s("STATUS_AMPLIFIER"), 1).with(s("STATUS_DURATION_TICKS"), 80)
-                    .with(s("LOYALTY"), 1).with(s("DURATION_TICKS"), 30);
+                    .with(s("LOYALTY"), 1).with(s("RETURN_DELAY_TICKS"), 30);
             default -> t;
         };
         if (branch == 1) return switch (slot) {
             case 0 -> t.with(s("DASH_DURATION_TICKS"), 14);
             case 1 -> t.with(s("DASH_SPEED"), 1.55);
-            case 2 -> t.multiply(s("RANGE"), 1.25, 14.4);
-            case 3 -> mode(t, 4).with(s("SECONDARY_DAMAGE_MULTIPLIER"), .25).with(s("SECONDARY_TARGET_CAP"), 6);
-            case 4 -> mode(t, 8).with(s("HOMING_TURN_DEGREES"), 8).with(s("DURATION_TICKS"), 10);
-            case 5 -> mode(t, 16).with(s("RANGE"), 2).with(s("IMPACT_DAMAGE_MULTIPLIER"), .7);
-            case 6 -> t.with(s("COOLDOWN_TICKS"), 14);
-            case 7 -> mode(t, 32).with(s("SECONDARY_TARGET_CAP"), 10).with(s("SECONDARY_DAMAGE_MULTIPLIER"), .5)
-                    .with(s("STATUS_DURATION_TICKS"), 20).with(s("COOLDOWN_TICKS"), 40);
-            case 8 -> mode(t, 64).with(s("RANGE"), 12).with(s("IMPACT_DAMAGE_MULTIPLIER"), 1.6)
-                    .with(s("COOLDOWN_TICKS"), 60).multiply(s("PROJECTILE_SPEED"), .75, 1.65);
+            case 2 -> t.multiply(s("DASH_TARGET_RANGE"), 1.25, 14.4);
+            case 3 -> mode(t, 4).with(s("DASH_CONTACT_DAMAGE_MULTIPLIER"), .25)
+                    .with(s("DASH_CONTACT_TARGET_CAP"), 6);
+            case 4 -> mode(t, 8).with(s("HOMING_TURN_DEGREES"), 8).with(s("DASH_STEERING_TICKS"), 10);
+            case 5 -> mode(t, 16).with(s("ARRIVAL_RANGE"), 2).with(s("ARRIVAL_DAMAGE_MULTIPLIER"), .7);
+            case 6 -> t.add(s("COOLDOWN_TICKS"), -6, 20);
+            case 7 -> mode(t, 32).with(s("DASH_CONTACT_TARGET_CAP"), 10)
+                    .with(s("DASH_CONTACT_DAMAGE_MULTIPLIER"), .5)
+                    .with(s("DASH_STATUS_DURATION_TICKS"), 20).with(s("DASH_STATUS_AMPLIFIER"), 0)
+                    .add(s("COOLDOWN_TICKS"), 20, 20);
+            case 8 -> mode(t, 64).with(s("DASH_TARGET_RANGE"), 12)
+                    .with(s("ARRIVAL_DAMAGE_MULTIPLIER"), 1.6)
+                    .add(s("COOLDOWN_TICKS"), 40, 20).multiply(s("PROJECTILE_SPEED"), .75, 1.65);
             default -> t;
         };
         return switch (slot) {
             case 0 -> t.with(s("HASTE_DURATION_TICKS"), 110);
             case 1 -> t.with(s("MELEE_BONUS_PER_STACK"), .08);
-            case 2 -> mode(t, 128).with(s("HASTE_DURATION_TICKS"), 60).with(s("HASTE_AMPLIFIER"), 0);
-            case 3 -> mode(t, 256).with(s("DAMAGE_REDUCTION"), .2).with(s("DURATION_TICKS"), 40);
-            case 4 -> mode(t, 512).with(s("HASTE_DURATION_TICKS"), 100).with(s("HASTE_AMPLIFIER"), 2)
-                    .with(s("LOCKOUT_TICKS"), 20);
-            case 5 -> mode(t, 1024).with(s("DURATION_TICKS"), 60).with(s("BONUS_PER_TRIGGER"), .05)
-                    .with(s("BONUS_CAP"), .2);
+            case 2 -> mode(t, 128).add(s("HASTE_DURATION_TICKS"), 60, 80);
+            case 3 -> mode(t, 256).with(s("PROJECTILE_DAMAGE_REDUCTION"), .2)
+                    .with(s("PROJECTILE_GUARD_TICKS"), 40);
+            case 4 -> mode(t, 512).with(s("KILL_HASTE_DURATION_TICKS"), 100)
+                    .with(s("KILL_HASTE_AMPLIFIER"), 2).with(s("KILL_COOLDOWN_REFUND_TICKS"), 20);
+            case 5 -> mode(t, 1024).with(s("ALTERNATION_WINDOW_TICKS"), 60)
+                    .with(s("ALTERNATION_BONUS_PER_STACK"), .05).with(s("ALTERNATION_BONUS_CAP"), .2);
             case 6 -> mode(t, 2048).with(s("COOLDOWN_REFUND_TICKS"), 10)
                     .with(s("COOLDOWN_REFUND_CAP_TICKS"), 40);
             case 7 -> mode(t, 4096).with(s("HASTE_DURATION_TICKS"), 80).with(s("HASTE_AMPLIFIER"), 3)
                     .multiply(s("COOLDOWN_TICKS"), .5, 20).multiply(s("DAMAGE_MULTIPLIER"), .8, 1);
-            case 8 -> mode(t, 8192).with(s("HASTE_DURATION_TICKS"), 0).with(s("DURATION_TICKS"), 80)
-                    .with(s("MELEE_BONUS_CAP"), 1).with(s("COOLDOWN_TICKS"), 40);
+            case 8 -> mode(t, 8192).with(s("HASTE_DURATION_TICKS"), 0)
+                    .with(s("RETURN_MELEE_WINDOW_TICKS"), 80).with(s("RETURN_MELEE_DAMAGE_MULTIPLIER"), 1)
+                    .add(s("COOLDOWN_TICKS"), 20, 20);
             default -> t;
         };
     }
@@ -324,13 +336,13 @@ final class Phase2MasterySkillEffect implements AbilitySkillEffectType {
             case 2 -> t.multiply(s("DAMAGE_MULTIPLIER"), 1.1, 1);
             case 3 -> t.with(s("FALL_SPEED"), 1.45);
             case 4 -> t.with(s("RADIUS"), 7);
-            case 5 -> t.with(s("INTERVAL_TICKS"), 1).with(s("THRESHOLD"), 10);
+            case 5 -> t.with(s("INTERVAL_TICKS"), 1);
             case 6 -> t.with(s("IMPACT_DAMAGE_MULTIPLIER"), .3).with(s("IMPACT_RADIUS"), 2)
                     .with(s("IMPACT_TARGET_CAP"), 4);
             case 7 -> mode(t, 1).with(s("SPEAR_COUNT"), 28).with(s("RADIUS"), 9)
-                    .with(s("DAMAGE_MULTIPLIER"), .65).add(s("COOLDOWN_TICKS"), 20, 600);
+                    .multiply(s("DAMAGE_MULTIPLIER"), .65, 1).multiply(s("COOLDOWN_TICKS"), 1.2, 600);
             case 8 -> mode(t, 2).with(s("SPEAR_COUNT"), 6).with(s("RADIUS"), 2)
-                    .with(s("DAMAGE_MULTIPLIER"), 2.5).with(s("IMPACT_DAMAGE_MULTIPLIER"), 0)
+                    .multiply(s("DAMAGE_MULTIPLIER"), 2.5, 1).with(s("IMPACT_DAMAGE_MULTIPLIER"), 0)
                     .with(s("IMPACT_TARGET_CAP"), 0).add(s("COOLDOWN_TICKS"), 100, 600);
             default -> t;
         };
@@ -342,7 +354,7 @@ final class Phase2MasterySkillEffect implements AbilitySkillEffectType {
             case 4 -> t.with(s("LAUNCH_RANGE"), 28).with(s("PROJECTILE_LIFETIME"), 100);
             case 5 -> t.with(s("HOMING_RANGE"), 5).with(s("HOMING_TURN_DEGREES"), 9);
             case 6 -> t.with(s("BONUS_PER_TRIGGER"), .04).with(s("BONUS_CAP"), .24);
-            case 7 -> mode(t, 4).with(s("ORBIT_CAP"), 12).with(s("THRESHOLD"), 2)
+            case 7 -> mode(t, 4).with(s("ORBIT_CAP"), 12).with(s("LAUNCH_COUNT"), 2)
                     .with(s("PROJECTILE_DAMAGE_MULTIPLIER"), .65).with(s("ORBIT_DURATION_TICKS"), 600);
             case 8 -> mode(t, 8).with(s("ORBIT_CAP"), 1).with(s("PROJECTILE_DAMAGE_MULTIPLIER"), 3)
                     .with(s("HOMING_TURN_DEGREES"), 12).with(s("LOCKOUT_TICKS"), 80);
@@ -352,16 +364,17 @@ final class Phase2MasterySkillEffect implements AbilitySkillEffectType {
             case 0 -> t.with(s("STAIN_RADIUS"), 1.6);
             case 1 -> t.with(s("STAIN_DURATION_TICKS"), 320).with(s("EMBEDDED_DURATION_TICKS"), 600);
             case 2 -> t.with(s("STAIN_AMPLIFIER"), 1).with(s("STATUS_DURATION_TICKS"), 60);
-            case 3 -> t.with(s("BONUS_PER_TRIGGER"), .15);
-            case 4 -> mode(t, 16).with(s("RANGE"), 3).with(s("INTERVAL_TICKS"), 40)
-                    .with(s("SECONDARY_DAMAGE_MULTIPLIER"), .25).with(s("TARGET_CAP"), 8);
-            case 5 -> mode(t, 32).with(s("RANGE"), 5).with(s("STAIN_EXTENSION_TICKS"), 40)
+            case 3 -> t.with(s("GLOAM_VULNERABILITY_BONUS"), .15);
+            case 4 -> mode(t, 16).with(s("HAUNT_RANGE"), 3).with(s("HAUNT_INTERVAL_TICKS"), 40)
+                    .with(s("HAUNT_DAMAGE_MULTIPLIER"), .25).with(s("HAUNT_TARGET_CAP"), 8);
+            case 5 -> mode(t, 32).with(s("BURIAL_RANGE"), 5).with(s("STAIN_EXTENSION_TICKS"), 40)
                     .with(s("EXTRA_DURATION_CAP"), 80);
-            case 6 -> mode(t, 64).with(s("RANGE"), 4).with(s("TARGET_CAP"), 5).with(s("PULL_STRENGTH"), 1);
-            case 7 -> mode(t, 128).with(s("RANGE"), 6).with(s("MOVEMENT_SPEED"), .18)
-                    .with(s("SECONDARY_DAMAGE_MULTIPLIER"), .6);
-            case 8 -> mode(t, 256).with(s("STAIN_AMPLIFIER"), 0).with(s("DURATION_TICKS"), 200)
-                    .with(s("RANGE"), 12).with(s("TARGET_CAP"), 8).with(s("DAMAGE_MULTIPLIER"), .9)
+            case 6 -> mode(t, 64).with(s("RECALL_RANGE"), 4).with(s("RECALL_TARGET_CAP"), 5)
+                    .with(s("RECALL_PULL_STRENGTH"), 1);
+            case 7 -> mode(t, 128).with(s("GRAVEWALK_RANGE"), 6).with(s("GRAVEWALK_SPEED"), .18)
+                    .with(s("GRAVEWALK_DAMAGE_MULTIPLIER"), .6);
+            case 8 -> mode(t, 256).with(s("BURST_WINDOW_TICKS"), 200).with(s("BURST_RANGE"), 12)
+                    .with(s("BURST_TARGET_CAP"), 8).with(s("BURST_DAMAGE_MULTIPLIER"), .9)
                     .add(s("COOLDOWN_TICKS"), 120, 600);
             default -> t;
         };
