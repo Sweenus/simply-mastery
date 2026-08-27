@@ -76,6 +76,7 @@ public final class Phase3ContractChecks {
                 || !UniqueAbilityApi.isDefinitionRegistered(Phase3UniqueAbilities.IONBOUND_SHIELD_ID)
                 || !UniqueAbilityApi.isDefinitionRegistered(Phase3UniqueAbilities.SOULRENDER_MARK_ID)
                 || !UniqueAbilityApi.isDefinitionRegistered(Phase3UniqueAbilities.SOULRENDER_REAP_ID)
+                || !UniqueAbilityApi.isDefinitionRegistered(Phase3UniqueAbilities.SOULRENDER_GRAVE_ID)
                 || !UniqueAbilityApi.isDefinitionRegistered(Phase3UniqueAbilities.SOULSTALKER_TENDRIL_ID)
                 || !UniqueAbilityApi.isDefinitionRegistered(Phase3UniqueAbilities.SOULSTALKER_STRIDE_ID)
                 || !UniqueAbilityApi.isDefinitionRegistered(Phase3UniqueAbilities.WHISPERWIND_DASH_ID)

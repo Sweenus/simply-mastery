@@ -1101,6 +1101,334 @@ final class MasteryNodeAuditCatalog {
                 "Mode 1024; width 0.7; 40t; damage x2.25; cap 3; armour 6; no movement",
                 "Composed damage, armour-ignore compensation, and a full movement lock", "Execution-scoped",
                 "Repaired: the armour ignore now has a consumer and Conductive Burn survives");
+        soulrender(evidence, "signature_opening", "Rendmark hit roll", "Melee hit",
+                "Chance bonus +5", "SoulrenderSwordItem adds the bonus to the configured chance", "Per hit",
+                "Repaired: the bonus no longer replaces a changed config value, and the roll keeps its original comparison so +5 is a true +5 points");
+        soulrender(evidence, "signature_cadence", "Rendmark duration", "Rendmark application",
+                "Mark duration 600t", "SoulrenderSwordItem Weakness and Slowness duration", "Status TTL",
+                "Repaired: both halves of the mark are now refreshed on every application, so the advertised 30 seconds is reachable");
+        soulrender(evidence, "signature_pressure", "Rendmark stack ceiling", "Rendmark application",
+                "Stack cap 10", "SoulrenderSwordItem Slowness amplifier ceiling", "Status TTL",
+                "Repaired description: the node reaches Slowness XI and Weakness II, not the base IX and I it used to claim");
+        soulrender(evidence, "signature_reversal", "Rendmark melee rider", "Melee hit on a slowed target",
+                "+3% per stack; 18% cap", "SoulrenderSwordItem melee bonus damage", "Per hit",
+                "Verified: both keys are consumed and the cap is reached at six stacks");
+        soulrender(evidence, "signature_reserve", "Fresh Ink opening stacks", "Rendmark on an unafflicted enemy",
+                "2 stacks; 80t per-target lockout", "SoulrenderAbilityManager.openingStacks", "Per-target lockout TTL; world unload",
+                "Repaired: implemented on dedicated keys that had no consumer at all");
+        soulrender(evidence, "signature_threshold", "Echoed Curse mark copy", "Rendmark application",
+                "Echo chance 25; range 4; cap 1; 300t; 20t lockout", "SoulrenderAbilityManager.echoMark", "Owner lockout TTL; world unload",
+                "Repaired: implemented, and its own chance no longer replaced the mark roll or capped the harvest to a single target");
+        soulrender(evidence, "signature_convergence", "Condemnation harvest bonus", "Soulrend consumption",
+                "+6% per stack; 36% cap", "SoulrenderSwordItem reap damage multiplier", "Execution-scoped",
+                "Repaired: reaches the harvest through reserve-scoped keys instead of the branch-wide leak that carried Echoed Curse with it");
+        soulrender(evidence, "signature_focus", "Pallbearer's Ledger capstone", "Melee hit",
+                "Mode 4; repeat penalty 20", "SoulrenderSwordItem guarantee and repeat penalty", "Per hit",
+                "Repaired: the advertised drawback exists; the node was previously a flat 100% chance with no cost");
+        soulrender(evidence, "signature_release", "Withering Palimpsest capstone", "Rendmark and consumption",
+                "Stack cap 5; +15% per stack; 75% cap", "Mark ceiling plus reap stack bonus", "Status TTL; execution-scoped",
+                "Redesigned: removing Slowness would have made the harvest unreachable, so the node now caps stacks and pays for it in consumption damage");
+        soulrender(evidence, "combat_opening", "Harvest radius", "Ability activation",
+                "Radius 12", "SoulrenderSwordItem target scan", "Execution-scoped",
+                "Repaired: the undocumented target-cap write was dropped for a config default, and the activation gate no longer measures the untuned radius");
+        soulrender(evidence, "combat_cadence", "Harvest damage", "Soulrend consumption",
+                "Damage x1.1", "SoulrenderSwordItem reap damage multiplier", "Execution-scoped",
+                "Repaired: all three capstones multiply instead of discarding it");
+        soulrender(evidence, "combat_pressure", "Swift Reaping", "Harvest completion",
+                "Threshold 3; Speed I 60t", "SoulrenderAbilityManager.recordReap", "Status TTL",
+                "Repaired: implemented on dedicated keys; the shared threshold had no consumer");
+        soulrender(evidence, "combat_reversal", "Soul Dividend healing", "Soulrend consumption",
+                "Heal bonus +0.5; cap 9", "SoulrenderSwordItem heal pipeline", "Execution-scoped",
+                "Repaired: composes with the configured ratio instead of hardcoding it, and the capstones now scale it rather than replacing it");
+        soulrender(evidence, "combat_reserve", "Reaper's Reach pull", "Ability activation",
+                "Bonus range 4; pull 1.5; cap 8", "SoulrenderAbilityManager.reachPull", "Execution-scoped",
+                "Repaired: the pull existed only in the description; the node's only live write was a silent harvest cap");
+        soulrender(evidence, "combat_threshold", "Shared Ending split", "Lethal Soulrend consumption",
+                "35% of the hit; range 5; cap 6", "SoulrenderAbilityManager.sharedEnding", "Execution-scoped",
+                "Repaired: implemented from the victim's position, and its radius write no longer shrinks the harvest to five blocks");
+        soulrender(evidence, "combat_convergence", "Full Ledger", "Harvest completion",
+                "Threshold 6; Haste II 100t", "SoulrenderAbilityManager.recordReap", "Status TTL",
+                "Repaired: implemented on dedicated keys; nothing read the shared threshold or status duration");
+        soulrender(evidence, "combat_focus", "Harvest Moon capstone", "Ability activation",
+                "Radius 16; cap 32; damage x0.7; healing x0.5", "Composed reap radius, cap, damage, and heal multiplier", "Execution-scoped",
+                "Repaired: the healing drawback is real rather than a rewrite to the base ratio, and Keen Harvest survives");
+        soulrender(evidence, "combat_release", "Headsman's Tithe capstone", "Ability activation",
+                "Radius 10; cap 5; damage x1.5; healing x1.25", "Distance-ordered target selection", "Execution-scoped",
+                "Repaired: the harvest is now sorted by distance, so \"your 5 nearest\" is real rather than an arbitrary five");
+        soulrender(evidence, "transformation_opening", "Soul Sheath", "Harvest completion",
+                "Absorption 2; 80t", "SoulrenderAbilityManager.recordReap", "Absorption expiry",
+                "Repaired: implemented; neither key had a consumer");
+        soulrender(evidence, "transformation_cadence", "Deathly Patience", "Held tick near a mark",
+                "Range 6; knockback resistance +0.1", "SoulrenderAbilityManager managed attribute modifier", "Removed when no mark is near; world unload",
+                "Repaired: implemented as the knockback resistance it advertises, and its radius write no longer shrank the harvest");
+        soulrender(evidence, "transformation_pressure", "Borrowed Time", "Kill on a marked enemy",
+                "Resistance I 40t; 40t lockout", "SoulrenderAbilityManager.onTargetDeath", "Lockout TTL; world unload",
+                "Repaired: implemented on the death hook; the node had no trigger at all");
+        soulrender(evidence, "transformation_reversal", "Cold Grip", "Damage from a marked attacker",
+                "Slowness I 40t; 40t lockout; cap 8", "SoulrenderAbilityManager.modifyIncomingDamage", "Lockout TTL; world unload",
+                "Repaired: implemented on the incoming-damage hook; its only live write was a silent harvest cap");
+        soulrender(evidence, "transformation_reserve", "Grave Reserve", "Harvest damage then low health",
+                "Store 10%; cap 6; below 35%; 100t", "recordReap stores; tickHolder converts", "Spent on conversion; world unload",
+                "Repaired: implemented; the node previously landed on the harvest damage bonus and roughly tripled Condemnation's ceiling");
+        soulrender(evidence, "transformation_threshold", "Quietus", "Soulrend consumed below the health gate",
+                "Below 20%; 1 absorption per mark; cap 6", "SoulrenderSwordItem per-mark tally into recordReap", "Absorption expiry",
+                "Repaired: implemented; its bonus cap was inflating harvest damage instead");
+        soulrender(evidence, "transformation_convergence", "Unbroken Reaper capstone", "Lethal damage",
+                "5 marks; range 10; Resistance II 40t; 1200t lockout", "SoulrenderAbilityManager.tryUnbrokenReaper on tryUseTotem", "Lockout TTL; world unload",
+                "Repaired: the cheat-death is implemented on vanilla's lethal-damage hook; only its target cap used to reach anything");
+        soulrender(evidence, "transformation_focus", "Soul Shelter capstone", "Soulrend consumption",
+                "Damage x0.75; convert 40%; cap 8; 120t", "Composed reap damage and absorption conversion", "Absorption expiry",
+                "Repaired: the conversion exists; the node used to apply both drawbacks and no benefit");
+        soulrender(evidence, "transformation_release", "Death's Due capstone", "Harvest kills then next melee hit",
+                "No healing; +10% per kill; 50% cap; 100t", "recordReap stores; postHit spends through takeTitheBonus", "Window TTL; consumed on the next hit",
+                "Repaired: the kill bonus now rides the next attack as described instead of inflating the harvest that produced it");
+        soulstalker(evidence, "signature_opening", "Tendril proc roll", "Held passive check",
+                "Chance 30", "SoulstalkerAbilityManager.tickHeldPassive roll", "Per check",
+                "Repaired: the redundant interval write that duplicated the config default was removed");
+        soulstalker(evidence, "signature_cadence", "Tendril search range", "Held passive check",
+                "Tendril range 10", "findPassiveTargets range and impact re-validation", "Per strike",
+                "Repaired: moved to a dedicated range key, and the description no longer claims nearest-target selection the base already performs");
+        soulstalker(evidence, "signature_pressure", "Tendril lockout", "Successful tendril launch",
+                "Tendril lockout 50t", "Per-owner passive lockout", "Lockout TTL; world unload",
+                "Repaired: moved to a dedicated lockout key that Tangled Prey no longer overwrites");
+        soulstalker(evidence, "signature_reversal", "Tendril strike", "Tendril impact",
+                "Damage x1.12; Slowness I 40t", "Pending strike damage and tendril slow", "Status TTL",
+                "Repaired: both capstones multiply instead of discarding it, and the slow has its own key");
+        soulstalker(evidence, "signature_reserve", "Gloam Ambush", "Tendril impact on owner Gloam",
+                "Gloam bonus 25%", "GloamStainManager.isOnOwnerGloam damage rider", "Per strike",
+                "Repaired: implemented; no Gloam check existed anywhere in the strike path");
+        soulstalker(evidence, "signature_threshold", "Seeking Root", "Tendril impact on a dead target",
+                "Redirect range 4", "redirectStrike nearest-enemy selection", "Per strike",
+                "Repaired: implemented; a dead target used to cancel the strike, and its only live write shrank tendril range to four blocks");
+        soulstalker(evidence, "signature_convergence", "Tangled Prey", "Tendril impact",
+                "Slowness IV 20t; 80t per-enemy lockout", "applySnare per-target lockout", "Lockout TTL; world unload",
+                "Repaired: implemented on dedicated keys; it previously reverted Unresting Coils and halved Barbed Emergence's slow");
+        soulstalker(evidence, "signature_focus", "Eldritch Thicket capstone", "Held passive check",
+                "3 tendrils; damage x0.65; lockout 90t", "findPassiveTargets count and per-target strikes", "Per strike",
+                "Repaired: the multi-strike exists, it composes with Barbed Emergence, and it no longer reverts Grasping Reach");
+        soulstalker(evidence, "signature_release", "Hungering Tendril capstone", "Held passive check",
+                "Mode 16; damage x1.75; refund 20t; interval 30t", "Lowest-health selection and lockout refund", "Lockout TTL",
+                "Repaired: the targeting, the kill refund and the advertised interval drawback all exist; the node used to shorten its own lockout instead");
+        soulstalker(evidence, "combat_opening", "Stride duration", "Ability activation",
+                "Stride duration 900t", "ActiveStride expiry", "Execution-scoped",
+                "Verified: consumed at activation and composed by both capstones");
+        soulstalker(evidence, "combat_cadence", "Stride speed", "Ability activation and climbing",
+                "Movement x1.1; climb x1.1", "Stride movement attribute and climb speed", "Execution-scoped",
+                "Repaired: the climb half now has a consumer; the stride entity read the config value directly");
+        soulstalker(evidence, "combat_pressure", "Heavy Footfall", "Footfall impact",
+                "Footfall radius 1; damage x1.1", "SoulstalkerStrideEntity.resolveFootfall", "Execution-scoped",
+                "Repaired: the node now reaches the footfall it names; its damage bonus used to land on Shadow cleave");
+        soulstalker(evidence, "combat_reversal", "Lingering Stain", "Gloam trail",
+                "Trail duration 320t", "createTunedPatch duration", "Patch expiry",
+                "Repaired: implemented; the trail was created entirely from config");
+        soulstalker(evidence, "combat_reserve", "Mired Wake", "Gloam trail contact",
+                "Slowness II; 60t", "Patch slow amplifier and PatchBehavior duration", "Patch expiry",
+                "Repaired: implemented through the stain behaviour; none of its four writes had a consumer");
+        soulstalker(evidence, "combat_threshold", "Predatory Momentum", "Continuous riding",
+                "Distance 8; bonus 15%", "trackMomentum feeding cleave and footfall damage", "Reset when the stride stops",
+                "Repaired: implemented; no distance tracking existed");
+        soulstalker(evidence, "combat_convergence", "Swift Summons", "Ability preparation",
+                "Cooldown 1020t", "Phase 3 cooldown pipeline", "Execution-scoped",
+                "Verified: reaches the weapon cooldown, and both capstone multipliers now compose on top of it");
+        soulstalker(evidence, "combat_focus", "Endless Procession capstone", "Ability activation",
+                "Duration +400t; trail width x1.5; cooldown x1.2; footfall damage x0.75",
+                "Composed duration, trail width, cooldown and footfall damage", "Execution-scoped",
+                "Repaired: the wider Gloam exists, its cooldown drawback survives Horizon Eater, and its penalty lands on the footfall it names");
+        soulstalker(evidence, "combat_release", "Rift Stride capstone", "Fully charged leap",
+                "Rift range 12; stain 2; duration x0.75; 60t lockout", "tickRiftStride teleport and paired stains", "Lockout TTL; world unload",
+                "Repaired: the teleport is implemented; the node previously delivered only its duration cut and shrank Shadow cleave");
+        soulstalker(evidence, "transformation_opening", "Cleave range", "Weapon swing while riding",
+                "Cleave range 18", "SoulstalkerCleaveEntity travel distance", "Entity lifetime",
+                "Repaired: moved to a dedicated cleave key that Rift Stride can no longer shrink");
+        soulstalker(evidence, "transformation_cadence", "Cleave width", "Weapon swing while riding",
+                "Final width 3.8", "SoulstalkerCleaveEntity width growth", "Entity lifetime",
+                "Verified: consumed, on a dedicated key");
+        soulstalker(evidence, "transformation_pressure", "Cleave damage", "Weapon swing while riding",
+                "Cleave damage x1.12", "SoulstalkerCleaveEntity weapon damage", "Entity lifetime",
+                "Repaired: both capstones multiply instead of discarding it");
+        soulstalker(evidence, "transformation_reversal", "Rapid Rending", "Weapon swing while riding",
+                "Minimum swing 1t", "getCleaveCooldownTicks tuned minimum", "Per swing",
+                "Repaired: the swing gate now reads tuning; it was hardcoded to the config minimum");
+        soulstalker(evidence, "transformation_reserve", "Crushing Descent", "Leap impact",
+                "Impact damage x1.2; radius 3", "SoulstalkerStrideEntity.resolveLeapImpact", "Execution-scoped",
+                "Repaired: the leap impact now reads tuning, and the radius matches the described 3 blocks");
+        soulstalker(evidence, "transformation_threshold", "Repulsive Landing", "Leap impact",
+                "Knockback x1.25; lift 0.28", "Leap impact knockback and lift", "Execution-scoped",
+                "Repaired: implemented; both keys were unread");
+        soulstalker(evidence, "transformation_convergence", "Gathering Hunger", "Cleave hit then leap impact",
+                "+4% per hit; 5 stacks; 20% cap", "Stride cleave-hit accumulator spent on landing", "Cleared on landing",
+                "Repaired: implemented; no cleave-hit counter existed");
+        soulstalker(evidence, "transformation_focus", "Horizon Eater capstone", "Weapon swing while riding",
+                "Range 24; width 5; damage x0.8; cap 16; cooldown x2",
+                "Composed cleave geometry, damage, target cap and cooldown", "Entity lifetime",
+                "Repaired: the target cap is real against a previously unbounded cleave, and it no longer discards Severing Arc or Endless Procession's cooldown");
+        soulstalker(evidence, "transformation_release", "Abyssal Meteor capstone", "Fully charged leap impact",
+                "Charged damage x2; radius 4; stain 2 for 240t; cleave damage x0.7",
+                "Charged leap impact branch and Gloam patch", "Execution-scoped",
+                "Repaired: every benefit is implemented; the node used to deliver only its cleave-damage drawback");
+        whisperwind(evidence, "signature_opening", "Dash velocity", "Fatal Flicker dash tick",
+                "Dash speed x1.1", "FatalFlickerEffect.performDash tuned velocity", "Effect TTL",
+                "Repaired: the dash effect now reads tuning; it used the config velocity, so the node did nothing for a player");
+        whisperwind(evidence, "signature_cadence", "Dash cooldown", "Ability preparation",
+                "Cooldown 155t", "Phase 3 cooldown pipeline", "Execution-scoped",
+                "Verified: consumed on the player path and composed by both cooldown capstones");
+        whisperwind(evidence, "signature_pressure", "Dash and guard duration", "Ability activation",
+                "Dash 18t; Absorption 120t", "startPlayerAbility tuned effect durations", "Status TTL",
+                "Repaired: the player path hardcoded 12 and 100 ticks, so both values were mob-only");
+        whisperwind(evidence, "signature_reversal", "Wind Wake", "Dash completion",
+                "Speed II 30t; knockback resistance 0.2", "WhisperwindRhythmManager.startWake", "Wake TTL; world unload",
+                "Repaired: implemented; none of its three writes had a consumer");
+        whisperwind(evidence, "signature_reserve", "Passing Cut", "Dash contact",
+                "20% immediate; cap 8", "recordDashTick immediate damage", "Execution-scoped",
+                "Repaired: implemented, and its target cap no longer silently limits the Delayed strike");
+        whisperwind(evidence, "signature_threshold", "Wind's Return", "Delayed strike completion",
+                "Threshold 3; refund 25t", "refundOnWideStrike additive cooldown refund", "Per strike",
+                "Repaired: implemented through reduceWeaponCooldown; no refund path existed");
+        whisperwind(evidence, "signature_convergence", "Crosswind", "Dash completion",
+                "+1t per enemy; 4t cap", "One-shot dash extension in FatalFlickerEffect", "Consumed once per dash",
+                "Repaired: implemented as a real extension; its only live write used to cap the Delayed strike to four enemies");
+        whisperwind(evidence, "signature_focus", "Gale Passage capstone", "Dash and Delayed strike",
+                "Range x1.5; cap 16; damage x0.75; cooldown x1.2", "Dash range multiplier and composed strike values", "Execution-scoped",
+                "Repaired: the longer dash exists, and the cooldown drawback now multiplies instead of being overwritten");
+        whisperwind(evidence, "signature_release", "Flashing Petal capstone", "Delayed strike",
+                "Nearest only; 2 hits; damage x0.8", "Distance-ordered strike and repeat count", "Execution-scoped",
+                "Redesigned: stopping the dash at the first enemy was unimplementable, so the node now strikes the nearest enemy twice; it previously delivered only its drawbacks");
+        whisperwind(evidence, "combat_opening", "Delayed strike damage", "Delayed strike",
+                "Strike damage x1.1", "applyStrike multiplier", "Execution-scoped",
+                "Repaired: all three capstones multiply instead of discarding it");
+        whisperwind(evidence, "combat_cadence", "Delayed strike timing", "Dash completion",
+                "Delay 28t; damage x1.12", "Pending strike trigger tick and multiplier", "Execution-scoped",
+                "Verified: both values are consumed, and the capstones state their own delay");
+        whisperwind(evidence, "combat_pressure", "Gathered Bouquet", "Delayed strike",
+                "+20% per-target scaling; cap 8", "applyStrike per-target damage scaling", "Execution-scoped",
+                "Repaired: implemented; neither key had a consumer and the base scaled from config alone");
+        whisperwind(evidence, "combat_reversal", "Bloodless Cut", "Delayed strike hit",
+                "Weakness I 60t", "applyStrike status application", "Status TTL",
+                "Verified: consumed on every damaged target");
+        whisperwind(evidence, "combat_reserve", "Second Flowering", "Lethal Delayed strike",
+                "35%; radius 3; cap 3", "secondFlowering splash from the victim", "Execution-scoped",
+                "Repaired: implemented; the splash did not exist and its target cap limited the strike instead");
+        whisperwind(evidence, "combat_threshold", "Wind Shear", "Delayed strike hit",
+                "Ignore 15%; cap 4 armour", "applyArmorIgnore compensation", "Per hit",
+                "Repaired: implemented; no armour-ignore path existed anywhere in the strike");
+        whisperwind(evidence, "combat_convergence", "Perfect Arrangement", "Delayed strike",
+                "Solo +30%; crowd 5 for +15%", "arrangementBonus target-count branch", "Execution-scoped",
+                "Repaired: implemented; all four of its writes were unread");
+        whisperwind(evidence, "combat_focus", "Thousand Petals capstone", "Delayed strike",
+                "3 hits; damage x0.45; delay 36t; cap 8", "Repeat count and composed strike values", "Execution-scoped",
+                "Repaired: the triple hit exists; the node used to apply only its delay, cap and damage cut");
+        whisperwind(evidence, "combat_release", "Single Falling Leaf capstone", "Delayed strike",
+                "Nearest only; damage x2.25; delay 16t; cooldown +30t", "Distance-ordered single-target strike", "Execution-scoped",
+                "Repaired: targets are now distance-ordered, so \"nearest\" is real, and an invalid first entry no longer swallows the strike");
+        whisperwind(evidence, "transformation_opening", "Refresh chance", "Melee hit",
+                "Chance 20", "WhisperwindSwordItem postHit roll", "Per hit",
+                "Verified: consumed by the refresh roll");
+        whisperwind(evidence, "transformation_cadence", "Gentle Guard", "Ability activation",
+                "Absorption 4", "startPlayerAbility absorption amplifier", "Status TTL",
+                "Repaired: reaches the player path, and its duration write no longer shortens Lasting Flicker");
+        whisperwind(evidence, "transformation_pressure", "Rhythmic Cuts", "Failed refresh roll",
+                "+3 per failure; 15 cap; 100t window", "WhisperwindRhythmManager.resolveChance", "Window TTL; world unload",
+                "Repaired: implemented; no failure counter existed");
+        whisperwind(evidence, "transformation_reversal", "Light on Foot", "Held tick while ready",
+                "Speed I; fall damage -10%", "Rhythm held tick and incoming-damage hook", "Recomputed each second; world unload",
+                "Repaired: implemented; both writes were unread");
+        whisperwind(evidence, "transformation_reserve", "Windbreak", "Ability activation",
+                "20t; projectile damage -30%", "startWindbreak plus modifyIncomingDamage", "Window TTL; world unload",
+                "Repaired: implemented; neither the Slowness removal nor the projectile reduction existed");
+        whisperwind(evidence, "transformation_threshold", "Reprise", "Delayed strike kill then melee hit",
+                "Window 80t", "recordStrikeKill arming resolveChance", "Window TTL; consumed on use",
+                "Repaired: the kill condition exists; its chance write used to force a guaranteed refresh on every hit");
+        whisperwind(evidence, "transformation_convergence", "Perfect Tempo", "Dash soon after a refresh",
+                "Window 40t; +20%; Haste 60t", "tempoBonus applied to the Delayed strike", "Window TTL",
+                "Repaired: implemented; all four writes were unread");
+        whisperwind(evidence, "transformation_focus", "Dancing Gale capstone", "Refresh proc",
+                "Refund 60t; interval 20t; Speed II 40t", "tryPartialRefresh additive cooldown reduction", "Interval TTL; world unload",
+                "Repaired: refreshes now shorten the cooldown as described instead of clearing it outright");
+        whisperwind(evidence, "transformation_release", "Still Wind capstone", "Every third attack then Delayed strike",
+                "Threshold 3; window 80t; damage x1.75", "Rhythm attack counter priming a single-target strike", "Consumed on the next strike",
+                "Repaired: the priming exists; the node used to make every strike permanently single-target at 175% and discarded the whole Bloom Cut chain");
+        dreadwhisper(evidence, "signature_opening", "Rend front width", "Ability activation",
+                "Front width 5", "Front visual, trail width and sweep box", "Execution-scoped",
+                "Repaired: moved to a dedicated key, and the undocumented target-cap write was dropped");
+        dreadwhisper(evidence, "signature_cadence", "Rend damage", "Dash contact",
+                "Rend damage x1.1", "damageDashTargets weapon damage", "Execution-scoped",
+                "Repaired: all four capstones multiply instead of discarding it");
+        dreadwhisper(evidence, "signature_pressure", "Rend speed", "Dash tick",
+                "Rend speed 1.76", "applyDashVelocity", "Execution-scoped",
+                "Verified: consumed every tick, on a dedicated key");
+        dreadwhisper(evidence, "signature_reversal", "Rend distance", "Dash tick",
+                "Rend range 23", "tickDash distance gate and tick ceiling", "Execution-scoped",
+                "Repaired: moved to a dedicated key that three wound and Gloam nodes could previously shrink to three blocks");
+        dreadwhisper(evidence, "signature_reserve", "Deep Leech", "Dash contact",
+                "Leech 40%; cap 18", "Per-dash leech accumulator", "Execution-scoped",
+                "Repaired: the ceiling is enforced; the leech was uncapped and the tuning disagreed with the text");
+        dreadwhisper(evidence, "signature_threshold", "Collision Feast", "Dash ending on a surface",
+                "40%; radius 3; cap 8", "resolveDashFinish collision burst", "Execution-scoped",
+                "Repaired: implemented on a new dash finish hook; the dash had no finish path at all");
+        dreadwhisper(evidence, "signature_convergence", "Reaped Momentum", "Dash contact",
+                "+4% speed and +3% damage per enemy; 20%/15% caps", "momentumBonus on velocity and damage", "Execution-scoped",
+                "Repaired: implemented; all five writes were unread");
+        dreadwhisper(evidence, "signature_focus", "Mass Reaving capstone", "Ability activation",
+                "Width x2; cap 32; damage x0.7; leech 20%; cooldown x1.25",
+                "Composed dash geometry, damage, leech and cooldown", "Execution-scoped",
+                "Repaired: composes with Hungering Edge instead of discarding it");
+        dreadwhisper(evidence, "signature_release", "Assassin's Rend capstone", "Dash contact",
+                "Width 2; stop on hit; damage x2.2; leech 60%", "Dash termination on first contact", "Execution-scoped",
+                "Repaired: the dash genuinely stops; it previously kept travelling under a silent target cap");
+        dreadwhisper(evidence, "combat_opening", "Wound duration", "Dash contact",
+                "Wound 260t", "applyWound status duration", "Status TTL",
+                "Repaired: Reopen and Plague of Whispers no longer shorten it");
+        dreadwhisper(evidence, "combat_cadence", "Wound consumption", "Direct melee on a wounded enemy",
+                "Wound damage x1.12", "modifyIncomingDamage multiplier", "Consumed with the wound",
+                "Repaired: both capstones multiply instead of discarding it");
+        dreadwhisper(evidence, "combat_pressure", "Festering Cut", "Wound application",
+                "Weakness I 260t", "applyWound status rider", "Status TTL",
+                "Repaired: implemented; the key had no consumer");
+        dreadwhisper(evidence, "combat_reversal", "Dark Patience", "Wound consumption",
+                "+3% per second; 30% cap", "woundAgeBonus from remaining duration", "Consumed with the wound",
+                "Repaired: implemented; no age tracking existed");
+        dreadwhisper(evidence, "combat_reserve", "Splintered Pain", "Wound consumption",
+                "35% of the bonus; range 3", "splinterPain nearest-neighbour hit", "Per consumption",
+                "Repaired: implemented, and its range write no longer cuts Shadow Rend to three blocks");
+        dreadwhisper(evidence, "combat_threshold", "Reopen", "Wound consumption",
+                "25%; 80t wound; 120t per-enemy lockout", "reopenWound roll and lockout", "Lockout TTL; world unload",
+                "Repaired: implemented; its only live write used to shorten Persistent Corruption");
+        dreadwhisper(evidence, "combat_convergence", "Mortal Tell", "Wound consumption",
+                "Below 25% for +30%; execution-immune +15%", "mortalBonus health and tag branch", "Consumed with the wound",
+                "Repaired: implemented, reusing the existing execution-immune tag rather than a parallel boss check");
+        dreadwhisper(evidence, "combat_focus", "Plague of Whispers capstone", "Dash contact",
+                "Spread 2; range 4; 120t; consumption x0.7", "spreadWound seeding neighbours", "Status TTL",
+                "Repaired: the spread exists; every one of the node's writes used to be a drawback, including a dash cut to four blocks");
+        dreadwhisper(evidence, "combat_release", "Final Word capstone", "Wound consumption",
+                "Wound 80t; consumption x2.5", "Composed wound duration and multiplier", "Status TTL",
+                "Repaired: composes with Cruel Opening; the unimplementable expiry penalty was dropped from the description");
+        dreadwhisper(evidence, "transformation_opening", "Trail duration", "Ability activation",
+                "Trail 300t", "GloamStainManager trail duration", "Patch expiry",
+                "Verified: consumed at trail creation");
+        dreadwhisper(evidence, "transformation_cadence", "Clutching Shadow", "Trail contact",
+                "Slowness II; 60t", "Trail slow amplifier and an additive PatchBehavior", "Patch expiry",
+                "Repaired: implemented through a new additive beginTrail overload; both writes were unread");
+        dreadwhisper(evidence, "transformation_pressure", "Veiled Passage", "Dash completion",
+                "Veil 8t", "DreadwhisperTrailManager veil consulted by blocksIncomingDamage", "Veil TTL; world unload",
+                "Repaired: implemented; immunity used to end with the dash");
+        dreadwhisper(evidence, "transformation_reversal", "Gloam Hunger", "Dash and wound damage",
+                "+15% on owner Gloam", "gloamRider on wound consumption", "Per hit",
+                "Repaired: implemented; no Gloam check existed in either damage path");
+        dreadwhisper(evidence, "transformation_reserve", "Shadow Recall", "Dash completion",
+                "Range 6; pull 1.5; cap 8", "resolveDashFinish Gloam-scoped pull", "Execution-scoped",
+                "Repaired: implemented on the new finish hook; its range write used to cut the dash to six blocks");
+        dreadwhisper(evidence, "transformation_threshold", "Umbral Shelter", "Dash contact",
+                "1 per enemy; limit 6; 80t", "Per-dash absorption accumulator", "Absorption expiry",
+                "Repaired: implemented; all three writes were unread");
+        dreadwhisper(evidence, "transformation_convergence", "Fading Footprint", "After the dash, standing in Gloam",
+                "60t; projectile damage -25%", "Trail manager tick and incoming-damage hook", "Window TTL; world unload",
+                "Repaired: implemented; both writes were unread");
+        dreadwhisper(evidence, "transformation_focus", "Living Shadow capstone", "Dash completion",
+                "100t; 20t pulses; 20%; cap 12", "DreadwhisperTrailManager following trail", "Trail TTL; world unload",
+                "Repaired: the following trail exists; the node used to gut Shadow Rend to 20% damage and deliver nothing");
+        dreadwhisper(evidence, "transformation_release", "Void Crossing capstone", "Dash completion",
+                "No dash damage or leech; range 30; collapse 160% within 12", "resolveDashFinish Gloam-scoped collapse", "Execution-scoped",
+                "Repaired: the collapse exists, so the zeroed dash damage is a real trade; the node previously reduced Shadow Rend to nothing at all");
         return evidence;
     }
 
@@ -1190,6 +1518,38 @@ final class MasteryNodeAuditCatalog {
                 baseMechanic, trigger,
                 "ionbound_stormscale/ion_reserve, ion_crusher, paralysis_beam", tuning, consumer, cleanup,
                 "Ionbound Stormscale route and focused regression suite",
+                MasteryNodeAuditReport.Verdict.VERIFIED, finding));
+    }
+    private static void soulrender(Map<String, MasteryNodeAuditReport.Evidence> evidence, String node,
+                                   String baseMechanic, String trigger, String tuning,
+                                   String consumer, String cleanup, String finding) {
+        evidence.put("soulrender/soulrender_" + node, new MasteryNodeAuditReport.Evidence(
+                baseMechanic, trigger, "soulrender/rendmark, reaping, gravebound", tuning, consumer, cleanup,
+                "Soulrender route and focused regression suite",
+                MasteryNodeAuditReport.Verdict.VERIFIED, finding));
+    }
+    private static void soulstalker(Map<String, MasteryNodeAuditReport.Evidence> evidence, String node,
+                                    String baseMechanic, String trigger, String tuning,
+                                    String consumer, String cleanup, String finding) {
+        evidence.put("soulstalker/soulstalker_" + node, new MasteryNodeAuditReport.Evidence(
+                baseMechanic, trigger, "soulstalker/hunting_tendrils, gloam_stride", tuning, consumer, cleanup,
+                "Soulstalker route and focused regression suite",
+                MasteryNodeAuditReport.Verdict.VERIFIED, finding));
+    }
+    private static void whisperwind(Map<String, MasteryNodeAuditReport.Evidence> evidence, String node,
+                                    String baseMechanic, String trigger, String tuning,
+                                    String consumer, String cleanup, String finding) {
+        evidence.put("whisperwind/whisperwind_" + node, new MasteryNodeAuditReport.Evidence(
+                baseMechanic, trigger, "whisperwind/petal_step, zephyr_rhythm", tuning, consumer, cleanup,
+                "Whisperwind route and focused regression suite",
+                MasteryNodeAuditReport.Verdict.VERIFIED, finding));
+    }
+    private static void dreadwhisper(Map<String, MasteryNodeAuditReport.Evidence> evidence, String node,
+                                     String baseMechanic, String trigger, String tuning,
+                                     String consumer, String cleanup, String finding) {
+        evidence.put("dreadwhisper/dreadwhisper_" + node, new MasteryNodeAuditReport.Evidence(
+                baseMechanic, trigger, "dreadwhisper/reaving_front, corrupted_wound", tuning, consumer, cleanup,
+                "Dreadwhisper route and focused regression suite",
                 MasteryNodeAuditReport.Verdict.VERIFIED, finding));
     }
 }

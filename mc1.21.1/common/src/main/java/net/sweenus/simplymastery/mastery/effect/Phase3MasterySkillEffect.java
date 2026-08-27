@@ -39,7 +39,7 @@ final class Phase3MasterySkillEffect implements AbilitySkillEffectType {
         int profile = kind / 27;
         int branch = kind % 27 / 9;
         int slot = kind % 9;
-        if (!applies(profile, branch, definition)) return;
+        if (!applies(profile, branch, slot, definition)) return;
         Phase3AbilityTuning value = tuning.get(Phase3UniqueAbilities.TUNING);
         value = switch (profile) {
             case 0 -> stormscale(value, branch, slot);
@@ -172,207 +172,219 @@ final class Phase3MasterySkillEffect implements AbilitySkillEffectType {
 
     private static Phase3AbilityTuning soulrender(Phase3AbilityTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
-            case 0 -> t.add(s("CHANCE"), 5, 85);
+            case 0 -> t.with(s("CHANCE_BONUS"), 5);
             case 1 -> t.with(s("MARK_DURATION_TICKS"), 600);
             case 2 -> t.with(s("STACK_CAP"), 10);
             case 3 -> t.with(s("MELEE_BONUS_PER_STACK"), .03).with(s("MELEE_BONUS_CAP"), .18);
-            case 4 -> mode(t, 1).with(s("COUNT"), 2).with(s("LOCKOUT_TICKS"), 80);
-            case 5 -> mode(t, 2).with(s("CHANCE"), 25).with(s("RANGE"), 4)
-                    .with(s("TARGET_CAP"), 1).with(s("LOCKOUT_TICKS"), 20);
-            case 6 -> t.with(s("PER_STACK_BONUS"), .06).with(s("BONUS_CAP"), .36);
-            case 7 -> mode(t, 4).with(s("CHANCE"), 100).with(s("LOCKOUT_TICKS"), 60)
-                    .with(s("BONUS_CAP"), .2);
-            case 8 -> mode(t, 8).with(s("STACK_CAP"), 5).with(s("PER_STACK_BONUS"), .15)
-                    .with(s("BONUS_CAP"), .75);
+            case 4 -> t.with(s("FRESH_INK_STACKS"), 2).with(s("FRESH_INK_LOCKOUT_TICKS"), 80);
+            case 5 -> t.with(s("ECHO_CHANCE"), 25).with(s("ECHO_RANGE"), 4)
+                    .with(s("ECHO_TARGET_CAP"), 1).with(s("ECHO_LOCKOUT_TICKS"), 20)
+                    .with(s("ECHO_DURATION_TICKS"), 300);
+            case 6 -> t.with(s("REAP_STACK_BONUS"), .06).with(s("REAP_STACK_BONUS_CAP"), .36);
+            case 7 -> mode(t, 4).with(s("REPEAT_CHANCE_PENALTY"), 20);
+            case 8 -> t.with(s("STACK_CAP"), 5).with(s("REAP_STACK_BONUS"), .15)
+                    .with(s("REAP_STACK_BONUS_CAP"), .75);
             default -> t;
         };
         if (branch == 1) return switch (slot) {
-            case 0 -> t.with(s("RADIUS"), 12).with(s("TARGET_CAP"), 32);
+            case 0 -> t.with(s("RADIUS"), 12);
             case 1 -> t.multiply(s("DAMAGE_MULTIPLIER"), 1.1, 1);
-            case 2 -> mode(t, 16).with(s("THRESHOLD"), 3).with(s("STATUS_DURATION_TICKS"), 60);
-            case 3 -> t.add(s("HEAL_RATIO"), .5, .5).with(s("HEAL_CAP"), 9);
-            case 4 -> mode(t, 32).with(s("RANGE"), 4).with(s("PULL_STRENGTH"), 1.5)
-                    .with(s("TARGET_CAP"), 8);
-            case 5 -> mode(t, 64).with(s("IMPACT_DAMAGE_MULTIPLIER"), .35).with(s("RADIUS"), 5)
-                    .with(s("TARGET_CAP"), 6);
-            case 6 -> mode(t, 128).with(s("THRESHOLD"), 6).with(s("STATUS_DURATION_TICKS"), 100)
-                    .with(s("STATUS_AMPLIFIER"), 1);
-            case 7 -> mode(t, 256).with(s("RADIUS"), 16).with(s("TARGET_CAP"), 32)
-                    .with(s("DAMAGE_MULTIPLIER"), .7).with(s("HEAL_RATIO"), .5);
-            case 8 -> mode(t, 512).with(s("RADIUS"), 10).with(s("TARGET_CAP"), 5)
-                    .with(s("DAMAGE_MULTIPLIER"), 1.5).with(s("HEAL_RATIO"), 1.25);
+            case 2 -> t.with(s("REAP_SPEED_THRESHOLD"), 3).with(s("REAP_SPEED_DURATION_TICKS"), 60);
+            case 3 -> t.with(s("HEAL_RATIO_BONUS"), .5).with(s("HEAL_CAP"), 9);
+            case 4 -> t.with(s("REACH_BONUS_RANGE"), 4).with(s("REACH_PULL_STRENGTH"), 1.5)
+                    .with(s("REACH_TARGET_CAP"), 8);
+            case 5 -> t.with(s("SHARED_END_DAMAGE_MULTIPLIER"), .35).with(s("SHARED_END_RANGE"), 5)
+                    .with(s("SHARED_END_TARGET_CAP"), 6);
+            case 6 -> t.with(s("REAP_HASTE_THRESHOLD"), 6).with(s("REAP_HASTE_DURATION_TICKS"), 100)
+                    .with(s("REAP_HASTE_AMPLIFIER"), 1);
+            case 7 -> t.with(s("RADIUS"), 16).with(s("REAP_TARGET_CAP"), 32)
+                    .multiply(s("DAMAGE_MULTIPLIER"), .7, 1).multiply(s("HEAL_MULTIPLIER"), .5, 1);
+            case 8 -> t.with(s("RADIUS"), 10).with(s("REAP_TARGET_CAP"), 5)
+                    .multiply(s("DAMAGE_MULTIPLIER"), 1.5, 1).multiply(s("HEAL_MULTIPLIER"), 1.25, 1);
             default -> t;
         };
         return switch (slot) {
-            case 0 -> t.with(s("ABSORPTION"), 2).with(s("BUFF_DURATION_TICKS"), 80);
-            case 1 -> mode(t, 1024).with(s("RADIUS"), 6).with(s("DAMAGE_REDUCTION"), .1);
-            case 2 -> mode(t, 2048).with(s("STATUS_DURATION_TICKS"), 40).with(s("LOCKOUT_TICKS"), 40);
-            case 3 -> mode(t, 4096).with(s("STATUS_DURATION_TICKS"), 40).with(s("LOCKOUT_TICKS"), 40)
-                    .with(s("TARGET_CAP"), 8);
-            case 4 -> mode(t, 8192).with(s("PER_STACK_BONUS"), .1).with(s("BONUS_CAP"), 6)
-                    .with(s("THRESHOLD"), .35);
-            case 5 -> mode(t, 16384).with(s("THRESHOLD"), .2).with(s("ABSORPTION"), 1)
-                    .with(s("BONUS_CAP"), 6);
-            case 6 -> mode(t, 32768).with(s("THRESHOLD"), 5).with(s("RANGE"), 10)
-                    .with(s("TARGET_CAP"), 5).with(s("STATUS_DURATION_TICKS"), 40)
-                    .with(s("LOCKOUT_TICKS"), 1200);
-            case 7 -> mode(t, 65536).multiply(s("DAMAGE_MULTIPLIER"), .75, 1)
-                    .with(s("HEAL_RATIO"), .4).with(s("ABSORPTION"), 8).with(s("BUFF_DURATION_TICKS"), 120);
-            case 8 -> mode(t, 131072).with(s("HEAL_RATIO"), 0).with(s("PER_STACK_BONUS"), .1)
-                    .with(s("BONUS_CAP"), .5).with(s("BUFF_DURATION_TICKS"), 100);
+            case 0 -> t.with(s("SHEATH_ABSORPTION"), 2).with(s("SHEATH_DURATION_TICKS"), 80);
+            case 1 -> t.with(s("PATIENCE_RANGE"), 6).with(s("KNOCKBACK_RESISTANCE_BONUS"), .1);
+            case 2 -> t.with(s("BORROWED_TIME_TICKS"), 40).with(s("BORROWED_TIME_LOCKOUT_TICKS"), 40);
+            case 3 -> t.with(s("COLD_GRIP_SLOW_TICKS"), 40).with(s("COLD_GRIP_LOCKOUT_TICKS"), 40)
+                    .with(s("COLD_GRIP_TARGET_CAP"), 8);
+            case 4 -> t.with(s("GRAVE_RESERVE_RATIO"), .1).with(s("GRAVE_RESERVE_CAP"), 6)
+                    .with(s("GRAVE_RESERVE_HEALTH_THRESHOLD"), .35)
+                    .with(s("GRAVE_RESERVE_DURATION_TICKS"), 100);
+            case 5 -> t.with(s("QUIETUS_HEALTH_THRESHOLD"), .2).with(s("QUIETUS_ABSORPTION"), 1)
+                    .with(s("QUIETUS_ABSORPTION_CAP"), 6);
+            case 6 -> t.with(s("UNBROKEN_MARK_THRESHOLD"), 5).with(s("UNBROKEN_RANGE"), 10)
+                    .with(s("UNBROKEN_TARGET_CAP"), 5).with(s("UNBROKEN_RESIST_TICKS"), 40)
+                    .with(s("UNBROKEN_LOCKOUT_TICKS"), 1200);
+            case 7 -> t.multiply(s("DAMAGE_MULTIPLIER"), .75, 1).with(s("SHELTER_ABSORPTION_RATIO"), .4)
+                    .with(s("SHELTER_ABSORPTION_CAP"), 8).with(s("SHELTER_DURATION_TICKS"), 120);
+            case 8 -> t.multiply(s("HEAL_MULTIPLIER"), 0, 1).with(s("TITHE_KILL_BONUS"), .1)
+                    .with(s("TITHE_BONUS_CAP"), .5).with(s("TITHE_DURATION_TICKS"), 100);
             default -> t;
         };
     }
 
     private static Phase3AbilityTuning soulstalker(Phase3AbilityTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
-            case 0 -> t.with(s("CHANCE"), 30).with(s("INTERVAL_TICKS"), 20);
-            case 1 -> t.with(s("RANGE"), 10);
-            case 2 -> t.with(s("LOCKOUT_TICKS"), 50);
-            case 3 -> t.multiply(s("DAMAGE_MULTIPLIER"), 1.12, 1).with(s("STATUS_DURATION_TICKS"), 40);
-            case 4 -> mode(t, 1).with(s("PER_STACK_BONUS"), .25);
-            case 5 -> mode(t, 2).with(s("COUNT"), 1).with(s("RANGE"), 4);
-            case 6 -> mode(t, 4).with(s("CHANCE"), 60).with(s("STATUS_DURATION_TICKS"), 20)
-                    .with(s("LOCKOUT_TICKS"), 80);
-            case 7 -> mode(t, 8).with(s("COUNT"), 3).with(s("RANGE"), 8)
-                    .with(s("DAMAGE_MULTIPLIER"), .65).with(s("LOCKOUT_TICKS"), 90);
-            case 8 -> mode(t, 16).with(s("RANGE"), 10).with(s("DAMAGE_MULTIPLIER"), 1.75)
-                    .with(s("REFUND_TICKS"), 20).with(s("LOCKOUT_TICKS"), 30);
+            case 0 -> t.with(s("CHANCE"), 30);
+            case 1 -> t.with(s("TENDRIL_RANGE"), 10);
+            case 2 -> t.with(s("TENDRIL_LOCKOUT_TICKS"), 50);
+            case 3 -> t.multiply(s("DAMAGE_MULTIPLIER"), 1.12, 1).with(s("TENDRIL_SLOW_TICKS"), 40);
+            case 4 -> t.with(s("GLOAM_DAMAGE_BONUS"), .25);
+            case 5 -> t.with(s("SEEKING_ROOT_RANGE"), 4);
+            case 6 -> t.with(s("SNARE_SLOW_TICKS"), 20).with(s("SNARE_SLOW_AMPLIFIER"), 3)
+                    .with(s("SNARE_LOCKOUT_TICKS"), 80);
+            case 7 -> t.with(s("TENDRIL_COUNT"), 3).multiply(s("DAMAGE_MULTIPLIER"), .65, 1)
+                    .with(s("TENDRIL_LOCKOUT_TICKS"), 90);
+            case 8 -> mode(t, 16).with(s("TENDRIL_RANGE"), 10)
+                    .multiply(s("DAMAGE_MULTIPLIER"), 1.75, 1).with(s("TENDRIL_REFUND_TICKS"), 20)
+                    .with(s("INTERVAL_TICKS"), 30);
             default -> t;
         };
         if (branch == 1) return switch (slot) {
             case 0 -> t.with(s("STRIDE_DURATION_TICKS"), 900);
             case 1 -> t.multiply(s("MOVEMENT_SPEED"), 1.1, .215).multiply(s("CLIMB_SPEED"), 1.1, .3);
-            case 2 -> t.with(s("RADIUS"), 1).multiply(s("DAMAGE_MULTIPLIER"), 1.1, 1);
-            case 3 -> t.with(s("STAIN_DURATION_TICKS"), 320);
-            case 4 -> t.with(s("STATUS_DURATION_TICKS"), 60).with(s("STATUS_AMPLIFIER"), 1)
-                    .with(s("TARGET_CAP"), 16).with(s("INTERVAL_TICKS"), 10);
-            case 5 -> mode(t, 32).with(s("THRESHOLD"), 8).with(s("PER_STACK_BONUS"), .15);
+            case 2 -> t.with(s("FOOTFALL_RADIUS"), 1).multiply(s("FOOTFALL_DAMAGE_MULTIPLIER"), 1.1, 1);
+            case 3 -> t.with(s("TRAIL_STAIN_DURATION_TICKS"), 320);
+            case 4 -> t.with(s("TRAIL_SLOW_AMPLIFIER"), 1).with(s("TRAIL_SLOW_DURATION_TICKS"), 60);
+            case 5 -> t.with(s("MOMENTUM_DISTANCE"), 8).with(s("MOMENTUM_BONUS"), .15);
             case 6 -> t.with(s("COOLDOWN_TICKS"), 1020);
-            case 7 -> mode(t, 64).add(s("STRIDE_DURATION_TICKS"), 400, 800).multiply(s("WIDTH"), 1.5, 1.25)
-                    .with(s("COOLDOWN_MULTIPLIER"), 1.2).multiply(s("DAMAGE_MULTIPLIER"), .75, 1);
-            case 8 -> mode(t, 128).with(s("RANGE"), 12).with(s("STAIN_RADIUS"), 2)
-                    .multiply(s("STRIDE_DURATION_TICKS"), .75, 800).with(s("LOCKOUT_TICKS"), 60);
+            case 7 -> t.add(s("STRIDE_DURATION_TICKS"), 400, 800)
+                    .multiply(s("TRAIL_STAIN_WIDTH"), 1.5, 1.25)
+                    .multiply(s("COOLDOWN_MULTIPLIER"), 1.2, 1)
+                    .multiply(s("FOOTFALL_DAMAGE_MULTIPLIER"), .75, 1);
+            case 8 -> t.with(s("RIFT_RANGE"), 12).with(s("RIFT_STAIN_RADIUS"), 2)
+                    .with(s("LEAP_CHARGE_THRESHOLD"), .95)
+                    .multiply(s("STRIDE_DURATION_TICKS"), .75, 800)
+                    .with(s("RIFT_LOCKOUT_TICKS"), 60);
             default -> t;
         };
         return switch (slot) {
-            case 0 -> t.with(s("RANGE"), 18);
-            case 1 -> t.with(s("FINAL_WIDTH"), 3.8);
-            case 2 -> t.multiply(s("DAMAGE_MULTIPLIER"), 1.12, 1);
-            case 3 -> t.with(s("LOCKOUT_TICKS"), 1);
-            case 4 -> t.multiply(s("IMPACT_DAMAGE_MULTIPLIER"), 1.2, 1).with(s("IMPACT_RADIUS"), 2.5)
-                    .with(s("TARGET_CAP"), 24);
-            case 5 -> t.multiply(s("IMPACT_KNOCKBACK"), 1.25, .7).with(s("IMPACT_LIFT"), .28);
-            case 6 -> mode(t, 256).with(s("PER_STACK_BONUS"), .04).with(s("STACK_CAP"), 5)
-                    .with(s("BONUS_CAP"), .2);
-            case 7 -> mode(t, 512).with(s("RANGE"), 24).with(s("FINAL_WIDTH"), 5)
-                    .with(s("DAMAGE_MULTIPLIER"), .8).with(s("TARGET_CAP"), 16)
-                    .with(s("COOLDOWN_MULTIPLIER"), 2);
-            case 8 -> mode(t, 1024).with(s("IMPACT_DAMAGE_MULTIPLIER"), 2).with(s("IMPACT_RADIUS"), 4)
-                    .with(s("STAIN_RADIUS"), 2).with(s("STAIN_DURATION_TICKS"), 240)
-                    .multiply(s("DAMAGE_MULTIPLIER"), .7, 1);
+            case 0 -> t.with(s("CLEAVE_RANGE"), 18);
+            case 1 -> t.with(s("CLEAVE_FINAL_WIDTH"), 3.8);
+            case 2 -> t.multiply(s("CLEAVE_DAMAGE_MULTIPLIER"), 1.12, 1);
+            case 3 -> t.with(s("CLEAVE_SWING_COOLDOWN_TICKS"), 1);
+            case 4 -> t.multiply(s("LEAP_IMPACT_DAMAGE_MULTIPLIER"), 1.2, 1)
+                    .with(s("LEAP_IMPACT_RADIUS"), 3);
+            case 5 -> t.multiply(s("LEAP_IMPACT_KNOCKBACK"), 1.25, .7).with(s("LEAP_IMPACT_LIFT"), .28);
+            case 6 -> t.with(s("CLEAVE_HIT_BONUS"), .04).with(s("CLEAVE_HIT_STACK_CAP"), 5)
+                    .with(s("CLEAVE_HIT_BONUS_CAP"), .2);
+            case 7 -> t.with(s("CLEAVE_RANGE"), 24).with(s("CLEAVE_FINAL_WIDTH"), 5)
+                    .multiply(s("CLEAVE_DAMAGE_MULTIPLIER"), .8, 1).with(s("CLEAVE_TARGET_CAP"), 16)
+                    .multiply(s("COOLDOWN_MULTIPLIER"), 2, 1);
+            case 8 -> t.with(s("LEAP_CHARGE_THRESHOLD"), .95)
+                    .with(s("LEAP_CHARGED_DAMAGE_MULTIPLIER"), 2).with(s("LEAP_CHARGED_RADIUS"), 4)
+                    .with(s("LEAP_STAIN_RADIUS"), 2).with(s("LEAP_STAIN_DURATION_TICKS"), 240)
+                    .multiply(s("CLEAVE_DAMAGE_MULTIPLIER"), .7, 1);
             default -> t;
         };
     }
 
     private static Phase3AbilityTuning whisperwind(Phase3AbilityTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
-            case 0 -> t.with(s("SPEED"), 3.3);
+            case 0 -> t.multiply(s("DASH_SPEED"), 1.1, 3);
             case 1 -> t.with(s("COOLDOWN_TICKS"), 155);
-            case 2 -> t.with(s("FLICKER_DURATION_TICKS"), 18).with(s("ABSORPTION_DURATION_TICKS"), 120);
-            case 3 -> mode(t, 1).with(s("STATUS_DURATION_TICKS"), 30).with(s("DAMAGE_REDUCTION"), .2);
-            case 4 -> mode(t, 2).with(s("IMPACT_DAMAGE_MULTIPLIER"), .2).with(s("TARGET_CAP"), 8);
-            case 5 -> mode(t, 4).with(s("THRESHOLD"), 3).with(s("REFUND_TICKS"), 25);
-            case 6 -> mode(t, 8).with(s("RANGE"), 3).with(s("TARGET_CAP"), 4);
-            case 7 -> mode(t, 16).multiply(s("RANGE"), 1.5, 8).with(s("TARGET_CAP"), 16)
-                    .multiply(s("DAMAGE_MULTIPLIER"), .75, 1).with(s("COOLDOWN_MULTIPLIER"), 1.2);
-            case 8 -> mode(t, 32).with(s("TARGET_CAP"), 1).with(s("IMPACT_DAMAGE_MULTIPLIER"), .8)
-                    .with(s("DAMAGE_MULTIPLIER"), .8);
+            case 2 -> t.with(s("DASH_TICKS"), 18).with(s("DASH_ABSORPTION_TICKS"), 120);
+            case 3 -> t.with(s("WAKE_DURATION_TICKS"), 30).with(s("WAKE_SPEED_AMPLIFIER"), 1)
+                    .with(s("WAKE_KNOCKBACK_RESISTANCE"), .2);
+            case 4 -> t.with(s("PASSING_CUT_MULTIPLIER"), .2).with(s("PASSING_CUT_TARGET_CAP"), 8);
+            case 5 -> t.with(s("RETURN_THRESHOLD"), 3).with(s("RETURN_REFUND_TICKS"), 25);
+            case 6 -> t.with(s("DASH_EXTENSION_PER_TARGET"), 1).with(s("DASH_EXTENSION_CAP"), 4);
+            case 7 -> t.with(s("DASH_RANGE_MULTIPLIER"), 1.5).with(s("STRIKE_TARGET_CAP"), 16)
+                    .multiply(s("STRIKE_DAMAGE_MULTIPLIER"), .75, 1)
+                    .multiply(s("COOLDOWN_MULTIPLIER"), 1.2, 1);
+            case 8 -> t.with(s("STRIKE_NEAREST_ONLY"), 1).with(s("STRIKE_COUNT"), 2)
+                    .multiply(s("STRIKE_DAMAGE_MULTIPLIER"), .8, 1);
             default -> t;
         };
         if (branch == 1) return switch (slot) {
-            case 0 -> t.multiply(s("DAMAGE_MULTIPLIER"), 1.1, 1);
-            case 1 -> t.with(s("DELAY_TICKS"), 28).multiply(s("DAMAGE_MULTIPLIER"), 1.12, 1);
-            case 2 -> t.with(s("PER_STACK_BONUS"), .2).with(s("STACK_CAP"), 8);
+            case 0 -> t.multiply(s("STRIKE_DAMAGE_MULTIPLIER"), 1.1, 1);
+            case 1 -> t.with(s("DELAY_TICKS"), 28).multiply(s("STRIKE_DAMAGE_MULTIPLIER"), 1.12, 1);
+            case 2 -> t.with(s("BOUQUET_PER_TARGET_BONUS"), .2).with(s("BOUQUET_TARGET_CAP"), 8);
             case 3 -> t.with(s("WEAKNESS_DURATION_TICKS"), 60);
-            case 4 -> mode(t, 64).with(s("IMPACT_DAMAGE_MULTIPLIER"), .35).with(s("RADIUS"), 3)
-                    .with(s("TARGET_CAP"), 3);
-            case 5 -> t.with(s("THRESHOLD"), 4).with(s("BONUS_CAP"), .15);
-            case 6 -> mode(t, 128).with(s("COUNT"), 1).with(s("IMPACT_DAMAGE_MULTIPLIER"), .3)
-                    .with(s("PER_STACK_BONUS"), .15);
-            case 7 -> mode(t, 256).with(s("COUNT"), 3).with(s("DAMAGE_MULTIPLIER"), .45)
-                    .with(s("INTERVAL_TICKS"), 4).with(s("DELAY_TICKS"), 36).with(s("TARGET_CAP"), 8);
-            case 8 -> mode(t, 512).with(s("TARGET_CAP"), 1).with(s("DAMAGE_MULTIPLIER"), 2.25)
+            case 4 -> t.with(s("FLOWERING_MULTIPLIER"), .35).with(s("FLOWERING_RADIUS"), 3)
+                    .with(s("FLOWERING_TARGET_CAP"), 3);
+            case 5 -> t.with(s("ARMOR_IGNORE_RATIO"), .15).with(s("ARMOR_IGNORE_CAP"), 4);
+            case 6 -> t.with(s("SOLO_DAMAGE_BONUS"), .3).with(s("CROWD_THRESHOLD"), 5)
+                    .with(s("CROWD_DAMAGE_BONUS"), .15);
+            case 7 -> t.with(s("STRIKE_COUNT"), 3).multiply(s("STRIKE_DAMAGE_MULTIPLIER"), .45, 1)
+                    .with(s("DELAY_TICKS"), 36).with(s("STRIKE_TARGET_CAP"), 8);
+            case 8 -> t.with(s("STRIKE_NEAREST_ONLY"), 1)
+                    .multiply(s("STRIKE_DAMAGE_MULTIPLIER"), 2.25, 1)
                     .with(s("DELAY_TICKS"), 16).add(s("COOLDOWN_TICKS"), 30, 175);
             default -> t;
         };
         return switch (slot) {
             case 0 -> t.with(s("CHANCE"), 20);
-            case 1 -> t.with(s("ABSORPTION"), 4).with(s("ABSORPTION_DURATION_TICKS"), 100);
-            case 2 -> mode(t, 1024).with(s("CHANCE_PER_FAILURE"), 3).with(s("CHANCE_BONUS_CAP"), 15)
-                    .with(s("STACK_DURATION_TICKS"), 100);
-            case 3 -> mode(t, 2048).with(s("DAMAGE_REDUCTION"), .1);
-            case 4 -> mode(t, 4096).with(s("STATUS_DURATION_TICKS"), 20).with(s("DAMAGE_REDUCTION"), .3);
-            case 5 -> mode(t, 8192).with(s("DURATION_TICKS"), 80).with(s("CHANCE"), 100);
-            case 6 -> mode(t, 16384).with(s("DURATION_TICKS"), 40).with(s("PER_STACK_BONUS"), .2)
-                    .with(s("STATUS_DURATION_TICKS"), 60);
-            case 7 -> mode(t, 32768).with(s("REFUND_TICKS"), 60).with(s("INTERVAL_TICKS"), 20)
-                    .with(s("STATUS_DURATION_TICKS"), 40);
-            case 8 -> mode(t, 65536).with(s("THRESHOLD"), 3).with(s("STACK_DURATION_TICKS"), 80)
-                    .with(s("DAMAGE_MULTIPLIER"), 1.75).with(s("TARGET_CAP"), 1);
+            case 1 -> t.with(s("DASH_ABSORPTION"), 4);
+            case 2 -> t.with(s("RHYTHM_CHANCE_PER_FAILURE"), 3).with(s("RHYTHM_CHANCE_CAP"), 15)
+                    .with(s("RHYTHM_WINDOW_TICKS"), 100);
+            case 3 -> t.with(s("READY_SPEED_AMPLIFIER"), 0).with(s("FALL_DAMAGE_REDUCTION"), .1);
+            case 4 -> t.with(s("WINDBREAK_TICKS"), 20).with(s("WINDBREAK_PROJECTILE_REDUCTION"), .3);
+            case 5 -> t.with(s("REPRISE_WINDOW_TICKS"), 80);
+            case 6 -> t.with(s("TEMPO_WINDOW_TICKS"), 40).with(s("TEMPO_DAMAGE_BONUS"), .2)
+                    .with(s("TEMPO_HASTE_TICKS"), 60);
+            case 7 -> t.with(s("REFRESH_REFUND_TICKS"), 60).with(s("REFRESH_INTERVAL_TICKS"), 20)
+                    .with(s("REFRESH_SPEED_TICKS"), 40).with(s("REFRESH_SPEED_AMPLIFIER"), 1);
+            case 8 -> t.with(s("STILL_WIND_THRESHOLD"), 3).with(s("STILL_WIND_WINDOW_TICKS"), 80)
+                    .multiply(s("STILL_WIND_MULTIPLIER"), 1.75, 1);
             default -> t;
         };
     }
 
     private static Phase3AbilityTuning dreadwhisper(Phase3AbilityTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
-            case 0 -> t.with(s("WIDTH"), 5).with(s("TARGET_CAP"), 24);
-            case 1 -> t.multiply(s("DAMAGE_MULTIPLIER"), 1.1, 1);
-            case 2 -> t.with(s("SPEED"), 1.76);
-            case 3 -> t.with(s("RANGE"), 23);
-            case 4 -> t.with(s("HEAL_RATIO"), .4).with(s("HEAL_CAP"), 6);
-            case 5 -> mode(t, 1).with(s("IMPACT_DAMAGE_MULTIPLIER"), .4).with(s("RADIUS"), 3)
-                    .with(s("TARGET_CAP"), 8);
-            case 6 -> mode(t, 2).with(s("PER_STACK_BONUS"), .03).with(s("BONUS_CAP"), .15)
-                    .with(s("STACK_CAP"), 5).with(s("STACK_DURATION_TICKS"), 20);
-            case 7 -> mode(t, 4).multiply(s("WIDTH"), 2, 4.5).with(s("TARGET_CAP"), 32)
-                    .with(s("DAMAGE_MULTIPLIER"), .7).with(s("HEAL_RATIO"), .2)
-                    .with(s("COOLDOWN_MULTIPLIER"), 1.25);
-            case 8 -> mode(t, 8).with(s("WIDTH"), 2).with(s("TARGET_CAP"), 1)
-                    .with(s("DAMAGE_MULTIPLIER"), 2.2).with(s("HEAL_RATIO"), .6);
+            case 0 -> t.with(s("REND_WIDTH"), 5);
+            case 1 -> t.multiply(s("REND_DAMAGE_MULTIPLIER"), 1.1, 1);
+            case 2 -> t.with(s("REND_SPEED"), 1.76);
+            case 3 -> t.with(s("REND_RANGE"), 23);
+            case 4 -> t.with(s("LEECH_RATIO"), .4).with(s("LEECH_CAP"), 18);
+            case 5 -> t.with(s("COLLISION_MULTIPLIER"), .4).with(s("COLLISION_RADIUS"), 3)
+                    .with(s("COLLISION_TARGET_CAP"), 8);
+            case 6 -> t.with(s("MOMENTUM_SPEED_BONUS"), .04).with(s("MOMENTUM_SPEED_CAP"), .2)
+                    .with(s("MOMENTUM_DAMAGE_BONUS"), .03).with(s("MOMENTUM_DAMAGE_CAP"), .15);
+            case 7 -> t.multiply(s("REND_WIDTH"), 2, 4.5).with(s("REND_TARGET_CAP"), 32)
+                    .multiply(s("REND_DAMAGE_MULTIPLIER"), .7, 1).with(s("LEECH_RATIO"), .2)
+                    .multiply(s("COOLDOWN_MULTIPLIER"), 1.25, 1);
+            case 8 -> t.with(s("REND_WIDTH"), 2).with(s("REND_STOP_ON_HIT"), 1)
+                    .multiply(s("REND_DAMAGE_MULTIPLIER"), 2.2, 1).with(s("LEECH_RATIO"), .6);
             default -> t;
         };
         if (branch == 1) return switch (slot) {
             case 0 -> t.with(s("WOUND_DURATION_TICKS"), 260);
             case 1 -> t.multiply(s("WOUND_DAMAGE_MULTIPLIER"), 1.12, 1);
-            case 2 -> t.with(s("STATUS_DURATION_TICKS"), 260);
-            case 3 -> mode(t, 16).with(s("INTERVAL_TICKS"), 20).with(s("PER_STACK_BONUS"), .03)
-                    .with(s("BONUS_CAP"), .3).with(s("STACK_DURATION_TICKS"), 200);
-            case 4 -> mode(t, 32).with(s("IMPACT_DAMAGE_MULTIPLIER"), .35).with(s("RANGE"), 3);
-            case 5 -> mode(t, 64).with(s("CHANCE"), 25).with(s("WOUND_DURATION_TICKS"), 80)
-                    .with(s("LOCKOUT_TICKS"), 120);
-            case 6 -> mode(t, 128).with(s("THRESHOLD"), .25).with(s("PER_STACK_BONUS"), .3);
-            case 7 -> mode(t, 256).with(s("COUNT"), 2).with(s("RANGE"), 4)
-                    .with(s("WOUND_DURATION_TICKS"), 120).multiply(s("WOUND_DAMAGE_MULTIPLIER"), .7, 1);
-            case 8 -> mode(t, 512).with(s("WOUND_DURATION_TICKS"), 80).with(s("WOUND_DAMAGE_MULTIPLIER"), 2.5)
-                    .with(s("COUNT"), 0).with(s("LOCKOUT_TICKS"), 40);
+            case 2 -> t.with(s("WOUND_WEAKNESS_TICKS"), 260);
+            case 3 -> t.with(s("WOUND_AGE_INTERVAL_TICKS"), 20).with(s("WOUND_AGE_BONUS"), .03)
+                    .with(s("WOUND_AGE_CAP"), .3);
+            case 4 -> t.with(s("SPLINTER_MULTIPLIER"), .35).with(s("SPLINTER_RANGE"), 3);
+            case 5 -> t.with(s("REOPEN_CHANCE"), 25).with(s("REOPEN_DURATION_TICKS"), 80)
+                    .with(s("REOPEN_LOCKOUT_TICKS"), 120);
+            case 6 -> t.with(s("MORTAL_THRESHOLD"), .25).with(s("MORTAL_BONUS"), .3)
+                    .with(s("MORTAL_BOSS_BONUS"), .15);
+            case 7 -> t.with(s("SPREAD_COUNT"), 2).with(s("SPREAD_RANGE"), 4)
+                    .with(s("SPREAD_DURATION_TICKS"), 120)
+                    .multiply(s("WOUND_DAMAGE_MULTIPLIER"), .7, 1);
+            case 8 -> t.with(s("WOUND_DURATION_TICKS"), 80)
+                    .multiply(s("WOUND_DAMAGE_MULTIPLIER"), 2.5, 1)
+                    .with(s("FINAL_WORD_LOCKOUT_TICKS"), 40);
             default -> t;
         };
         return switch (slot) {
             case 0 -> t.with(s("STAIN_DURATION_TICKS"), 300);
-            case 1 -> t.with(s("STATUS_DURATION_TICKS"), 60).with(s("STATUS_AMPLIFIER"), 1);
-            case 2 -> t.with(s("BUFF_DURATION_TICKS"), 8);
-            case 3 -> mode(t, 1024).with(s("PER_STACK_BONUS"), .15);
-            case 4 -> mode(t, 2048).with(s("RANGE"), 6).with(s("PULL_STRENGTH"), 1.5)
-                    .with(s("TARGET_CAP"), 8);
-            case 5 -> mode(t, 4096).with(s("ABSORPTION"), 1).with(s("BONUS_CAP"), 6)
-                    .with(s("BUFF_DURATION_TICKS"), 80);
-            case 6 -> mode(t, 8192).with(s("STATUS_DURATION_TICKS"), 60).with(s("DAMAGE_REDUCTION"), .25);
-            case 7 -> mode(t, 16384).with(s("DURATION_TICKS"), 100).with(s("INTERVAL_TICKS"), 20)
-                    .with(s("DAMAGE_MULTIPLIER"), .2).with(s("TARGET_CAP"), 12);
-            case 8 -> mode(t, 32768).with(s("DAMAGE_MULTIPLIER"), 0).with(s("RANGE"), 30)
-                    .with(s("RADIUS"), 12).with(s("IMPACT_DAMAGE_MULTIPLIER"), 1.6)
-                    .with(s("HEAL_RATIO"), 0).with(s("TARGET_CAP"), 12);
+            case 1 -> t.with(s("TRAIL_SLOW_LEVEL"), 1).with(s("TRAIL_SLOW_TICKS"), 60);
+            case 2 -> t.with(s("VEIL_DURATION_TICKS"), 8);
+            case 3 -> t.with(s("GLOAM_DAMAGE_RIDER"), .15);
+            case 4 -> t.with(s("RECALL_RANGE"), 6).with(s("RECALL_STRENGTH"), 1.5)
+                    .with(s("RECALL_TARGET_CAP"), 8);
+            case 5 -> t.with(s("SHELTER_ABSORPTION_PER_HIT"), 1).with(s("SHELTER_ABSORPTION_LIMIT"), 6)
+                    .with(s("SHELTER_BUFF_TICKS"), 80);
+            case 6 -> t.with(s("FOOTPRINT_TICKS"), 60).with(s("FOOTPRINT_PROJECTILE_REDUCTION"), .25);
+            case 7 -> t.with(s("LIVING_SHADOW_TICKS"), 100).with(s("LIVING_SHADOW_INTERVAL"), 20)
+                    .with(s("LIVING_SHADOW_MULTIPLIER"), .2).with(s("LIVING_SHADOW_TARGET_CAP"), 12);
+            case 8 -> t.multiply(s("REND_DAMAGE_MULTIPLIER"), 0, 1).with(s("REND_RANGE"), 30)
+                    .with(s("VOID_COLLAPSE_MULTIPLIER"), 1.6).with(s("VOID_COLLAPSE_RADIUS"), 12)
+                    .with(s("VOID_COLLAPSE_TARGET_CAP"), 12).with(s("LEECH_RATIO"), 0);
             default -> t;
         };
     }
@@ -384,7 +396,8 @@ final class Phase3MasterySkillEffect implements AbilitySkillEffectType {
                     || definition == Phase3UniqueAbilities.IONBOUND_BEAM
                     || definition == Phase3UniqueAbilities.IONBOUND_SHIELD;
             case 2 -> definition == Phase3UniqueAbilities.SOULRENDER_MARK
-                    || definition == Phase3UniqueAbilities.SOULRENDER_REAP;
+                    || definition == Phase3UniqueAbilities.SOULRENDER_REAP
+                    || definition == Phase3UniqueAbilities.SOULRENDER_GRAVE;
             case 3 -> definition == Phase3UniqueAbilities.SOULSTALKER_TENDRIL
                     || definition == Phase3UniqueAbilities.SOULSTALKER_STRIDE;
             case 4 -> definition == Phase3UniqueAbilities.WHISPERWIND_DASH
@@ -395,18 +408,29 @@ final class Phase3MasterySkillEffect implements AbilitySkillEffectType {
         };
     }
 
-    private static boolean applies(int profile, int branch, UniqueAbilityDefinition definition) {
+    private static boolean applies(int profile, int branch, int slot, UniqueAbilityDefinition definition) {
         return switch (profile) {
             case 0 -> true;
             case 1 -> branch == 0
                     || branch == 1 && definition == Phase3UniqueAbilities.IONBOUND_CRUSHER
                     || branch == 2 && definition == Phase3UniqueAbilities.IONBOUND_BEAM;
-            case 2 -> definition == Phase3UniqueAbilities.SOULRENDER_REAP || branch == 0;
+            case 2 -> switch (branch) {
+                case 0 -> definition == Phase3UniqueAbilities.SOULRENDER_MARK
+                        || definition == Phase3UniqueAbilities.SOULRENDER_REAP && reapReaching(slot);
+                case 1 -> definition == Phase3UniqueAbilities.SOULRENDER_REAP;
+                default -> definition == Phase3UniqueAbilities.SOULRENDER_REAP
+                        || definition == Phase3UniqueAbilities.SOULRENDER_GRAVE;
+            };
             case 3 -> definition == Phase3UniqueAbilities.SOULSTALKER_TENDRIL ? branch == 0 : branch > 0;
             case 4 -> definition == Phase3UniqueAbilities.WHISPERWIND_DASH || branch == 2;
             case 5 -> definition == Phase3UniqueAbilities.DREADWHISPER_REAVE || branch == 1;
             default -> false;
         };
+    }
+
+    // Rendmarks nodes whose bonus is spent by the reaping rather than the mark.
+    private static boolean reapReaching(int slot) {
+        return slot == 6 || slot == 8;
     }
 
     @Override
