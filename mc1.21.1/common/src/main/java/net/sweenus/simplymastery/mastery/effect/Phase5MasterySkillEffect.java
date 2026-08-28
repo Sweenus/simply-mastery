@@ -57,88 +57,129 @@ final class Phase5MasterySkillEffect implements AbilitySkillEffectType {
 
     private static Phase5AbilityTuning hearthflame(Phase5AbilityTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
-            case 0 -> t.multiply(s("DAMAGE_MULTIPLIER"), 1.1, 1);
-            case 1 -> t.add(s("RANGE"), 2, 10);
-            case 2 -> t.multiply(s("PULL_STRENGTH"), 1.2, .16).add(s("MIN_LENGTH"), -.5, 2.5);
-            case 3 -> t.with(s("FIRE_TICKS"), 40);
-            case 4 -> t.with(s("SECONDARY_DAMAGE_MULTIPLIER"), 1.15);
-            case 5 -> t.multiply(s("MAX_PRESSURE"), 1.2, 300).with(s("RADIUS"), 2.5);
-            case 6 -> t.multiply(s("FINAL_DAMAGE_MULTIPLIER"), 1.25, 1);
-            case 7 -> t.with(s("TARGET_CAP"), 8).multiply(s("DAMAGE_MULTIPLIER"), 1.2, 1)
+            case 0 -> t.multiply(s("HEARTH_ECHO_DAMAGE_MULTIPLIER"), 1.1, 1);
+            case 1 -> t.add(s("HEARTH_BIND_RANGE"), 2, 10);
+            case 2 -> t.multiply(s("PULL_STRENGTH"), 1.2, .16)
+                    .add(s("HEARTH_MIN_LENGTH"), -.5, 2.5);
+            case 3 -> t.with(s("HEARTH_ECHO_FIRE_TICKS"), 40);
+            case 4 -> t.multiply(s("HEARTH_ECHO_DAMAGE_MULTIPLIER"), 1.15, 1);
+            case 5 -> t.multiply(s("HEARTH_SNAP_PRESSURE_MULTIPLIER"), 1.2, 1)
+                    .add(s("HEARTH_SNAP_RADIUS"), .5, 2.5);
+            case 6 -> t.multiply(s("HEARTH_FINAL_DAMAGE_MULTIPLIER"), 1.25, 1);
+            case 7 -> t.with(s("TARGET_CAP"), 8).multiply(s("HEARTH_ECHO_DAMAGE_MULTIPLIER"), 1.2, 1)
                     .multiply(s("PULL_STRENGTH"), .7, .16);
-            case 8 -> t.with(s("TARGET_CAP"), 1).multiply(s("DURATION_TICKS"), .6, 220)
-                    .multiply(s("FINAL_DAMAGE_MULTIPLIER"), 2, 1);
+            case 8 -> t.with(s("TARGET_CAP"), 1).multiply(s("HEARTH_CHAIN_DURATION_TICKS"), .6, 220)
+                    .multiply(s("HEARTH_FINAL_DAMAGE_MULTIPLIER"), 2, 1);
             default -> t;
         };
         if (branch == 1) return switch (slot) {
-            case 0 -> t.with(s("ABSORPTION"), 4).with(s("STATUS_DURATION_TICKS"), 80);
-            case 1 -> t.with(s("DAMAGE_REDUCTION"), .3);
-            case 2 -> t.with(s("STATUS_DURATION_TICKS"), 30);
-            case 3 -> t.with(s("DAMAGE_REDUCTION"), .15).with(s("RANGE"), 6);
-            case 4 -> t.with(s("ABSORPTION"), 2).with(s("LOCKOUT_TICKS"), 40);
-            case 5 -> t.with(s("LOCKOUT_TICKS"), 20);
-            case 6 -> t.with(s("ABSORPTION"), 4).with(s("STATUS_DURATION_TICKS"), 60).with(s("COUNT"), 3);
-            case 7 -> t.with(s("STATUS_AMPLIFIER"), 1).with(s("SPEED"), .75);
-            case 8 -> t.with(s("STATUS_AMPLIFIER"), 0).with(s("SPEED"), 1.2)
-                    .multiply(s("RANGE"), .8, 10).multiply(s("FINAL_DAMAGE_MULTIPLIER"), .8, 1);
+            case 0 -> t.with(s("HEARTH_CAST_ABSORPTION"), 4)
+                    .with(s("HEARTH_CAST_ABSORPTION_DURATION_TICKS"), 80);
+            case 1 -> t.with(s("HEARTH_FIRE_DAMAGE_REDUCTION"), .3);
+            case 2 -> t.with(s("HEARTH_SNAP_RESISTANCE_DURATION_TICKS"), 30)
+                    .with(s("HEARTH_SNAP_RESISTANCE_MAX_TICKS"), 90);
+            case 3 -> t.with(s("HEARTH_BOUND_DAMAGE_REDUCTION"), .15)
+                    .with(s("HEARTH_BOUND_DAMAGE_REDUCTION_RANGE"), 6);
+            case 4 -> t.with(s("HEARTH_BRAND_ABSORPTION"), 2)
+                    .with(s("HEARTH_BRAND_ABSORPTION_LOCKOUT_TICKS"), 40);
+            case 5 -> t.with(s("HEARTH_CHAIN_PRESERVE_TICKS"), 20);
+            case 6 -> t.with(s("HEARTH_COMPLETION_ABSORPTION"), 4)
+                    .with(s("HEARTH_COMPLETION_ABSORPTION_DURATION_TICKS"), 60)
+                    .with(s("HEARTH_COMPLETION_MIN_CHAINS"), 3);
+            case 7 -> t.with(s("HEARTH_ANCHOR_SPEED_MULTIPLIER"), .75);
+            case 8 -> t.add(s("HEARTH_BREAK_RANGE"), 6, 24)
+                    .multiply(s("HEARTH_BIND_RANGE"), .8, 10)
+                    .multiply(s("HEARTH_FINAL_DAMAGE_MULTIPLIER"), .8, 1);
             default -> t;
         };
         return switch (slot) {
             case 0 -> t.add(s("CHANCE"), 10, 50);
-            case 1 -> t.add(s("DURATION_TICKS"), 80, 350);
-            case 2 -> t.with(s("OUTGOING_MULTIPLIER"), 1.12).with(s("FIRE_TICKS"), 20);
-            case 3 -> t.with(s("DURATION_TICKS"), 120).with(s("LOCKOUT_TICKS"), 60);
-            case 4 -> t.multiply(s("SECONDARY_DAMAGE_MULTIPLIER"), 1.2, 1).add(s("RADIUS"), .5, 2.5);
-            case 5 -> t.with(s("COUNT"), 2).with(s("RANGE"), 4).with(s("DURATION_TICKS"), 100);
-            case 6 -> t.multiply(s("FINAL_DAMAGE_MULTIPLIER"), 1.3, 1).with(s("PULL_STRENGTH"), 1.25);
-            case 7 -> t.with(s("DURATION_TICKS"), 60).with(s("SECONDARY_DAMAGE_MULTIPLIER"), 1.6)
+            case 1 -> t.add(s("HEARTH_BRAND_DURATION_TICKS"), 80, 350);
+            case 2 -> t.with(s("HEARTH_BRAND_HIT_DAMAGE_MULTIPLIER"), 1.12)
+                    .with(s("HEARTH_BRAND_HIT_FIRE_TICKS"), 20);
+            case 3 -> t.with(s("HEARTH_REACTIVE_BRAND_DURATION_TICKS"), 120)
+                    .with(s("HEARTH_REACTIVE_BRAND_LOCKOUT_TICKS"), 60);
+            case 4 -> t.multiply(s("HEARTH_SNAP_DAMAGE_MULTIPLIER"), 1.2, 1)
+                    .add(s("HEARTH_SNAP_RADIUS"), .5, 2.5);
+            case 5 -> t.with(s("HEARTH_BRAND_SPREAD_COUNT"), 2)
+                    .with(s("HEARTH_BRAND_SPREAD_RANGE"), 4)
+                    .with(s("HEARTH_BRAND_SPREAD_DURATION_TICKS"), 100);
+            case 6 -> t.multiply(s("HEARTH_FINAL_DAMAGE_MULTIPLIER"), 1.3, 1)
+                    .with(s("HEARTH_FINAL_KNOCKBACK_MULTIPLIER"), 1.25);
+            case 7 -> t.with(s("HEARTH_FORCED_SNAP_TICKS"), 60)
+                    .with(s("HEARTH_SNAP_DAMAGE_MULTIPLIER"), 1.6)
                     .with(s("PULL_STRENGTH"), 0);
-            case 8 -> t.with(s("COUNT"), 3).with(s("RANGE"), 5).with(s("GENERATION_MULTIPLIER"), .75);
+            case 8 -> t.with(s("HEARTH_REBIND_COUNT"), 3).with(s("HEARTH_REBIND_RANGE"), 5)
+                    .with(s("HEARTH_REBIND_DAMAGE_MULTIPLIER"), .75);
             default -> t;
         };
     }
 
     private static Phase5AbilityTuning emberblade(Phase5AbilityTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
-            case 0 -> t.multiply(s("DAMAGE_MULTIPLIER"), 1.12, 1);
-            case 1 -> t.multiply(s("FINAL_DAMAGE_MULTIPLIER"), 1.15, 1);
-            case 2 -> t.with(s("COUNT"), 1).with(s("SECONDARY_DAMAGE_MULTIPLIER"), .7).with(s("RANGE"), 12);
-            case 3 -> t.with(s("OUTGOING_MULTIPLIER"), 1.2);
-            case 4 -> t.with(s("DURATION_TICKS"), 60).with(s("PERIODIC_DAMAGE_MULTIPLIER"), .5);
-            case 5 -> t.with(s("FIRE_TICKS"), 60).with(s("SECONDARY_DAMAGE_MULTIPLIER"), .25)
-                    .with(s("RADIUS"), 2).with(s("TARGET_CAP"), 6);
-            case 6 -> t.multiply(s("FINAL_DAMAGE_MULTIPLIER"), 1.25, 1).with(s("FIRE_TICKS"), 80);
-            case 7 -> t.add(s("DURATION_TICKS"), 20, 80).multiply(s("FINAL_DAMAGE_MULTIPLIER"), 1.6, 1);
-            case 8 -> t.multiply(s("DURATION_TICKS"), .5, 80).add(s("COOLDOWN_TICKS"), -20, 60)
-                    .multiply(s("FINAL_DAMAGE_MULTIPLIER"), .65, 1);
+            case 0 -> t.multiply(s("EMBERBLADE_MIN_DAMAGE_MULTIPLIER"), 1.12, 1);
+            case 1 -> t.multiply(s("EMBERBLADE_MAX_DAMAGE_MULTIPLIER"), 1.15, 1);
+            case 2 -> t.with(s("EMBERBLADE_PIERCE_COUNT"), 1)
+                    .with(s("EMBERBLADE_PIERCE_DAMAGE_MULTIPLIER"), .7)
+                    .with(s("EMBERBLADE_PIERCE_RANGE"), 12);
+            case 3 -> t.with(s("EMBERBLADE_AIM_DAMAGE_MULTIPLIER"), 1.2);
+            case 4 -> t.with(s("EMBERBLADE_BANK_DURATION_TICKS"), 60)
+                    .with(s("EMBERBLADE_BANK_MULTIPLIER"), .5);
+            case 5 -> t.with(s("FIRE_TICKS"), 60).with(s("EMBERBLADE_SPLASH_DAMAGE_MULTIPLIER"), .25)
+                    .with(s("EMBERBLADE_SPLASH_RADIUS"), 2).with(s("EMBERBLADE_SPLASH_TARGET_CAP"), 6);
+            case 6 -> t.with(s("EMBERBLADE_FULL_CHARGE_WINDOW_TICKS"), 10)
+                    .multiply(s("EMBERBLADE_MAX_DAMAGE_MULTIPLIER"), 1.25, 1)
+                    .with(s("EMBERBLADE_FULL_CHARGE_FIRE_TICKS"), 80);
+            case 7 -> t.add(s("EMBERBLADE_CHANNEL_TICKS"), 20, 80)
+                    .multiply(s("EMBERBLADE_MAX_DAMAGE_MULTIPLIER"), 1.6, 1);
+            case 8 -> t.multiply(s("EMBERBLADE_CHANNEL_TICKS"), .5, 80)
+                    .add(s("COOLDOWN_TICKS"), -20, 60)
+                    .multiply(s("EMBERBLADE_MAX_DAMAGE_MULTIPLIER"), .65, 1);
             default -> t;
         };
         if (branch == 1) return switch (slot) {
-            case 0 -> t.with(s("STATUS_DURATION_TICKS"), 60);
-            case 1 -> t.with(s("STATUS_DURATION_TICKS"), 80);
-            case 2 -> t.with(s("SPEED"), 1.5).with(s("DURATION_TICKS"), 20);
-            case 3 -> t.with(s("RANGE"), 6).with(s("OUTGOING_MULTIPLIER"), 1.15).with(s("LOCKOUT_TICKS"), 80);
-            case 4 -> t.with(s("DAMAGE_REDUCTION"), .25).with(s("LOCKOUT_TICKS"), 8);
-            case 5 -> t.with(s("STATUS_DURATION_TICKS"), 60).with(s("LOCKOUT_TICKS"), 100);
-            case 6 -> t.with(s("STATUS_DURATION_TICKS"), 40);
-            case 7 -> t.with(s("COUNT"), 0).with(s("RADIUS"), 0);
-            case 8 -> t.with(s("SPEED"), 4).with(s("STATUS_DURATION_TICKS"), 40)
-                    .multiply(s("DAMAGE_MULTIPLIER"), .8, 1);
+            case 0 -> t.with(s("EMBERBLADE_QUICKDRAW_DURATION_TICKS"), 60);
+            case 1 -> t.with(s("EMBERBLADE_HASTE_DURATION_TICKS"), 80);
+            case 2 -> t.with(s("EMBERBLADE_RECOIL_DISTANCE"), 1.5)
+                    .with(s("EMBERBLADE_FALL_PROTECTION_TICKS"), 20);
+            case 3 -> t.with(s("EMBERBLADE_MOVE_DISTANCE"), 6)
+                    .with(s("EMBERBLADE_NEXT_HIT_MULTIPLIER"), 1.15)
+                    .with(s("EMBERBLADE_NEXT_HIT_DURATION_TICKS"), 80);
+            case 4 -> t.with(s("EMBERBLADE_LATE_DAMAGE_REDUCTION"), .25)
+                    .with(s("EMBERBLADE_LATE_GUARD_TICKS"), 8);
+            case 5 -> t.with(s("EMBERBLADE_IRE_RUSH_DURATION_TICKS"), 60)
+                    .with(s("EMBERBLADE_FULL_BUFF_LOCKOUT_TICKS"), 100);
+            case 6 -> t.with(s("EMBERBLADE_PURSUIT_SPEED_TICKS"), 40);
+            case 7 -> t;
+            case 8 -> t.with(s("EMBERBLADE_RECOIL_DISTANCE"), 4)
+                    .with(s("EMBERBLADE_BLASTBACK_RESISTANCE_TICKS"), 40)
+                    .multiply(s("EMBERBLADE_MIN_DAMAGE_MULTIPLIER"), .8, 1)
+                    .multiply(s("EMBERBLADE_MAX_DAMAGE_MULTIPLIER"), .8, 1);
             default -> t;
         };
         return switch (slot) {
-            case 0 -> t.add(s("CHANCE"), 10, 30);
-            case 1 -> t.add(s("STATUS_DURATION_TICKS"), 40, 150);
-            case 2 -> t.with(s("COUNT"), 2).with(s("SECONDARY_DAMAGE_MULTIPLIER"), .35).with(s("RANGE"), 5);
-            case 3 -> t.with(s("RANGE"), 10).with(s("OUTGOING_MULTIPLIER"), 1.2);
-            case 4 -> t.with(s("COUNT"), 3).with(s("LOCKOUT_TICKS"), 100)
-                    .with(s("RADIUS"), 3).with(s("SECONDARY_DAMAGE_MULTIPLIER"), .4).with(s("TARGET_CAP"), 8);
-            case 5 -> t.with(s("PERIODIC_DAMAGE_MULTIPLIER"), .05).with(s("FINAL_DAMAGE_MULTIPLIER"), .25)
-                    .with(s("LOCKOUT_TICKS"), 100);
-            case 6 -> t.with(s("RETARGET_RANGE"), 6).with(s("GENERATION_MULTIPLIER"), .5);
-            case 7 -> t.with(s("COUNT"), 5).with(s("SECONDARY_DAMAGE_MULTIPLIER"), .45)
-                    .multiply(s("DAMAGE_MULTIPLIER"), .6, 1);
-            case 8 -> t.with(s("STATUS_AMPLIFIER"), 1).with(s("STATUS_DURATION_TICKS"), 100)
+            case 0 -> t.with(s("CHANCE"), 10);
+            case 1 -> t.with(s("EMBERBLADE_IRE_DURATION_BONUS_TICKS"), 40);
+            case 2 -> t.with(s("EMBERBLADE_FRAGMENT_COUNT"), 2)
+                    .with(s("EMBERBLADE_FRAGMENT_DAMAGE_MULTIPLIER"), .35)
+                    .with(s("EMBERBLADE_FRAGMENT_RANGE"), 5);
+            case 3 -> t.with(s("EMBERBLADE_FRAGMENT_SEEK_RANGE"), 10)
+                    .with(s("EMBERBLADE_FRAGMENT_SEEK_MULTIPLIER"), 1.2);
+            case 4 -> t.with(s("EMBERBLADE_FLASHOVER_COUNT"), 3)
+                    .with(s("EMBERBLADE_FLASHOVER_WINDOW_TICKS"), 100)
+                    .with(s("EMBERBLADE_FLASHOVER_RADIUS"), 3)
+                    .with(s("EMBERBLADE_FLASHOVER_DAMAGE_MULTIPLIER"), .4)
+                    .with(s("EMBERBLADE_FLASHOVER_TARGET_CAP"), 8);
+            case 5 -> t.with(s("EMBERBLADE_BANK_GAIN"), .05).with(s("EMBERBLADE_BANK_CAP"), .25)
+                    .with(s("EMBERBLADE_BANK_DURATION_TICKS"), 100);
+            case 6 -> t.with(s("EMBERBLADE_FRAGMENT_JUMP_RANGE"), 6)
+                    .with(s("EMBERBLADE_FRAGMENT_JUMP_MULTIPLIER"), .5);
+            case 7 -> t.with(s("EMBERBLADE_FRAGMENT_COUNT"), 5)
+                    .with(s("EMBERBLADE_FRAGMENT_DAMAGE_MULTIPLIER"), .45)
+                    .multiply(s("EMBERBLADE_MIN_DAMAGE_MULTIPLIER"), .6, 1)
+                    .multiply(s("EMBERBLADE_MAX_DAMAGE_MULTIPLIER"), .6, 1);
+            case 8 -> t.with(s("STATUS_AMPLIFIER"), 1)
+                    .with(s("EMBERBLADE_INCARNATE_DURATION_TICKS"), 100)
                     .add(s("COOLDOWN_TICKS"), 80, 60);
             default -> t;
         };
@@ -146,39 +187,57 @@ final class Phase5MasterySkillEffect implements AbilitySkillEffectType {
 
     private static Phase5AbilityTuning emberlash(Phase5AbilityTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
-            case 0 -> t.multiply(s("PER_STACK_MULTIPLIER"), 1.1, 1);
-            case 1 -> t.with(s("STACK_CAP"), 6);
-            case 2 -> t.add(s("DURATION_TICKS"), 60, 100);
+            case 0 -> t.multiply(s("EMBERLASH_SMOULDER_DAMAGE_MULTIPLIER"), 1.1, 1);
+            case 1 -> t.with(s("EMBERLASH_SMOULDER_STACK_CAP"), 6);
+            case 2 -> t.add(s("EMBERLASH_SMOULDER_DURATION_TICKS"), 60, 100);
             case 3 -> t.with(s("COUNT"), 3).with(s("FIRE_TICKS"), 60);
-            case 4 -> t.with(s("RADIUS"), 3).with(s("TARGET_CAP"), 4);
-            case 5 -> t.with(s("COUNT"), 3).with(s("LOCKOUT_TICKS"), 40);
-            case 6 -> t.with(s("DAMAGE_REDUCTION"), .12).with(s("STATUS_DURATION_TICKS"), 60);
-            case 7 -> t.multiply(s("PER_STACK_MULTIPLIER"), .75, 1).with(s("LOCKOUT_TICKS"), 60);
-            case 8 -> t.with(s("STACK_CAP"), 3).multiply(s("PER_STACK_MULTIPLIER"), 1.45, 1).with(s("RADIUS"), 0);
+            case 4 -> t.with(s("EMBERLASH_SWEEP_RADIUS"), 3).with(s("EMBERLASH_SWEEP_TARGET_CAP"), 4);
+            case 5 -> t.with(s("EMBERLASH_COMBO_HITS"), 3).with(s("EMBERLASH_COMBO_WINDOW_TICKS"), 40);
+            case 6 -> t.with(s("EMBERLASH_MAX_DAMAGE_REDUCTION"), .12)
+                    .with(s("EMBERLASH_MAX_REDUCTION_DURATION_TICKS"), 60);
+            case 7 -> t.multiply(s("EMBERLASH_SMOULDER_DAMAGE_MULTIPLIER"), .75, 1)
+                    .with(s("LOCKOUT_TICKS"), 60);
+            case 8 -> t.with(s("EMBERLASH_SMOULDER_STACK_CAP"), 3)
+                    .multiply(s("EMBERLASH_SMOULDER_DAMAGE_MULTIPLIER"), 1.45, 1);
             default -> t;
         };
         if (branch == 1) return switch (slot) {
-            case 0 -> t.with(s("SPEED"), 1.2);
+            case 0 -> t.with(s("EMBERLASH_EVADE_DISTANCE_MULTIPLIER"), 1.2);
             case 1 -> t.add(s("COOLDOWN_TICKS"), -12, 80);
-            case 2 -> t.with(s("ABSORPTION"), 4).with(s("STATUS_DURATION_TICKS"), 60);
-            case 3 -> t.with(s("RADIUS"), 3).with(s("TARGET_CAP"), 6).with(s("STATUS_DURATION_TICKS"), 30);
-            case 4 -> t.with(s("COUNT"), 2).with(s("LOCKOUT_TICKS"), 80);
-            case 5 -> t.with(s("STATUS_DURATION_TICKS"), 40).with(s("STATUS_AMPLIFIER"), 1);
-            case 6 -> t.with(s("LOCKOUT_TICKS"), 160).with(s("STATUS_DURATION_TICKS"), 60);
-            case 7 -> t.with(s("SECONDARY_DAMAGE_MULTIPLIER"), .35).with(s("TARGET_CAP"), 6).with(s("FIRE_TICKS"), 60);
-            case 8 -> t.multiply(s("HEAL_MULTIPLIER"), 1.5, 1).with(s("SPEED"), 0);
+            case 2 -> t.with(s("EMBERLASH_CAUTERY_ABSORPTION"), 4)
+                    .with(s("EMBERLASH_CAUTERY_ABSORPTION_TICKS"), 60);
+            case 3 -> t.with(s("EMBERLASH_BLIND_RADIUS"), 3)
+                    .with(s("EMBERLASH_BLIND_TARGET_CAP"), 6)
+                    .with(s("EMBERLASH_BLIND_DURATION_TICKS"), 30);
+            case 4 -> t.with(s("EMBERLASH_BACKLASH_STACKS"), 2)
+                    .with(s("EMBERLASH_BACKLASH_DURATION_TICKS"), 80);
+            case 5 -> t.with(s("EMBERLASH_BURNING_PACE_DURATION_TICKS"), 40)
+                    .with(s("EMBERLASH_BURNING_PACE_AMPLIFIER"), 1);
+            case 6 -> t.with(s("EMBERLASH_EMERGENCY_LOCKOUT_TICKS"), 160)
+                    .with(s("EMBERLASH_EMERGENCY_RESISTANCE_TICKS"), 60);
+            case 7 -> t.with(s("EMBERLASH_PHOENIX_DAMAGE_MULTIPLIER"), .35)
+                    .with(s("EMBERLASH_PHOENIX_TARGET_CAP"), 6)
+                    .with(s("EMBERLASH_PHOENIX_FIRE_TICKS"), 60);
+            case 8 -> t.multiply(s("HEAL_MULTIPLIER"), 1.5, 1);
             default -> t;
         };
         return switch (slot) {
-            case 0 -> t.with(s("LOCKOUT_TICKS"), 30);
-            case 1 -> t.with(s("DURATION_TICKS"), 100).with(s("STACK_CAP"), 3);
-            case 2 -> t.with(s("COUNT"), 3).with(s("OUTGOING_MULTIPLIER"), 1.25);
-            case 3 -> t.with(s("RADIUS"), 2.5).with(s("PER_STACK_MULTIPLIER"), .08).with(s("TARGET_CAP"), 8);
-            case 4 -> t.with(s("COUNT"), 1);
-            case 5 -> t.with(s("STATUS_DURATION_TICKS"), 40).with(s("STATUS_AMPLIFIER"), 1);
-            case 6 -> t.with(s("REFUND_TICKS"), 20);
-            case 7 -> t.with(s("PER_STACK_MULTIPLIER"), .3);
-            case 8 -> t.with(s("DURATION_TICKS"), 200).with(s("STACK_CAP"), 5).with(s("INCOMING_MULTIPLIER"), 1.04);
+            case 0 -> t.with(s("EMBERLASH_HOT_BLOOD_LOCKOUT_TICKS"), 30);
+            case 1 -> t.with(s("EMBERLASH_REPRISAL_DURATION_TICKS"), 100)
+                    .with(s("EMBERLASH_REPRISAL_STACK_CAP"), 3);
+            case 2 -> t.with(s("EMBERLASH_REPRISAL_TRIGGER_COUNT"), 3)
+                    .with(s("EMBERLASH_REPRISAL_DAMAGE_MULTIPLIER"), .25);
+            case 3 -> t.with(s("EMBERLASH_ASH_RADIUS"), 2.5)
+                    .with(s("EMBERLASH_ASH_DAMAGE_PER_STACK"), .08)
+                    .with(s("EMBERLASH_ASH_TARGET_CAP"), 8);
+            case 4 -> t.with(s("EMBERLASH_ASH_APPLIED_STACKS"), 1);
+            case 5 -> t.with(s("EMBERLASH_LASHBACK_DURATION_TICKS"), 40)
+                    .with(s("EMBERLASH_LASHBACK_AMPLIFIER"), 1);
+            case 6 -> t.with(s("EMBERLASH_KILL_REFUND_TICKS"), 20);
+            case 7 -> t.with(s("EMBERLASH_DETONATION_DAMAGE_PER_STACK"), .3);
+            case 8 -> t.with(s("EMBERLASH_REPRISAL_DURATION_TICKS"), 200)
+                    .with(s("EMBERLASH_REPRISAL_STACK_CAP"), 5)
+                    .with(s("EMBERLASH_INCOMING_PER_CHARGE_MULTIPLIER"), 1.04);
             default -> t;
         };
     }
