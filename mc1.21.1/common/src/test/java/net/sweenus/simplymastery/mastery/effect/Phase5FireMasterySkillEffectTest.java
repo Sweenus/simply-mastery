@@ -22,6 +22,7 @@ final class Phase5FireMasterySkillEffectTest {
         assertProfile("hearthflame", 0);
         assertProfile("emberblade", 27);
         assertProfile("emberlash", 54);
+        assertProfile("soulpyre", 135);
     }
 
     @Test
@@ -32,7 +33,7 @@ final class Phase5FireMasterySkillEffectTest {
         assertEquals(1.265, tuning.get(Setting.HEARTH_ECHO_DAMAGE_MULTIPLIER, 1), 1.0E-6);
         assertEquals(132, tuning.integer(Setting.HEARTH_CHAIN_DURATION_TICKS, 0));
         assertEquals(430, tuning.integer(Setting.HEARTH_BRAND_DURATION_TICKS, 0));
-        assertEquals(1.6, tuning.get(Setting.HEARTH_SNAP_DAMAGE_MULTIPLIER, 1), 1.0E-6);
+        assertEquals(1.92, tuning.get(Setting.HEARTH_SNAP_DAMAGE_MULTIPLIER, 1), 1.0E-6);
         assertEquals(2.6, tuning.get(Setting.HEARTH_FINAL_DAMAGE_MULTIPLIER, 1), 1.0E-6);
         assertEquals(60, tuning.integer(Setting.HEARTH_FORCED_SNAP_TICKS, 0));
         assertFalse(tuning.has(Setting.DURATION_TICKS));
@@ -74,6 +75,41 @@ final class Phase5FireMasterySkillEffectTest {
         assertEquals(200, tuning.integer(Setting.EMBERLASH_REPRISAL_DURATION_TICKS, 0));
         assertFalse(tuning.has(Setting.STACK_CAP));
         assertFalse(tuning.has(Setting.DURATION_TICKS));
+    }
+
+    @Test
+    void soulPyreBranchesRouteOnlyToTheirOwningDefinition() {
+        Phase5AbilityTuning tether = tune("soulpyre", Phase5UniqueAbilities.SOUL_PYRE_TETHER,
+                List.of(0, 9, 18));
+        Phase5AbilityTuning wisp = tune("soulpyre", Phase5UniqueAbilities.SOUL_PYRE_WISP,
+                List.of(0, 9, 18));
+
+        assertEquals(700, tether.integer(Setting.SOULPYRE_TETHER_DURATION_TICKS, 0));
+        assertEquals(.55, tether.get(Setting.SOULPYRE_DAMAGE_REDUCTION, 0), 1.0E-6);
+        assertFalse(tether.has(Setting.SOULPYRE_WISP_DAMAGE_MULTIPLIER));
+        assertEquals(1.15, wisp.get(Setting.SOULPYRE_WISP_DAMAGE_MULTIPLIER, 1), 1.0E-6);
+        assertFalse(wisp.has(Setting.SOULPYRE_TETHER_DURATION_TICKS));
+        assertFalse(wisp.has(Setting.SOULPYRE_DAMAGE_REDUCTION));
+    }
+
+    @Test
+    void soulPyrePulseWispAndCollapseDamageChannelsStayIndependent() {
+        Phase5AbilityTuning tether = tune("soulpyre", Phase5UniqueAbilities.SOUL_PYRE_TETHER,
+                List.of(3, 7, 8, 22, 23, 26));
+        Phase5AbilityTuning wisp = tune("soulpyre", Phase5UniqueAbilities.SOUL_PYRE_WISP,
+                List.of(9, 10, 14, 15, 16));
+
+        assertEquals(.06, tether.get(Setting.SOULPYRE_PULSE_SOUL_MULTIPLIER, 0), 1.0E-6);
+        assertEquals(.75, tether.get(Setting.SOULPYRE_DEVOURING_PULSE_DAMAGE_MULTIPLIER, 0), 1.0E-6);
+        assertEquals(1.6, tether.get(Setting.SOULPYRE_CLOSED_PULSE_DAMAGE_MULTIPLIER, 0), 1.0E-6);
+        assertEquals(.2, tether.get(Setting.SOULPYRE_COLLAPSE_DAMAGE_MULTIPLIER, 0), 1.0E-6);
+        assertEquals(.12, tether.get(Setting.SOULPYRE_REQUIEM_BONUS_PER_SOUL, 0), 1.0E-6);
+        assertEquals(1.75, tether.get(Setting.SOULPYRE_FUNERAL_DAMAGE_MULTIPLIER, 0), 1.0E-6);
+        assertEquals(6, wisp.integer(Setting.SOULPYRE_WISP_VOLLEY_SIZE, 0));
+        assertEquals(1.2, wisp.get(Setting.SOULPYRE_WISP_MARK_DAMAGE_MULTIPLIER, 0), 1.0E-6);
+        assertEquals(.55, wisp.get(Setting.SOULPYRE_LEGION_DAMAGE_MULTIPLIER, 0), 1.0E-6);
+        assertFalse(tether.has(Setting.PER_STACK_MULTIPLIER));
+        assertFalse(wisp.has(Setting.WISP_COUNT));
     }
 
     private static void assertProfile(String profilePath, int offset) {
