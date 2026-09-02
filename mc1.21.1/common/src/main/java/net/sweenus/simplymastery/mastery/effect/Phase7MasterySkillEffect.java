@@ -38,7 +38,8 @@ final class Phase7MasterySkillEffect implements AbilitySkillEffectType {
         int branch = kind % 27 / 9;
         int slot = kind % 9;
         if (!matches(profile, branch, slot, definition)) return;
-        Phase7AbilityTuning value = mode(tuning.get(Phase7UniqueAbilities.TUNING), 1 << (branch * 9 + slot));
+        Phase7AbilityTuning value = tuning.get(Phase7UniqueAbilities.TUNING);
+        if (profile != 0) value = mode(value, 1 << (branch * 9 + slot));
         value = switch (profile) {
             case 0 -> bramblethorn(value, branch, slot);
             case 1 -> waxweaver(value, branch, slot);
@@ -55,175 +56,259 @@ final class Phase7MasterySkillEffect implements AbilitySkillEffectType {
 
     private static Phase7AbilityTuning bramblethorn(Phase7AbilityTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
-            case 0 -> t.add(s("RANGE"), 4, 16);
-            case 1 -> t.add(s("RADIUS"), 1.5, 6).with(s("TARGET_CAP"), 6);
-            case 2 -> t.add(s("INTERVAL_TICKS"), -3, 12);
-            case 3 -> t.add(s("DURATION_TICKS"), 20, 60);
-            case 4 -> t.multiply(s("PULL_STRENGTH"), 1.2, .22);
-            case 5 -> t.with(s("SECONDARY_DAMAGE_MULTIPLIER"), .42);
-            case 6 -> t.multiply(s("DAMAGE_MULTIPLIER"), 1.2, 1).multiply(s("SPEED"), 1.15, 1);
-            case 7 -> t.with(s("TARGET_CAP"), 10).with(s("SECONDARY_DAMAGE_MULTIPLIER"), .25)
-                    .with(s("PULL_STRENGTH"), 0).with(s("FINAL_DAMAGE_MULTIPLIER"), 0);
-            case 8 -> t.with(s("TARGET_CAP"), 1).multiply(s("SPEED"), 1.4, 1)
-                    .multiply(s("DAMAGE_MULTIPLIER"), 2.25, 1);
+            case 0 -> t.with(s("BRAMBLE_GRASP_RANGE_BONUS"), 4);
+            case 1 -> t.with(s("BRAMBLE_GRASP_RADIUS_BONUS"), 1.5);
+            case 2 -> t.with(s("BRAMBLE_GRASP_TRAVEL_TICK_BONUS"), -3);
+            case 3 -> t.with(s("BRAMBLE_BIND_DURATION_BONUS_TICKS"), 20);
+            case 4 -> t.with(s("BRAMBLE_PULL_MULTIPLIER"), 1.2);
+            case 5 -> t.with(s("BRAMBLE_SHARED_DAMAGE_RATIO"), .42);
+            case 6 -> t.with(s("BRAMBLE_SLAM_DAMAGE_MULTIPLIER"), 1.2)
+                    .with(s("BRAMBLE_LIFT_FORCE_MULTIPLIER"), 1.15);
+            case 7 -> t.with(s("BRAMBLE_TANGLED_TARGET_CAP"), 10)
+                    .with(s("BRAMBLE_TANGLED_SHARED_DAMAGE_RATIO"), .25)
+                    .with(s("BRAMBLE_TANGLED_DISABLE_PULL"), 1)
+                    .with(s("BRAMBLE_TANGLED_DISABLE_SLAM"), 1);
+            case 8 -> t.with(s("BRAMBLE_HANGMAN_TARGET_CAP"), 1)
+                    .with(s("BRAMBLE_HANGMAN_LIFT_FORCE_MULTIPLIER"), 1.4)
+                    .with(s("BRAMBLE_HANGMAN_SLAM_DAMAGE_MULTIPLIER"), 2.25);
             default -> t;
         };
         if (branch == 1) return switch (slot) {
-            case 0 -> t.add(s("DURATION_TICKS"), 40, 60);
-            case 1 -> t.add(s("COOLDOWN_TICKS"), -2, 8);
-            case 2 -> t.add(s("RANGE"), 2, 10);
-            case 3 -> t.add(s("WIDTH"), .25, .7).multiply(s("DAMAGE_MULTIPLIER"), 1.1, 1);
-            case 4 -> t.add(s("STATUS_DURATION_TICKS"), 20, 30).with(s("STATUS_AMPLIFIER"), 1);
-            case 5 -> t.with(s("TARGET_CAP"), 4);
-            case 6 -> t.with(s("COUNT"), 3).with(s("LOCKOUT_TICKS"), 100)
-                    .with(s("FINAL_DAMAGE_MULTIPLIER"), 1.35);
-            case 7 -> t.with(s("COUNT"), 2).with(s("SECONDARY_DAMAGE_MULTIPLIER"), .55)
-                    .with(s("STATUS_DURATION_TICKS"), 0);
-            case 8 -> t.with(s("TARGET_CAP"), 1).multiply(s("DAMAGE_MULTIPLIER"), 1.8, 1)
-                    .with(s("DURATION_TICKS"), 30);
+            case 0 -> t.with(s("BRAMBLE_HUNT_MEMORY_BONUS_TICKS"), 40);
+            case 1 -> t.with(s("BRAMBLE_HUNT_COOLDOWN_BONUS_TICKS"), -2);
+            case 2 -> t.with(s("BRAMBLE_HUNT_RANGE_BONUS"), 2);
+            case 3 -> t.with(s("BRAMBLE_HUNT_WIDTH_BONUS"), .25)
+                    .with(s("BRAMBLE_HUNT_DAMAGE_MULTIPLIER"), 1.1);
+            case 4 -> t.with(s("BRAMBLE_HUNT_SLOW_DURATION_BONUS_TICKS"), 20)
+                    .with(s("BRAMBLE_HUNT_MIN_SLOW_AMPLIFIER"), 1);
+            case 5 -> t.with(s("BRAMBLE_HUNT_PATH_TARGET_CAP"), 4);
+            case 6 -> t.with(s("BRAMBLE_CROSSCUT_TARGET_COUNT"), 3)
+                    .with(s("BRAMBLE_CROSSCUT_WINDOW_TICKS"), 100)
+                    .with(s("BRAMBLE_CROSSCUT_DAMAGE_MULTIPLIER"), 1.35);
+            case 7 -> t.with(s("BRAMBLE_WALTZ_PROJECTILE_COUNT"), 2)
+                    .with(s("BRAMBLE_WALTZ_DAMAGE_MULTIPLIER"), .55)
+                    .with(s("BRAMBLE_WALTZ_DISABLE_SLOW"), 1);
+            case 8 -> t.with(s("BRAMBLE_PREDATOR_TARGET_ONLY"), 1)
+                    .with(s("BRAMBLE_PREDATOR_DAMAGE_MULTIPLIER"), 1.8)
+                    .with(s("BRAMBLE_PREDATOR_MEMORY_TICKS"), 30);
             default -> t;
         };
         return switch (slot) {
-            case 0 -> t.with(s("ABSORPTION"), 4).with(s("STATUS_DURATION_TICKS"), 80);
-            case 1 -> t.with(s("COUNT"), 3).with(s("INCOMING_MULTIPLIER"), .88);
-            case 2 -> t.with(s("PER_STACK_MULTIPLIER"), .2).with(s("LOCKOUT_TICKS"), 30);
-            case 3 -> t.with(s("ABSORPTION"), 2).with(s("STACK_CAP"), 8);
-            case 4 -> t.with(s("OUTGOING_MULTIPLIER"), .9);
-            case 5 -> t.with(s("COUNT"), 6).with(s("STATUS_DURATION_TICKS"), 100);
-            case 6 -> t.with(s("REFUND_TICKS"), 12).with(s("STACK_CAP"), 48);
-            case 7 -> t.multiply(s("DURATION_TICKS"), 1.5, 60).with(s("STATUS_AMPLIFIER"), 1)
-                    .multiply(s("SECONDARY_DAMAGE_MULTIPLIER"), .7, .35);
-            case 8 -> t.with(s("RADIUS"), 2).with(s("FINAL_DAMAGE_MULTIPLIER"), .5);
+            case 0 -> t.with(s("BRAMBLE_BARKSKIN_ABSORPTION"), 4)
+                    .with(s("BRAMBLE_BARKSKIN_DURATION_TICKS"), 80);
+            case 1 -> t.with(s("BRAMBLE_ROOTED_GUARD_TARGET_COUNT"), 3)
+                    .with(s("BRAMBLE_ROOTED_GUARD_INCOMING_MULTIPLIER"), .88);
+            case 2 -> t.with(s("BRAMBLE_RETORT_DAMAGE_MULTIPLIER"), .2)
+                    .with(s("BRAMBLE_RETORT_LOCKOUT_TICKS"), 30);
+            case 3 -> t.with(s("BRAMBLE_SAP_RISE_ABSORPTION"), 2)
+                    .with(s("BRAMBLE_SAP_RISE_CAP"), 8);
+            case 4 -> t.with(s("BRAMBLE_SHELTERWOOD_OUTGOING_MULTIPLIER"), .9);
+            case 5 -> t.with(s("BRAMBLE_THORNWARD_TARGET_COUNT"), 6)
+                    .with(s("BRAMBLE_THORNWARD_DURATION_TICKS"), 100)
+                    .with(s("BRAMBLE_THORNWARD_AMPLIFIER"), 0);
+            case 6 -> t.with(s("BRAMBLE_RECLAIMED_REFUND_TICKS"), 12)
+                    .with(s("BRAMBLE_RECLAIMED_REFUND_CAP_TICKS"), 48);
+            case 7 -> t.with(s("BRAMBLE_ANCIENT_BIND_DURATION_MULTIPLIER"), 1.5)
+                    .with(s("BRAMBLE_ANCIENT_RESISTANCE_AMPLIFIER"), 1)
+                    .with(s("BRAMBLE_ANCIENT_SHARED_DAMAGE_MULTIPLIER"), .7);
+            case 8 -> t.with(s("BRAMBLE_BRIAR_RADIUS"), 2)
+                    .with(s("BRAMBLE_BRIAR_DAMAGE_MULTIPLIER"), .5)
+                    .with(s("BRAMBLE_BRIAR_TARGET_CAP"), 16);
             default -> t;
         };
     }
 
     private static Phase7AbilityTuning waxweaver(Phase7AbilityTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
-            case 0 -> t.add(s("RANGE"), 3, 12);
-            case 1 -> t.add(s("DURATION_TICKS"), 20, 120);
-            case 2 -> t.add(s("WIDTH"), 2, 10).with(s("TARGET_CAP"), 10);
-            case 3 -> t.with(s("INTERVAL_TICKS"), 8);
-            case 4 -> t.multiply(s("DAMAGE_MULTIPLIER"), 1.12, 1).add(s("FIRE_TICKS"), 20, 80);
-            case 5 -> t.add(s("RADIUS"), .75, 4).with(s("TARGET_CAP"), 12);
-            case 6 -> t.with(s("PER_STACK_MULTIPLIER"), .08).with(s("INTERVAL_TICKS"), 10);
-            case 7 -> t.with(s("DURATION_TICKS"), 200).multiply(s("DAMAGE_MULTIPLIER"), .6, 1)
-                    .with(s("OUTGOING_MULTIPLIER"), .75);
-            case 8 -> t.with(s("DURATION_TICKS"), 60).multiply(s("DAMAGE_MULTIPLIER"), 1.9, 1)
-                    .multiply(s("WIDTH"), .5, 10);
+            case 0 -> t.with(s("WAX_PRISON_RANGE_BONUS"), 3);
+            case 1 -> t.with(s("WAX_PRISON_DURATION_BONUS_TICKS"), 20);
+            case 2 -> t.with(s("WAX_TAUNT_RADIUS_BONUS"), 2);
+            case 3 -> t.with(s("WAX_TAUNT_INTERVAL_BONUS_TICKS"), -2);
+            case 4 -> t.with(s("WAX_EXPLOSION_DAMAGE_MULTIPLIER"), 1.12)
+                    .with(s("WAX_EXPLOSION_FIRE_BONUS_TICKS"), 20);
+            case 5 -> t.with(s("WAX_EXPLOSION_RADIUS_BONUS"), .75);
+            case 6 -> t.with(s("WAX_BRITTLE_DAMAGE_PER_STEP"), .08)
+                    .with(s("WAX_BRITTLE_DURATION_REDUCTION_TICKS"), 10);
+            case 7 -> t.with(s("WAX_IRON_DURATION_TICKS"), 200)
+                    .with(s("WAX_IRON_DAMAGE_MULTIPLIER"), .6)
+                    .with(s("WAX_IRON_OUTGOING_MULTIPLIER"), .75);
+            case 8 -> t.with(s("WAX_VOLATILE_DURATION_TICKS"), 60)
+                    .with(s("WAX_VOLATILE_DAMAGE_MULTIPLIER"), 1.9)
+                    .with(s("WAX_VOLATILE_TAUNT_RADIUS_MULTIPLIER"), .5);
             default -> t;
         };
         if (branch == 1) return switch (slot) {
-            case 0 -> t.add(s("DURATION_TICKS"), 20, 60);
-            case 1 -> t.with(s("STACK_CAP"), 4);
-            case 2 -> t.with(s("FIRE_TICKS"), 60);
-            case 3 -> t.with(s("SPEED"), 1.08);
-            case 4 -> t.with(s("REFUND_TICKS"), 4).with(s("STACK_CAP"), 24).with(s("LOCKOUT_TICKS"), 80);
-            case 5 -> t.with(s("STATUS_DURATION_TICKS"), 30);
-            case 6 -> t.with(s("FINAL_DAMAGE_MULTIPLIER"), 1.3).with(s("LOCKOUT_TICKS"), 120);
-            case 7 -> t.with(s("STACK_CAP"), 6).with(s("PER_STACK_MULTIPLIER"), 1.5)
-                    .with(s("LOCKOUT_TICKS"), 30);
-            case 8 -> t.with(s("STACK_CAP"), 1).with(s("DURATION_TICKS"), 160).with(s("REFUND_TICKS"), 0);
+            case 0 -> t.with(s("WAX_TEMPO_DURATION_BONUS_TICKS"), 20);
+            case 1 -> t.with(s("WAX_TEMPO_STACK_CAP"), 4);
+            case 2 -> t.with(s("WAX_ENCASED_FIRE_TICKS"), 60);
+            case 3 -> t.with(s("WAX_RHYTHM_SPEED_BONUS"), .08);
+            case 4 -> t.with(s("WAX_REFUND_PER_HIT_TICKS"), 4)
+                    .with(s("WAX_REFUND_CAP_TICKS"), 24)
+                    .with(s("WAX_REFUND_WINDOW_TICKS"), 80);
+            case 5 -> t.with(s("WAX_CANDLE_STEP_TICKS"), 30);
+            case 6 -> t.with(s("WAX_FLASH_MULTIPLIER"), 1.3)
+                    .with(s("WAX_FLASH_WINDOW_TICKS"), 120);
+            case 7 -> t.with(s("WAX_TEMPO_STACK_CAP"), 6)
+                    .with(s("WAX_FRENZY_BONUS_MULTIPLIER"), 1.5)
+                    .with(s("WAX_FRENZY_DURATION_TICKS"), 30);
+            case 8 -> t.with(s("WAX_TEMPO_STACK_CAP"), 1)
+                    .with(s("WAX_PATIENT_DURATION_TICKS"), 160);
             default -> t;
         };
         return switch (slot) {
-            case 0 -> t.add(s("STATUS_DURATION_TICKS"), 40, 100);
-            case 1 -> t.add(s("COOLDOWN_TICKS"), -100, 1200);
-            case 2 -> t.with(s("ABSORPTION"), 4).with(s("STATUS_DURATION_TICKS"), 60);
-            case 3 -> t.with(s("CHANCE"), 35).with(s("INTERVAL_TICKS"), 40)
-                    .with(s("LOCKOUT_TICKS"), 200);
-            case 4 -> t.with(s("RADIUS"), 4).with(s("FIRE_TICKS"), 80).with(s("TARGET_CAP"), 8);
-            case 5 -> t.with(s("INCOMING_MULTIPLIER"), .85);
-            case 6 -> t.with(s("ABSORPTION"), 6).with(s("DURATION_TICKS"), 100);
-            case 7 -> t.with(s("HEALTH_THRESHOLD"), .5).with(s("STATUS_DURATION_TICKS"), 100)
-                    .add(s("COOLDOWN_TICKS"), 400, 1200);
-            case 8 -> t.with(s("STATUS_DURATION_TICKS"), 0).with(s("RADIUS"), 6)
-                    .with(s("FINAL_DAMAGE_MULTIPLIER"), 1.25).with(s("TARGET_CAP"), 16);
+            case 0 -> t.with(s("WAX_REVIVE_RESISTANCE_BONUS_TICKS"), 40);
+            case 1 -> t.with(s("WAX_REVIVE_COOLDOWN_BONUS_TICKS"), -100);
+            case 2 -> t.with(s("WAX_FIRST_LAYER_ABSORPTION"), 4)
+                    .with(s("WAX_FIRST_LAYER_DURATION_TICKS"), 60);
+            case 3 -> t.with(s("WAX_REACTIVE_HEALTH_THRESHOLD"), .35)
+                    .with(s("WAX_REACTIVE_DURATION_TICKS"), 40)
+                    .with(s("WAX_REACTIVE_COOLDOWN_TICKS"), 200);
+            case 4 -> t.with(s("WAX_MOLTEN_RADIUS"), 4)
+                    .with(s("WAX_MOLTEN_FIRE_TICKS"), 80)
+                    .with(s("WAX_MOLTEN_TARGET_CAP"), 8);
+            case 5 -> t.with(s("WAX_REFUGE_INCOMING_MULTIPLIER"), .85);
+            case 6 -> t.with(s("WAX_SECOND_SKIN_ABSORPTION"), 6)
+                    .with(s("WAX_SECOND_SKIN_DURATION_TICKS"), 100);
+            case 7 -> t.with(s("WAX_QUEEN_HEALTH_THRESHOLD"), .5)
+                    .with(s("WAX_QUEEN_RESISTANCE_AMPLIFIER"), 3)
+                    .with(s("WAX_QUEEN_RESISTANCE_TICKS"), 100)
+                    .with(s("WAX_QUEEN_COOLDOWN_BONUS_TICKS"), 400);
+            case 8 -> t.with(s("WAX_EMERGENCE_RADIUS"), 6)
+                    .with(s("WAX_EMERGENCE_DAMAGE_MULTIPLIER"), 1.25)
+                    .with(s("WAX_EMERGENCE_TARGET_CAP"), 16);
             default -> t;
         };
     }
 
     private static Phase7AbilityTuning hiveheart(Phase7AbilityTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
-            case 0 -> t.multiply(s("DAMAGE_MULTIPLIER"), 1.12, 1);
-            case 1 -> t.add(s("COOLDOWN_TICKS"), -10, 60);
-            case 2 -> t.add(s("RANGE"), 3, 16);
-            case 3 -> t.with(s("STATUS_DURATION_TICKS"), 40);
-            case 4 -> t.with(s("OUTGOING_MULTIPLIER"), 1.15).with(s("DURATION_TICKS"), 80);
-            case 5 -> t.with(s("COUNT"), 2).with(s("INTERVAL_TICKS"), 3)
-                    .with(s("SECONDARY_DAMAGE_MULTIPLIER"), .6);
-            case 6 -> t.with(s("REFUND_TICKS"), 20);
-            case 7 -> t.with(s("HEALTH_THRESHOLD"), .35).multiply(s("DAMAGE_MULTIPLIER"), 2.2, 1)
-                    .multiply(s("COOLDOWN_TICKS"), 2, 60);
-            case 8 -> t.with(s("CHANCE"), 100).with(s("DAMAGE_MULTIPLIER"), .35).with(s("TARGET_CAP"), 4);
+            case 0 -> t.with(s("HIVE_PROC_DAMAGE_MULTIPLIER"), 1.12);
+            case 1 -> t.with(s("HIVE_PROC_COOLDOWN_BONUS_TICKS"), -10);
+            case 2 -> t.with(s("HIVE_PROC_RANGE_BONUS"), 3);
+            case 3 -> t.with(s("HIVE_PROC_POISON_TICKS"), 40);
+            case 4 -> t.with(s("HIVE_SHARED_TARGET_MULTIPLIER"), 1.15)
+                    .with(s("HIVE_SHARED_TARGET_TICKS"), 80);
+            case 5 -> t.with(s("HIVE_TWIN_COUNT"), 2)
+                    .with(s("HIVE_TWIN_DAMAGE_MULTIPLIER"), .6);
+            case 6 -> t.with(s("HIVE_KILL_REFUND_TICKS"), 20);
+            case 7 -> t.with(s("HIVE_EXECUTION_HEALTH_THRESHOLD"), .35)
+                    .with(s("HIVE_EXECUTION_DAMAGE_MULTIPLIER"), 2.2)
+                    .with(s("HIVE_EXECUTION_COOLDOWN_MULTIPLIER"), 2);
+            case 8 -> t.with(s("HIVE_BUSY_DAMAGE_MULTIPLIER"), .35)
+                    .with(s("HIVE_BUSY_BEE_CAP"), 4);
             default -> t;
         };
         if (branch == 1) return switch (slot) {
-            case 0 -> t.add(s("COUNT"), 2, 8).with(s("TARGET_CAP"), 12);
-            case 1 -> t.add(s("RADIUS"), 2, 8).with(s("SEARCH_CAP"), 12);
-            case 2 -> t.add(s("DURATION_TICKS"), 60, 240);
-            case 3 -> t.with(s("INTERVAL_TICKS"), 9);
-            case 4 -> t.with(s("STACK_CAP"), 12);
-            case 5 -> t.add(s("STATUS_AMPLIFIER"), 1, 3);
-            case 6 -> t.with(s("COUNT"), 3).with(s("OUTGOING_MULTIPLIER"), 1.2)
-                    .with(s("DURATION_TICKS"), 80);
-            case 7 -> t.with(s("COUNT"), 16).with(s("DAMAGE_MULTIPLIER"), .55)
-                    .with(s("RADIUS"), 12).multiply(s("DURATION_TICKS"), .6, 240);
-            case 8 -> t.with(s("COUNT"), 4).with(s("DAMAGE_MULTIPLIER"), 1.5)
-                    .with(s("STACK_CAP"), 24).with(s("DURATION_TICKS"), 240);
+            case 0 -> t.with(s("HIVE_SWARM_COUNT_BONUS"), 2)
+                    .with(s("HIVE_SWARM_COUNT_CAP"), 12);
+            case 1 -> t.with(s("HIVE_SWARM_RADIUS_BONUS"), 2)
+                    .with(s("HIVE_SWARM_SEARCH_CAP"), 12);
+            case 2 -> t.with(s("HIVE_SWARM_DURATION_BONUS_TICKS"), 60);
+            case 3 -> t.with(s("HIVE_SWARM_STING_INTERVAL_TICKS"), 9);
+            case 4 -> t.with(s("HIVE_SWARM_STING_COUNT"), 12);
+            case 5 -> t.with(s("HIVE_SWARM_SLOW_AMPLIFIER_BONUS"), 1);
+            case 6 -> t.with(s("HIVE_FOCUS_REQUIRED_STINGS"), 3)
+                    .with(s("HIVE_FOCUS_DAMAGE_MULTIPLIER"), 1.2)
+                    .with(s("HIVE_FOCUS_DURATION_TICKS"), 80);
+            case 7 -> t.with(s("HIVE_CLOUD_COUNT"), 16)
+                    .with(s("HIVE_CLOUD_DAMAGE_MULTIPLIER"), .55)
+                    .with(s("HIVE_CLOUD_RADIUS"), 12)
+                    .with(s("HIVE_CLOUD_DURATION_MULTIPLIER"), .6);
+            case 8 -> t.with(s("HIVE_HUNT_COUNT"), 4)
+                    .with(s("HIVE_HUNT_DAMAGE_MULTIPLIER"), 1.5)
+                    .with(s("HIVE_HUNT_STING_COUNT"), 24)
+                    .with(s("HIVE_HUNT_RADIUS"), 12)
+                    .with(s("HIVE_HUNT_DURATION_TICKS"), 240);
             default -> t;
         };
         return switch (slot) {
-            case 0 -> t.with(s("ABSORPTION"), 4).with(s("STATUS_DURATION_TICKS"), 80);
-            case 1 -> t.with(s("INCOMING_MULTIPLIER"), .75).with(s("LOCKOUT_TICKS"), 40).with(s("RANGE"), 3);
-            case 2 -> t.with(s("RADIUS"), 4).with(s("STATUS_DURATION_TICKS"), 30).with(s("LOCKOUT_TICKS"), 60);
-            case 3 -> t.with(s("SECONDARY_DAMAGE_MULTIPLIER"), .25).with(s("LOCKOUT_TICKS"), 30);
-            case 4 -> t.with(s("COUNT"), 8).with(s("STATUS_DURATION_TICKS"), 40);
-            case 5 -> t.with(s("COUNT"), 4).with(s("SPEED"), 1.1);
-            case 6 -> t.with(s("HEALTH_THRESHOLD"), .3).with(s("ABSORPTION"), 2).with(s("STACK_CAP"), 10);
-            case 7 -> t.with(s("RANGE"), 4).with(s("COUNT"), 6).with(s("STATUS_AMPLIFIER"), 1);
-            case 8 -> t.multiply(s("DAMAGE_MULTIPLIER"), 1.5, 1).with(s("RANGE"), 12);
+            case 0 -> t.with(s("HIVE_WARD_ABSORPTION"), 4)
+                    .with(s("HIVE_WARD_DURATION_TICKS"), 80);
+            case 1 -> t.with(s("HIVE_GUARD_RANGE"), 3)
+                    .with(s("HIVE_GUARD_INCOMING_MULTIPLIER"), .75)
+                    .with(s("HIVE_GUARD_LOCKOUT_TICKS"), 40);
+            case 2 -> t.with(s("HIVE_WARNING_RADIUS"), 4)
+                    .with(s("HIVE_WARNING_DURATION_TICKS"), 30)
+                    .with(s("HIVE_WARNING_LOCKOUT_TICKS"), 60);
+            case 3 -> t.with(s("HIVE_RETORT_DAMAGE_MULTIPLIER"), .25)
+                    .with(s("HIVE_RETORT_LOCKOUT_TICKS"), 30);
+            case 4 -> t.with(s("HIVE_RALLY_STING_COUNT"), 8)
+                    .with(s("HIVE_RALLY_RESISTANCE_TICKS"), 40);
+            case 5 -> t.with(s("HIVE_ESCORT_BEE_COUNT"), 4)
+                    .with(s("HIVE_ESCORT_SPEED_MULTIPLIER"), 1.1);
+            case 6 -> t.with(s("HIVE_SAVE_HEALTH_THRESHOLD"), .3)
+                    .with(s("HIVE_SAVE_ABSORPTION_PER_BEE"), 2)
+                    .with(s("HIVE_SAVE_ABSORPTION_CAP"), 10);
+            case 7 -> t.with(s("HIVE_PHALANX_RANGE"), 4)
+                    .with(s("HIVE_PHALANX_BEE_COUNT"), 6)
+                    .with(s("HIVE_PHALANX_RESISTANCE_AMPLIFIER"), 1);
+            case 8 -> t.with(s("HIVE_VENGEFUL_DAMAGE_MULTIPLIER"), 1.5)
+                    .with(s("HIVE_VENGEFUL_RANGE"), 12);
             default -> t;
         };
     }
 
     private static Phase7AbilityTuning chompolotl(Phase7AbilityTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
-            case 0 -> t.multiply(s("DAMAGE_MULTIPLIER"), 1.12, 1);
-            case 1 -> t.add(s("COOLDOWN_TICKS"), -10, 60);
-            case 2 -> t.add(s("DURATION_TICKS"), 80, 500);
-            case 3 -> t.with(s("HEALTH_THRESHOLD"), .4).with(s("OUTGOING_MULTIPLIER"), 1.15);
-            case 4 -> t.with(s("SECONDARY_DAMAGE_MULTIPLIER"), .2).with(s("RADIUS"), 2).with(s("TARGET_CAP"), 4);
-            case 5 -> t.with(s("WIDTH"), 5).with(s("PER_STACK_MULTIPLIER"), .05).with(s("STACK_CAP"), 4);
-            case 6 -> t.with(s("RANGE"), 8).with(s("DURATION_TICKS"), 60).with(s("COUNT"), 1);
-            case 7 -> t.with(s("COUNT"), 1).multiply(s("DAMAGE_MULTIPLIER"), 2.5, 1)
-                    .with(s("RADIUS"), 3).multiply(s("COOLDOWN_TICKS"), 3, 60);
-            case 8 -> t.with(s("COUNT"), 4).with(s("DAMAGE_MULTIPLIER"), .45).with(s("DURATION_TICKS"), 160);
+            case 0 -> t.with(s("CHOMP_PROC_DAMAGE_MULTIPLIER"), 1.12);
+            case 1 -> t.with(s("CHOMP_PROC_COOLDOWN_BONUS_TICKS"), -10);
+            case 2 -> t.with(s("CHOMP_LIFESPAN_BONUS_TICKS"), 80);
+            case 3 -> t.with(s("CHOMP_LOW_HEALTH_THRESHOLD"), .4)
+                    .with(s("CHOMP_LOW_HEALTH_DAMAGE_MULTIPLIER"), 1.15);
+            case 4 -> t.with(s("CHOMP_SPLASH_DAMAGE_MULTIPLIER"), .2)
+                    .with(s("CHOMP_SPLASH_RADIUS"), 2)
+                    .with(s("CHOMP_SPLASH_TARGET_CAP"), 4);
+            case 5 -> t.with(s("CHOMP_PACK_RANGE"), 5)
+                    .with(s("CHOMP_PACK_DAMAGE_PER_ALLY"), .05)
+                    .with(s("CHOMP_PACK_ALLY_CAP"), 4);
+            case 6 -> t.with(s("CHOMP_CHAIN_RANGE"), 8)
+                    .with(s("CHOMP_CHAIN_EXTENSION_TICKS"), 60);
+            case 7 -> t.with(s("CHOMP_COLOSSAL_DAMAGE_MULTIPLIER"), 2.5)
+                    .with(s("CHOMP_COLOSSAL_SPLASH_MULTIPLIER"), 1)
+                    .with(s("CHOMP_COLOSSAL_SPLASH_RADIUS"), 3)
+                    .with(s("CHOMP_COLOSSAL_COOLDOWN_MULTIPLIER"), 3);
+            case 8 -> t.with(s("CHOMP_RELEASE_COUNT"), 4)
+                    .with(s("CHOMP_RELEASE_DAMAGE_MULTIPLIER"), .45)
+                    .with(s("CHOMP_RELEASE_LIFESPAN_TICKS"), 160);
             default -> t;
         };
         if (branch == 1) return switch (slot) {
-            case 0 -> t.add(s("RANGE"), 3, 16).with(s("SEARCH_CAP"), 16);
-            case 1 -> t.with(s("STATUS_DURATION_TICKS"), 100).with(s("STATUS_AMPLIFIER"), 1);
-            case 2 -> t.add(s("RADIUS"), 2, 16);
-            case 3 -> t.with(s("ABSORPTION"), 4).with(s("DURATION_TICKS"), 80).with(s("LOCKOUT_TICKS"), 200);
-            case 4 -> t.with(s("OUTGOING_MULTIPLIER"), 1.2);
-            case 5 -> t.with(s("WIDTH"), 4).with(s("INTERVAL_TICKS"), 40);
-            case 6 -> t.with(s("COUNT"), 3).with(s("LOCKOUT_TICKS"), 200).with(s("REFUND_TICKS"), 100);
-            case 7 -> t.with(s("COUNT"), 3).with(s("RADIUS"), 3);
-            case 8 -> t.with(s("COUNT"), 3).with(s("DAMAGE_MULTIPLIER"), 1.35).with(s("DURATION_TICKS"), 300);
+            case 0 -> t.with(s("CHOMP_TARGET_RANGE_BONUS"), 3)
+                    .with(s("CHOMP_TARGET_SEARCH_CAP"), 16);
+            case 1 -> t.with(s("CHOMP_RALLY_SPEED_DURATION_TICKS"), 100)
+                    .with(s("CHOMP_RALLY_SPEED_AMPLIFIER"), 1);
+            case 2 -> t.with(s("CHOMP_SHOULDER_AURA_BONUS"), 2);
+            case 3 -> t.with(s("CHOMP_HELPFUL_ABSORPTION"), 4)
+                    .with(s("CHOMP_HELPFUL_DURATION_TICKS"), 80)
+                    .with(s("CHOMP_HELPFUL_LOCKOUT_TICKS"), 200);
+            case 4 -> t.with(s("CHOMP_COORDINATED_DAMAGE_MULTIPLIER"), 1.2);
+            case 5 -> t.with(s("CHOMP_POUNCE_RANGE"), 4)
+                    .with(s("CHOMP_POUNCE_INTERVAL_TICKS"), 40);
+            case 6 -> t.with(s("CHOMP_VICTORY_KILL_COUNT"), 3)
+                    .with(s("CHOMP_VICTORY_WINDOW_TICKS"), 200)
+                    .with(s("CHOMP_VICTORY_REFUND_TICKS"), 100);
+            case 7 -> t.with(s("CHOMP_BRIGADE_COUNT"), 3)
+                    .with(s("CHOMP_BRIGADE_AURA_MULTIPLIER"), 3);
+            case 8 -> t.with(s("CHOMP_HUNTER_COUNT"), 3)
+                    .with(s("CHOMP_HUNTER_DAMAGE_MULTIPLIER"), 1.35)
+                    .with(s("CHOMP_HUNTER_LIFESPAN_TICKS"), 300);
             default -> t;
         };
         return switch (slot) {
-            case 0 -> t.add(s("DURATION_TICKS"), 80, 500);
-            case 1 -> t.add(s("STATUS_DURATION_TICKS"), 100, 200);
-            case 2 -> t.multiply(s("DAMAGE_MULTIPLIER"), 1.25, 1);
-            case 3 -> t.with(s("RANGE"), 6).with(s("INCOMING_MULTIPLIER"), .85);
-            case 4 -> t.with(s("LOCKOUT_TICKS"), 400).with(s("COUNT"), 1);
-            case 5 -> t.with(s("HEALTH_THRESHOLD"), .35).with(s("STATUS_DURATION_TICKS"), 60)
-                    .with(s("STATUS_AMPLIFIER"), 1);
-            case 6 -> t.with(s("REFUND_TICKS"), 25);
-            case 7 -> t.with(s("DURATION_TICKS"), 600).with(s("RANGE"), 6).with(s("COUNT"), 0);
-            case 8 -> t.multiply(s("DAMAGE_MULTIPLIER"), 2, 1).with(s("RADIUS"), 0);
+            case 0 -> t.with(s("CHOMP_BLUE_LIFESPAN_BONUS_TICKS"), 80);
+            case 1 -> t.with(s("CHOMP_GRACE_DURATION_BONUS_TICKS"), 100);
+            case 2 -> t.with(s("CHOMP_BLUE_DAMAGE_MULTIPLIER"), 1.25);
+            case 3 -> t.with(s("CHOMP_GUARD_RANGE"), 6)
+                    .with(s("CHOMP_GUARD_INCOMING_MULTIPLIER"), .85);
+            case 4 -> t.with(s("CHOMP_CLEANSE_LOCKOUT_TICKS"), 400)
+                    .with(s("CHOMP_CLEANSE_EFFECT_COUNT"), 1);
+            case 5 -> t.with(s("CHOMP_RESCUE_HEALTH_THRESHOLD"), .35)
+                    .with(s("CHOMP_RESCUE_DURATION_TICKS"), 60)
+                    .with(s("CHOMP_RESCUE_RESISTANCE_AMPLIFIER"), 1);
+            case 6 -> t.with(s("CHOMP_FIRST_BITE_REFUND_PERCENT"), 25);
+            case 7 -> t.with(s("CHOMP_ETERNAL_LIFESPAN_TICKS"), 600)
+                    .with(s("CHOMP_ETERNAL_AURA_RADIUS"), 6);
+            case 8 -> t.with(s("CHOMP_RAVAGER_DAMAGE_MULTIPLIER"), 2);
             default -> t;
         };
     }
@@ -233,7 +318,7 @@ final class Phase7MasterySkillEffect implements AbilitySkillEffectType {
             case 0 -> definition == Phase7UniqueAbilities.BRAMBLE_GRASP ? branch != 1
                     : definition == Phase7UniqueAbilities.BRAMBLE_HUNT && branch == 1;
             case 1 -> definition == Phase7UniqueAbilities.WAXWEAVER_PRISON
-                    ? branch == 0 || branch == 1 && slot == 6 || branch == 2 && (slot == 2 || slot == 5)
+                    ? branch == 0 || branch == 2 && (slot == 2 || slot == 5)
                     : definition == Phase7UniqueAbilities.WAXWEAVER_TEMPO ? branch == 1
                     : definition == Phase7UniqueAbilities.WAXWEAVER_REVIVAL && branch == 2;
             case 2 -> definition == Phase7UniqueAbilities.HIVEHEART_PROC ? branch == 0

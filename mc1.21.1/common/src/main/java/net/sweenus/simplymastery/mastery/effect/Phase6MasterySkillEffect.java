@@ -61,6 +61,11 @@ final class Phase6MasterySkillEffect implements AbilitySkillEffectType {
                     cooldown = Math.max(0, (int) Math.round(cooldown
                             * value.get(s("FROSTFALL_COOLDOWN_MULTIPLIER"), 1)));
                 }
+            } else if (profile == 6) {
+                if (branch == 2 && slot == 8) {
+                    cooldown = Math.max(0, cooldown
+                            + value.integer(s("LIVYATAN_ACTIVE_COOLDOWN_BONUS_TICKS"), 0));
+                }
             } else {
                 cooldown = value.integer(s("COOLDOWN_TICKS"), cooldown);
             }
@@ -441,45 +446,67 @@ final class Phase6MasterySkillEffect implements AbilitySkillEffectType {
 
     private static Phase6AbilityTuning livyatan(Phase6AbilityTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
-            case 0 -> t.multiply(s("DAMAGE_MULTIPLIER"), 1.1, 1);
-            case 1 -> t.add(s("WIDTH"), 1, 5).with(s("TARGET_CAP"), 8);
-            case 2 -> t.add(s("LENGTH"), 2, 7);
-            case 3 -> t.multiply(s("KNOCKBACK"), 1.2, .52);
-            case 4 -> t.multiply(s("FINAL_DAMAGE_MULTIPLIER"), 1.25, 1);
-            case 5 -> t.with(s("STATUS_DURATION_TICKS"), 30);
-            case 6 -> t.with(s("COUNT"), 4).with(s("INTERVAL_TICKS"), 6).with(s("SECONDARY_DAMAGE_MULTIPLIER"), .55);
-            case 7 -> t.with(s("WIDTH"), 8).multiply(s("DAMAGE_MULTIPLIER"), .6, 1)
-                    .with(s("TARGET_CAP"), 12).multiply(s("KNOCKBACK"), 1.8, .52);
-            case 8 -> t.with(s("WIDTH"), 2).multiply(s("LENGTH"), 1.5, 7)
-                    .multiply(s("DAMAGE_MULTIPLIER"), 1.75, 1).with(s("KNOCKBACK"), 0);
+            case 0 -> t.multiply(s("LIVYATAN_WAVE_DAMAGE_MULTIPLIER"), 1.1, 1);
+            case 1 -> t.with(s("LIVYATAN_WAVE_WIDTH_BONUS"), 1);
+            case 2 -> t.with(s("LIVYATAN_WAVE_LENGTH_BONUS_STEPS"), 2);
+            case 3 -> t.with(s("LIVYATAN_WAVE_KNOCKBACK_MULTIPLIER"), 1.2);
+            case 4 -> t.with(s("LIVYATAN_WAVE_FINAL_DAMAGE_MULTIPLIER"), 1.25);
+            case 5 -> t.with(s("LIVYATAN_WAVE_SLOW_TICKS"), 30);
+            case 6 -> t.with(s("LIVYATAN_DOUBLE_SWING_COUNT"), 4)
+                    .with(s("LIVYATAN_DOUBLE_DELAY_TICKS"), 6)
+                    .with(s("LIVYATAN_DOUBLE_DAMAGE_MULTIPLIER"), .55);
+            case 7 -> t.with(s("LIVYATAN_WALL_WIDTH_BONUS"), 2)
+                    .with(s("LIVYATAN_WALL_TARGET_CAP"), 12)
+                    .with(s("LIVYATAN_WALL_DAMAGE_MULTIPLIER"), .6)
+                    .with(s("LIVYATAN_WALL_KNOCKBACK_MULTIPLIER"), 1.8);
+            case 8 -> t.with(s("LIVYATAN_LANCE_WIDTH"), 2)
+                    .with(s("LIVYATAN_LANCE_LENGTH_MULTIPLIER"), 1.5)
+                    .with(s("LIVYATAN_LANCE_DAMAGE_MULTIPLIER"), 1.75)
+                    .with(s("LIVYATAN_LANCE_KNOCKBACK_MULTIPLIER"), 0);
             default -> t;
         };
         if (branch == 1) return switch (slot) {
-            case 0 -> t.multiply(s("SPEED"), 1.15, 1);
-            case 1 -> t.multiply(s("PULL_STRENGTH"), 1.25, .42);
-            case 2 -> t.add(s("RADIUS"), 1, 6).with(s("TARGET_CAP"), 16);
-            case 3 -> t.add(s("CHANCE"), 10, 20);
-            case 4 -> t.multiply(s("DAMAGE_MULTIPLIER"), 1.15, 1);
-            case 5 -> t.with(s("RANGE"), 2).with(s("STATUS_DURATION_TICKS"), 40).with(s("STATUS_AMPLIFIER"), 1);
-            case 6 -> t.with(s("COUNT"), 3).with(s("REFUND_TICKS"), 20);
-            case 7 -> t.with(s("COUNT"), 2).with(s("DURATION_TICKS"), 40)
-                    .with(s("SECONDARY_DAMAGE_MULTIPLIER"), .35).multiply(s("PULL_STRENGTH"), 1.5, .42).with(s("CHANCE"), 0);
-            case 8 -> t.with(s("PULL_STRENGTH"), 0).with(s("CHANCE"), 100)
-                    .with(s("DAMAGE_MULTIPLIER"), .8).with(s("TARGET_CAP"), 8);
+            case 0 -> t.with(s("LIVYATAN_RETURN_SPEED_MULTIPLIER"), 1.15);
+            case 1 -> t.with(s("LIVYATAN_RETURN_PULL_MULTIPLIER"), 1.25);
+            case 2 -> t.with(s("LIVYATAN_RETURN_RADIUS_BONUS"), 1);
+            case 3 -> t.with(s("LIVYATAN_RETURN_LIGHTNING_CHANCE_BONUS"), 10);
+            case 4 -> t.multiply(s("LIVYATAN_RETURN_LIGHTNING_DAMAGE_MULTIPLIER"), 1.15, 1);
+            case 5 -> t.with(s("LIVYATAN_RETURN_ROOT_DISTANCE"), 2)
+                    .with(s("LIVYATAN_RETURN_ROOT_TICKS"), 20);
+            case 6 -> t.with(s("LIVYATAN_CATCH_HIT_THRESHOLD"), 3)
+                    .with(s("LIVYATAN_CATCH_REFUND_TICKS"), 20);
+            case 7 -> t.with(s("LIVYATAN_MAELSTROM_ROTATIONS"), 2)
+                    .with(s("LIVYATAN_MAELSTROM_DURATION_TICKS"), 40)
+                    .with(s("LIVYATAN_MAELSTROM_DAMAGE_MULTIPLIER"), .35)
+                    .with(s("LIVYATAN_MAELSTROM_PULL_MULTIPLIER"), 1.5);
+            case 8 -> t.with(s("LIVYATAN_THUNDERHEAD_LIGHTNING_MULTIPLIER"), .8)
+                    .with(s("LIVYATAN_THUNDERHEAD_TARGET_CAP"), 8);
             default -> t;
         };
         return switch (slot) {
-            case 0 -> t.multiply(s("DAMAGE_MULTIPLIER"), 1.12, 1);
-            case 1 -> t.with(s("RADIUS"), 2.5).with(s("SECONDARY_DAMAGE_MULTIPLIER"), .25).with(s("TARGET_CAP"), 6);
-            case 2 -> t.with(s("RANGE"), 4).with(s("SECONDARY_DAMAGE_MULTIPLIER"), .2).with(s("COUNT"), 1);
-            case 3 -> t.with(s("RANGE"), 5).with(s("PULL_STRENGTH"), 15);
-            case 4 -> t.with(s("COUNT"), 3).with(s("LOCKOUT_TICKS"), 60).with(s("SECONDARY_DAMAGE_MULTIPLIER"), .3);
-            case 5 -> t.with(s("STATUS_DURATION_TICKS"), 80).with(s("OUTGOING_MULTIPLIER"), 1.15);
-            case 6 -> t.with(s("LOCKOUT_TICKS"), 120).with(s("RADIUS"), 3).with(s("FINAL_DAMAGE_MULTIPLIER"), .75);
-            case 7 -> t.with(s("COUNT"), 2).multiply(s("DAMAGE_MULTIPLIER"), 1.3, 1)
-                    .multiply(s("COOLDOWN_TICKS"), 2, 2);
-            case 8 -> t.with(s("COUNT"), 0).multiply(s("DAMAGE_MULTIPLIER"), 1.5, 1)
-                    .add(s("COOLDOWN_TICKS"), 20, 65);
+            case 0 -> t.multiply(s("LIVYATAN_THROW_DAMAGE_MULTIPLIER"), 1.12, 1);
+            case 1 -> t.with(s("LIVYATAN_SPLASH_RADIUS"), 2.5)
+                    .with(s("LIVYATAN_SPLASH_DAMAGE_MULTIPLIER"), .25)
+                    .with(s("LIVYATAN_SPLASH_TARGET_CAP"), 6);
+            case 2 -> t.with(s("LIVYATAN_CONDUCTION_RANGE"), 4)
+                    .with(s("LIVYATAN_CONDUCTION_DAMAGE_MULTIPLIER"), .2)
+                    .with(s("LIVYATAN_CONDUCTION_TARGET_COUNT"), 1);
+            case 3 -> t.with(s("LIVYATAN_STEERING_RANGE"), 5)
+                    .with(s("LIVYATAN_STEERING_DEGREES"), 15);
+            case 4 -> t.with(s("LIVYATAN_SURGE_HIT_COUNT"), 3)
+                    .with(s("LIVYATAN_SURGE_WINDOW_TICKS"), 60)
+                    .with(s("LIVYATAN_SURGE_DAMAGE_MULTIPLIER"), .3);
+            case 5 -> t.with(s("LIVYATAN_MARK_DURATION_TICKS"), 80)
+                    .with(s("LIVYATAN_MARK_WAVE_DAMAGE_MULTIPLIER"), 1.15);
+            case 6 -> t.with(s("LIVYATAN_PERFECT_STORM_WINDOW_TICKS"), 120)
+                    .with(s("LIVYATAN_PERFECT_STORM_RADIUS"), 3)
+                    .with(s("LIVYATAN_PERFECT_STORM_DAMAGE_MULTIPLIER"), .75)
+                    .with(s("LIVYATAN_PERFECT_STORM_TARGET_CAP"), 16);
+            case 7 -> t.with(s("LIVYATAN_UNBOUND_WAVE_DAMAGE_MULTIPLIER"), 1.3)
+                    .with(s("LIVYATAN_UNBOUND_COOLDOWN_MULTIPLIER"), 2);
+            case 8 -> t.with(s("LIVYATAN_CALM_DAMAGE_MULTIPLIER"), 1.5)
+                    .with(s("LIVYATAN_ACTIVE_COOLDOWN_BONUS_TICKS"), 20)
+                    .with(s("LIVYATAN_SUPPRESS_WAVES"), 1);
             default -> t;
         };
     }
@@ -511,9 +538,21 @@ final class Phase6MasterySkillEffect implements AbilitySkillEffectType {
                         case 2, 5 -> definition == Phase6UniqueAbilities.ICEWHISPER_AURA;
                         default -> definition == Phase6UniqueAbilities.ICEWHISPER_COMETS;
                     };
-            case 6 -> definition == Phase6UniqueAbilities.LIVYATAN_THROW
-                    || definition == Phase6UniqueAbilities.LIVYATAN_RETURN
-                    || definition == Phase6UniqueAbilities.LIVYATAN_WAVE;
+            case 6 -> branch == 0 ? definition == Phase6UniqueAbilities.LIVYATAN_WAVE
+                    : branch == 1 ? definition == Phase6UniqueAbilities.LIVYATAN_RETURN
+                            || (slot == 4 || slot == 8) && definition == Phase6UniqueAbilities.LIVYATAN_WAVE
+                    : switch (slot) {
+                        case 0, 1 -> definition == Phase6UniqueAbilities.LIVYATAN_THROW;
+                        case 2 -> definition == Phase6UniqueAbilities.LIVYATAN_RETURN
+                                || definition == Phase6UniqueAbilities.LIVYATAN_WAVE;
+                        case 3, 4, 7 -> definition == Phase6UniqueAbilities.LIVYATAN_WAVE;
+                        case 5 -> definition == Phase6UniqueAbilities.LIVYATAN_RETURN
+                                || definition == Phase6UniqueAbilities.LIVYATAN_WAVE;
+                        case 6, 8 -> definition == Phase6UniqueAbilities.LIVYATAN_THROW
+                                || definition == Phase6UniqueAbilities.LIVYATAN_RETURN
+                                || definition == Phase6UniqueAbilities.LIVYATAN_WAVE;
+                        default -> false;
+                    };
             default -> false;
         };
     }

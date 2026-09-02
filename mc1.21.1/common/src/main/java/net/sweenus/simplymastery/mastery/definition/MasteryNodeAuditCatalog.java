@@ -2536,7 +2536,529 @@ final class MasteryNodeAuditCatalog {
         icewhisper(evidence, "transformation_convergence", "Last Snow", "Wave spawn below 35% health", "Health 35%; Resistance II 60t", "Once-per-cast redirected comet", "Cast-scoped flag reset at storm start", "Implemented: nothing was gated on health and the node set 35 comets per wave");
         icewhisper(evidence, "transformation_focus", "Snowglobe containment", "Wave spawn", "Resistance I for the storm duration", "Comets confined to the live Permafrost radius", "Exclusive capstone; storm snapshot", "Redesigned: the old text described the storm's existing owner-following behaviour");
         icewhisper(evidence, "transformation_release", "Black Ice", "Comet impact on a frozen target", "Damage x1.6; freezing shattered", "Frozen-target branch that suppresses every defensive grant", "Exclusive capstone; storm snapshot", "Implemented: neither key had a consumer, so the capstone did nothing");
+        livyatan(evidence, "signature_opening", "Swing-wave damage", "Accepted weapon swing", "Wave damage x1.1", "Scoped composed wave damage", "Wave execution", "Repaired: throw and return damage are unaffected");
+        livyatan(evidence, "signature_cadence", "Swing-wave width", "Wave preparation", "+1 configured width", "Config-relative width resolver", "Wave execution", "Repaired: no return target cap is written");
+        livyatan(evidence, "signature_pressure", "Swing-wave length", "Wave preparation", "+2 configured steps", "Config-relative length resolver", "Wave execution", "Repaired: custom lengths cannot be shortened by a literal seven-step base");
+        livyatan(evidence, "signature_reversal", "Swing-wave knockback", "Wave hit", "Knockback x1.2", "Config-relative knockback resolver", "Wave execution", "Repaired: custom knockback remains authoritative");
+        livyatan(evidence, "signature_reserve", "Final wave segment", "Last damaging segment", "Damage x1.25", "Exact final-step gate", "Wave execution", "Repaired: only one segment receives the bonus");
+        livyatan(evidence, "signature_threshold", "Swing-wave control", "Wave hit", "Slowness I 30t", "Dedicated wave slow key", "Status expiry", "Repaired: return Slowness duration is unchanged");
+        livyatan(evidence, "signature_convergence", "Delayed second wave", "Every fourth accepted swing", "Delay 6t; damage x.55", "Owner swing counter and delayed wave", "Counter lifecycle and shared execution", "Implemented: count and interval previously had no consumer");
+        livyatan(evidence, "signature_focus", "Tidal Wall wave profile", "Wave preparation and hit", "+2 width after Spreading; cap 12; damage x.6; knockback x1.8", "Scoped wave resolvers", "Exclusive capstone; wave execution", "Repaired: branch bonuses compose and no throw or return values change");
+        livyatan(evidence, "signature_release", "Riptide Lance wave profile", "Wave preparation and hit", "Width 2; length x1.5; damage x1.75; knockback 0", "Scoped wave resolvers", "Exclusive capstone; wave execution", "Repaired: length composes against configured steps and damage cannot reach the throw");
+        livyatan(evidence, "combat_opening", "Projectile return speed", "Return begins", "Speed x1.15", "Thrown-sword return speed hook", "Projectile snapshot", "Implemented: SPEED previously had no consumer");
+        livyatan(evidence, "combat_cadence", "Return pull", "Enemy reached by return wave", "Configured pull x1.25", "Dedicated return pull resolver", "Return execution", "Repaired: Following Sea cannot overwrite pull");
+        livyatan(evidence, "combat_pressure", "Return-wave reach", "Return pulse", "+1 configured radius", "Dedicated return radius resolver", "Projectile snapshot", "Repaired: swing-wave caps and splash radius remain independent");
+        livyatan(evidence, "combat_reversal", "Return lightning chance", "First return reach per target", "+10 percentage points", "Config-relative chance resolver", "Projectile target roll set", "Repaired: custom chances cannot be reduced by a literal base");
+        livyatan(evidence, "combat_reserve", "Return lightning damage", "Return lightning strike", "Damage x1.15", "Dedicated lightning multiplier", "Return execution", "Repaired: throw and water-wave damage are unaffected");
+        livyatan(evidence, "combat_threshold", "Deep-pull root", "Two blocks of measured displacement", "Root 20t", "Owner-target pull origin ledger", "Once per return and status expiry", "Redesigned: base return Slowness III made the old Slowness II reward redundant");
+        livyatan(evidence, "combat_convergence", "Catch cooldown refund", "Catch after three distinct return hits", "Refund 20t", "Owner pickup hook and live remaining cooldown", "Once per catch", "Implemented: catch and refund previously had no consumer");
+        livyatan(evidence, "combat_focus", "Maelstrom return", "Return begins", "2 rotations over 40t; damage x.35; pull x1.5; no lightning", "Owner-centred orbital return wave", "Exclusive capstone; one hit per target per rotation", "Implemented: only pull and lightning suppression previously worked");
+        livyatan(evidence, "combat_release", "Thunderhead return", "Enemy reached by return wave", "Lightning chance 100%; damage x.8; cap 8; pull 0", "Dedicated return lightning path", "Exclusive capstone; projectile strike set", "Repaired: the multiplier now affects lightning and composes with Charged Tide");
+        livyatan(evidence, "transformation_opening", "Thrown impact", "Direct projectile hit", "Damage x1.12", "Scoped throw damage resolver", "Projectile snapshot", "Repaired: wave and return damage are unaffected");
+        livyatan(evidence, "transformation_cadence", "Impact splash", "Direct projectile hit", "Radius 2.5; damage x.25; cap 6", "Nearest-first position-origin splash", "Once per direct impact", "Implemented: the old values only shrank unrelated return mechanics");
+        livyatan(evidence, "transformation_pressure", "Lightning conduction", "Livyatan lightning strike", "Range 4; damage x.2; 1 target", "Nearest unvisited target sky bolt", "One non-recursive chain per strike", "Implemented: the old value only reduced normal lightning damage");
+        livyatan(evidence, "transformation_reversal", "Swing-wave steering", "Each traveling segment", "Range 5; turn cap 15 degrees", "Nearest-target bounded angular steering", "Wave execution", "Implemented: the old degree value became extreme return pull");
+        livyatan(evidence, "transformation_reserve", "Storm Surge cadence", "Third wave hit within 60t", "Lightning damage x.3", "Owner-target wave-hit window", "Counter reset on proc or expiry", "Implemented: the old count and window had no consumers");
+        livyatan(evidence, "transformation_threshold", "Undertow mark", "Enemy reached by return pull", "Mark 80t; wave damage x1.15", "Owner-target mark read by wave damage", "Mark TTL and lifecycle cleanup", "Implemented: the old duration unconditionally retuned both slows");
+        livyatan(evidence, "transformation_convergence", "Perfect Storm burst", "Same target hit by throw, return and wave within 120t", "Radius 3; damage x.75; cap 16", "Owner-target source mask and bounded burst", "Mask reset on proc or expiry", "Implemented: radius and final damage previously damaged unrelated paths");
+        livyatan(evidence, "transformation_focus", "Alternating swing waves", "Successive accepted swings", "Damage x1.3; swing cooldown x2", "Owner alternation state and live ready-time resolver", "Exclusive capstone; lifecycle cleanup", "Repaired: active cooldown remains 65t and every second wave uses lightning scaling");
+        livyatan(evidence, "transformation_release", "Calm Before profile", "Throw and return", "Damage x1.5; active cooldown +20t; waves suppressed", "Scoped throw/return tuning and wave suppression gate", "Exclusive capstone; projectile snapshot", "Repaired: normal player input now installs and spends against the tuned activation");
+        bramblethorn(evidence, "signature_opening", "Grasp targeting range", "Cast target resolution", "+4 configured range", "Scoped grasp range resolver", "Grasp execution", "Repaired: adds to configuration instead of the literal 16-block default");
+        bramblethorn(evidence, "signature_cadence", "Grasp capture radius", "Cast target collection", "+1.5 configured radius", "Bounded nearest-first grasp query", "Grasp execution", "Repaired: no longer resets the configured target cap");
+        bramblethorn(evidence, "signature_pressure", "Root growth time", "Grasp preparation", "-3 configured travel ticks", "Scoped travel resolver", "Grasp execution", "Repaired: custom travel durations remain authoritative");
+        bramblethorn(evidence, "signature_reversal", "Binding duration", "Grasp preparation", "+20 configured ticks", "Scoped binding resolver", "Grasp execution", "Repaired: composes with Ancient Grove against configuration");
+        bramblethorn(evidence, "signature_reserve", "Binding pull", "Each binding tick", "Configured pull x1.2", "Scoped pull resolver", "Grasp execution", "Repaired: Tangled Court suppression uses an independent key");
+        bramblethorn(evidence, "signature_threshold", "Shared binding damage", "Weapon hit on a bound enemy", "Echo ratio 42%", "Successful weapon-damage propagation hook", "Grasp execution and recursion guard", "Repaired: Tangled Court and Ancient Grove compose without overwriting the ratio");
+        bramblethorn(evidence, "signature_convergence", "Root slam", "Lift and slam", "Damage x1.2; lift force x1.15", "Scoped slam and lift resolvers", "Grasp execution", "Repaired: slam tuning cannot alter Thorn Retort");
+        bramblethorn(evidence, "signature_focus", "Tangled Court profile", "Binding completion", "Cap 10; echo 25%; no pull or slam", "Binding-only capstone path", "Exclusive capstone; grasp execution", "Repaired: targets are no longer lifted and physically slammed");
+        bramblethorn(evidence, "signature_release", "Hangman's Root profile", "Grasp preparation and slam", "Cap 1; lift force x1.4; slam x2.25", "Scoped primary-target profile", "Exclusive capstone; grasp execution", "Repaired: capture radius and transformation damage are unaffected");
+        bramblethorn(evidence, "combat_opening", "Passive target memory", "Successful weapon hit", "+40 configured ticks", "Scoped hunt memory resolver", "Mark TTL", "Repaired: adds to configuration instead of the literal 60-tick default");
+        bramblethorn(evidence, "combat_cadence", "Passive root cooldown", "Target swap", "-2 configured ticks; minimum 4", "Scoped cooldown resolver", "Mark next-proc deadline", "Repaired: low configured cooldowns can no longer be increased");
+        bramblethorn(evidence, "combat_pressure", "Passive root range", "Target swap", "+2 configured blocks", "Scoped hunt range resolver", "Hunt execution", "Repaired: composes against the configured range");
+        bramblethorn(evidence, "combat_reversal", "Passive root path", "Travel sweep", "+0.25 configured width; damage x1.1", "Scoped width and damage resolvers", "Hunt execution", "Repaired: Predator Vine remains independently composed");
+        bramblethorn(evidence, "combat_reserve", "Passive root slow", "Hunt hit", "+20 configured ticks; at least amplifier 1", "Scoped slow resolvers", "Status expiry", "Repaired: a stronger configured slow is never downgraded");
+        bramblethorn(evidence, "combat_threshold", "Multi-target root path", "Travel sweep", "Cap 4", "Travel-ordered query reserving the selected target", "Hunt hit set", "Repaired: incidental targets cannot consume the endpoint's slot");
+        bramblethorn(evidence, "combat_convergence", "Crosscut sequence", "Third distinct target swap", "3 targets in 100t; damage x1.35", "Owner sequence window", "TTL, proc reset and lifecycle cleanup", "Repaired: all sequence values are consumed and stale queues are swept");
+        bramblethorn(evidence, "combat_focus", "Thorn Waltz profile", "Target swap", "2 roots at x.55; no slow", "Multi-execution launch loop", "Exclusive capstone; hunt executions", "Repaired: Crosscut applies to both roots and both reserve the selected target");
+        bramblethorn(evidence, "combat_release", "Predator Vine profile", "Target swap", "Target only; damage x1.8; memory 30t", "Scoped target-only hunt profile", "Exclusive capstone; hunt execution", "Verified: all three mechanics use isolated settings");
+        bramblethorn(evidence, "transformation_opening", "Barkskin absorption", "Successful Grasp cast", "4 absorption for 80t", "Phase4AbsorptionTracker grant", "Tracked expiry and lifecycle sweep", "Repaired: Sap Rise no longer reduces the grant and it now expires");
+        bramblethorn(evidence, "transformation_cadence", "Rooted Guard", "Direct melee during binding with 3 targets", "Incoming x.88", "Direct melee damage modifier", "Grasp execution", "Repaired: Thornward cannot raise the threshold and non-melee damage is excluded");
+        bramblethorn(evidence, "transformation_pressure", "Thorn Retort", "Successful direct melee from a bound enemy", "Hunt damage x.2; lockout 30t", "Post-damage retaliation hook", "Per-target lockout and recursion guard", "Repaired: slam damage tuning and failed damage attempts cannot trigger it");
+        bramblethorn(evidence, "transformation_reversal", "Sap Rise", "Bound-target kill", "2 absorption; 8 per cast", "Cast-local absorption ledger", "Ledger ends with grasp", "Repaired: existing absorption is preserved and Reclaimed Growth cannot overwrite the cap");
+        bramblethorn(evidence, "transformation_reserve", "Shelterwood", "Bound enemy damages owner or ally", "Outgoing x.9", "Owner/allied target damage modifier", "Grasp execution", "Verified: Briar suppression is isolated from offensive and utility nodes");
+        bramblethorn(evidence, "transformation_threshold", "Thornward", "Binding phase begins with 6 targets", "Resistance I 100t", "Live binding-transition gate", "Status expiry", "Repaired: the initial pre-binding target list no longer grants it early");
+        bramblethorn(evidence, "transformation_convergence", "Reclaimed Growth", "Bound-target kill", "Refund 12t; cap 48t", "Remaining-cooldown reduction API", "Per-grasp refund ledger", "Repaired: late kills cannot increase cooldown and spell cooldown reduction does not shrink the refund");
+        bramblethorn(evidence, "transformation_focus", "Ancient Grove profile", "Binding begins", "Duration x1.5; Resistance II; echo x.7", "Scoped bind, resistance and echo resolvers", "Exclusive capstone; status and grasp expiry", "Implemented: Resistance II previously had no consumer");
+        bramblethorn(evidence, "transformation_release", "Briar Sacrifice profile", "Binding completion", "Radius 2; damage x.5; cap 16", "Nearest-first one-hit detonation", "Exclusive capstone; bounded hit set", "Repaired: capture radius is unchanged and only defensive benefits are suppressed");
+        waxweaver(evidence, "signature_opening", "Wax prison targeting", "Cast target resolution", "+3 configured range", "Broad preflight and exact post-tuning range gate", "Prison execution", "Repaired: preflight no longer rejects the additional range");
+        waxweaver(evidence, "signature_cadence", "Wax prison duration", "Cast", "+20 configured ticks", "Scoped prison duration resolver", "Prison execution", "Repaired: composes with both capstones and live configuration");
+        waxweaver(evidence, "signature_pressure", "Prison taunt radius", "Taunt pulse", "+2 configured blocks", "Scoped taunt radius resolver", "Prison execution", "Repaired: no explosion target cap is written");
+        waxweaver(evidence, "signature_reversal", "Prison taunt cadence", "Taunt pulse", "-2 configured ticks", "Scoped taunt cadence resolver", "Prison execution", "Repaired: Brittle Shell uses an independent shortening value");
+        waxweaver(evidence, "signature_reserve", "Prison explosion", "Detonation", "Damage x1.12; fire +20 configured ticks", "Scoped damage and ignition resolvers", "Prison execution", "Repaired: ignition composes against configuration");
+        waxweaver(evidence, "signature_threshold", "Prison explosion radius", "Detonation", "+.75 configured blocks", "Spherical explosion query", "Bounded hit set", "Repaired: taunt caps and explosion caps remain independent");
+        waxweaver(evidence, "signature_convergence", "Brittle prison", "Each 20% health lost", "-10t duration; +8% damage per step", "Health-step ledger and dedicated values", "Prison execution", "Repaired: no taunt cadence is overwritten");
+        waxweaver(evidence, "signature_focus", "Iron Wax profile", "Cast, incoming damage and expiry", "220t; damage x.6; taunted outgoing x.75", "Scoped duration, damage and outgoing resolvers", "Exclusive capstone; prison execution", "Repaired: Thick Wax composes and formation still seals after ten ticks");
+        waxweaver(evidence, "signature_release", "Volatile Wax profile", "Cast and detonation", "80t; damage x1.9; taunt radius x.5", "Scoped duration, damage and radius resolvers", "Exclusive capstone; prison execution", "Repaired: configured radius and Thick Wax both compose");
+        waxweaver(evidence, "combat_opening", "Tempo duration", "Burning weapon hit", "+20t over the selected tempo profile", "Tempo duration resolver", "Status and modifier expiry", "Repaired: composes with both capstones");
+        waxweaver(evidence, "combat_cadence", "Tempo stack cap", "Burning weapon hit", "Cap 4", "Exact zero-based stack transition", "Status expiry", "Repaired: refund limits use a separate channel");
+        waxweaver(evidence, "combat_pressure", "Encased-target ignition", "Weapon hit on a prisoner", "Fire 60t", "Encased-target post-hit branch", "Fire expiry", "Verified: ignition does not release the prison");
+        waxweaver(evidence, "combat_reversal", "Maximum-tempo attack speed", "Hit at maximum tempo", "+8% attack speed", "Deduplicated temporary attribute", "Refreshable expiry and lifecycle cleanup", "Repaired: maximum detection and refreshed expiry are exact");
+        waxweaver(evidence, "combat_reserve", "Waxweave cooldown refund", "Burning weapon hit", "4t per hit; 24t per 80t", "Dedicated refund window and cap", "Window expiry and lifecycle cleanup", "Repaired: tempo stack caps cannot change the refund budget");
+        waxweaver(evidence, "combat_threshold", "Tempo stack movement", "A tempo stack is gained", "Speed I 30t", "Successful stack-transition gate", "Status expiry", "Repaired: capped hits no longer refresh Speed");
+        waxweaver(evidence, "combat_convergence", "Maximum-tempo Flash Wax", "Transition to maximum tempo", "Explosion x1.3 within 120t", "World-scoped one-shot flash record", "Consumed by next cast or swept on expiry", "Repaired: capped hits cannot refresh the window");
+        waxweaver(evidence, "combat_focus", "Frenzied tempo profile", "Burning weapon hit", "Cap 6; duration 50t; bonuses x1.5", "Status stacks plus managed damage and speed attributes", "Exclusive capstone; modifier and lifecycle expiry", "Implemented: the 50% multiplier previously had no consumer");
+        waxweaver(evidence, "combat_release", "Patient tempo profile", "Burning weapon hit", "Cap 1; duration 180t; refunds disabled", "Exact stack cap and refund suppression", "Exclusive capstone; status expiry", "Repaired: zero-based amplifier handling enforces one stack");
+        waxweaver(evidence, "transformation_opening", "Revival Resistance", "Successful revival", "+40t over the selected profile", "Resistance duration resolver", "Status expiry", "Repaired: composes with Queen's Chrysalis");
+        waxweaver(evidence, "transformation_cadence", "Revival cooldown", "Successful revival", "-100 configured ticks", "Config-relative revival cooldown resolver", "Revival cooldown manager", "Repaired: custom cooldowns remain authoritative");
+        waxweaver(evidence, "transformation_pressure", "Casting shield", "Successful prison cast", "4 absorption for 60t", "Prison-only absorption settings", "Status expiry", "Verified: revival absorption is independent");
+        waxweaver(evidence, "transformation_reversal", "Reactive prison", "Successful incoming damage below 35% health", "40t prison; 200t lockout", "Awakening-gated damage callback", "World-scoped lockout and prison cleanup", "Repaired: dormant weapons cannot trigger it and stale state is swept");
+        waxweaver(evidence, "transformation_reserve", "Molten Rebirth", "Successful revival", "Radius 4; fire 80t; cap 8", "Nearest-first spherical ignition query", "Bounded target set", "Repaired: Explosive Emergence cannot change its area");
+        waxweaver(evidence, "transformation_threshold", "Prison refuge", "Projectile damage while owning a prison", "Incoming x.85", "Owner-scoped active-prison lookup", "Prison and lifecycle cleanup", "Repaired: active state is restored and cleared on every terminal path");
+        waxweaver(evidence, "transformation_convergence", "Second Skin", "Revival Resistance expires", "6 absorption for 100t", "Exact Phase4AbsorptionTracker grant", "Tracked expiry and lifecycle cleanup", "Repaired: six is no longer rounded down to four");
+        waxweaver(evidence, "transformation_focus", "Queen's Chrysalis profile", "Successful revival", "Health 50%; Resistance IV 140t; cooldown +400t", "Scoped health, resistance and cooldown resolvers", "Exclusive capstone; status and cooldown expiry", "Repaired: Reinforced Cocoon and configured cooldown both compose");
+        waxweaver(evidence, "transformation_release", "Explosive Emergence profile", "Successful revival", "Radius 6; prison damage x1.25; cap 16", "Nearest-first spherical prison-damage pipeline", "Exclusive capstone; bounded hit set", "Repaired: enchantments, implicit suppression and Molten Rebirth isolation are retained");
+        warglaive(evidence, "signature_opening", "Dread mark duration", "Melee hit applies Dread", "+40t over the configured duration", "addDread expiry from seeded DURATION_TICKS", "Mark expiry discards its bats", "Repaired: the 160t literal resolved to the configured 200t and added nothing");
+        warglaive(evidence, "signature_cadence", "Maximum Dread per mark", "Melee hit applies Dread", "+1 over the configured cap", "addDread stack cap", "Mark expiry", "Repaired: description no longer claims an unenforced ceiling of 7");
+        warglaive(evidence, "signature_pressure", "Bonus Dread cadence", "Every third hit on one mark", "Interval 3", "addDread hit counter modulo COUNT", "Counter dies with the mark", "Repaired: the interval is read from tuning instead of a literal 3");
+        warglaive(evidence, "signature_reversal", "Dread spread at maximum", "Maximum Dread reached", "Radius 3; lockout 20t", "spreadDread nearest unmarked candidate", "Per-mark lockout", "Verified: radius, target cap and lockout are all consumed");
+        warglaive(evidence, "signature_reserve", "Marked-target reveal", "Any Dread application", "Search range 16; glow 20t", "revealMarks over every owned mark", "Status expiry", "Implemented: glow reached only the struck target and ignored both written keys");
+        warglaive(evidence, "signature_threshold", "Dread inheritance on death", "A marked target dies", "Legacy radius 6", "tickMarks inheritDread transfer", "Mark removal", "Implemented: the node had no consumer, flag or trigger at all");
+        warglaive(evidence, "signature_convergence", "Slow at maximum Dread", "Hit against a mark at maximum Dread", "Slowness 40t amplifier 0", "addDread status application", "Status expiry", "Repaired: duration and amplifier now come from tuning");
+        warglaive(evidence, "signature_focus", "Single-mark focus", "Melee hit applies Dread", "Target cap 1; 2 Dread per hit; hunt damage x1.5", "addDread eviction and startNightPursuit mark multiplier", "Exclusive capstone; other marks discarded", "Repaired: the 1.5 multiplier is published by the node rather than hardcoded, and the dead COUNT write that broke Watcher's Cut is gone");
+        warglaive(evidence, "signature_release", "Wide mark spread", "Melee hit applies Dread", "Target cap 8; stack cap 3; spread radius 5", "addDread caps and spreadDread radius", "Mark expiry", "Verified: Spreading Terror is a hard prerequisite so the spread clause holds");
+        warglaive(evidence, "combat_opening", "Spectral bat speed", "Hunt movement each tick", "Speed x1.12", "tickHunts stage, strike and return movement", "Execution-scoped", "Verified: multiplies the configured bat speed on all three movement branches");
+        warglaive(evidence, "combat_cadence", "Hunt selection radius", "Cast", "+1.5 over the configured radius", "startNightPursuit mark selection", "Execution-scoped", "Repaired: composed against the configured 10 instead of resolving to 9.5, which was a nerf");
+        warglaive(evidence, "combat_pressure", "Activation range", "Cast eligibility and target resolution", "+2 over the configured range", "resolveActivationTarget tuned range", "Passive execution per query", "Implemented: activation range ignored tuning entirely; the node also tunes the mark definition so the gate and the cast agree");
+        warglaive(evidence, "combat_reversal", "Killing bat retarget", "A bat strike kills its target", "Search radius 8; follow-up damage x.6", "advanceOrder unstruck-target search", "Order returns when no candidate remains", "Implemented: no kill detection existed and neither written key had a reader");
+        warglaive(evidence, "combat_reserve", "Bat strike slow", "Bat strike lands", "Slowness 20t amplifier 1", "applyHuntStrike status branch", "Status expiry", "Repaired: transformation nodes no longer overwrite this duration");
+        warglaive(evidence, "combat_threshold", "Distinct-target damage", "Each new target struck in one cast", "+5% per target; cap 5", "applyHuntStrike distinct multiplier", "Execution-scoped", "Repaired: Dread Dividend and Killing Gaze no longer overwrite the per-stack value or its cap");
+        warglaive(evidence, "combat_convergence", "Return strike", "Last bat reaches the owner", "Final damage x.4", "applyReturningShadow against the first struck target", "Execution-scoped", "Implemented: no return pass existed; the multiplier moved to FINAL_DAMAGE_MULTIPLIER to stop colliding with Second Pass");
+        warglaive(evidence, "combat_focus", "Extra hunt bats", "Cast", "2 bats per Dread stack; damage x.55; speed x.8", "startNightPursuit extra MODE_HUNT spawns", "Bats discarded with the hunt", "Redesigned in place: COUNT had no reader, so the capstone delivered only its two drawbacks");
+        warglaive(evidence, "combat_release", "Single travelling bat", "Cast", "Target cap 8; damage x1.45; speed x1.45", "startNightPursuit route collapse and advanceOrder", "Surplus bats discarded at cast", "Implemented: the single-bat multi-visit route did not exist and the cap was overwritten to 3");
+        warglaive(evidence, "transformation_opening", "Bat strike damage", "Bat strike lands", "Damage x1.1", "startNightPursuit sanguine damage composition", "Execution-scoped", "Verified on a dedicated Sanguine Watch execution");
+        warglaive(evidence, "transformation_cadence", "Lifesteal rate", "Vitality removed by a strike", "Heal x1.1", "applyHuntStrike heal composition", "Execution-scoped", "Verified on a dedicated Sanguine Watch execution");
+        warglaive(evidence, "transformation_pressure", "Lifesteal cap", "Heal accumulation", "+5% over the configured cap", "applyHuntStrike heal cap", "Execution-scoped", "Repaired: composes against the configured cap instead of writing 45% absolutely");
+        warglaive(evidence, "transformation_reversal", "Dread-scaled strike damage", "Each strike in the cast", "+4% per Dread consumed; cap 7", "applyHuntStrike sanguine stack multiplier", "Execution-scoped", "Repaired: the consumer counted struck targets, not Dread consumed, and collided with Murder Flight");
+        warglaive(evidence, "transformation_reserve", "Overheal absorption", "Heal at full health", "Absorption cap 8", "Phase4AbsorptionTracker grant", "Tracked expiry after 200t", "Repaired: raw setAbsorptionAmount never expired");
+        warglaive(evidence, "transformation_threshold", "Multi-target reprieve", "3 distinct targets struck", "Threshold 3; Resistance 60t", "applyHuntStrike resistance branch", "Status expiry", "Repaired: the node silently capped the hunt at three marks and retuned Wing Buffet");
+        warglaive(evidence, "transformation_convergence", "Cooldown refund on kill", "A bat strike kills its target", "15t per kill; 60t cap per cast", "onHuntKill refund through SimplySwordsAPI", "Refund total held on the cast", "Implemented: REFUND_TICKS had no reader and the node's STACK_CAP write destroyed two other nodes");
+        warglaive(evidence, "transformation_focus", "Bloodwing profile", "Bat strike lands", "Heal x2; damage x.8; heal cap 60%", "applyHuntStrike heal and damage composition", "Exclusive capstone; execution-scoped", "Verified on a dedicated Sanguine Watch execution");
+        warglaive(evidence, "transformation_release", "Hollow Watcher profile", "Bat strike lands", "Heal x0; damage x1.65; Wither 50t amplifier 1", "applyHuntStrike sanguine status branch", "Exclusive capstone; status expiry", "Repaired: the Wither duration is no longer overwritten by Hunter's Reprieve");
+        ribboncleaver(evidence, "signature_opening", "Passive movement penalty", "Held each tick", "Speed factor .97", "tickRibbon movement modifier against the Ribbonwrath baseline", "Modifier removed when the weapon is not held", "Verified: the -5% Ribbonwrath modifier is the real baseline the correction composes against");
+        ribboncleaver(evidence, "signature_cadence", "Passive damage reduction", "Incoming damage while Ribbonwrath is held", "Incoming multiplier .82", "modifyIncomingDamage composition over the base .85", "Held-state scoped", "Verified: composes to exactly 18%");
+        ribboncleaver(evidence, "signature_pressure", "Grounded knockback resistance", "Held each tick", "Knockback +0.15", "tickRibbon knockback modifier", "Modifier removed off the ground and when unheld", "Repaired: the modifier was applied unconditionally");
+        ribboncleaver(evidence, "signature_reversal", "Sustained-movement guard", "Continuous movement", "Window 40t; Resistance 20t", "tickRibbon movement counter", "Counter resets when stationary", "Repaired: cumulative horizontalSpeed made the guard permanent; the test is now a per-tick position delta");
+        ribboncleaver(evidence, "signature_reserve", "Retort window", "Melee damage taken", "Outgoing x1.1; lockout 40t", "onRibbonHit retort consumption", "Window consumed on the next hit", "Implemented: the window was only ever read by Dreadtide, and the lockout was not enforced");
+        ribboncleaver(evidence, "signature_threshold", "Low-health reprieve", "Health at or below 35%", "Relief speed factor 1", "tickRibbon health-gated speed factor", "Reverts above the threshold", "Repaired: the node removed the penalty unconditionally and clobbered Balanced Grip");
+        ribboncleaver(evidence, "signature_convergence", "Absorbed-hit absorption", "Every third hit absorbed", "Interval 3; absorption 4; 60t", "Phase4AbsorptionTracker grant", "Tracked expiry", "Repaired: raw setAbsorptionAmount never expired and all three keys were unread");
+        ribboncleaver(evidence, "signature_focus", "Iron Ribbon profile", "Held each tick", "Speed factor .88; incoming .7", "tickRibbon modifier and sprint lock", "Exclusive capstone; unheld cleanup", "Verified: 30% reduction and a real 12% penalty against the Ribbonwrath baseline");
+        ribboncleaver(evidence, "signature_release", "Flowing Ribbon profile", "Incoming damage while moving", "Speed factor 1; incoming 1; moving reduction .88", "modifyIncomingDamage movement branch", "Exclusive capstone; held-state scoped", "Repaired: cumulative horizontalSpeed made the moving reduction unconditional, and the key collided with Heavy Retort");
+        ribboncleaver(evidence, "combat_opening", "Rush speed", "Cast", "Speed x1.1", "ribbonRush dash velocity", "Execution-scoped", "Verified: composes against the seeded 1.7 base");
+        ribboncleaver(evidence, "combat_cadence", "Rush cooldown", "Cast", "-6t against the configured cooldown", "Execution cooldown key consumed by tryActivateWeaponAbility", "Execution-scoped", "Repaired: the right-click path bypassed the standard activation and the hotkey path discarded the tuned cooldown");
+        ribboncleaver(evidence, "combat_pressure", "Rush steering", "First ticks of the dash", "Window 4t; 12 degrees per tick", "tickRush velocity rotation toward the target", "Window expires with the rush", "Implemented: no steering existed and neither key had a reader");
+        ribboncleaver(evidence, "combat_reversal", "Rush collision", "Contact during the dash", "Damage x.3; knockback .5; cap 1", "tickRush sweep", "Struck set cleared when the rush ends", "Implemented: the rush had no collision damage at all");
+        ribboncleaver(evidence, "combat_reserve", "Rush trample", "Contact during the dash", "Target cap 4; Slowness 30t", "tickRush sweep and status", "Struck set cleared when the rush ends", "Implemented: both keys were unread");
+        ribboncleaver(evidence, "combat_threshold", "Resilience duration", "Cast", "+10t", "ribbonRush Resilience duration", "Status expiry", "Repaired: the description named Resistance II rather than Resilience");
+        ribboncleaver(evidence, "combat_convergence", "Collision cooldown refund", "First rush collision", "8t refund", "tickRush refund through SimplySwordsAPI", "Once per rush", "Implemented: no collision event existed to refund from");
+        ribboncleaver(evidence, "combat_focus", "Juggernaut profile", "Cast", "Travel x2; target cap 8; damage x.45; no steering", "ribbonRush travel ticks and tickRush sweep", "Exclusive capstone; rush-scoped", "Implemented: every one of the capstone's four keys was unread, so it did nothing");
+        ribboncleaver(evidence, "combat_release", "Ribbon Step blink", "Cast", "Blink 5 blocks; cooldown +20t", "ribbonRush collision-checked teleport", "Exclusive capstone; no Resilience granted", "Implemented: the blink did not exist and RANGE had no reader");
+        ribboncleaver(evidence, "transformation_opening", "Empowered hit window", "Cast", "Ribboncleave 80t", "ribbonRush window from the promise tuning", "Status expiry or consumption", "Verified: composes against the seeded 60t base");
+        ribboncleaver(evidence, "transformation_cadence", "Stored damage bonus", "Empowered hit", "+15% over the configured bonus", "onRibbonHit bonus damage", "Passive execution per hit", "Verified: composes against the configured 95%");
+        ribboncleaver(evidence, "transformation_pressure", "Cleave", "Empowered hit", "Target cap 3; radius 2.5; cleave x.4", "onRibbonHit cleave query", "Passive execution per hit", "Repaired: a cap of 2 struck one secondary enemy, and the cleave now scales off the full empowered hit");
+        ribboncleaver(evidence, "transformation_reversal", "Armour-scaled bonus", "Empowered hit", "Armour factor .12", "onRibbonHit armour term", "Passive execution per hit", "Repaired: the description claimed armour penetration for what is bonus damage");
+        ribboncleaver(evidence, "transformation_reserve", "Binding slow", "Empowered hit", "Slowness 40t amplifier 1", "onRibbonHit status application", "Status expiry", "Verified: both keys are consumed");
+        ribboncleaver(evidence, "transformation_threshold", "Delayed strike bonus", "Empowered hit at least 40t after the rush", "Windup 40t; +20%", "onRibbonHit windup branch", "Passive execution per hit", "Repaired: the bonus was double counted and applied even without waiting");
+        ribboncleaver(evidence, "transformation_convergence", "Execute bonus", "Empowered hit below 30% health", "Threshold .3; outgoing x1.25", "onRibbonHit execute branch", "Passive execution per hit", "Verified: both keys are consumed");
+        ribboncleaver(evidence, "transformation_focus", "Single Thread profile", "Empowered hit", "+100% bonus; target cap 1", "onRibbonHit bonus and cleave gate", "Exclusive capstone; passive execution per hit", "Verified: composes to a doubled bonus and disables the cleave");
+        ribboncleaver(evidence, "transformation_release", "Sweep profile", "Empowered hit", "Radius 5; target cap 10; sweep x.7", "onRibbonHit cleave from the full empowered hit", "Exclusive capstone; passive execution per hit", "Repaired: the cleave derived from the mastery delta only, which this node clamps to zero, so the sweep dealt no damage");
+        riftmane(evidence, "signature_opening", "Passive charger chance", "Swing", "+8 over the configured chance", "onSwing chance roll", "Passive execution per swing", "Repaired: the literal 20 fallback resolved to 28 against a configured 70, more than halving the proc rate");
+        riftmane(evidence, "signature_cadence", "Passive lockout", "Successful passive", "-10t against the configured lockout", "onSwing lockout map", "Lockout pruned on expiry and cleared on unload", "Verified: the fallback matched the configured 60t and now composes explicitly");
+        riftmane(evidence, "signature_pressure", "Passive search range", "Swing target search", "+2 over the configured maximum", "findPassiveTarget search range", "Passive execution per swing", "Repaired: the key collided with the charger travel distance and now uses a dedicated search range");
+        riftmane(evidence, "signature_reversal", "Passive minimum range", "Swing target search", "-1 against the configured minimum", "findPassiveTarget minimum range", "Passive execution per swing", "Repaired: resolved to 2 against a configured 4; the description now matches the composed result");
+        riftmane(evidence, "signature_reserve", "Passive cone", "Swing target search", "+15 degrees over the configured cone", "findPassiveTarget cone threshold", "Passive execution per swing", "Repaired: the literal 45 fallback halved a configured 110 degree cone");
+        riftmane(evidence, "signature_threshold", "Passive charger damage", "Passive charge", "Damage x1.15", "summon damage composition", "Charger lifetime", "Verified: multiplies the scaled passive damage");
+        riftmane(evidence, "signature_convergence", "Passive kill follow-up", "A passive charger kills its target", "Lockout refund 30t; search radius 6; damage x.5", "RiftmaneChargerEntity kill hook into onChargerKill", "Follow-up charger cannot chain further", "Implemented: no kill hook existed, and the node's RADIUS write silently gave passive chargers a six-block hit radius");
+        riftmane(evidence, "signature_focus", "Passive volley", "Swing", "3 chargers; damage x.45; -20 chance", "onSwing count loop", "Exclusive capstone; passive execution per swing", "Repaired: the chance term resolved to 0 or 8 against a configured 70, so the volley effectively never fired");
+        riftmane(evidence, "signature_release", "Farthest-target duelist", "Swing target search", "Damage x1.8; lockout +30t", "findPassiveTarget inverted comparator", "Exclusive capstone; lockout map", "Verified: comparator, damage and lockout are all consumed");
+        riftmane(evidence, "combat_opening", "Rank size", "Cast", "+1 over the configured count", "activate charger loop, clamped to 12", "Execution-scoped", "Verified: composes against the configured 5 and is now bounded");
+        riftmane(evidence, "combat_cadence", "Rank width", "Cast", "+1 over the configured width", "activate lane spacing", "Execution-scoped", "Repaired: the literal 6 fallback resolved to exactly the configured 7, so the rank was no wider");
+        riftmane(evidence, "combat_pressure", "Charge distance", "Cast", "+3 over the configured distance", "summon travel distance and lifetime", "Charger lifetime", "Repaired: resolved to 19 against a configured 20, shortening the charge it advertised as lengthening");
+        riftmane(evidence, "combat_reversal", "Charger speed", "Cast", "Speed x1.1", "summon charge speed", "Charger lifetime", "Repaired: mounted nodes no longer compound or reverse this multiplier");
+        riftmane(evidence, "combat_reserve", "Charger damage", "Charger collision", "Damage x1.1", "summon damage composition", "Charger lifetime", "Verified: multiplies the scaled rank damage");
+        riftmane(evidence, "combat_threshold", "Charger knockback", "Charger collision", "+0.25 over the configured strength", "RiftmaneChargerEntity knockback", "Charger lifetime", "Repaired: the absolute write discarded awakening scaling and resolved to a +0.05 change");
+        riftmane(evidence, "combat_convergence", "Delayed second rank", "0.5s after the cast", "Delay 10t; up to 3 chargers; damage x.55", "tickPendingRanks scheduled summon", "Pending list cleared on unload, disconnect and server stop", "Implemented: no second wave existed and all three keys were unread");
+        riftmane(evidence, "combat_focus", "Grand Battalion profile", "Cast", "10 chargers; width x1.5; damage x.65; distance x.75", "activate count, spacing and summon distance", "Exclusive capstone; execution-scoped", "Repaired: width and distance composed from literals rather than the configured 7 and 20");
+        riftmane(evidence, "combat_release", "Spearhead profile", "Cast", "1 charger; damage x2.4; hit radius x2; no knockback", "activate count and summon hit radius", "Exclusive capstone; execution-scoped", "Verified: every fallback matched its configured default and now composes explicitly");
+        riftmane(evidence, "transformation_opening", "Mounted rear-up", "Cast while sprinting", "-4t against the configured rear duration", "summon rear ticks on the ridden charger", "Rider execution scoped", "Repaired: composed from a literal 12 against a configured 16 and applied to the whole rank");
+        riftmane(evidence, "transformation_cadence", "Mounted distance", "Cast while sprinting", "+0.35 over the configured multiplier", "summon distance multiplier on the ridden charger", "Rider execution scoped", "Repaired: resolved to 1.35 against a configured 2.0, shortening the ride");
+        riftmane(evidence, "transformation_pressure", "Mounted step height", "Cast while sprinting", "+0.4 over the configured step height", "summon step height on the ridden charger", "Rider execution scoped", "Repaired: applied to every charger before the rider branch was separated");
+        riftmane(evidence, "transformation_reversal", "Mounted speed", "Cast while sprinting", "Speed x1.2", "summon charge speed on the ridden charger", "Rider execution scoped", "Repaired: the multiplier applied to the whole rank; the description no longer claims a water-only effect");
+        riftmane(evidence, "transformation_reserve", "Rider guard", "While ridden and after dismount", "Resistance amplifier 1; trailing 20t", "RiftmaneChargerEntity rider refresh and release", "Charger expiry releases the rider", "Repaired: a fixed 36t grant expired mid-charge and the trailing second was never implemented");
+        riftmane(evidence, "transformation_threshold", "First collision bonus", "First enemy struck by the mount", "Outgoing x1.25", "RiftmaneChargerEntity first-hit multiplier", "Charger lifetime", "Implemented: the key had no reader");
+        riftmane(evidence, "transformation_convergence", "Trample bonus", "First 6 enemies struck by the mount", "Target cap 6; damage x1.25", "RiftmaneChargerEntity trample multiplier", "Charger lifetime", "Implemented: both keys were unread");
+        riftmane(evidence, "transformation_focus", "Ghost Road profile", "Cast while sprinting", "Distance x3; damage x0; wall phasing", "summon distance, damage and charger phasing flag", "Exclusive capstone; rider execution scoped", "Repaired: the distance multiplied a literal 1 into a three-block charge, the zeroed damage deleted the whole rank, and phasing was never implemented");
+        riftmane(evidence, "transformation_release", "Cataphract profile", "Cast while sprinting", "Resistance III; damage x1.75; knockback x2; speed x.75", "summon composition on the ridden charger", "Exclusive capstone; rider execution scoped", "Repaired: knockback multiplied a literal 1 and the speed penalty applied to the whole rank");
+        dawnquiver(evidence, "signature_opening", "Lesser bow cadence", "Held each tick", "-15t against the configured interval", "tickHeldPassive interval gate", "Passive execution per attempt", "Repaired: the 80t literal resolved to 65t against a configured 100t interval");
+        dawnquiver(evidence, "signature_cadence", "Dawn Chorus chance", "Lesser bow hit", "+8 over the configured chance", "onChorusHit lesser contribution", "Passive execution per hit", "Repaired: the node resolved below the configured chance, so its contribution clamped to zero");
+        dawnquiver(evidence, "signature_pressure", "Lesser bow range", "Lesser bow target search", "+3 over the configured range", "tickHeldPassive target search", "Passive execution per attempt", "Repaired: resolved to 23 against a configured 24, shortening the range it advertised as extending");
+        dawnquiver(evidence, "signature_reversal", "Lesser bow damage", "Lesser bow shot", "Damage x1.12", "tickHeldPassive damage composition", "Arrow lifetime", "Verified: multiplies the scaled passive damage");
+        dawnquiver(evidence, "signature_reserve", "Lesser bow lockout", "Successful lesser bow shot", "-12t against the configured lockout", "tickHeldPassive lockout map", "Lockout pruned on expiry and cleared on unload", "Repaired: composed from a 60t literal against a configured 80t");
+        dawnquiver(evidence, "signature_threshold", "Reveal on hit", "Lesser bow hit", "Glowing 60t", "tickHeldPassive status application", "Status expiry", "Verified: the duration is consumed");
+        dawnquiver(evidence, "signature_convergence", "Twin Hymn second arrow", "Every fourth lesser bow shot", "Interval 4; delay 6t; damage x.55", "Owner shot counter and scheduled shot queue", "Queue cleared on unload, disconnect and server stop", "Implemented: no shot counter existed and all three keys were unread");
+        dawnquiver(evidence, "signature_focus", "Multi-target volley", "Lesser bow shot", "3 bows; damage x.45", "tickHeldPassive additional target search", "Arrow lifetime", "Implemented: COUNT had no reader, so the capstone delivered only its damage penalty");
+        dawnquiver(evidence, "signature_release", "Nearest-target cantor", "Lesser bow shot", "Nearest target; damage x1.85; guaranteed chorus every 3; +30t interval", "tickHeldPassive nearest search and shot counter", "Exclusive capstone; counter cleared with the owner", "Implemented: target selection stayed farthest-first and the guaranteed chorus did not exist");
+        dawnquiver(evidence, "combat_opening", "Maximum Dawn Chorus", "Chorus gain", "+1 over the configured maximum", "onChorusHit cap", "Cap stored per stack", "Verified: composes against the configured maximum");
+        dawnquiver(evidence, "combat_cadence", "Empty-quiver chance", "Chorus gain at zero stacks", "+10 over the configured chance", "onChorusHit zero-stack branch", "Passive execution per hit", "Repaired: the node lowered the chance and applied at every stack count");
+        dawnquiver(evidence, "combat_pressure", "Full-impact chance", "Full-draw arrow impact", "+15 over the base pity chance", "onChorusHit full-impact term", "Passive execution per hit", "Repaired: composed from a literal 20 against a base of zero");
+        dawnquiver(evidence, "combat_reversal", "Chorus refund", "Spending at least two stacks", "Refund 1; chance 20%", "release refund branch", "Execution-scoped", "Implemented: REFUND_TICKS had no reader and the node's CHANCE write lowered the chorus chance to 20");
+        dawnquiver(evidence, "combat_reserve", "Chorus absorption", "Chorus gain", "Absorption 4; 40t; lockout 40t", "Phase4AbsorptionTracker grant and owner lockout", "Tracked expiry", "Repaired: raw setAbsorptionAmount never expired and neither the duration nor the lockout was read");
+        dawnquiver(evidence, "combat_threshold", "Stored-chorus damage", "Lesser bow shot", "+3% per stored stack", "tickHeldPassive chorus multiplier", "Passive execution per shot", "Repaired: the value was written on the chorus definition but read from the lesser definition, and its cap write clobbered Fourth Voice");
+        dawnquiver(evidence, "combat_convergence", "Cooldown on full chorus", "Reaching maximum Dawn Chorus", "Cooldown x.8", "release cooldown resolver", "Flag consumed by the next release", "Implemented: the node wrote a cooldown onto a passive definition that has no cooldown key");
+        dawnquiver(evidence, "combat_focus", "Endless Hymn profile", "Release", "Cap 3; stacks never consumed; damage x.75", "release consumption gate", "Exclusive capstone; execution-scoped", "Verified: all three effects are consumed");
+        dawnquiver(evidence, "combat_release", "Final Verse profile", "Spending every stack", "Cap 6; damage x2; lesser bow silenced 200t", "release final multiplier and silence window", "Exclusive capstone; silence cleared with the owner", "Repaired: the damage doubling was written on the chorus definition but read from the draw definition, and the silence did not exist");
+        dawnquiver(evidence, "transformation_opening", "Draw duration", "Draw", "-10t against the configured duration", "startDraw and drawDuration resolver", "Draw cancelled with the owner", "Repaired: composed from a 40t literal against a configured 80t");
+        dawnquiver(evidence, "transformation_cadence", "Minimum draw", "Release", "-.05 against the configured minimum", "release minimum-draw gate", "Execution-scoped", "Repaired: composed from a .25 literal against a configured .35");
+        dawnquiver(evidence, "transformation_pressure", "Quick volley damage", "Quick volley release", "Secondary damage x1.15", "release lesser damage composition", "Scheduled shot queue", "Verified: multiplies the scaled quick-volley damage");
+        dawnquiver(evidence, "transformation_reversal", "Sunlance piercing", "Piercing release", "+1 target; +.05 retention", "release piercing mode", "Arrow lifetime", "Repaired: both terms resolved to exactly the configured values, so the node did nothing");
+        dawnquiver(evidence, "transformation_reserve", "Convergence cadence", "Full-draw impact", "-2t formation; -1t stagger", "onFullArrowImpact scheduling", "Scheduled shot queue", "Repaired: both terms resolved to exactly the configured values");
+        dawnquiver(evidence, "transformation_threshold", "Impact radius", "Arrow impact", "+.5 over the configured radius", "startDraw arrow construction", "Arrow lifetime", "Repaired: composed from a 2.5 literal and discarded awakening scaling");
+        dawnquiver(evidence, "transformation_convergence", "Maximum-charge damage", "Full-draw release", "Final damage x1.15", "release tier-two multiplier", "Execution-scoped", "Verified: applies only to the maximum-charge tier");
+        dawnquiver(evidence, "transformation_focus", "Heaven's Lance profile", "Release with at least two stacks", "Damage x2.5; minimum draw .8; consumes all stacks", "release heaven branch", "Exclusive capstone; execution-scoped", "Verified: the flag, damage and threshold are all consumed");
+        dawnquiver(evidence, "transformation_release", "Angelic Barrage profile", "Release", "3 arrows; 12 degree spread; damage x.55; cooldown x1.25", "release spread loop and cooldown resolver", "Exclusive capstone; execution-scoped", "Repaired: the cooldown write replaced the per-tier cooldown with a flat 250 ticks");
+        dreadtide(evidence, "signature_opening", "Voidcloak threshold", "Held each tick", "Corruption per stack 18", "tickDreadtide stack resolver", "Held-state scoped", "Verified: the threshold is consumed");
+        dreadtide(evidence, "signature_cadence", "Maximum Voidcloak", "Held each tick", "+1 stack", "tickDreadtide stack cap", "Held-state scoped", "Verified: composes against the base cap of five");
+        dreadtide(evidence, "signature_pressure", "Cloak loss lockout", "Damage taken with a cloak", "Lockout 15t", "modifyVoidcloakDamage decrement gate", "Held-state scoped", "Repaired: Emergency Veil and Cleanse the Void both overwrote this lockout with 200 ticks");
+        dreadtide(evidence, "signature_reversal", "Per-stack movement", "Held each tick", "+3% per stack", "applyDreadAttributes movement modifier", "Modifier stripped when the weapon leaves the hand", "Verified: the per-stack value is consumed");
+        dreadtide(evidence, "signature_reserve", "Per-stack reduction", "Damage taken with a cloak", "11% per stack", "modifyVoidcloakDamage per-stack term", "Held-state scoped", "Repaired: the transformation branch no longer overwrites this channel");
+        dreadtide(evidence, "signature_threshold", "Cloak loss retort", "Losing a cloak stack", "Outgoing x1.12; window 60t", "onDreadtideHit retort consumption", "Window consumed on the next hit", "Repaired: both the bonus and the window are read from tuning instead of literals");
+        dreadtide(evidence, "signature_convergence", "Emergency cloak", "Dropping below the health threshold", "Threshold .3; lockout 200t", "tickDreadtide emergency branch", "Held-state scoped", "Repaired: moved off the shared lockout channel it was breaking");
+        dreadtide(evidence, "signature_focus", "Impenetrable Cloak profile", "Held each tick", "20% per stack; cap 3; no movement", "tickDreadtide and applyDreadAttributes", "Exclusive capstone; held-state scoped", "Verified: all three effects are consumed");
+        dreadtide(evidence, "signature_release", "Ravenous Cloak profile", "Held each tick", "Cap 7; 5% per stack; 8% attack speed per stack", "applyDreadAttributes attack-speed modifier", "Exclusive capstone; modifier stripped when unheld", "Repaired: the node silently granted per-stack movement speed as well, and the attack-speed value was hardcoded");
+        dreadtide(evidence, "combat_opening", "Void Assault duration", "Cast", "+30t over the configured duration", "activateDreadtide duration", "Assault expiry finishes the execution", "Repaired: composed from a 100t literal against a configured 250t, nearly halving the duration");
+        dreadtide(evidence, "combat_cadence", "Void Assault damage", "Cast", "Damage x1.1", "activateDreadtide damage composition", "Execution-scoped", "Verified: multiplies the scaled assault damage");
+        dreadtide(evidence, "combat_pressure", "Void Assault cadence", "Each pulse", "-1t against the configured frequency", "tickAssault interval", "Execution-scoped", "Repaired: composed from a literal 10 and leaked onto the Corruption cadence");
+        dreadtide(evidence, "combat_reversal", "Stack-scaled damage", "Cast", "+6% per Voidcloak consumed", "activateDreadtide per-stack multiplier", "Execution-scoped", "Verified: scales on the stacks actually consumed");
+        dreadtide(evidence, "combat_reserve", "Void Assault slow", "Each pulse", "Slowness 30t amplifier 1", "tickAssault status application", "Status expiry", "Repaired: the duration and amplifier are read from tuning");
+        dreadtide(evidence, "combat_threshold", "Assault jump on death", "The assault target dies", "Radius 5; up to 2 jumps", "tickAssault jump handler", "Struck set carried with the assault; entry removed on jump", "Implemented: no jump logic existed and both keys were unread");
+        dreadtide(evidence, "combat_convergence", "Final pulse burst", "Assault expiry with the target alive", "Final damage x1.8; radius 2.5; cap 6", "tickAssault final burst", "Execution finished after the burst", "Implemented: no final pulse existed and its TARGET_CAP write was lowering an unrelated absorption cap");
+        dreadtide(evidence, "combat_focus", "Void Torrent profile", "Cast", "Duration x2; interval x.5; damage x.55; cloak suppressed", "activateDreadtide and tickAssault", "Exclusive capstone; suppression ends with the assault", "Repaired: duration and interval composed from literals below the configured values");
+        dreadtide(evidence, "combat_release", "Annihilating Call profile", "Cast", "One strike per stack; interval 8t; no slow or jump", "tickAssault strike budget", "Exclusive capstone; execution-scoped", "Implemented: the strike budget did not exist, so the node was only a faster damage-over-time");
+        dreadtide(evidence, "transformation_opening", "Corruption cadence", "Held each tick", "Interval 70t", "tickDreadtide corruption accrual", "Held-state scoped", "Repaired: the base cadence now reads the configured frequency rather than a literal 60");
+        dreadtide(evidence, "transformation_cadence", "Corruption decay", "Weapon no longer held", "Clear delay 1100t", "tickDreadtide unwielded branch", "Corruption cleared after the delay", "Verified: composes against the configured clear duration");
+        dreadtide(evidence, "transformation_pressure", "High-corruption damage", "Cast above the threshold", "Threshold 40; outgoing x1.1", "activateDreadtide damage composition", "Execution-scoped", "Repaired: both the threshold and the multiplier are read from tuning");
+        dreadtide(evidence, "transformation_reversal", "High-corruption defence", "Damage taken above the threshold", "Threshold 60; incoming x.92", "modifyVoidcloakDamage conditional term", "Held-state scoped", "Repaired: its INCOMING_MULTIPLIER write was overwriting the per-stack cloak reduction");
+        dreadtide(evidence, "transformation_reserve", "Corruption purge", "Cast", "5 Corruption per stack", "activateDreadtide purge", "Execution-scoped", "Repaired: the purge rate is read from tuning instead of a literal");
+        dreadtide(evidence, "transformation_threshold", "Purge absorption", "Cast that purges Corruption", "4 per 20 purged; cap 12; 200t", "Phase4AbsorptionTracker grant", "Tracked expiry", "Repaired: raw setAbsorptionAmount never expired and its cap shared a key with the final pulse");
+        dreadtide(evidence, "transformation_convergence", "Edge of Madness", "Held above the threshold", "Threshold 80; interval x.7; incoming x1.08", "tickDreadtide cadence and modifyVoidcloakDamage", "Held-state scoped", "Repaired: its INCOMING_MULTIPLIER write inverted the cloak into a damage amplifier");
+        dreadtide(evidence, "transformation_focus", "Embrace the Tide profile", "Held each tick and on cast", "Floor 75; damage x1.25; -8 maximum health", "tickDreadtide floor and applyDreadAttributes", "Exclusive capstone; modifier stripped when unheld", "Repaired: the floor, multiplier and health penalty are read from tuning");
+        dreadtide(evidence, "transformation_release", "Cleanse the Void profile", "Cast", "Purges all Corruption; +1t duration per point; cloak locked 200t", "activateDreadtide purge and lockout", "Exclusive capstone; lockout held on the owner state", "Repaired: moved off the shared lockout channel it was breaking");
+        arcanethyst(evidence, "signature_opening", "Arcane Assault chance", "Melee hit", "+7 over the configured chance", "postHit chance roll", "Passive execution per hit", "Verified: the fallback matched the configured chance and now composes explicitly");
+        arcanethyst(evidence, "signature_cadence", "Arcane Assault damage", "Cast", "Damage x1.1", "Spark damage factor consumed by the active assault", "Execution-scoped", "Implemented: DAMAGE_MULTIPLIER had no reader anywhere in the weapon");
+        arcanethyst(evidence, "signature_pressure", "Arcane Assault spell scaling", "Cast", "Spell scaling x1.12", "Spark spell factor consumed by the active assault", "Execution-scoped", "Implemented: SPELL_MULTIPLIER had no reader anywhere in the weapon");
+        arcanethyst(evidence, "signature_reversal", "Arcane brand", "Melee hit", "Brand 60t; marked slam damage x1.1", "markTarget brand map and slam multiplier", "Brand map bounded to 32 entries and cleared with the owner", "Verified: brand duration and the marked bonus are both consumed");
+        arcanethyst(evidence, "signature_reserve", "Levitation spread", "Every fourth proc", "Delay 6t; radius 4; spread 30t", "Pending pulse queue", "Queue cleared on unload and server stop", "Repaired: the spread radius was written to a key the pulse does not read");
+        arcanethyst(evidence, "signature_threshold", "Weakness on proc", "Levitation proc", "Weakness 40t", "onPassiveProc status branch", "Status expiry", "Repaired: the Weakness duration shared the Levitation channel and was cutting it from 3 seconds to 2");
+        arcanethyst(evidence, "signature_convergence", "Full-health absorption", "Proc at full health", "Absorption 4; 60t; lockout 100t", "Phase4AbsorptionTracker grant", "Tracked expiry; owner lockout", "Repaired: raw absorption never expired and its duration overwrote the Levitation channel");
+        arcanethyst(evidence, "signature_focus", "Doubled proc chance", "Melee hit", "Chance x2; assault damage x.65; lift 36t", "postHit chance and spark damage factor", "Exclusive capstone; passive execution per hit", "Repaired: the 35% damage penalty had no reader, so the capstone carried no drawback");
+        arcanethyst(evidence, "signature_release", "Fixed proc profile", "Melee hit", "Chance 15; Levitation IV 100t", "postHit chance, duration and amplifier", "Exclusive capstone; status expiry", "Verified: all three values are consumed");
+        arcanethyst(evidence, "combat_opening", "Lift height", "Cast", "+1 over the configured height", "scanForTargets hover height", "Execution-scoped", "Verified: composes against the configured lift height");
+        arcanethyst(evidence, "combat_cadence", "Lift duration", "Cast", "+4t over the configured lift ticks", "tickTargets lift phase", "Execution-scoped", "Verified");
+        arcanethyst(evidence, "combat_pressure", "Suspension duration", "Cast", "+8t over the configured suspend ticks", "tickTargets suspend phase", "Execution-scoped", "Verified");
+        arcanethyst(evidence, "combat_reversal", "Assault radius", "Cast", "+1 over the configured radius", "Target scan box", "Execution-scoped", "Repaired: the radius is now read from the seeded suspension tuning at cast time");
+        arcanethyst(evidence, "combat_reserve", "Momentum loss", "Each suspended tick", "Horizontal retention .3", "tickSuspend velocity", "Execution-scoped", "Verified: flag consumed; value now read from tuning");
+        arcanethyst(evidence, "combat_threshold", "Landing slow", "Slam landing", "Slowness III 30t", "tickSlam status branch", "Status expiry", "Verified");
+        arcanethyst(evidence, "combat_convergence", "Multi-target slam", "Slam landing", "+3% per lifted enemy; cap 8", "Slam multiplier", "Execution-scoped", "Verified: the per-stack value is no longer overwritten by a transformation node");
+        arcanethyst(evidence, "combat_focus", "Stasis profile", "Cast", "Suspension 50t; stored damage x1.4", "tickTargets suspend phase and slam multiplier", "Exclusive capstone; execution-scoped", "Repaired: the bonus shared FINAL_DAMAGE_MULTIPLIER with the slam multiplier, collapsing slam damage from 4.0 to 1.4 and costing about half the capstone's damage");
+        arcanethyst(evidence, "combat_release", "Gravity Well profile", "Cast", "No suspension; radius 6; pull .18; damage x.65", "tickSuspend pull and slam multiplier", "Exclusive capstone; execution-scoped", "Repaired: the 65% slam damage had no reader");
+        arcanethyst(evidence, "transformation_opening", "Slam damage", "Slam landing", "Final damage x1.15", "Slam multiplier on a dedicated impact execution", "Execution-scoped", "Repaired: separated from the suspension namespace");
+        arcanethyst(evidence, "transformation_cadence", "Slam speed", "Slam descent", "-2t over the configured slam ticks", "tickTargets slam phase", "Execution-scoped", "Verified");
+        arcanethyst(evidence, "transformation_pressure", "Landing ring", "Slam landing", "Radius 2.5; damage x.35; cap 6", "applyImpact ring query", "Execution-scoped", "Repaired: no longer shares its radius and damage channels with the aftershock");
+        arcanethyst(evidence, "transformation_reversal", "Landing control", "Slam landing", "Glowing and Slowness 40t", "applyImpact status branch", "Status expiry", "Repaired: no longer overwrites Crystal Prison's duration");
+        arcanethyst(evidence, "transformation_reserve", "Height-scaled slam", "Slam landing", "+5% per block lifted beyond 4; cap 4", "Slam multiplier height term", "Execution-scoped", "Implemented: the node had no flag consumer and only overwrote Arcane Chorus's per-stack value");
+        arcanethyst(evidence, "transformation_threshold", "Landing knockback", "Slam landing", "Knockback .5", "applyImpact push", "Execution-scoped", "Verified");
+        arcanethyst(evidence, "transformation_convergence", "Aftershock pulse", "0.6s after landing", "Delay 12t; radius 3; damage x.4", "Pending pulse queue on tertiary channels", "Queue cleared on unload and server stop", "Repaired: moved off the channels the landing ring reads");
+        arcanethyst(evidence, "transformation_focus", "Meteor profile", "Cast", "Lift 6; final damage x1.8; cooldown +60t", "Impact-scoped lift height and slam multiplier", "Exclusive capstone; execution-scoped", "Repaired: the lift height is read from the impact tuning; the description no longer claims a rider or invulnerability");
+        arcanethyst(evidence, "transformation_release", "Amethyst field", "Slam landing", "Radius 5; 80t; every 20t; cap 8; damage x.2", "Field queue ticked per world", "Field expires; cleared on unload and server stop", "Implemented: the field had no consumer and its writes were retuning the suspend duration, slam time and assault radius");
+        starsEdge(evidence, "signature_opening", "Daytime bonus damage", "Daytime melee hit", "Damage x1.1", "onMeleeHit day branch", "Passive execution per hit", "Verified");
+        starsEdge(evidence, "signature_cadence", "Daytime reveal", "Daytime melee hit", "Glowing 60t", "onMeleeHit status branch", "Status expiry", "Verified");
+        starsEdge(evidence, "signature_pressure", "Consecutive daytime hits", "Daytime melee hit", "+3% per hit; cap 4; reset 40t", "Owner solar chain state", "Chain resets on the reset window and with the owner", "Repaired: the chain cap is no longer raised to 25 by its own capstone");
+        starsEdge(evidence, "signature_reversal", "Midday bonus", "Daytime hit between 5000 and 7000", "Damage x1.15", "onMeleeHit midday window", "Passive execution per hit", "Verified");
+        starsEdge(evidence, "signature_reserve", "Fifth-hit pulse", "Every fifth daytime hit", "Count 5; damage x.3; radius 2; cap 5", "onMeleeHit pulse", "Passive execution per hit", "Verified: behaviour matches; the written values remain informational");
+        starsEdge(evidence, "signature_threshold", "Daytime kill speed", "Daytime kill", "Speed 60t", "onMeleeHit kill branch", "Status expiry", "Verified");
+        starsEdge(evidence, "signature_convergence", "Ignition", "Daytime hit", "Burning 2s", "onMeleeHit fire branch", "Fire expiry", "Verified");
+        starsEdge(evidence, "signature_focus", "Supernova charge", "Daytime hit", "+5 charge; threshold 25; radius 5; burst x1.5; bonus x.5", "Owner solar charge state", "Charge resets on burst and with the owner", "Repaired: the charge threshold shared STACK_CAP with Solar Brand, its own prerequisite, raising that node's 12% ceiling to 75%");
+        starsEdge(evidence, "signature_release", "Endless Day profile", "Nighttime melee hit", "Night damage x.6; no lifesteal", "Solar carry-over execution read in the night branch", "Exclusive capstone; passive execution per hit", "Repaired: the flag sat on the day-only definition while both effects were read at night, so neither half could ever fire");
+        starsEdge(evidence, "combat_opening", "Nighttime lifesteal", "Nighttime melee hit", "Heal x1.1", "onMeleeHit night branch", "Passive execution per hit", "Verified");
+        starsEdge(evidence, "combat_cadence", "Glowing pursuit", "Nighttime hit on a Glowing enemy", "Speed 30t", "onMeleeHit night branch", "Status expiry", "Verified");
+        starsEdge(evidence, "combat_pressure", "Nighttime guard", "Nighttime melee hit", "Absorption 2; 40t; lockout 40t", "onMeleeHit guard branch", "Status expiry; owner lockout", "Verified");
+        starsEdge(evidence, "combat_reversal", "Low-health lifesteal", "Nighttime hit below the threshold", "Threshold .4; heal x1.25", "onMeleeHit conditional heal", "Passive execution per hit", "Repaired: the multiplier was applied unconditionally as well as conditionally, granting +25% at all health levels");
+        starsEdge(evidence, "combat_reserve", "Lifesteal mark", "Nighttime lifesteal", "Mark 60t; next-hit x1.08", "Owner mark state", "Mark consumed on the next hit and cleared with the owner", "Implemented: the node had no flag consumer and neither key was read");
+        starsEdge(evidence, "combat_threshold", "Nighttime kill refund", "Nighttime kill", "10t per kill; 60t cap", "Cooldown refund through SimplySwordsAPI", "Refund total held on the owner state", "Implemented: no kill-refund consumer existed");
+        starsEdge(evidence, "combat_convergence", "Overheal absorption", "Nighttime lifesteal past full health", "Cap 4 hearts", "onMeleeHit absorption branch", "Status expiry", "Verified");
+        starsEdge(evidence, "combat_focus", "New Moon profile", "Nighttime kill", "Invisibility 40t; first hit x1.35; heal x.6", "Owner ambush state", "Consumed on the next hit; cleared with the owner", "Repaired: the 35% first-hit bonus had no reader and no tracking");
+        starsEdge(evidence, "combat_release", "Shared lifesteal", "Nighttime lifesteal", "Up to 2 allies within 5; share .35; heal x.75", "onMeleeHit ally query", "Passive execution per hit", "Verified");
+        starsEdge(evidence, "transformation_opening", "Dash distance", "Cast", "Range x1.15", "Initial dash velocity", "Execution-scoped", "Verified");
+        starsEdge(evidence, "transformation_cadence", "Recording window", "Trail recording", "+20t over the configured duration", "Recording phase timer", "Execution cancelled with the owner", "Repaired: composed from a 60t literal against a configured 120t, shortening the trail it advertises as lengthening");
+        starsEdge(evidence, "transformation_pressure", "Node spacing", "Trail recording", "Spacing x.85", "recordMovement spacing", "Execution-scoped", "Repaired: WIDTH also served as the absolute contact-damage width, shrinking that band to 0.85 blocks; the silent star-count change is removed");
+        starsEdge(evidence, "transformation_reversal", "Constellation damage", "Contact and explosion", "Damage x1.1", "Constellation damage at cast", "Execution-scoped", "Verified");
+        starsEdge(evidence, "transformation_reserve", "Explosion radius", "Segment detonation", "+0.4 over the configured radius", "detonateSegment radius", "Execution-scoped", "Repaired: composed from a literal 2 against a configured 2.5, shrinking the radius it advertises as extending");
+        starsEdge(evidence, "transformation_threshold", "Detonation cadence", "Segment detonation", "-2t over the configured interval", "tickDetonation next explosion tick", "Execution-scoped", "Verified: the consumer's own floor matches the stated minimum");
+        starsEdge(evidence, "transformation_convergence", "Contact snare", "Constellation contact", "Slowness II 30t", "damageContactSegment status branch", "Status expiry", "Verified");
+        starsEdge(evidence, "transformation_focus", "Simultaneous detonation", "Detonation start", "Lifetime x.5; damage x1.45; one shared strike set", "tickDetonation all-segment branch", "Exclusive capstone; execution-scoped", "Implemented: the node had no flag consumer, so stars still detonated in sequence and overlapping explosions still stacked");
+        starsEdge(evidence, "transformation_release", "Living constellation", "Detonation start", "Recording +80t; standing +80t; no detonation", "tickDetonation suppression branch", "Exclusive capstone; visuals faded on expiry", "Repaired: its COUNT 0 write clamped the constellation to two stars, making the capstone a severe downgrade");
+        magiscythe(evidence, "signature_opening", "Magistorm duration", "Cast", "+30t over the configured duration", "Storm expiry", "Storm state cleared on expiry, unload and disconnect", "Repaired: composed from a 200t literal against a configured 400t, nearly halving the storm");
+        magiscythe(evidence, "signature_cadence", "Magistorm damage", "Each strike", "Damage x1.1", "Strike damage composition", "Execution-scoped", "Verified");
+        magiscythe(evidence, "signature_pressure", "Refresh chance", "Each strike", "+8 over the base refresh chance", "attemptRefresh roll", "Storm-scoped", "Repaired: composed from a literal 25 against a base chance of 5");
+        magiscythe(evidence, "signature_reversal", "Refresh-scaled damage", "Each strike", "+5% per refresh; cap 5", "Strike damage per-stack term", "Storm-scoped", "Verified");
+        magiscythe(evidence, "signature_reserve", "Strike cadence", "Each strike", "-2t on the strike interval", "strikeInterval composition", "Storm-scoped", "Repaired: the node replaced the whole refresh-scaled interval formula with a flat floor; it now composes against it");
+        magiscythe(evidence, "signature_threshold", "Storm guard", "Cast", "Resistance for the storm duration", "Storm start", "Status expiry", "Verified");
+        magiscythe(evidence, "signature_convergence", "Storm reach", "Each strike", "+2 over the configured radius", "Strike target scan", "Execution-scoped", "Repaired: composed from a literal 6 against a configured 4, doubling rather than adding");
+        magiscythe(evidence, "signature_focus", "Everstorm profile", "Each refresh", "Restore 80t; refresh cap 8; cooldown +120t", "attemptRefresh restore on its own channel", "Exclusive capstone; storm-scoped", "Repaired: the restore shared DURATION_TICKS with the storm's own duration, cutting the initial storm from 20 seconds to 4");
+        magiscythe(evidence, "signature_release", "Flash Storm profile", "Each strike", "Duration x.5; interval 5t; damage x1.25; no refresh", "Storm duration and interval", "Exclusive capstone; storm-scoped", "Repaired: the duration composed from a literal 200 against a configured 400");
+        magiscythe(evidence, "combat_opening", "Strike reach", "Each strike", "+1.5 over the configured radius", "Strike target scan", "Execution-scoped", "Repaired: composed from a literal 6 against a configured 4");
+        magiscythe(evidence, "combat_cadence", "Split bolt", "Every third strike", "One chain at x.55 within 3", "Chain loop", "Execution-scoped", "Verified");
+        magiscythe(evidence, "combat_pressure", "Strike slow", "Each strike", "Slowness I 30t", "Strike status branch", "Status expiry", "Verified");
+        magiscythe(evidence, "combat_reversal", "Repeat-target damage", "Consecutive strikes on one enemy", "+5% per repeat; cap 4", "Per-target repeat counter on the strikes definition", "Counter resets on a new target and with the owner", "Implemented: the values were written to the strikes definition but read from the storm definition, and no repeat counter existed");
+        magiscythe(evidence, "combat_reserve", "Target priority", "Each strike", "Healthiest first", "Strike target sort", "Execution-scoped", "Verified: the description no longer claims a 70% threshold the sort does not use");
+        magiscythe(evidence, "combat_threshold", "Earthing pulse", "Each strike", "Radius 2; damage x.25; cap 4", "Strike pulse", "Execution-scoped", "Verified");
+        magiscythe(evidence, "combat_convergence", "Storm mark", "Melee hit during the storm", "Mark 60t; cadence -2t; lockout 20t", "Owner mark map and storm cadence window", "Marks expire and are cleared on unload and disconnect", "Implemented: the node had no flag consumer and no mark existed");
+        magiscythe(evidence, "combat_focus", "Chain Tempest profile", "Each strike", "Chain 4; first hit x.8; 70 / 55 / 40%", "Chain loop cumulative factors", "Exclusive capstone; execution-scoped", "Verified: the cumulative factors resolve to the advertised fractions");
+        magiscythe(evidence, "combat_release", "Singular Bolt profile", "Melee hit and each strike", "Mark 60t; marked-only targeting; damage x2", "Mark map filter and strike damage", "Exclusive capstone; marks cleared with the owner", "Redesigned around Storm Mark: the node now marks on melee and restricts the storm to marked enemies, replacing a restriction the base weapon already satisfied and a multiplier written to a definition the damage never read");
+        magiscythe(evidence, "transformation_opening", "Repair chance", "Weapon hit during the storm", "+8 over the configured chance", "repair roll", "Passive execution per hit", "Verified");
+        magiscythe(evidence, "transformation_cadence", "Repair amount", "Successful repair", "+1 over the scaled base", "performRepair amount", "Passive execution per repair", "Repaired: the node resolved to an absolute 2, replacing the attack-damage-scaled base");
+        magiscythe(evidence, "transformation_pressure", "Repair selection", "Successful repair", "Most damaged item", "performRepair selection", "Passive execution per repair", "Verified");
+        magiscythe(evidence, "transformation_reversal", "Kill repair", "A strike kills its target", "Lockout 40t", "Strike kill branch", "Lockout held on the storm state", "Implemented: no kill hook existed and the node's REPAIR_AMOUNT write pinned every repair to 2");
+        magiscythe(evidence, "transformation_reserve", "Pity accumulation", "A repair roll fails", "+10 per failure; cap 40", "repair pity term", "Pity resets on a successful repair", "Repaired: the pity value and cap were hardcoded and the node silently raised the base repair chance to 40");
+        magiscythe(evidence, "transformation_threshold", "Repair guard", "Successful repair", "Absorption 4; 40t", "performRepair status branch", "Status expiry", "Verified");
+        magiscythe(evidence, "transformation_convergence", "Perfect temper", "Every fifth repair", "Count 5; amount x1.5", "performRepair cadence branch", "Repair counter held on the storm state", "Repaired: the node set every repair to 150 durability instead of boosting the fifth");
+        magiscythe(evidence, "transformation_focus", "Master Artificer profile", "Each strike", "Guaranteed repair; strike damage x.65", "Strike-path repair gated on the magewright tuning", "Exclusive capstone; execution-scoped", "Repaired: the gate read bit 26 from the storm tuning, a bit that belongs to another node on another definition, so the capstone was unreachable");
+        magiscythe(evidence, "transformation_release", "Sacrificial Edge profile", "Successful repair", "Amount x2; chance 25; cost 2", "performRepair multiplier and durability cost", "Exclusive capstone; passive execution per repair", "Repaired: the multiply resolved to an absolute 2, pinning the repair instead of doubling it");
+        verifiedProfile(evidence, "hiveheart",
+                new String[]{"hiveheart/hivemind", "hiveheart/swarm", "hiveheart/swarm"},
+                "Hiveheart proc and Hivemind swarm", "HIVE_", "HiveheartSwordItem and HivemindSwarmManager",
+                new String[]{
+                        "Proc damage composes by 12%", "Proc cooldown is reduced by ten ticks",
+                        "Proc search gains three blocks", "Proc applies two seconds of Poison",
+                        "Shared Target tracks and amplifies the marked enemy", "Twin Sting creates two bounded hits",
+                        "A bee kill refunds one second once per release", "Execution Flight applies its isolated threshold, damage and cooldown profile",
+                        "Busy Bees releases four weaker bees", "Swarm count gains two with a cap of twelve",
+                        "Swarm radius gains two blocks with a bounded search", "Swarm lifetime gains three seconds",
+                        "Sting cadence is nine ticks", "Each bee receives twelve stings",
+                        "Crippling Swarm raises the slow by one amplifier", "Three stings create a four-second focus mark",
+                        "Cloud of Wings uses its isolated count, radius, duration and damage", "Hunting Flight uses its isolated count, radius, duration, stings and damage",
+                        "Royal Ward grants bounded absorption", "Guard bees reduce incoming damage with a lockout",
+                        "Warning Buzz records and exposes the recent attacker", "Royal Retort is successful-hit and lockout bounded",
+                        "Rally resolves after eight stings", "Escort speed uses a temporary tracked modifier",
+                        "Last Stand consumes nearby bees into capped absorption", "Royal Phalanx grants Resistance II with a six-bee requirement",
+                        "Vengeful Hive targets the recorded attacker and applies its own damage profile"});
+        verifiedProfile(evidence, "chompolotl",
+                new String[]{"chompolotl/chompocalypse", "chompolotl/rally, blue_guardian", "chompolotl/rally, blue_guardian"},
+                "Chomp'olotl summon and Axolotl combat", "CHOMP_", "ChompolotlSwordItem, SimplySwordsAxolotlEntity and Phase7CombatManager",
+                new String[]{
+                        "Proc damage composes by 12%", "Proc cooldown is reduced by ten ticks",
+                        "Summon lifetime gains four seconds", "Low-health damage uses the configured threshold and multiplier",
+                        "Splash damage is bounded to four targets", "Pack damage counts at most four nearby allies",
+                        "A lethal bite retargets once and extends life", "Colossal Chomp uses isolated damage, splash and cooldown settings",
+                        "Axolotl Release creates four weaker short-lived summons", "Target search gains three blocks and is bounded",
+                        "Rally grants Speed II for five seconds", "Shoulder aura gains two blocks",
+                        "Helpful Friend grants bounded absorption with a lockout", "Coordinated Bite checks the owner's live target",
+                        "Pounce uses a four-block range and two-second cadence", "Three Axolotl kills within ten seconds refund five seconds",
+                        "Shoulder Brigade creates three non-attacking guards with triple aura", "Hunting Party creates three stronger non-perching hunters",
+                        "Azure Bond extends blue Axolotl life", "Dolphin's Grace duration gains five seconds",
+                        "Blue Axolotl damage gains 25%", "Perched Guard reduces projectile damage",
+                        "Cleanse removes one harmful effect with a lockout", "Rescue consumes the guardian below 35% health",
+                        "First Bite refunds 25% of remaining cooldown", "Eternal Companion persists for thirty seconds and grants its aura",
+                        "Tiny Ravager doubles guardian damage and suppresses the aura"});
+        verifiedProfile(evidence, "toxic_longsword",
+                new String[]{"longsword_of_the_plague/pestilence", "longsword_of_the_plague/death_knell", "longsword_of_the_plague/outbreak"},
+                "Fever, Death Knell and outbreak cascade", "PLAGUE_", "DeathKnellAbilityManager",
+                new String[]{
+                        "Conversion chance adds ten points to live configuration", "Fever duration gains two seconds on every creation path",
+                        "Conversion Fever gains one", "Stolen Vigor adds Fever and carried duration without overwriting configuration",
+                        "Fevered melee targets receive Slowness I", "First Fever gains four seconds with a per-target lockout",
+                        "Critical Condition reads Fever progress rather than health", "Black Apotheosis carries full duration, adds three Fever and reduces toll damage",
+                        "Patient Zero fills the threshold once per ten-second target lockout", "Heavy Bell multiplies configured toll damage by 1.1",
+                        "Carrying Peal adds .75 blocks to configured radius", "Hasty Bell shortens only the first windup",
+                        "Grave Resonance applies its low-health multiplier", "Dissonance applies two seconds of Weakness I",
+                        "Echoing Iron scales by cascade depth with a five-step cap", "Final Chime detects the actual terminal primary toll",
+                        "Funeral Bell adds an independent paired pulse without consuming cascade budget", "Silent Knell limits damage to one target and disables spreading",
+                        "Contagion adds one to configured Fever spread", "Wandering Sickness adds one block to cascade search",
+                        "Second Carrier adds one primary toll", "Shared Symptoms is read from the outbreak tuning snapshot",
+                        "Sickening Wake applies bounded Poison around each tolled target", "Relapse returns one Fever after two seconds once per outbreak",
+                        "Epidemic adds two tolls with a maximum of nine", "Rolling Plague revisits with an independent secondary toll after reducing primary capacity by two",
+                        "Quarantine produces one bounded seven-block Fever pulse"});
+        verifiedProfile(evidence, "soulkeeper",
+                new String[]{"soulkeeper/soul_lanterns", "soulkeeper/soul_velocity", "soulkeeper/lantern_conclave"},
+                "Soul lantern contact, orbit velocity and Lantern Conclave", "SOUL_", "SoulkeeperLanternManager and Phase8CombatManager",
+                new String[]{
+                        "Keen Flame multiplies configured contact damage by 1.1", "Loose Orbit adds .35 blocks to configured radius",
+                        "Scouring Light applies two seconds of Glowing", "Crossing Paths tracks distinct lantern identities per target",
+                        "Soulbrand grants its two-second melee rider", "Double Passage enables twelve-tick repeat contact per lantern",
+                        "Spirit Shear counts successful contacts and boosts every fifth", "Execution Lamps stops both weapon and lantern speed gain",
+                        "Reaping Halo composes its wide orbit and bounded two-target cleave", "Quickened Souls multiplies configured speed gain by 1.25",
+                        "Lasting Momentum multiplies configured decay by .8", "Racing Souls adds .75 to configured maximum speed",
+                        "Friction Burn scales above 3x with a 12% cap", "Rush of Passing triggers only when crossing 4x",
+                        "Captured Motion responds to weapon and lantern kills", "Soul Cyclone enforces its ten-tick and eight-target ledger",
+                        "Ceaseless Orbit clamps held speed between 3x and 4x", "Soul Detonation uses spherical targeting and the standard ability damage path",
+                        "Patient Vigil adds three seconds to every summon profile", "Swift Conjuration multiplies configured cooldown by .9",
+                        "Fifth Light has an independent four-second lifetime", "Warding Flame grants Absorption I for four seconds",
+                        "Faithful Spirits intercepts hostile projectiles at extra-lantern positions", "Shared Vigil uses spherical friendly targeting capped at four allies",
+                        "Lantern Recall resets every activation and extends once in the final three seconds", "Grand Procession creates six total lanterns for twelve seconds with its damage reduction",
+                        "Lone Warden creates one non-damaging extra lantern for fourteen seconds and pulses absorption"});
+        verifiedProfile(evidence, "soulstealer",
+                new String[]{"soulstealer/soul_debt, soulstealer/soul_reap", "soulstealer/stygian_approach", "soulstealer/soul_reap"},
+                "Soul Debt acquisition, Stygian Approach and Soul Reap", "SOULSTEALER_", "StealSwordItem and Phase8CombatManager",
+                new String[]{
+                        "Greedy Edge adds eight points to the configured debt chance", "Deep Pockets adds two to the live debt maximum",
+                        "Mortal Dividend adds one debt to configured and capstone kill gains", "Compound Interest keeps its interval and bonus on per-item counters",
+                        "Debt Shield commits its reduction, debt cost and lockout only after accepted damage", "Marked Asset has independent hit, chance and duration settings",
+                        "Collector extends Absorption only for newly gained overflow debt", "Usurer guarantees exactly one debt per melee hit and composes its cap penalty",
+                        "Soul Hoard composes its maximum, kill override and post-bonus chance multiplier", "Long Reach adds two blocks to visible target range",
+                        "Lenient Angle widens the target cone by twenty degrees", "Sure Footing multiplies safe-position attempts with a cap of twenty-four",
+                        "Veiled Departure starts at the blink and ends on the next attack", "Hamstring reads its Slowness III duration and amplifier",
+                        "Soul Tether tracks one tick of target movement up to three blocks", "Predatory Reset reads its eighty-tick kill refund",
+                        "Shadow Pursuit alone targets through walls within eight blocks and caps composed damage", "Reaper's Escape returns after every strike with tuned Resistance and damage penalty",
+                        "Sharper Claim adds eight percent per debt spent without a fallback multiplier", "Spell Levy multiplies configured spell scaling by 1.1",
+                        "Exposed Soul evaluates damage against ten percent reduced armor", "Lingering Wound reads its Wither duration and amplifier",
+                        "Exact Payment requires the live maximum and full expenditure", "Residual Credit refunds one debt through the live cap",
+                        "Death Tax retains its two-debt and forty-tick refunds beside Installment Plan", "Total Foreclosure composes Sharper Claim and caps its bonus at twelve stacks",
+                        "Installment Plan scales from at most three spent debt and preserves every retained stack"});
+        magibladeNode(evidence, "signature_opening", "Repel chance", "Held tick", "+8 over the configured chance", "tickHeldPassive roll", "Passive execution per tick", "Repaired: composed from a literal 25 against a configured 55");
+        magibladeNode(evidence, "signature_cadence", "Repel cadence", "Held tick", "-2t against the configured frequency", "tickHeldPassive gate", "Passive execution", "Repaired: absolute write replaced with a composed bonus");
+        magibladeNode(evidence, "signature_pressure", "Repel radius", "Repel", "+1 over the configured radius", "Repel search box", "Passive execution", "Repaired: composed from a literal 5 against a configured 4");
+        magibladeNode(evidence, "signature_reversal", "Repel knockback", "Repel", "Knockback x1.2", "Repel impulse", "Passive execution", "Verified");
+        magibladeNode(evidence, "signature_reserve", "Repel slow", "Repel", "Slowness II 30t", "Repel status branch", "Status expiry", "Repaired: duration and amplifier now read from tuning");
+        magibladeNode(evidence, "signature_threshold", "Countertone", "Repel then melee hit", "Window 60t; outgoing x1.15", "Owner mark consumed in postHit", "Window consumed or expires", "Implemented: the node had no flag consumer and neither key was read");
+        magibladeNode(evidence, "signature_convergence", "Repel guard", "Repel", "Resistance 20t", "Repel status branch", "Status expiry", "Repaired: duration read from tuning");
+        magibladeNode(evidence, "signature_focus", "Sonic Bulwark", "Repel", "Fixed 40t cadence; no damage", "Repel cadence override", "Passive execution", "Partially implemented: the fixed cadence and damage suppression now apply; the projectile clause is described honestly");
+        magibladeNode(evidence, "signature_release", "Violent Rejection", "Repel", "Radius x.65; knockback x2; damage x.6; cap 6", "Repel area damage", "Exclusive capstone; passive execution", "Repaired: damage fraction and target cap now read from tuning");
+        magibladeNode(evidence, "combat_opening", "Head charge", "Cast", "-10t against the configured charge", "completeCharge windup", "Charge cancelled with the owner", "Repaired: composed from a literal 40 against a configured 10, which tripled the charge");
+        magibladeNode(evidence, "combat_cadence", "Head duration", "Cast", "+50t over the configured duration", "Head expiry", "Head discarded on expiry and disconnect", "Repaired: composed from a literal 200 against a configured 300");
+        magibladeNode(evidence, "combat_pressure", "Head orbit", "Head tick", "-0.35 radius; speed x1.2", "orbitPosition", "Head-scoped", "Repaired: composed against the configured orbit radius");
+        magibladeNode(evidence, "combat_reversal", "Second Voice", "Every third wave", "3 waves; delay 8t; damage x.55", "Sonic cycle counter", "Head-scoped", "Implemented: no follow-up wave existed");
+        magibladeNode(evidence, "combat_reserve", "Head range", "Head targeting", "+3 over the configured range", "findTarget range", "Head-scoped", "Repaired: composed from a literal 12 against a configured 16");
+        magibladeNode(evidence, "combat_threshold", "Recalled Echo", "Reactivation", "+80t over the configured duration", "Head refresh path", "Head-scoped", "Repaired: config-relative composition");
+        magibladeNode(evidence, "combat_convergence", "Bound Warden", "While the head persists", "Absorption 4 every 80t", "Phase4AbsorptionTracker grant and Resistance", "Tracked expiry", "Implemented: no flag consumer existed and its interval write was retiming the sonic cadence");
+        magibladeNode(evidence, "combat_focus", "Twin Sentinels", "Cast", "Damage x.65; charge +15t", "completeCharge composition", "Exclusive capstone; head-scoped", "Repaired: composed against the configured charge; the description no longer promises a second head");
+        magibladeNode(evidence, "combat_release", "Crown of the Deep", "Cast", "Duration x2; no orbit", "Head duration and orbit speed", "Exclusive capstone; head-scoped", "Repaired: config-relative composition; the target-lock clause is described honestly");
+        magibladeNode(evidence, "transformation_opening", "Wave damage", "Sonic wave", "Damage x1.1", "Head damage on a dedicated judgment execution", "Execution-scoped", "Repaired: separated from the head's own damage channel");
+        magibladeNode(evidence, "transformation_cadence", "Sonic charge", "Sonic cycle", "-5t against the configured charge", "sonicChargeDuration", "Head-scoped", "Repaired: no longer shares WINDUP_TICKS with the summon charge");
+        magibladeNode(evidence, "transformation_pressure", "Sonic cadence", "Sonic cycle", "-8t against the configured interval", "sonicInterval", "Head-scoped", "Repaired: composed from a literal 40 against a configured 100");
+        magibladeNode(evidence, "transformation_reversal", "Beam width", "Sonic wave", "+0.2 over the beam width", "fireSonicWave search", "Execution-scoped", "Verified");
+        magibladeNode(evidence, "transformation_reserve", "Wave weakness", "Sonic wave hit", "Weakness 50t", "fireSonicWave status branch", "Status expiry", "Repaired: duration and amplifier read from tuning");
+        magibladeNode(evidence, "transformation_threshold", "Leading hits", "Sonic wave hit", "First 3 hits x1.2", "fireSonicWave hit index", "Execution-scoped", "Repaired: the multiplier is read from tuning");
+        magibladeNode(evidence, "transformation_convergence", "Harmonic Collapse", "Third hit on one enemy", "Radius 2.5; damage x.5; cap 5", "Per-target sonic hit counter", "Counter held on the head", "Implemented: no consumer existed and all four keys were unread");
+        magibladeNode(evidence, "transformation_focus", "Warden's Roar", "Sonic wave", "Beam width 5; cap 10; damage x1.35; interval x1.5", "fireSonicWave width and cap", "Exclusive capstone; execution-scoped", "Repaired: its radius write was parking the head five blocks out; the beam now widens on its own channel");
+        magibladeNode(evidence, "transformation_release", "Killing Note", "Head targeting", "Only targets below 50% health; damage x1.7", "passesJudgmentFilter", "Exclusive capstone; head-scoped", "Implemented: the threshold had no reader");
+        magispearNode(evidence, "signature_opening", "Magic chance", "Melee hit", "+8 over the configured chance", "postHit roll", "Passive execution per hit", "Repaired: composed from a literal 25 against a configured 35");
+        magispearNode(evidence, "signature_cadence", "Magic damage", "Melee hit", "Damage x1.12", "postHit damage", "Passive execution", "Verified");
+        magispearNode(evidence, "signature_pressure", "Armour term", "Melee hit", "Armour factor .1", "postHit armour term", "Passive execution", "Verified");
+        magispearNode(evidence, "signature_reversal", "Sprint chance", "Sprinting melee hit", "+12 on the roll", "postHit sprint branch", "Passive execution", "Repaired: its own CHANCE write no longer overwrites Keen Focus");
+        magispearNode(evidence, "signature_reserve", "Residual Glowing", "Magic hit", "Glowing 50t", "postHit status branch", "Status expiry", "Verified");
+        magispearNode(evidence, "signature_threshold", "Double Cast", "Every fifth trigger", "Delay 5t; damage x.55", "Owner trigger counter and delayed repeat", "Queue cleared with the owner", "Implemented: no repeat consumer existed");
+        magispearNode(evidence, "signature_convergence", "Mana Pin", "Magic hit", "Slowness II 25t; lockout 40t", "postHit pin lockout map", "Per-target lockout", "Verified");
+        magispearNode(evidence, "signature_focus", "Sure Spell", "Every third melee hit", "Guaranteed trigger; damage x.7", "postHit guarantee", "Exclusive capstone; passive execution", "Verified");
+        magispearNode(evidence, "signature_release", "Arcane Impalement", "Melee hit", "Chance x.5; damage x2; suspend 12t", "postHit composition", "Exclusive capstone; passive execution", "Verified");
+        magispearNode(evidence, "combat_opening", "Rain radius", "Cast", "+0.75 over the configured radius", "Rain strike positions", "Execution-scoped", "Repaired: composed from a literal 5 against a configured 4");
+        magispearNode(evidence, "combat_cadence", "Rain spread", "Cast", "Impact points; cap 8", "Rain wave impacts", "Execution-scoped", "Repaired: the description now matches the two-impact wave model");
+        magispearNode(evidence, "combat_pressure", "Wave onset", "Cast", "-6t on the first wave", "Rain wave schedule", "Execution-scoped", "Implemented: WINDUP_TICKS had no reader on the rain path");
+        magispearNode(evidence, "combat_reversal", "Wave damage", "Rain wave", "Damage x1.1", "Rain wave damage", "Execution-scoped", "Verified");
+        magispearNode(evidence, "combat_reserve", "Inward pull", "Rain impact", "+0.2 over the configured pull", "pullTowardCenter", "Execution-scoped", "Repaired: the absolute write was weakening the configured pull");
+        magispearNode(evidence, "combat_threshold", "Wave count", "Cast", "+1 over the configured wave count", "Wave count clamp", "Execution-scoped", "Repaired: composed from a literal 3 against a configured 6, which removed two waves");
+        magispearNode(evidence, "combat_convergence", "Marked Ground", "Two waves on one enemy", "Outgoing x1.15", "Per-target wave counter", "Execution-scoped", "Verified");
+        magispearNode(evidence, "combat_focus", "Spear Monsoon", "Cast", "Wave count x2; damage x.6; no slam", "Wave count and slam suppression", "Exclusive capstone; execution-scoped", "Repaired: the doubling resolved to exactly the configured count and changed nothing");
+        magispearNode(evidence, "combat_release", "Singular Lance", "Cast", "Single heavy wave; damage x2.6", "Wave count and damage", "Exclusive capstone; execution-scoped", "Repaired: the description now matches the concentrated wave the tuning produces");
+        magispearNode(evidence, "transformation_opening", "Guided Descent", "Dive", "Follow distance 2", "Dive guide path on a dedicated slam execution", "Execution-scoped", "Implemented: RANGE had no reader");
+        magispearNode(evidence, "transformation_cadence", "Slam damage", "Landing", "Final damage x1.15", "Slam damage on the slam execution", "Execution-scoped", "Repaired: separated from the rain namespace");
+        magispearNode(evidence, "transformation_pressure", "Slam radius", "Landing", "+0.6 over the configured radius", "Slam area", "Execution-scoped", "Verified");
+        magispearNode(evidence, "transformation_reversal", "Slam knockback", "Landing", "+0.2 knockback", "knockFromImpact", "Execution-scoped", "Implemented: KNOCKBACK had no reader");
+        magispearNode(evidence, "transformation_reserve", "Arcane Guard", "Landing", "Resistance III 8t", "Post-landing status branch", "Status expiry", "Implemented: no flag consumer existed");
+        magispearNode(evidence, "transformation_threshold", "Crater Pulse", "0.5s after landing", "Delay 10t; damage x.35", "Delayed pulse queue", "Queue cleared with the owner", "Implemented: no consumer existed");
+        magispearNode(evidence, "transformation_convergence", "Spellquake", "Landing", "Slowness II 50t; cap 10", "Slam status branch", "Status expiry", "Repaired: duration, amplifier and cap now read from tuning");
+        magispearNode(evidence, "transformation_focus", "Skyfall Lance", "Cast", "Height x1.4; damage x1.8; cooldown +80t", "Dive height and slam damage", "Exclusive capstone; execution-scoped", "Repaired: height composed from a literal 8 against a configured 6, and the cooldown from 300 against 120");
+        magispearNode(evidence, "transformation_release", "Guardian Descent", "Landing", "Slam damage x.55; ally absorption 8 for 100t", "Slam execution and ally grant", "Exclusive capstone; execution-scoped", "Repaired: its damage and radius writes were retuning the rain branch");
+        enigmaNode(evidence, "signature_opening", "Chase radius", "Twister tick", "+3 over the configured chase", "Standard chase box", "Standard decays with the cast", "Verified");
+        enigmaNode(evidence, "signature_cadence", "Chase speed", "Twister tick", "Speed x1.15", "Standard velocity", "Standard-scoped", "Verified");
+        enigmaNode(evidence, "signature_pressure", "Target death bonus", "Target death", "Window 40t; outgoing x1.1", "Chase-scoped bonus", "Standard-scoped", "Repaired: its duration write was lengthening the vortex orbit");
+        enigmaNode(evidence, "signature_reversal", "Low-health priority", "Target selection", "Threshold .5", "Chase comparator", "Standard-scoped", "Verified");
+        enigmaNode(evidence, "signature_reserve", "Retarget window", "Target selection", "Switch distance 6; lockout 20t", "Chase-scoped switch distance", "Standard-scoped", "Repaired: the distance was written to the chase radius and cut it from 16 to 6");
+        enigmaNode(evidence, "signature_threshold", "Capture slow", "Vortex capture", "Slowness II 30t; aura radius 1.5", "Vortex status branch", "Standard-scoped", "Repaired: the aura radius was shrinking the twister to 1.5 blocks");
+        enigmaNode(evidence, "signature_convergence", "Idle follow", "No target", "Follow distance 3", "Chase-scoped follow distance", "Standard-scoped", "Repaired: the distance was written to the chase radius and cut it to 3");
+        enigmaNode(evidence, "signature_focus", "Hound of Wind", "Twister tick", "Speed x1.4; damage x1.3; chase 24", "Chase composition", "Exclusive capstone; standard-scoped", "Verified");
+        enigmaNode(evidence, "signature_release", "Roaming Tempest", "Twister tick", "Chase x2; retarget 30t", "Chase composition", "Exclusive capstone; standard-scoped", "Verified");
+        enigmaNode(evidence, "combat_opening", "Vortex radius", "Vortex tick", "+0.75 over the configured radius", "Vortex search", "Standard-scoped", "Repaired: composed from a literal 3 against a configured 5.5");
+        enigmaNode(evidence, "combat_cadence", "Vortex pull", "Vortex tick", "Pull x1.15", "orbitEnigmaTarget", "Standard-scoped", "Verified");
+        enigmaNode(evidence, "combat_pressure", "Orbit duration", "Vortex tick", "+10t over the configured orbit", "Vortex capture timer", "Standard-scoped", "Repaired: composed against the configured 35 ticks");
+        enigmaNode(evidence, "combat_reversal", "Fling height", "Fling", "+0.15 upward", "flingEnigmaTarget", "Standard-scoped", "Verified");
+        enigmaNode(evidence, "combat_reserve", "Capture escalation", "Each orbit cycle", "+4% per cycle; cap 6", "Vortex per-target cycles", "Standard-scoped", "Implemented on the vortex definition");
+        enigmaNode(evidence, "combat_threshold", "Shared Current", "Two or more captured", "Cap 6; outgoing x1.1", "Vortex target cap", "Standard-scoped", "Verified");
+        enigmaNode(evidence, "combat_convergence", "Violent Release", "Fling landing", "Radius 2; damage x.4; cap 4", "Vortex landing pulse", "Standard-scoped", "Implemented on the vortex definition");
+        enigmaNode(evidence, "combat_focus", "Eye Wall", "Vortex tick", "Radius x1.6; no fling; damage x.65", "Vortex composition", "Exclusive capstone; standard-scoped", "Repaired: composed from a literal 3 and was shrinking the radius it advertises as widening");
+        enigmaNode(evidence, "combat_release", "Sole Captive", "Vortex tick", "Single target; escalation cap 12; fling damage x2", "Vortex composition", "Exclusive capstone; standard-scoped", "Repaired: config-relative composition");
+        enigmaNode(evidence, "transformation_opening", "Afterwind", "Leaving the twister", "Speed 40t", "Owner proximity block on the tailwind definition", "Standard-scoped", "Verified: separated from the twister's control keys");
+        enigmaNode(evidence, "transformation_cadence", "Fleet Wind", "Near the twister", "Speed 20t", "Owner proximity block", "Standard-scoped", "Verified");
+        enigmaNode(evidence, "transformation_pressure", "Windguard", "Near the twister", "Knockback resistance", "Owner proximity block", "Standard-scoped", "Implemented on the tailwind definition");
+        enigmaNode(evidence, "transformation_reversal", "Draft Runner", "Sprinting toward the twister", "Movement +10%", "Owner proximity block", "Standard-scoped", "Repaired: its SPEED write was overriding the twister's own movement speed");
+        enigmaNode(evidence, "transformation_reserve", "Calm Center", "Within the inner radius", "Resistance 20t; radius 2", "Owner proximity block", "Standard-scoped", "Repaired: its RADIUS write was shrinking the twister to two blocks");
+        enigmaNode(evidence, "transformation_threshold", "Recycled Gust", "Each fling", "8t per fling; cap 48", "Cooldown refund through SimplySwordsAPI", "Refund total held on the standard", "Verified: separated from the twister's control keys");
+        enigmaNode(evidence, "transformation_convergence", "Storm Step", "Sneak jump near the twister", "Dash 4; lockout 40t", "Tailwind dash", "Standard-scoped", "Repaired: its RANGE write was cutting the chase radius to four blocks");
+        enigmaNode(evidence, "transformation_focus", "Ride the Gale", "Sneak activate", "Ride 60t", "Tailwind ride window", "Exclusive capstone; standard-scoped", "Repaired: its duration write was lengthening the vortex orbit");
+        enigmaNode(evidence, "transformation_release", "Anchored Storm", "Twister tick", "No movement; radius x.8", "Chase speed and vortex radius", "Exclusive capstone; standard-scoped", "Repaired: the radius multiplier moved onto the tailwind definition's own channel");
+        caelestisNode(evidence, "signature_opening", "Breach expansion", "Cast", "-20t against the configured expansion", "BreachProfile expansion", "Breach expiry", "Repaired: composed from a literal 80 against a configured 140");
+        caelestisNode(evidence, "signature_cadence", "Creature cadence", "Each wave", "-4t against the configured interval", "Spawn interval", "Breach-scoped", "Repaired: the interval is read from tuning instead of a hardcoded -4");
+        caelestisNode(evidence, "signature_pressure", "Bound-creature cap", "Each wave", "+2 over the configured cap; ceiling 16", "BreachProfile minion cap", "Breach-scoped", "Repaired: the cap is read from tuning and the stated ceiling is enforced in code");
+        caelestisNode(evidence, "signature_reversal", "Creature health", "Creature spawn", "Health x1.15", "BreachProfile health scale", "Creature lifetime", "Verified");
+        caelestisNode(evidence, "signature_reserve", "Creature damage", "Creature spawn", "Damage x1.12", "BreachProfile damage scale", "Creature lifetime", "Verified");
+        caelestisNode(evidence, "signature_threshold", "Directed focus", "Weapon hit", "Focus cap 8; focus 100t", "redirectAggro cap on its own channel", "Breach-scoped", "Repaired: the cap no longer shares a channel with the bound-creature cap");
+        caelestisNode(evidence, "signature_convergence", "Mixed brood", "Each wave", "Dreadglare cap 2", "mixedArchetype even spread", "Breach-scoped", "Implemented: no flag consumer existed and the wave was a plain weighted roll");
+        caelestisNode(evidence, "signature_focus", "Endless Host", "Each wave", "+1 creature; +120t; health and damage x.75", "Wave count and profile scales", "Exclusive capstone; breach-scoped", "Repaired: duration composed from a literal 300 against a configured 900");
+        caelestisNode(evidence, "signature_release", "Chosen Horror", "Each wave", "1 creature; cap 5; health x2; damage x1.6", "Wave count and profile scales", "Exclusive capstone; breach-scoped", "Repaired: the per-wave count is read from tuning");
+        caelestisNode(evidence, "combat_opening", "Breach radius", "Cast", "+2 over the configured maximum", "BreachProfile radius", "Breach-scoped", "Repaired: composed from a literal 8 against a configured 20");
+        caelestisNode(evidence, "combat_cadence", "Breach duration", "Cast", "+80t over the configured duration", "BreachProfile duration", "Breach expiry", "Repaired: composed from a literal 300 against a configured 900");
+        caelestisNode(evidence, "combat_pressure", "Tentacle count", "Tentacle spawn", "+2 over the configured count; grasp cap 16", "BreachProfile tentacle count on its own channel", "Breach-scoped", "Repaired: the count and grasp cap no longer share the creature channels");
+        caelestisNode(evidence, "combat_reversal", "Tentacle cadence", "Tentacle spawn", "-5t against the configured interval", "Tentacle spawn interval", "Breach-scoped", "Repaired: the interval is read from tuning");
+        caelestisNode(evidence, "combat_reserve", "Tentacle slow", "Tentacle grasp", "+20t over the configured slow", "Tentacle status branch", "Status expiry", "Repaired: composed from a literal 40 against a configured 20");
+        caelestisNode(evidence, "combat_threshold", "Rim pull", "Collapse tick", "Pull .12 every 10t; cap 16", "tickCollapseRim pull", "Breach-scoped", "Implemented: no flag consumer existed and all three keys were unread");
+        caelestisNode(evidence, "combat_convergence", "Rim damage", "Collapse tick", "Damage x.25 every 20t; cap 12", "tickCollapseRim damage", "Breach-scoped", "Implemented: no consumer existed");
+        caelestisNode(evidence, "combat_focus", "Devouring Aperture", "Collapse", "+60t collapse; pull x1.5", "BreachProfile collapse and rim pull", "Exclusive capstone; breach-scoped", "Verified");
+        caelestisNode(evidence, "combat_release", "Stable Gate", "Cast", "-120t duration; no tentacles", "BreachProfile duration and tentacle count", "Exclusive capstone; breach-scoped", "Repaired: composed against the configured duration");
+        caelestisNode(evidence, "transformation_opening", "Betrayal chance", "Breach start", "-1 against the configured chance", "Betrayal roll", "Breach-scoped", "Repaired: the reduction is read from tuning");
+        caelestisNode(evidence, "transformation_cadence", "Betrayal delay", "Breach start", "+60t appearance delay", "Betrayal schedule", "Breach-scoped", "Repaired: the delay is read from tuning");
+        caelestisNode(evidence, "transformation_pressure", "Unbound bounty", "Unbound spawn and death", "Health x1.15; refund 60t", "Unbound health scale and refund", "Breach-scoped", "Repaired: the health scale moved off the creature channel and the refund reads its own key");
+        caelestisNode(evidence, "transformation_reversal", "Precarious ward", "While an Unbound is pending", "Radius 8; Resistance 20t", "Ward proximity check", "Breach-scoped", "Repaired: the radius and duration are read from tuning instead of a hardcoded 8-block square");
+        caelestisNode(evidence, "transformation_reserve", "Betrayer's mark", "Unbound spawn", "Glowing 120t; outgoing x1.15", "Unbound status branch", "Status expiry", "Repaired: the duration is read from its own channel");
+        caelestisNode(evidence, "transformation_threshold", "Dimensional bounty", "Unbound death", "Refund 120t", "Cooldown refund", "Breach-scoped", "Repaired: the refund reads its own key rather than a hardcoded 120");
+        caelestisNode(evidence, "transformation_convergence", "Forced recall", "Sneak activate", "Range 20; chance 50; once per breach", "tryForcedRecall dissolve", "Once-per-breach flag on the breach", "Implemented: no consumer existed and both keys were unread");
+        caelestisNode(evidence, "transformation_focus", "Open Invitation", "Breach start", "Guaranteed Unbound; damage x1.35; refund 180t", "Betrayal chance, damage scale and refund", "Exclusive capstone; breach-scoped", "Repaired: the damage scale moved off the creature channel and the refund reads its own key");
+        caelestisNode(evidence, "transformation_release", "Sealed Covenant", "Breach start", "No Unbound; spawn interval x1.15", "Betrayal suppression and spawn interval", "Exclusive capstone; breach-scoped", "Repaired: the interval multiplier composes against the configured interval");
         return evidence;
+    }
+
+    private static void verifiedProfile(Map<String, MasteryNodeAuditReport.Evidence> evidence,
+                                        String profile, String[] definitions, String baseMechanic,
+                                        String settingPrefix, String consumer, String[] findings) {
+        String[] branches = {"signature", "combat", "transformation"};
+        String[] slots = {"opening", "cadence", "pressure", "reversal", "reserve", "threshold",
+                "convergence", "focus", "release"};
+        if (definitions.length != branches.length || findings.length != branches.length * slots.length) {
+            throw new IllegalArgumentException("Invalid verified profile evidence: " + profile);
+        }
+        for (int branch = 0; branch < branches.length; branch++) {
+            for (int slot = 0; slot < slots.length; slot++) {
+                String node = branches[branch] + "_" + slots[slot];
+                evidence.put(profile + "/" + profile + "_" + node,
+                        new MasteryNodeAuditReport.Evidence(
+                                baseMechanic,
+                                "Owned " + branches[branch] + " branch trigger",
+                                definitions[branch],
+                                settingPrefix + " dedicated tuning and MODE bit",
+                                consumer,
+                                "Execution, TTL and registered world/actor lifecycle cleanup",
+                                profile + " route and focused regression suite",
+                                MasteryNodeAuditReport.Verdict.VERIFIED,
+                                findings[branch * slots.length + slot]));
+            }
+        }
     }
 
     private static void phase5Fire(Map<String, MasteryNodeAuditReport.Evidence> evidence,
@@ -2799,12 +3321,142 @@ final class MasteryNodeAuditCatalog {
                 MasteryNodeAuditReport.Verdict.VERIFIED, finding));
     }
 
+    private static void livyatan(Map<String, MasteryNodeAuditReport.Evidence> evidence, String node,
+                                 String baseMechanic, String trigger, String tuning,
+                                 String consumer, String cleanup, String finding) {
+        evidence.put("livyatan/livyatan_" + node, new MasteryNodeAuditReport.Evidence(
+                baseMechanic, trigger, "livyatan/tempest_current, tidal_return, leviathans_wake",
+                tuning, consumer, cleanup, "Livyatan route and focused regression suite",
+                MasteryNodeAuditReport.Verdict.VERIFIED, finding));
+    }
+
+    private static void bramblethorn(Map<String, MasteryNodeAuditReport.Evidence> evidence, String node,
+                                     String baseMechanic, String trigger, String tuning,
+                                     String consumer, String cleanup, String finding) {
+        evidence.put("bramblethorn/bramblethorn_" + node, new MasteryNodeAuditReport.Evidence(
+                baseMechanic, trigger, "bramblethorn/wild_grasp, thorn_dance", tuning, consumer, cleanup,
+                "Bramblethorn route and focused regression suite",
+                MasteryNodeAuditReport.Verdict.VERIFIED, finding));
+    }
+
+    private static void waxweaver(Map<String, MasteryNodeAuditReport.Evidence> evidence, String node,
+                                  String baseMechanic, String trigger, String tuning,
+                                  String consumer, String cleanup, String finding) {
+        evidence.put("waxweaver/waxweaver_" + node, new MasteryNodeAuditReport.Evidence(
+                baseMechanic, trigger, "waxweaver/waxweave, kindled_tempo, chrysalis",
+                tuning, consumer, cleanup, "Waxweaver route and focused regression suite",
+                MasteryNodeAuditReport.Verdict.VERIFIED, finding));
+    }
+
     private static void stormbringer(Map<String, MasteryNodeAuditReport.Evidence> evidence, String node,
                                      String baseMechanic, String trigger, String tuning,
                                      String consumer, String cleanup, String finding) {
         evidence.put("stormbringer/stormbringer_" + node, new MasteryNodeAuditReport.Evidence(
                 baseMechanic, trigger, "stormbringer/shock_deflect, chain_tempest", tuning, consumer, cleanup,
                 "Stormbringer route and focused regression suite",
+                MasteryNodeAuditReport.Verdict.VERIFIED, finding));
+    }
+    private static void warglaive(Map<String, MasteryNodeAuditReport.Evidence> evidence, String node,
+                                  String baseMechanic, String trigger, String tuning,
+                                  String consumer, String cleanup, String finding) {
+        evidence.put("watching_warglaive/watching_warglaive_" + node, new MasteryNodeAuditReport.Evidence(
+                baseMechanic, trigger, "watching_warglaive/dreadmark, nightwing_hunt, sanguine_watch",
+                tuning, consumer, cleanup, "Watching Warglaive route and focused regression suite",
+                MasteryNodeAuditReport.Verdict.VERIFIED, finding));
+    }
+
+    private static void ribboncleaver(Map<String, MasteryNodeAuditReport.Evidence> evidence, String node,
+                                      String baseMechanic, String trigger, String tuning,
+                                      String consumer, String cleanup, String finding) {
+        evidence.put("ribboncleaver/ribboncleaver_" + node, new MasteryNodeAuditReport.Evidence(
+                baseMechanic, trigger, "ribboncleaver/heavy_ribbon, ribbon_rush, cleaving_promise",
+                tuning, consumer, cleanup, "Ribboncleaver route and focused regression suite",
+                MasteryNodeAuditReport.Verdict.VERIFIED, finding));
+    }
+
+    private static void riftmane(Map<String, MasteryNodeAuditReport.Evidence> evidence, String node,
+                                 String baseMechanic, String trigger, String tuning,
+                                 String consumer, String cleanup, String finding) {
+        evidence.put("riftmane/riftmane_" + node, new MasteryNodeAuditReport.Evidence(
+                baseMechanic, trigger, "riftmane/rift_harrier, vanguard_rank, spectral_rider",
+                tuning, consumer, cleanup, "Riftmane route and focused regression suite",
+                MasteryNodeAuditReport.Verdict.VERIFIED, finding));
+    }
+    private static void dawnquiver(Map<String, MasteryNodeAuditReport.Evidence> evidence, String node,
+                                   String baseMechanic, String trigger, String tuning,
+                                   String consumer, String cleanup, String finding) {
+        evidence.put("dawnquiver/dawnquiver_" + node, new MasteryNodeAuditReport.Evidence(
+                baseMechanic, trigger, "dawnquiver/lesser_dawn, dawn_chorus, seraphs_draw",
+                tuning, consumer, cleanup, "Dawnquiver route and focused regression suite",
+                MasteryNodeAuditReport.Verdict.VERIFIED, finding));
+    }
+
+    private static void dreadtide(Map<String, MasteryNodeAuditReport.Evidence> evidence, String node,
+                                  String baseMechanic, String trigger, String tuning,
+                                  String consumer, String cleanup, String finding) {
+        evidence.put("dreadtide/dreadtide_" + node, new MasteryNodeAuditReport.Evidence(
+                baseMechanic, trigger, "dreadtide/voidcloak, void_assault, corruption_pact",
+                tuning, consumer, cleanup, "Dreadtide route and focused regression suite",
+                MasteryNodeAuditReport.Verdict.VERIFIED, finding));
+    }
+    private static void arcanethyst(Map<String, MasteryNodeAuditReport.Evidence> evidence, String node,
+                                    String baseMechanic, String trigger, String tuning,
+                                    String consumer, String cleanup, String finding) {
+        evidence.put("arcanethyst/arcanethyst_" + node, new MasteryNodeAuditReport.Evidence(
+                baseMechanic, trigger, "arcanethyst/arcane_spark, arcane_suspension, amethyst_impact",
+                tuning, consumer, cleanup, "Arcanethyst route and focused regression suite",
+                MasteryNodeAuditReport.Verdict.VERIFIED, finding));
+    }
+
+    private static void starsEdge(Map<String, MasteryNodeAuditReport.Evidence> evidence, String node,
+                                  String baseMechanic, String trigger, String tuning,
+                                  String consumer, String cleanup, String finding) {
+        evidence.put("stars_edge/stars_edge_" + node, new MasteryNodeAuditReport.Evidence(
+                baseMechanic, trigger, "stars_edge/solar_reprise, lunar_reprise, constellation",
+                tuning, consumer, cleanup, "Star's Edge route and focused regression suite",
+                MasteryNodeAuditReport.Verdict.VERIFIED, finding));
+    }
+
+    private static void magiscythe(Map<String, MasteryNodeAuditReport.Evidence> evidence, String node,
+                                   String baseMechanic, String trigger, String tuning,
+                                   String consumer, String cleanup, String finding) {
+        evidence.put("magiscythe/magiscythe_" + node, new MasteryNodeAuditReport.Evidence(
+                baseMechanic, trigger, "magiscythe/storm_core, arc_strikes, magewright",
+                tuning, consumer, cleanup, "Magiscythe route and focused regression suite",
+                MasteryNodeAuditReport.Verdict.VERIFIED, finding));
+    }
+    private static void magibladeNode(Map<String, MasteryNodeAuditReport.Evidence> evidence, String node,
+                                    String baseMechanic, String trigger, String tuning,
+                                    String consumer, String cleanup, String finding) {
+        evidence.put("magiblade/magiblade_" + node, new MasteryNodeAuditReport.Evidence(
+                baseMechanic, trigger, "magiblade/repulsion, warden_head, sonic_judgment",
+                tuning, consumer, cleanup, "magiblade route and focused regression suite",
+                MasteryNodeAuditReport.Verdict.VERIFIED, finding));
+    }
+
+    private static void magispearNode(Map<String, MasteryNodeAuditReport.Evidence> evidence, String node,
+                                    String baseMechanic, String trigger, String tuning,
+                                    String consumer, String cleanup, String finding) {
+        evidence.put("magispear/magispear_" + node, new MasteryNodeAuditReport.Evidence(
+                baseMechanic, trigger, "magispear/spellpoint, spear_rain, magislam",
+                tuning, consumer, cleanup, "magispear route and focused regression suite",
+                MasteryNodeAuditReport.Verdict.VERIFIED, finding));
+    }
+
+    private static void enigmaNode(Map<String, MasteryNodeAuditReport.Evidence> evidence, String node,
+                                    String baseMechanic, String trigger, String tuning,
+                                    String consumer, String cleanup, String finding) {
+        evidence.put("enigma/enigma_" + node, new MasteryNodeAuditReport.Evidence(
+                baseMechanic, trigger, "enigma/stormchaser, vortex, tailwind",
+                tuning, consumer, cleanup, "enigma route and focused regression suite",
+                MasteryNodeAuditReport.Verdict.VERIFIED, finding));
+    }
+    private static void caelestisNode(Map<String, MasteryNodeAuditReport.Evidence> evidence, String node,
+                                      String baseMechanic, String trigger, String tuning,
+                                      String consumer, String cleanup, String finding) {
+        evidence.put("caelestis/caelestis_" + node, new MasteryNodeAuditReport.Evidence(
+                baseMechanic, trigger, "caelestis/rift_host", tuning, consumer, cleanup,
+                "Caelestis route and focused regression suite",
                 MasteryNodeAuditReport.Verdict.VERIFIED, finding));
     }
 }

@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 final class MasteryNodeAuditReportTest {
     @Test
-    void reportAccountsForEveryNodeThroughFrostfall() {
+    void reportAccountsForEveryReviewedNode() {
         Map<Identifier, MasteryProfile> profiles = new LinkedHashMap<>();
         BuiltInFamilyProfiles.addMissing(profiles);
 
@@ -20,9 +20,9 @@ final class MasteryNodeAuditReportTest {
         assertEquals(1_404, report.lines().filter(line -> line.startsWith("| `simplymastery:")).count());
         assertTrue(report.contains("Profiles: 52"));
         assertTrue(report.contains("Nodes: 1404"));
-        assertTrue(report.contains("Reviewed: 783"));
-        assertTrue(report.contains("Pending: 621"));
-        assertTrue(report.contains("| verified | 783 |"));
+        assertTrue(report.contains("Reviewed: 1323"));
+        assertTrue(report.contains("Pending: 81"));
+        assertTrue(report.contains("| verified | 1323 |"));
         assertTrue(report.contains("| unreachable | 0 |"));
         assertTrue(report.contains("| redundant | 0 |"));
         assertTrue(report.contains("| conflicting | 0 |"));
