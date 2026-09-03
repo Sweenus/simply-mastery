@@ -2,9 +2,9 @@ package net.sweenus.simplymastery.mastery.effect;
 
 import net.sweenus.simplymastery.mastery.definition.BuiltInFamilyProfiles;
 import net.sweenus.simplymastery.mastery.definition.MasteryProfile;
-import net.sweenus.simplyswords.api.ability.Phase3AbilityTuning;
-import net.sweenus.simplyswords.api.ability.Phase3AbilityTuning.Setting;
-import net.sweenus.simplyswords.api.ability.Phase3UniqueAbilities;
+import net.sweenus.simplyswords.api.ability.StormSoulMasteryTuning;
+import net.sweenus.simplyswords.api.ability.StormSoulMasteryTuning.Setting;
+import net.sweenus.simplyswords.api.ability.StormSoulMasteryAbilities;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityTuning;
 import org.junit.jupiter.api.Test;
 
@@ -45,7 +45,7 @@ final class StormscaleMasterySkillEffectTest {
 
     @Test
     void mobileConductorDrawbacksSurviveTheGatheringChargeBranch() {
-        Phase3AbilityTuning tuning = tune(List.of(7, 10, 11));
+        StormSoulMasteryTuning tuning = tune(List.of(7, 10, 11));
 
         assertEquals(3, tuning.get(Setting.RADIUS, 3.5), 1.0E-6);
         assertEquals(.4, tuning.get(Setting.GROWTH_CAP_LIMIT, 0), 1.0E-6);
@@ -55,7 +55,7 @@ final class StormscaleMasterySkillEffectTest {
 
     @Test
     void rapidDynamoCapsRadiusInsteadOfReplacingItAndDoublesTheTunedGrowth() {
-        Phase3AbilityTuning withPrerequisite = tune(List.of(8, 10, 16));
+        StormSoulMasteryTuning withPrerequisite = tune(List.of(8, 10, 16));
 
         assertEquals(6, withPrerequisite.get(Setting.RADIUS, 3.5), 1.0E-6);
         assertEquals(4.5, withPrerequisite.get(Setting.RADIUS_CAP, 0), 1.0E-6);
@@ -64,7 +64,7 @@ final class StormscaleMasterySkillEffectTest {
 
     @Test
     void conductiveTargetNoLongerTouchesThePulseTargetCap() {
-        Phase3AbilityTuning tuning = tune(List.of(1, 13));
+        StormSoulMasteryTuning tuning = tune(List.of(1, 13));
 
         assertFalse(tuning.has(Setting.TARGET_CAP));
         assertEquals(12, tuning.integer(Setting.CONDUCTIVE_TARGET_CAP, 0));
@@ -74,7 +74,7 @@ final class StormscaleMasterySkillEffectTest {
 
     @Test
     void everyNodeThatOnceSharedAMultiplierNowOwnsItsOwnSetting() {
-        Phase3AbilityTuning tuning = tune(IntStream.range(0, 27).boxed().toList());
+        StormSoulMasteryTuning tuning = tune(IntStream.range(0, 27).boxed().toList());
 
         assertEquals(.7, tuning.get(Setting.PLANT_DAMAGE_MULTIPLIER, 0), 1.0E-6);
         assertEquals(.5, tuning.get(Setting.SECOND_CHARGE_MULTIPLIER, 0), 1.0E-6);
@@ -95,7 +95,7 @@ final class StormscaleMasterySkillEffectTest {
 
     @Test
     void overflowAndWardKeepTheirTunedBudgets() {
-        Phase3AbilityTuning tuning = tune(List.of(14, 24));
+        StormSoulMasteryTuning tuning = tune(List.of(14, 24));
 
         assertEquals(.05, tuning.get(Setting.PER_STACK_BONUS, 0), 1.0E-6);
         assertEquals(.2, tuning.get(Setting.BONUS_CAP, 0), 1.0E-6);
@@ -105,22 +105,22 @@ final class StormscaleMasterySkillEffectTest {
     }
 
     private static int cooldown(List<Integer> nodes) {
-        return builder(nodes).get(Phase3UniqueAbilities.COOLDOWN_TICKS);
+        return builder(nodes).get(StormSoulMasteryAbilities.COOLDOWN_TICKS);
     }
 
-    private static Phase3AbilityTuning tune(List<Integer> nodes) {
-        return builder(nodes).get(Phase3UniqueAbilities.TUNING);
+    private static StormSoulMasteryTuning tune(List<Integer> nodes) {
+        return builder(nodes).get(StormSoulMasteryAbilities.TUNING);
     }
 
     private static UniqueAbilityTuning.Builder builder(List<Integer> nodes) {
         MasteryProfile profile = BuiltInFamilyProfiles.profile("stormscale");
-        UniqueAbilityTuning.Builder builder = UniqueAbilityTuning.builder(Phase3UniqueAbilities.STORMSCALE_ROD);
-        builder.set(Phase3UniqueAbilities.COOLDOWN_TICKS, 1000);
-        builder.set(Phase3UniqueAbilities.TUNING, Phase3AbilityTuning.EMPTY);
+        UniqueAbilityTuning.Builder builder = UniqueAbilityTuning.builder(StormSoulMasteryAbilities.STORMSCALE_ROD);
+        builder.set(StormSoulMasteryAbilities.COOLDOWN_TICKS, 1000);
+        builder.set(StormSoulMasteryAbilities.TUNING, StormSoulMasteryTuning.EMPTY);
         AbilitySkillEffectType effect = (AbilitySkillEffectType) SkillEffectRegistry.get(
                 profile.nodes().getFirst().effect().type());
         for (int node : nodes) {
-            effect.tune(null, Phase3UniqueAbilities.STORMSCALE_ROD, builder, profile.nodes().get(node));
+            effect.tune(null, StormSoulMasteryAbilities.STORMSCALE_ROD, builder, profile.nodes().get(node));
         }
         return builder;
     }

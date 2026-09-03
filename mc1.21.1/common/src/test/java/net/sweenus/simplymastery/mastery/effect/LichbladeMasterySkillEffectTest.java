@@ -2,9 +2,9 @@ package net.sweenus.simplymastery.mastery.effect;
 
 import net.sweenus.simplymastery.mastery.definition.BuiltInFamilyProfiles;
 import net.sweenus.simplymastery.mastery.definition.MasteryProfile;
-import net.sweenus.simplyswords.api.ability.Phase4AbilityTuning;
-import net.sweenus.simplyswords.api.ability.Phase4AbilityTuning.Setting;
-import net.sweenus.simplyswords.api.ability.Phase4UniqueAbilities;
+import net.sweenus.simplyswords.api.ability.LongPathFinalFormsMasteryTuning;
+import net.sweenus.simplyswords.api.ability.LongPathFinalFormsMasteryTuning.Setting;
+import net.sweenus.simplyswords.api.ability.LongPathFinalFormsMasteryAbilities;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityDefinition;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityTuning;
 import org.junit.jupiter.api.Test;
@@ -23,7 +23,7 @@ final class LichbladeMasterySkillEffectTest {
     private static final List<Integer> TRANSFORMATION = IntStream.range(18, 27).boxed().toList();
 
     @Test
-    void everyLichbladeNodeRoutesToThePhase4Abilities() {
+    void everyLichbladeNodeRoutesToTheLongPathFinalFormsAbilities() {
         MasteryProfile profile = BuiltInFamilyProfiles.profile("awakened_lichblade");
 
         assertEquals(27, profile.nodes().size());
@@ -36,8 +36,8 @@ final class LichbladeMasterySkillEffectTest {
 
     @Test
     void resonantSoulsNoLongerShrinksTheExpandingAnguishTargetCap() {
-        Phase4AbilityTuning expanding = channel(List.of(1));
-        Phase4AbilityTuning both = channel(List.of(1, 4));
+        LongPathFinalFormsMasteryTuning expanding = channel(List.of(1));
+        LongPathFinalFormsMasteryTuning both = channel(List.of(1, 4));
 
         assertEquals(24, expanding.integer(Setting.TARGET_CAP, 0));
         assertEquals(24, both.integer(Setting.TARGET_CAP, 0));
@@ -48,7 +48,7 @@ final class LichbladeMasterySkillEffectTest {
 
     @Test
     void clingingMiseryKeepsItsOwnWindowAndSlowAgainstEveryOtherNode() {
-        Phase4AbilityTuning all = channel(List.of(3, 5, 12, 16, 17, 21));
+        LongPathFinalFormsMasteryTuning all = channel(List.of(3, 5, 12, 16, 17, 21));
 
         assertEquals(40, all.integer(Setting.REPEAT_WINDOW_TICKS, 0));
         assertEquals(60, all.integer(Setting.SLOW_DURATION_TICKS, 0));
@@ -58,7 +58,7 @@ final class LichbladeMasterySkillEffectTest {
 
     @Test
     void resonantSoulsAndGraveInterestAndWanderingPhylacteryNoLongerShareKeys() {
-        Phase4AbilityTuning all = channel(List.of(4, 15, 25));
+        LongPathFinalFormsMasteryTuning all = channel(List.of(4, 15, 25));
 
         assertEquals(.03, all.get(Setting.PER_TARGET_BONUS, 0), 1.0E-6);
         assertEquals(.24, all.get(Setting.BONUS_CAP, 0), 1.0E-6);
@@ -71,7 +71,7 @@ final class LichbladeMasterySkillEffectTest {
 
     @Test
     void measuredIntakeKeepsTwoChargePerHitBesideOverflowingSpiritAndGraveInterest() {
-        Phase4AbilityTuning all = channel(List.of(12, 13, 15, 16));
+        LongPathFinalFormsMasteryTuning all = channel(List.of(12, 13, 15, 16));
 
         assertEquals(2, all.integer(Setting.CHARGE_PER_HIT, 0));
         assertEquals(10, all.integer(Setting.CHARGE_LOCKOUT_TICKS, 0));
@@ -91,7 +91,7 @@ final class LichbladeMasterySkillEffectTest {
 
     @Test
     void unceasingCryAndSwiftHauntingNoLongerSuppressEachOther() {
-        Phase4AbilityTuning both = channel(List.of(6, 19));
+        LongPathFinalFormsMasteryTuning both = channel(List.of(6, 19));
 
         assertEquals(4, both.integer(Setting.FAST_PULSE_INTERVAL_TICKS, 0));
         assertEquals(60, both.integer(Setting.FAST_PULSE_AFTER_TICKS, 0));
@@ -102,9 +102,9 @@ final class LichbladeMasterySkillEffectTest {
 
     @Test
     void choirOfTheDamnedTunesMovementAndComposesItsCooldownWithRestlessPhylactery() {
-        Phase4AbilityTuning choir = channel(List.of(7));
-        Phase4AbilityTuning restless = channel(List.of(24));
-        Phase4AbilityTuning both = channel(List.of(7, 24));
+        LongPathFinalFormsMasteryTuning choir = channel(List.of(7));
+        LongPathFinalFormsMasteryTuning restless = channel(List.of(24));
+        LongPathFinalFormsMasteryTuning both = channel(List.of(7, 24));
 
         assertEquals(.6, choir.get(Setting.MOVEMENT_MULTIPLIER, 1), 1.0E-6);
         assertFalse(choir.has(Setting.MOVEMENT_SPEED));
@@ -117,7 +117,7 @@ final class LichbladeMasterySkillEffectTest {
 
     @Test
     void ravenousPhylacteryTunesItsOwnCooldownPenaltyAndNothingElse() {
-        Phase4AbilityTuning ravenous = channel(List.of(17));
+        LongPathFinalFormsMasteryTuning ravenous = channel(List.of(17));
 
         assertEquals(10, ravenous.integer(Setting.COOLDOWN_PER_SIPHON_TICKS, 0));
         assertEquals(200, ravenous.integer(Setting.COOLDOWN_PENALTY_CAP_TICKS, 0));
@@ -128,7 +128,7 @@ final class LichbladeMasterySkillEffectTest {
 
     @Test
     void soulRecallCarriesItsOwnCooldownPenalty() {
-        Phase4AbilityTuning recall = channel(List.of(26));
+        LongPathFinalFormsMasteryTuning recall = channel(List.of(26));
 
         assertEquals(100, recall.integer(Setting.RECALL_COOLDOWN_TICKS, 0));
         assertEquals(4, recall.get(Setting.RECALL_RADIUS, 0), 1.0E-6);
@@ -155,7 +155,7 @@ final class LichbladeMasterySkillEffectTest {
 
     @Test
     void theAuraOnlySeesItsOwnSignatureNodes() {
-        Phase4AbilityTuning aura = aura(IntStream.range(0, 27).boxed().toList());
+        LongPathFinalFormsMasteryTuning aura = aura(IntStream.range(0, 27).boxed().toList());
 
         assertEquals(30, aura.integer(Setting.AURA_INTERVAL_TICKS, 0));
         assertEquals(3.5, aura.get(Setting.RADIUS, 0), 1.0E-6);
@@ -172,26 +172,26 @@ final class LichbladeMasterySkillEffectTest {
         assertTrue(aura(TRANSFORMATION).isEmpty());
     }
 
-    private static Phase4AbilityTuning channel(List<Integer> nodes) {
-        return tune(Phase4UniqueAbilities.LICHBLADE_CHANNEL, nodes);
+    private static LongPathFinalFormsMasteryTuning channel(List<Integer> nodes) {
+        return tune(LongPathFinalFormsMasteryAbilities.LICHBLADE_CHANNEL, nodes);
     }
 
-    private static Phase4AbilityTuning aura(List<Integer> nodes) {
-        return tune(Phase4UniqueAbilities.LICHBLADE_AURA, nodes);
+    private static LongPathFinalFormsMasteryTuning aura(List<Integer> nodes) {
+        return tune(LongPathFinalFormsMasteryAbilities.LICHBLADE_AURA, nodes);
     }
 
-    private static Phase4AbilityTuning tune(UniqueAbilityDefinition definition, List<Integer> nodes) {
+    private static LongPathFinalFormsMasteryTuning tune(UniqueAbilityDefinition definition, List<Integer> nodes) {
         MasteryProfile profile = BuiltInFamilyProfiles.profile("awakened_lichblade");
         UniqueAbilityTuning.Builder builder = UniqueAbilityTuning.builder(definition);
         if (definition.cooldownKey().isPresent()) {
-            builder.set(Phase4UniqueAbilities.COOLDOWN_TICKS, 0);
+            builder.set(LongPathFinalFormsMasteryAbilities.COOLDOWN_TICKS, 0);
         }
-        builder.set(Phase4UniqueAbilities.TUNING, Phase4AbilityTuning.EMPTY);
+        builder.set(LongPathFinalFormsMasteryAbilities.TUNING, LongPathFinalFormsMasteryTuning.EMPTY);
         AbilitySkillEffectType effect = (AbilitySkillEffectType) SkillEffectRegistry.get(
                 profile.nodes().getFirst().effect().type());
         for (int node : nodes) {
             effect.tune(null, definition, builder, profile.nodes().get(node));
         }
-        return builder.get(Phase4UniqueAbilities.TUNING);
+        return builder.get(LongPathFinalFormsMasteryAbilities.TUNING);
     }
 }

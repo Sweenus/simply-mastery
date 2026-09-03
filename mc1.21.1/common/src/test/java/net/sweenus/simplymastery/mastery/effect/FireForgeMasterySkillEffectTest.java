@@ -2,9 +2,9 @@ package net.sweenus.simplymastery.mastery.effect;
 
 import net.sweenus.simplymastery.mastery.definition.BuiltInFamilyProfiles;
 import net.sweenus.simplymastery.mastery.definition.MasteryProfile;
-import net.sweenus.simplyswords.api.ability.Phase5AbilityTuning;
-import net.sweenus.simplyswords.api.ability.Phase5AbilityTuning.Setting;
-import net.sweenus.simplyswords.api.ability.Phase5UniqueAbilities;
+import net.sweenus.simplyswords.api.ability.FireForgeMasteryTuning;
+import net.sweenus.simplyswords.api.ability.FireForgeMasteryTuning.Setting;
+import net.sweenus.simplyswords.api.ability.FireForgeMasteryAbilities;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityDefinition;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityTuning;
 import org.junit.jupiter.api.Test;
@@ -15,10 +15,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
-final class Phase5FireMasterySkillEffectTest {
+final class FireForgeMasterySkillEffectTest {
 
     @Test
-    void everyReviewedFireNodeRoutesToThePhase5Effect() {
+    void everyReviewedFireNodeRoutesToTheFireForgeEffect() {
         assertProfile("hearthflame", 0);
         assertProfile("emberblade", 27);
         assertProfile("emberlash", 54);
@@ -27,7 +27,7 @@ final class Phase5FireMasterySkillEffectTest {
 
     @Test
     void hearthflameDurationsAndDamageChannelsStayIndependent() {
-        Phase5AbilityTuning tuning = tune("hearthflame", Phase5UniqueAbilities.HEARTHFLAME_CHAINS,
+        FireForgeMasteryTuning tuning = tune("hearthflame", FireForgeMasteryAbilities.HEARTHFLAME_CHAINS,
                 List.of(0, 4, 8, 19, 22, 24, 25));
 
         assertEquals(1.265, tuning.get(Setting.HEARTH_ECHO_DAMAGE_MULTIPLIER, 1), 1.0E-6);
@@ -41,7 +41,7 @@ final class Phase5FireMasterySkillEffectTest {
 
     @Test
     void emberbladeChannelFragmentsAndBuffsKeepSeparateValues() {
-        Phase5AbilityTuning tuning = tune("emberblade", Phase5UniqueAbilities.EMBERBLADE_SHRAPNEL,
+        FireForgeMasteryTuning tuning = tune("emberblade", FireForgeMasteryAbilities.EMBERBLADE_SHRAPNEL,
                 List.of(7, 8, 19, 20, 25, 26));
 
         assertEquals(50, tuning.integer(Setting.EMBERBLADE_CHANNEL_TICKS, 0));
@@ -57,7 +57,7 @@ final class Phase5FireMasterySkillEffectTest {
 
     @Test
     void emberbladePayloadAndWhiteHeatKeepSeparateFireDurations() {
-        Phase5AbilityTuning tuning = tune("emberblade", Phase5UniqueAbilities.EMBERBLADE_SHRAPNEL,
+        FireForgeMasteryTuning tuning = tune("emberblade", FireForgeMasteryAbilities.EMBERBLADE_SHRAPNEL,
                 List.of(5, 6));
 
         assertEquals(60, tuning.integer(Setting.FIRE_TICKS, 0));
@@ -66,7 +66,7 @@ final class Phase5FireMasterySkillEffectTest {
 
     @Test
     void emberlashSmoulderAndReprisalNeverShareCapsOrDurations() {
-        Phase5AbilityTuning tuning = tune("emberlash", Phase5UniqueAbilities.EMBERLASH_SMOULDER,
+        FireForgeMasteryTuning tuning = tune("emberlash", FireForgeMasteryAbilities.EMBERLASH_SMOULDER,
                 List.of(1, 2, 8, 19, 26));
 
         assertEquals(3, tuning.integer(Setting.EMBERLASH_SMOULDER_STACK_CAP, 0));
@@ -79,9 +79,9 @@ final class Phase5FireMasterySkillEffectTest {
 
     @Test
     void soulPyreBranchesRouteOnlyToTheirOwningDefinition() {
-        Phase5AbilityTuning tether = tune("soulpyre", Phase5UniqueAbilities.SOUL_PYRE_TETHER,
+        FireForgeMasteryTuning tether = tune("soulpyre", FireForgeMasteryAbilities.SOUL_PYRE_TETHER,
                 List.of(0, 9, 18));
-        Phase5AbilityTuning wisp = tune("soulpyre", Phase5UniqueAbilities.SOUL_PYRE_WISP,
+        FireForgeMasteryTuning wisp = tune("soulpyre", FireForgeMasteryAbilities.SOUL_PYRE_WISP,
                 List.of(0, 9, 18));
 
         assertEquals(700, tether.integer(Setting.SOULPYRE_TETHER_DURATION_TICKS, 0));
@@ -94,9 +94,9 @@ final class Phase5FireMasterySkillEffectTest {
 
     @Test
     void soulPyrePulseWispAndCollapseDamageChannelsStayIndependent() {
-        Phase5AbilityTuning tether = tune("soulpyre", Phase5UniqueAbilities.SOUL_PYRE_TETHER,
+        FireForgeMasteryTuning tether = tune("soulpyre", FireForgeMasteryAbilities.SOUL_PYRE_TETHER,
                 List.of(3, 7, 8, 22, 23, 26));
-        Phase5AbilityTuning wisp = tune("soulpyre", Phase5UniqueAbilities.SOUL_PYRE_WISP,
+        FireForgeMasteryTuning wisp = tune("soulpyre", FireForgeMasteryAbilities.SOUL_PYRE_WISP,
                 List.of(9, 10, 14, 15, 16));
 
         assertEquals(.06, tether.get(Setting.SOULPYRE_PULSE_SOUL_MULTIPLIER, 0), 1.0E-6);
@@ -122,18 +122,18 @@ final class Phase5FireMasterySkillEffectTest {
         }
     }
 
-    private static Phase5AbilityTuning tune(String profilePath, UniqueAbilityDefinition definition,
+    private static FireForgeMasteryTuning tune(String profilePath, UniqueAbilityDefinition definition,
                                             List<Integer> nodes) {
         MasteryProfile profile = BuiltInFamilyProfiles.profile(profilePath);
         UniqueAbilityTuning.Builder builder = UniqueAbilityTuning.builder(definition)
-                .set(Phase5UniqueAbilities.TUNING, Phase5AbilityTuning.EMPTY);
+                .set(FireForgeMasteryAbilities.TUNING, FireForgeMasteryTuning.EMPTY);
         if (definition.cooldownKey().isPresent()) {
-            builder.set(Phase5UniqueAbilities.COOLDOWN_TICKS, definition == Phase5UniqueAbilities.EMBERBLADE_SHRAPNEL
+            builder.set(FireForgeMasteryAbilities.COOLDOWN_TICKS, definition == FireForgeMasteryAbilities.EMBERBLADE_SHRAPNEL
                     ? 60 : 0);
         }
         AbilitySkillEffectType effect = (AbilitySkillEffectType) SkillEffectRegistry.get(
                 profile.nodes().getFirst().effect().type());
         for (int node : nodes) effect.tune(null, definition, builder, profile.nodes().get(node));
-        return builder.get(Phase5UniqueAbilities.TUNING);
+        return builder.get(FireForgeMasteryAbilities.TUNING);
     }
 }

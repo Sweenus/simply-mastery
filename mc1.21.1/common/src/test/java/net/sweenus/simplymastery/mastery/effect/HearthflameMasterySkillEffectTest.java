@@ -2,9 +2,9 @@ package net.sweenus.simplymastery.mastery.effect;
 
 import net.sweenus.simplymastery.mastery.definition.BuiltInFamilyProfiles;
 import net.sweenus.simplymastery.mastery.definition.MasteryProfile;
-import net.sweenus.simplyswords.api.ability.Phase5AbilityTuning;
-import net.sweenus.simplyswords.api.ability.Phase5AbilityTuning.Setting;
-import net.sweenus.simplyswords.api.ability.Phase5UniqueAbilities;
+import net.sweenus.simplyswords.api.ability.FireForgeMasteryTuning;
+import net.sweenus.simplyswords.api.ability.FireForgeMasteryTuning.Setting;
+import net.sweenus.simplyswords.api.ability.FireForgeMasteryAbilities;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityDefinition;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityTuning;
 import org.junit.jupiter.api.Test;
@@ -22,7 +22,7 @@ final class HearthflameMasterySkillEffectTest {
     private static final List<Integer> ALL = IntStream.range(0, 27).boxed().toList();
 
     @Test
-    void everyHearthflameNodeRoutesToThePhase5Abilities() {
+    void everyHearthflameNodeRoutesToTheFireForgeAbilities() {
         MasteryProfile profile = BuiltInFamilyProfiles.profile("hearthflame");
 
         assertEquals(27, profile.nodes().size());
@@ -42,7 +42,7 @@ final class HearthflameMasterySkillEffectTest {
 
     @Test
     void sixfoldSentenceCarriesItsGateRatherThanAPreAppliedMultiplier() {
-        Phase5AbilityTuning sixfold = chains(List.of(6));
+        FireForgeMasteryTuning sixfold = chains(List.of(6));
 
         assertEquals(6, sixfold.integer(Setting.HEARTH_FINAL_CHAIN_REQUIREMENT, 0));
         assertEquals(1.25, sixfold.get(Setting.HEARTH_FINAL_CHAIN_MULTIPLIER, 1), 1.0E-6);
@@ -65,7 +65,7 @@ final class HearthflameMasterySkillEffectTest {
 
     @Test
     void brandShelterIsBoundedAndExpires() {
-        Phase5AbilityTuning shelter = chains(List.of(13));
+        FireForgeMasteryTuning shelter = chains(List.of(13));
 
         assertEquals(2, shelter.get(Setting.HEARTH_BRAND_ABSORPTION, 0), 1.0E-6);
         assertEquals(200, shelter.integer(Setting.HEARTH_BRAND_ABSORPTION_DURATION_TICKS, 0));
@@ -98,22 +98,22 @@ final class HearthflameMasterySkillEffectTest {
         assertFalse((chains(List.of(6)).integer(Setting.MODE, 0) & (1 << 16)) != 0);
     }
 
-    private static Phase5AbilityTuning chains(List<Integer> nodes) {
-        return tune(Phase5UniqueAbilities.HEARTHFLAME_CHAINS, nodes);
+    private static FireForgeMasteryTuning chains(List<Integer> nodes) {
+        return tune(FireForgeMasteryAbilities.HEARTHFLAME_CHAINS, nodes);
     }
 
-    private static Phase5AbilityTuning tune(UniqueAbilityDefinition definition, List<Integer> nodes) {
+    private static FireForgeMasteryTuning tune(UniqueAbilityDefinition definition, List<Integer> nodes) {
         MasteryProfile profile = BuiltInFamilyProfiles.profile("hearthflame");
         UniqueAbilityTuning.Builder builder = UniqueAbilityTuning.builder(definition);
         if (definition.cooldownKey().isPresent()) {
-            builder.set(Phase5UniqueAbilities.COOLDOWN_TICKS, 450);
+            builder.set(FireForgeMasteryAbilities.COOLDOWN_TICKS, 450);
         }
-        builder.set(Phase5UniqueAbilities.TUNING, Phase5AbilityTuning.EMPTY);
+        builder.set(FireForgeMasteryAbilities.TUNING, FireForgeMasteryTuning.EMPTY);
         AbilitySkillEffectType effect = (AbilitySkillEffectType) SkillEffectRegistry.get(
                 profile.nodes().getFirst().effect().type());
         for (int node : nodes) {
             effect.tune(null, definition, builder, profile.nodes().get(node));
         }
-        return builder.get(Phase5UniqueAbilities.TUNING);
+        return builder.get(FireForgeMasteryAbilities.TUNING);
     }
 }

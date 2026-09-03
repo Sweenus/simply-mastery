@@ -2,9 +2,9 @@ package net.sweenus.simplymastery.mastery.effect;
 
 import net.sweenus.simplymastery.mastery.definition.BuiltInFamilyProfiles;
 import net.sweenus.simplymastery.mastery.definition.MasteryProfile;
-import net.sweenus.simplyswords.api.ability.Phase3AbilityTuning;
-import net.sweenus.simplyswords.api.ability.Phase3AbilityTuning.Setting;
-import net.sweenus.simplyswords.api.ability.Phase3UniqueAbilities;
+import net.sweenus.simplyswords.api.ability.StormSoulMasteryTuning;
+import net.sweenus.simplyswords.api.ability.StormSoulMasteryTuning.Setting;
+import net.sweenus.simplyswords.api.ability.StormSoulMasteryAbilities;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityDefinition;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityTuning;
 import org.junit.jupiter.api.Test;
@@ -38,7 +38,7 @@ final class SoulrenderMasterySkillEffectTest {
 
     @Test
     void rendmarksNoLongerLeakIntoTheReaping() {
-        Phase3AbilityTuning reap = tune(Phase3UniqueAbilities.SOULRENDER_REAP, RENDMARKS);
+        StormSoulMasteryTuning reap = tune(StormSoulMasteryAbilities.SOULRENDER_REAP, RENDMARKS);
 
         assertFalse(reap.has(Setting.CHANCE));
         assertFalse(reap.has(Setting.ECHO_CHANCE));
@@ -50,8 +50,8 @@ final class SoulrenderMasterySkillEffectTest {
 
     @Test
     void echoedCurseNoLongerCripplesTheMarkRollOrTheHarvest() {
-        Phase3AbilityTuning mark = tune(Phase3UniqueAbilities.SOULRENDER_MARK, List.of(0, 5));
-        Phase3AbilityTuning reap = tune(Phase3UniqueAbilities.SOULRENDER_REAP, List.of(0, 5));
+        StormSoulMasteryTuning mark = tune(StormSoulMasteryAbilities.SOULRENDER_MARK, List.of(0, 5));
+        StormSoulMasteryTuning reap = tune(StormSoulMasteryAbilities.SOULRENDER_REAP, List.of(0, 5));
 
         assertFalse(mark.has(Setting.CHANCE));
         assertEquals(5, mark.integer(Setting.CHANCE_BONUS, 0));
@@ -64,9 +64,9 @@ final class SoulrenderMasterySkillEffectTest {
 
     @Test
     void condemnationAndWitheringPalimpsestStillReachTheHarvest() {
-        Phase3AbilityTuning reap = tune(Phase3UniqueAbilities.SOULRENDER_REAP, List.of(6));
-        Phase3AbilityTuning capstone = tune(Phase3UniqueAbilities.SOULRENDER_REAP, List.of(6, 8));
-        Phase3AbilityTuning mark = tune(Phase3UniqueAbilities.SOULRENDER_MARK, List.of(2, 8));
+        StormSoulMasteryTuning reap = tune(StormSoulMasteryAbilities.SOULRENDER_REAP, List.of(6));
+        StormSoulMasteryTuning capstone = tune(StormSoulMasteryAbilities.SOULRENDER_REAP, List.of(6, 8));
+        StormSoulMasteryTuning mark = tune(StormSoulMasteryAbilities.SOULRENDER_MARK, List.of(2, 8));
 
         assertEquals(.06, reap.get(Setting.REAP_STACK_BONUS, 0), 1.0E-6);
         assertEquals(.36, reap.get(Setting.REAP_STACK_BONUS_CAP, 0), 1.0E-6);
@@ -77,7 +77,7 @@ final class SoulrenderMasterySkillEffectTest {
 
     @Test
     void pallbearersLedgerCarriesItsDrawback() {
-        Phase3AbilityTuning mark = tune(Phase3UniqueAbilities.SOULRENDER_MARK, List.of(7));
+        StormSoulMasteryTuning mark = tune(StormSoulMasteryAbilities.SOULRENDER_MARK, List.of(7));
 
         assertTrue((mark.integer(Setting.MODE, 0) & 4) != 0);
         assertEquals(20, mark.integer(Setting.REPEAT_CHANCE_PENALTY, 0));
@@ -87,9 +87,9 @@ final class SoulrenderMasterySkillEffectTest {
 
     @Test
     void theReapingBranchNeverShrinksItsOwnRadiusOrCap() {
-        Phase3AbilityTuning sweeping = tune(Phase3UniqueAbilities.SOULRENDER_REAP, List.of(9));
-        Phase3AbilityTuning sharedEnding = tune(Phase3UniqueAbilities.SOULRENDER_REAP, List.of(9, 14));
-        Phase3AbilityTuning reach = tune(Phase3UniqueAbilities.SOULRENDER_REAP, List.of(9, 13));
+        StormSoulMasteryTuning sweeping = tune(StormSoulMasteryAbilities.SOULRENDER_REAP, List.of(9));
+        StormSoulMasteryTuning sharedEnding = tune(StormSoulMasteryAbilities.SOULRENDER_REAP, List.of(9, 14));
+        StormSoulMasteryTuning reach = tune(StormSoulMasteryAbilities.SOULRENDER_REAP, List.of(9, 13));
 
         assertEquals(12, sweeping.get(Setting.RADIUS, 10), 1.0E-6);
         assertFalse(sweeping.has(Setting.REAP_TARGET_CAP));
@@ -103,7 +103,7 @@ final class SoulrenderMasterySkillEffectTest {
 
     @Test
     void graveboundNeverShrinksTheHarvestRadiusOrCap() {
-        Phase3AbilityTuning reap = tune(Phase3UniqueAbilities.SOULRENDER_REAP, List.of(9, 19, 21, 24));
+        StormSoulMasteryTuning reap = tune(StormSoulMasteryAbilities.SOULRENDER_REAP, List.of(9, 19, 21, 24));
 
         assertEquals(12, reap.get(Setting.RADIUS, 10), 1.0E-6);
         assertFalse(reap.has(Setting.REAP_TARGET_CAP));
@@ -115,24 +115,24 @@ final class SoulrenderMasterySkillEffectTest {
 
     @Test
     void harvestCapstonesComposeWithKeenHarvestAndSoulShelter() {
-        assertEquals(1.1, tune(Phase3UniqueAbilities.SOULRENDER_REAP, List.of(10))
+        assertEquals(1.1, tune(StormSoulMasteryAbilities.SOULRENDER_REAP, List.of(10))
                 .get(Setting.DAMAGE_MULTIPLIER, 1), 1.0E-6);
-        assertEquals(.77, tune(Phase3UniqueAbilities.SOULRENDER_REAP, List.of(10, 16))
+        assertEquals(.77, tune(StormSoulMasteryAbilities.SOULRENDER_REAP, List.of(10, 16))
                 .get(Setting.DAMAGE_MULTIPLIER, 1), 1.0E-6);
-        assertEquals(1.65, tune(Phase3UniqueAbilities.SOULRENDER_REAP, List.of(10, 17))
+        assertEquals(1.65, tune(StormSoulMasteryAbilities.SOULRENDER_REAP, List.of(10, 17))
                 .get(Setting.DAMAGE_MULTIPLIER, 1), 1.0E-6);
-        assertEquals(.825, tune(Phase3UniqueAbilities.SOULRENDER_REAP, List.of(10, 25))
+        assertEquals(.825, tune(StormSoulMasteryAbilities.SOULRENDER_REAP, List.of(10, 25))
                 .get(Setting.DAMAGE_MULTIPLIER, 1), 1.0E-6);
-        assertEquals(.5775, tune(Phase3UniqueAbilities.SOULRENDER_REAP, List.of(10, 16, 25))
+        assertEquals(.5775, tune(StormSoulMasteryAbilities.SOULRENDER_REAP, List.of(10, 16, 25))
                 .get(Setting.DAMAGE_MULTIPLIER, 1), 1.0E-6);
     }
 
     @Test
     void healingComposesInsteadOfBeingOverwritten() {
-        Phase3AbilityTuning dividend = tune(Phase3UniqueAbilities.SOULRENDER_REAP, List.of(12));
-        Phase3AbilityTuning harvestMoon = tune(Phase3UniqueAbilities.SOULRENDER_REAP, List.of(12, 16));
-        Phase3AbilityTuning tithe = tune(Phase3UniqueAbilities.SOULRENDER_REAP, List.of(12, 17));
-        Phase3AbilityTuning deathsDue = tune(Phase3UniqueAbilities.SOULRENDER_REAP, List.of(12, 26));
+        StormSoulMasteryTuning dividend = tune(StormSoulMasteryAbilities.SOULRENDER_REAP, List.of(12));
+        StormSoulMasteryTuning harvestMoon = tune(StormSoulMasteryAbilities.SOULRENDER_REAP, List.of(12, 16));
+        StormSoulMasteryTuning tithe = tune(StormSoulMasteryAbilities.SOULRENDER_REAP, List.of(12, 17));
+        StormSoulMasteryTuning deathsDue = tune(StormSoulMasteryAbilities.SOULRENDER_REAP, List.of(12, 26));
 
         assertEquals(.5, dividend.get(Setting.HEAL_RATIO_BONUS, 0), 1.0E-6);
         assertEquals(9, dividend.get(Setting.HEAL_CAP, 6), 1.0E-6);
@@ -145,7 +145,7 @@ final class SoulrenderMasterySkillEffectTest {
 
     @Test
     void graveboundNodesReachTheirOutOfExecutionHook() {
-        Phase3AbilityTuning grave = tune(Phase3UniqueAbilities.SOULRENDER_GRAVE, GRAVEBOUND);
+        StormSoulMasteryTuning grave = tune(StormSoulMasteryAbilities.SOULRENDER_GRAVE, GRAVEBOUND);
 
         assertEquals(6, grave.get(Setting.PATIENCE_RANGE, 0), 1.0E-6);
         assertEquals(.1, grave.get(Setting.KNOCKBACK_RESISTANCE_BONUS, 0), 1.0E-6);
@@ -159,8 +159,8 @@ final class SoulrenderMasterySkillEffectTest {
 
     @Test
     void theMarkAndTheGraveboundHookShareNoSettings() {
-        Phase3AbilityTuning mark = tune(Phase3UniqueAbilities.SOULRENDER_MARK, ALL);
-        Phase3AbilityTuning grave = tune(Phase3UniqueAbilities.SOULRENDER_GRAVE, ALL);
+        StormSoulMasteryTuning mark = tune(StormSoulMasteryAbilities.SOULRENDER_MARK, ALL);
+        StormSoulMasteryTuning grave = tune(StormSoulMasteryAbilities.SOULRENDER_GRAVE, ALL);
 
         assertFalse(mark.has(Setting.RADIUS));
         assertFalse(mark.has(Setting.DAMAGE_MULTIPLIER));
@@ -173,10 +173,10 @@ final class SoulrenderMasterySkillEffectTest {
 
     @Test
     void everyPreviouslyInertNodeNowCarriesItsOwnConsumedSettings() {
-        Phase3AbilityTuning mark = tune(Phase3UniqueAbilities.SOULRENDER_MARK, RENDMARKS);
-        Phase3AbilityTuning reap = tune(Phase3UniqueAbilities.SOULRENDER_REAP, REAPING);
-        Phase3AbilityTuning grave = tune(Phase3UniqueAbilities.SOULRENDER_GRAVE, GRAVEBOUND);
-        Phase3AbilityTuning graveReap = tune(Phase3UniqueAbilities.SOULRENDER_REAP, GRAVEBOUND);
+        StormSoulMasteryTuning mark = tune(StormSoulMasteryAbilities.SOULRENDER_MARK, RENDMARKS);
+        StormSoulMasteryTuning reap = tune(StormSoulMasteryAbilities.SOULRENDER_REAP, REAPING);
+        StormSoulMasteryTuning grave = tune(StormSoulMasteryAbilities.SOULRENDER_GRAVE, GRAVEBOUND);
+        StormSoulMasteryTuning graveReap = tune(StormSoulMasteryAbilities.SOULRENDER_REAP, GRAVEBOUND);
 
         assertEquals(2, mark.integer(Setting.FRESH_INK_STACKS, 1));
         assertEquals(80, mark.integer(Setting.FRESH_INK_LOCKOUT_TICKS, 0));
@@ -201,38 +201,38 @@ final class SoulrenderMasterySkillEffectTest {
 
     @Test
     void theOnlyRemainingModeBitHasAConsumer() {
-        assertEquals(4, tune(Phase3UniqueAbilities.SOULRENDER_MARK, ALL).integer(Setting.MODE, 0));
-        assertFalse(tune(Phase3UniqueAbilities.SOULRENDER_REAP, ALL).has(Setting.MODE));
-        assertFalse(tune(Phase3UniqueAbilities.SOULRENDER_GRAVE, ALL).has(Setting.MODE));
+        assertEquals(4, tune(StormSoulMasteryAbilities.SOULRENDER_MARK, ALL).integer(Setting.MODE, 0));
+        assertFalse(tune(StormSoulMasteryAbilities.SOULRENDER_REAP, ALL).has(Setting.MODE));
+        assertFalse(tune(StormSoulMasteryAbilities.SOULRENDER_GRAVE, ALL).has(Setting.MODE));
     }
 
     @Test
     void theHarvestKeepsItsZeroCooldownUnderAFullTree() {
-        UniqueAbilityTuning.Builder builder = UniqueAbilityTuning.builder(Phase3UniqueAbilities.SOULRENDER_REAP);
-        builder.set(Phase3UniqueAbilities.COOLDOWN_TICKS, 0);
-        builder.set(Phase3UniqueAbilities.TUNING, Phase3AbilityTuning.EMPTY);
+        UniqueAbilityTuning.Builder builder = UniqueAbilityTuning.builder(StormSoulMasteryAbilities.SOULRENDER_REAP);
+        builder.set(StormSoulMasteryAbilities.COOLDOWN_TICKS, 0);
+        builder.set(StormSoulMasteryAbilities.TUNING, StormSoulMasteryTuning.EMPTY);
         MasteryProfile profile = BuiltInFamilyProfiles.profile("soulrender");
         AbilitySkillEffectType effect = (AbilitySkillEffectType) SkillEffectRegistry.get(
                 profile.nodes().getFirst().effect().type());
         for (int node : ALL) {
-            effect.tune(null, Phase3UniqueAbilities.SOULRENDER_REAP, builder, profile.nodes().get(node));
+            effect.tune(null, StormSoulMasteryAbilities.SOULRENDER_REAP, builder, profile.nodes().get(node));
         }
 
-        assertEquals(0, builder.get(Phase3UniqueAbilities.COOLDOWN_TICKS));
+        assertEquals(0, builder.get(StormSoulMasteryAbilities.COOLDOWN_TICKS));
     }
 
-    private static Phase3AbilityTuning tune(UniqueAbilityDefinition definition, List<Integer> nodes) {
+    private static StormSoulMasteryTuning tune(UniqueAbilityDefinition definition, List<Integer> nodes) {
         MasteryProfile profile = BuiltInFamilyProfiles.profile("soulrender");
         UniqueAbilityTuning.Builder builder = UniqueAbilityTuning.builder(definition);
         if (definition.cooldownKey().isPresent()) {
-            builder.set(Phase3UniqueAbilities.COOLDOWN_TICKS, 0);
+            builder.set(StormSoulMasteryAbilities.COOLDOWN_TICKS, 0);
         }
-        builder.set(Phase3UniqueAbilities.TUNING, Phase3AbilityTuning.EMPTY);
+        builder.set(StormSoulMasteryAbilities.TUNING, StormSoulMasteryTuning.EMPTY);
         AbilitySkillEffectType effect = (AbilitySkillEffectType) SkillEffectRegistry.get(
                 profile.nodes().getFirst().effect().type());
         for (int node : nodes) {
             effect.tune(null, definition, builder, profile.nodes().get(node));
         }
-        return builder.get(Phase3UniqueAbilities.TUNING);
+        return builder.get(StormSoulMasteryAbilities.TUNING);
     }
 }

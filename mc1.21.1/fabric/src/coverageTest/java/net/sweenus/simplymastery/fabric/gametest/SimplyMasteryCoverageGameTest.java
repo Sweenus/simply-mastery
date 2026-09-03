@@ -2,46 +2,46 @@ package net.sweenus.simplymastery.fabric.gametest;
 
 import net.minecraft.test.GameTest;
 import net.minecraft.test.TestContext;
-import net.sweenus.simplymastery.mastery.effect.Phase3ContractChecks;
-import net.sweenus.simplymastery.mastery.state.Phase1ContractChecks;
+import net.sweenus.simplymastery.mastery.effect.MasteryIntegrationContractChecks;
+import net.sweenus.simplymastery.mastery.state.FormProgressionContractChecks;
 
 public final class SimplyMasteryCoverageGameTest {
 
     @GameTest(templateName = "fabric-gametest-api-v1:empty", tickLimit = 20)
     public void loadedRegistryCoverage(TestContext context) {
-        Phase1ContractChecks.requireFormProgressionFoundation();
+        FormProgressionContractChecks.requireFormProgressionFoundation();
         context.complete();
     }
 
     @GameTest(templateName = "fabric-gametest-api-v1:empty", tickLimit = 20)
     public void inertEffectPrimitive(TestContext context) {
-        Phase3ContractChecks.requireEffect("none");
+        MasteryIntegrationContractChecks.requireEffect("none");
         context.complete();
     }
 
     @GameTest(templateName = "fabric-gametest-api-v1:empty", tickLimit = 20)
     public void statusEffectPrimitive(TestContext context) {
-        Phase3ContractChecks.requireEffect("stormstep");
+        MasteryIntegrationContractChecks.requireEffect("stormstep");
         context.complete();
     }
 
     @GameTest(templateName = "fabric-gametest-api-v1:empty", tickLimit = 20)
     public void additionalDamagePrimitive(TestContext context) {
-        Phase3ContractChecks.requireEffect("echo_strike");
-        Phase3ContractChecks.requireRecursionGuard();
+        MasteryIntegrationContractChecks.requireEffect("echo_strike");
+        MasteryIntegrationContractChecks.requireRecursionGuard();
         context.complete();
     }
 
     @GameTest(templateName = "fabric-gametest-api-v1:empty", tickLimit = 20)
     public void comboPrimitive(TestContext context) {
-        Phase3ContractChecks.requireEffect("combo_surge");
-        Phase3ContractChecks.requireReleasedEffects();
+        MasteryIntegrationContractChecks.requireEffect("combo_surge");
+        MasteryIntegrationContractChecks.requireReleasedEffects();
         context.complete();
     }
 
     @GameTest(templateName = "fabric-gametest-api-v1:empty", tickLimit = 20)
     public void uniqueAbilityIntegration(TestContext context) {
-        Phase3ContractChecks.requireUniqueAbilityIntegration();
+        MasteryIntegrationContractChecks.requireUniqueAbilityIntegration();
         context.complete();
     }
 }

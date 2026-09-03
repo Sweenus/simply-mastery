@@ -2,9 +2,9 @@ package net.sweenus.simplymastery.mastery.effect;
 
 import net.sweenus.simplymastery.mastery.definition.BuiltInFamilyProfiles;
 import net.sweenus.simplymastery.mastery.definition.MasteryProfile;
-import net.sweenus.simplyswords.api.ability.Phase3AbilityTuning;
-import net.sweenus.simplyswords.api.ability.Phase3AbilityTuning.Setting;
-import net.sweenus.simplyswords.api.ability.Phase3UniqueAbilities;
+import net.sweenus.simplyswords.api.ability.StormSoulMasteryTuning;
+import net.sweenus.simplyswords.api.ability.StormSoulMasteryTuning.Setting;
+import net.sweenus.simplyswords.api.ability.StormSoulMasteryAbilities;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityDefinition;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityTuning;
 import org.junit.jupiter.api.Test;
@@ -38,8 +38,8 @@ final class SoulstalkerMasterySkillEffectTest {
 
     @Test
     void theTendrilBranchAndTheStrideBranchesStayApart() {
-        Phase3AbilityTuning tendril = tune(Phase3UniqueAbilities.SOULSTALKER_TENDRIL, ALL);
-        Phase3AbilityTuning stride = tune(Phase3UniqueAbilities.SOULSTALKER_STRIDE, ALL);
+        StormSoulMasteryTuning tendril = tune(StormSoulMasteryAbilities.SOULSTALKER_TENDRIL, ALL);
+        StormSoulMasteryTuning stride = tune(StormSoulMasteryAbilities.SOULSTALKER_STRIDE, ALL);
 
         assertFalse(tendril.has(Setting.CLEAVE_RANGE));
         assertFalse(tendril.has(Setting.STRIDE_DURATION_TICKS));
@@ -51,8 +51,8 @@ final class SoulstalkerMasterySkillEffectTest {
 
     @Test
     void gloamStrideAndCleaveAndCrashNoLongerShareKeys() {
-        Phase3AbilityTuning gloamStride = tune(Phase3UniqueAbilities.SOULSTALKER_STRIDE, STRIDE);
-        Phase3AbilityTuning cleaveAndCrash = tune(Phase3UniqueAbilities.SOULSTALKER_STRIDE, CLEAVE);
+        StormSoulMasteryTuning gloamStride = tune(StormSoulMasteryAbilities.SOULSTALKER_STRIDE, STRIDE);
+        StormSoulMasteryTuning cleaveAndCrash = tune(StormSoulMasteryAbilities.SOULSTALKER_STRIDE, CLEAVE);
 
         assertFalse(gloamStride.has(Setting.CLEAVE_RANGE));
         assertFalse(gloamStride.has(Setting.CLEAVE_FINAL_WIDTH));
@@ -60,13 +60,13 @@ final class SoulstalkerMasterySkillEffectTest {
         assertFalse(cleaveAndCrash.has(Setting.FOOTFALL_DAMAGE_MULTIPLIER));
         assertFalse(cleaveAndCrash.has(Setting.TRAIL_STAIN_WIDTH));
         assertFalse(cleaveAndCrash.has(Setting.STRIDE_DURATION_TICKS));
-        assertFalse(tune(Phase3UniqueAbilities.SOULSTALKER_STRIDE, ALL).has(Setting.RANGE));
-        assertFalse(tune(Phase3UniqueAbilities.SOULSTALKER_STRIDE, ALL).has(Setting.FINAL_WIDTH));
+        assertFalse(tune(StormSoulMasteryAbilities.SOULSTALKER_STRIDE, ALL).has(Setting.RANGE));
+        assertFalse(tune(StormSoulMasteryAbilities.SOULSTALKER_STRIDE, ALL).has(Setting.FINAL_WIDTH));
     }
 
     @Test
     void riftStrideNoLongerShrinksShadowCleave() {
-        Phase3AbilityTuning both = tune(Phase3UniqueAbilities.SOULSTALKER_STRIDE, List.of(17, 18));
+        StormSoulMasteryTuning both = tune(StormSoulMasteryAbilities.SOULSTALKER_STRIDE, List.of(17, 18));
 
         assertEquals(18, both.get(Setting.CLEAVE_RANGE, 16), 1.0E-6);
         assertEquals(12, both.get(Setting.RIFT_RANGE, 0), 1.0E-6);
@@ -76,7 +76,7 @@ final class SoulstalkerMasterySkillEffectTest {
 
     @Test
     void tangledPreyNoLongerRevertsItsOwnPrerequisites() {
-        Phase3AbilityTuning tendril = tune(Phase3UniqueAbilities.SOULSTALKER_TENDRIL, List.of(0, 2, 3, 6));
+        StormSoulMasteryTuning tendril = tune(StormSoulMasteryAbilities.SOULSTALKER_TENDRIL, List.of(0, 2, 3, 6));
 
         assertEquals(30, tendril.integer(Setting.CHANCE, 25));
         assertEquals(50, tendril.integer(Setting.TENDRIL_LOCKOUT_TICKS, 60));
@@ -88,17 +88,17 @@ final class SoulstalkerMasterySkillEffectTest {
 
     @Test
     void tendrilCapstonesComposeWithBarbedEmergence() {
-        assertEquals(1.12, tune(Phase3UniqueAbilities.SOULSTALKER_TENDRIL, List.of(3))
+        assertEquals(1.12, tune(StormSoulMasteryAbilities.SOULSTALKER_TENDRIL, List.of(3))
                 .get(Setting.DAMAGE_MULTIPLIER, 1), 1.0E-6);
-        assertEquals(.728, tune(Phase3UniqueAbilities.SOULSTALKER_TENDRIL, List.of(3, 7))
+        assertEquals(.728, tune(StormSoulMasteryAbilities.SOULSTALKER_TENDRIL, List.of(3, 7))
                 .get(Setting.DAMAGE_MULTIPLIER, 1), 1.0E-6);
-        assertEquals(1.96, tune(Phase3UniqueAbilities.SOULSTALKER_TENDRIL, List.of(3, 8))
+        assertEquals(1.96, tune(StormSoulMasteryAbilities.SOULSTALKER_TENDRIL, List.of(3, 8))
                 .get(Setting.DAMAGE_MULTIPLIER, 1), 1.0E-6);
     }
 
     @Test
     void hungeringTendrilCarriesItsAdvertisedDrawback() {
-        Phase3AbilityTuning tendril = tune(Phase3UniqueAbilities.SOULSTALKER_TENDRIL, List.of(8));
+        StormSoulMasteryTuning tendril = tune(StormSoulMasteryAbilities.SOULSTALKER_TENDRIL, List.of(8));
 
         assertTrue((tendril.integer(Setting.MODE, 0) & 16) != 0);
         assertEquals(30, tendril.integer(Setting.INTERVAL_TICKS, 20));
@@ -108,40 +108,40 @@ final class SoulstalkerMasterySkillEffectTest {
 
     @Test
     void cleaveCapstonesComposeWithSeveringArcAndHeavyFootfall() {
-        assertEquals(1.12, tune(Phase3UniqueAbilities.SOULSTALKER_STRIDE, List.of(20))
+        assertEquals(1.12, tune(StormSoulMasteryAbilities.SOULSTALKER_STRIDE, List.of(20))
                 .get(Setting.CLEAVE_DAMAGE_MULTIPLIER, 1), 1.0E-6);
-        assertEquals(.896, tune(Phase3UniqueAbilities.SOULSTALKER_STRIDE, List.of(20, 25))
+        assertEquals(.896, tune(StormSoulMasteryAbilities.SOULSTALKER_STRIDE, List.of(20, 25))
                 .get(Setting.CLEAVE_DAMAGE_MULTIPLIER, 1), 1.0E-6);
-        assertEquals(.784, tune(Phase3UniqueAbilities.SOULSTALKER_STRIDE, List.of(20, 26))
+        assertEquals(.784, tune(StormSoulMasteryAbilities.SOULSTALKER_STRIDE, List.of(20, 26))
                 .get(Setting.CLEAVE_DAMAGE_MULTIPLIER, 1), 1.0E-6);
-        assertEquals(1.1, tune(Phase3UniqueAbilities.SOULSTALKER_STRIDE, List.of(11))
+        assertEquals(1.1, tune(StormSoulMasteryAbilities.SOULSTALKER_STRIDE, List.of(11))
                 .get(Setting.FOOTFALL_DAMAGE_MULTIPLIER, 1), 1.0E-6);
-        assertEquals(.825, tune(Phase3UniqueAbilities.SOULSTALKER_STRIDE, List.of(11, 16))
+        assertEquals(.825, tune(StormSoulMasteryAbilities.SOULSTALKER_STRIDE, List.of(11, 16))
                 .get(Setting.FOOTFALL_DAMAGE_MULTIPLIER, 1), 1.0E-6);
     }
 
     @Test
     void bothCooldownCapstonesSurviveEachOther() {
-        assertEquals(1.2, tune(Phase3UniqueAbilities.SOULSTALKER_STRIDE, List.of(16))
+        assertEquals(1.2, tune(StormSoulMasteryAbilities.SOULSTALKER_STRIDE, List.of(16))
                 .get(Setting.COOLDOWN_MULTIPLIER, 1), 1.0E-6);
-        assertEquals(2, tune(Phase3UniqueAbilities.SOULSTALKER_STRIDE, List.of(25))
+        assertEquals(2, tune(StormSoulMasteryAbilities.SOULSTALKER_STRIDE, List.of(25))
                 .get(Setting.COOLDOWN_MULTIPLIER, 1), 1.0E-6);
-        assertEquals(2.4, tune(Phase3UniqueAbilities.SOULSTALKER_STRIDE, List.of(16, 25))
+        assertEquals(2.4, tune(StormSoulMasteryAbilities.SOULSTALKER_STRIDE, List.of(16, 25))
                 .get(Setting.COOLDOWN_MULTIPLIER, 1), 1.0E-6);
     }
 
     @Test
     void swiftSummonsAndItsCapstonesReachTheCooldownKey() {
-        UniqueAbilityTuning.Builder builder = builder(Phase3UniqueAbilities.SOULSTALKER_STRIDE);
-        apply(builder, Phase3UniqueAbilities.SOULSTALKER_STRIDE, List.of(15, 16, 25));
+        UniqueAbilityTuning.Builder builder = builder(StormSoulMasteryAbilities.SOULSTALKER_STRIDE);
+        apply(builder, StormSoulMasteryAbilities.SOULSTALKER_STRIDE, List.of(15, 16, 25));
 
-        assertEquals(2448, builder.get(Phase3UniqueAbilities.COOLDOWN_TICKS));
+        assertEquals(2448, builder.get(StormSoulMasteryAbilities.COOLDOWN_TICKS));
     }
 
     @Test
     void everyPreviouslyInertNodeNowCarriesItsOwnConsumedSettings() {
-        Phase3AbilityTuning tendril = tune(Phase3UniqueAbilities.SOULSTALKER_TENDRIL, TENDRILS);
-        Phase3AbilityTuning stride = tune(Phase3UniqueAbilities.SOULSTALKER_STRIDE, ALL);
+        StormSoulMasteryTuning tendril = tune(StormSoulMasteryAbilities.SOULSTALKER_TENDRIL, TENDRILS);
+        StormSoulMasteryTuning stride = tune(StormSoulMasteryAbilities.SOULSTALKER_STRIDE, ALL);
 
         assertEquals(.25, tendril.get(Setting.GLOAM_DAMAGE_BONUS, 0), 1.0E-6);
         assertEquals(4, tendril.get(Setting.SEEKING_ROOT_RANGE, 0), 1.0E-6);
@@ -168,16 +168,16 @@ final class SoulstalkerMasterySkillEffectTest {
 
     @Test
     void theOnlyRemainingModeBitHasAConsumer() {
-        assertEquals(16, tune(Phase3UniqueAbilities.SOULSTALKER_TENDRIL, ALL).integer(Setting.MODE, 0));
-        assertFalse(tune(Phase3UniqueAbilities.SOULSTALKER_STRIDE, ALL).has(Setting.MODE));
+        assertEquals(16, tune(StormSoulMasteryAbilities.SOULSTALKER_TENDRIL, ALL).integer(Setting.MODE, 0));
+        assertFalse(tune(StormSoulMasteryAbilities.SOULSTALKER_STRIDE, ALL).has(Setting.MODE));
     }
 
     private static UniqueAbilityTuning.Builder builder(UniqueAbilityDefinition definition) {
         UniqueAbilityTuning.Builder builder = UniqueAbilityTuning.builder(definition);
         if (definition.cooldownKey().isPresent()) {
-            builder.set(Phase3UniqueAbilities.COOLDOWN_TICKS, 1200);
+            builder.set(StormSoulMasteryAbilities.COOLDOWN_TICKS, 1200);
         }
-        builder.set(Phase3UniqueAbilities.TUNING, Phase3AbilityTuning.EMPTY);
+        builder.set(StormSoulMasteryAbilities.TUNING, StormSoulMasteryTuning.EMPTY);
         return builder;
     }
 
@@ -191,9 +191,9 @@ final class SoulstalkerMasterySkillEffectTest {
         }
     }
 
-    private static Phase3AbilityTuning tune(UniqueAbilityDefinition definition, List<Integer> nodes) {
+    private static StormSoulMasteryTuning tune(UniqueAbilityDefinition definition, List<Integer> nodes) {
         UniqueAbilityTuning.Builder builder = builder(definition);
         apply(builder, definition, nodes);
-        return builder.get(Phase3UniqueAbilities.TUNING);
+        return builder.get(StormSoulMasteryAbilities.TUNING);
     }
 }

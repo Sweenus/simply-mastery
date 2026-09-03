@@ -1,15 +1,15 @@
 package net.sweenus.simplymastery.mastery.effect;
 
 import net.minecraft.util.Identifier;
-import net.sweenus.simplymastery.SimplyMastery;
 import net.sweenus.simplymastery.mastery.definition.MasteryProfile;
+import net.sweenus.simplymastery.mastery.definition.MasteryCohort;
 import net.sweenus.simplyswords.api.ability.*;
 
 import java.util.List;
 import java.util.Set;
 
-final class Phase10MasterySkillEffect implements AbilitySkillEffectType {
-    private static final Identifier ID = Identifier.of(SimplyMastery.MOD_ID, "phase10_mastery");
+final class MartialCommandEldritchMasterySkillEffect implements AbilitySkillEffectType {
+    private static final Identifier ID = MasteryCohort.MARTIAL_COMMAND_ELDRITCH.effectId();
 
     @Override
     public Identifier id() {
@@ -19,7 +19,7 @@ final class Phase10MasterySkillEffect implements AbilitySkillEffectType {
     @Override
     public void validate(MasteryProfile.Effect effect, String where, List<String> errors) {
         if (!effect.parameters().keySet().equals(Set.of("kind")))
-            errors.add(where + "phase10_mastery requires only kind");
+            errors.add(where + "cohort/martial_command_eldritch requires only kind");
         int kind = effect.parameters().getOrDefault("kind", -1);
         if (kind < 0 || kind >= 135) errors.add(where + "kind must be between 0 and 134");
     }
@@ -33,7 +33,7 @@ final class Phase10MasterySkillEffect implements AbilitySkillEffectType {
         int branch = kind % 27 / 9;
         int slot = kind % 9;
         if (!matches(profile, branch, slot, definition)) return;
-        Phase10AbilityTuning value = mode(tuning.get(Phase10UniqueAbilities.TUNING), 1 << (branch * 9 + slot));
+        MartialCommandEldritchMasteryTuning value = mode(tuning.get(MartialCommandEldritchMasteryAbilities.TUNING), 1 << (branch * 9 + slot));
         value = switch (profile) {
             case 0 -> warglaive(value, branch, slot);
             case 1 -> ribbon(value, branch, slot);
@@ -42,12 +42,12 @@ final class Phase10MasterySkillEffect implements AbilitySkillEffectType {
             case 4 -> dreadtide(value, branch, slot);
             default -> value;
         };
-        tuning.set(Phase10UniqueAbilities.TUNING, value);
-        if (definition.cooldownKey().isPresent()) tuning.set(Phase10UniqueAbilities.COOLDOWN_TICKS,
-                value.integer(s("COOLDOWN_TICKS"), tuning.get(Phase10UniqueAbilities.COOLDOWN_TICKS)));
+        tuning.set(MartialCommandEldritchMasteryAbilities.TUNING, value);
+        if (definition.cooldownKey().isPresent()) tuning.set(MartialCommandEldritchMasteryAbilities.COOLDOWN_TICKS,
+                value.integer(s("COOLDOWN_TICKS"), tuning.get(MartialCommandEldritchMasteryAbilities.COOLDOWN_TICKS)));
     }
 
-    private static Phase10AbilityTuning warglaive(Phase10AbilityTuning t, int branch, int slot) {
+    private static MartialCommandEldritchMasteryTuning warglaive(MartialCommandEldritchMasteryTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
             case 0 -> t.add(s("DURATION_TICKS"), 40, 160);
             case 1 -> t.add(s("STACK_CAP"), 1, 5);
@@ -89,7 +89,7 @@ final class Phase10MasterySkillEffect implements AbilitySkillEffectType {
         };
     }
 
-    private static Phase10AbilityTuning ribbon(Phase10AbilityTuning t, int branch, int slot) {
+    private static MartialCommandEldritchMasteryTuning ribbon(MartialCommandEldritchMasteryTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
             case 0 -> t.with(s("SPEED"), .97);
             case 1 -> t.with(s("INCOMING_MULTIPLIER"), .82);
@@ -132,7 +132,7 @@ final class Phase10MasterySkillEffect implements AbilitySkillEffectType {
         };
     }
 
-    private static Phase10AbilityTuning riftmane(Phase10AbilityTuning t, int branch, int slot) {
+    private static MartialCommandEldritchMasteryTuning riftmane(MartialCommandEldritchMasteryTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
             case 0 -> t.add(s("CHANCE"), 8, 20);
             case 1 -> t.add(s("LOCKOUT_TICKS"), -10, 60);
@@ -177,7 +177,7 @@ final class Phase10MasterySkillEffect implements AbilitySkillEffectType {
         };
     }
 
-    private static Phase10AbilityTuning dawnquiver(Phase10AbilityTuning t, int branch, int slot) {
+    private static MartialCommandEldritchMasteryTuning dawnquiver(MartialCommandEldritchMasteryTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
             case 0 -> t.add(s("INTERVAL_TICKS"), -15, 80);
             case 1 -> t.add(s("CHANCE"), 8, 20);
@@ -221,7 +221,7 @@ final class Phase10MasterySkillEffect implements AbilitySkillEffectType {
         };
     }
 
-    private static Phase10AbilityTuning dreadtide(Phase10AbilityTuning t, int branch, int slot) {
+    private static MartialCommandEldritchMasteryTuning dreadtide(MartialCommandEldritchMasteryTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
             case 0 -> t.with(s("FLAT_DAMAGE"), 18);
             case 1 -> t.add(s("STACK_CAP"), 1, 5);
@@ -266,27 +266,27 @@ final class Phase10MasterySkillEffect implements AbilitySkillEffectType {
     }
 
     private static boolean matches(int profile, int branch, int slot, UniqueAbilityDefinition definition) {
-        if (profile == 0 && branch == 1 && slot == 2 && definition == Phase10UniqueAbilities.WARG_MARK) return true;
+        if (profile == 0 && branch == 1 && slot == 2 && definition == MartialCommandEldritchMasteryAbilities.WARG_MARK) return true;
         return definition == switch (profile) {
-            case 0 -> branch == 0 ? Phase10UniqueAbilities.WARG_MARK
-                    : branch == 1 ? Phase10UniqueAbilities.WARG_HUNT : Phase10UniqueAbilities.WARG_SANGUINE;
-            case 1 -> branch == 0 ? Phase10UniqueAbilities.RIBBON_HEAVY
-                    : branch == 1 ? Phase10UniqueAbilities.RIBBON_RUSH : Phase10UniqueAbilities.RIBBON_PROMISE;
-            case 2 -> branch == 0 ? Phase10UniqueAbilities.RIFTMANE_HARRIER
-                    : branch == 1 ? Phase10UniqueAbilities.RIFTMANE_RANK : Phase10UniqueAbilities.RIFTMANE_RIDER;
-            case 3 -> branch == 0 ? Phase10UniqueAbilities.DAWN_LESSER
-                    : branch == 1 ? Phase10UniqueAbilities.DAWN_CHORUS : Phase10UniqueAbilities.DAWN_DRAW;
-            case 4 -> branch == 0 ? Phase10UniqueAbilities.DREAD_CLOAK
-                    : branch == 1 ? Phase10UniqueAbilities.DREAD_ASSAULT : Phase10UniqueAbilities.DREAD_PACT;
+            case 0 -> branch == 0 ? MartialCommandEldritchMasteryAbilities.WARG_MARK
+                    : branch == 1 ? MartialCommandEldritchMasteryAbilities.WARG_HUNT : MartialCommandEldritchMasteryAbilities.WARG_SANGUINE;
+            case 1 -> branch == 0 ? MartialCommandEldritchMasteryAbilities.RIBBON_HEAVY
+                    : branch == 1 ? MartialCommandEldritchMasteryAbilities.RIBBON_RUSH : MartialCommandEldritchMasteryAbilities.RIBBON_PROMISE;
+            case 2 -> branch == 0 ? MartialCommandEldritchMasteryAbilities.RIFTMANE_HARRIER
+                    : branch == 1 ? MartialCommandEldritchMasteryAbilities.RIFTMANE_RANK : MartialCommandEldritchMasteryAbilities.RIFTMANE_RIDER;
+            case 3 -> branch == 0 ? MartialCommandEldritchMasteryAbilities.DAWN_LESSER
+                    : branch == 1 ? MartialCommandEldritchMasteryAbilities.DAWN_CHORUS : MartialCommandEldritchMasteryAbilities.DAWN_DRAW;
+            case 4 -> branch == 0 ? MartialCommandEldritchMasteryAbilities.DREAD_CLOAK
+                    : branch == 1 ? MartialCommandEldritchMasteryAbilities.DREAD_ASSAULT : MartialCommandEldritchMasteryAbilities.DREAD_PACT;
             default -> null;
         };
     }
 
-    private static Phase10AbilityTuning mode(Phase10AbilityTuning tuning, int bit) {
+    private static MartialCommandEldritchMasteryTuning mode(MartialCommandEldritchMasteryTuning tuning, int bit) {
         return tuning.with(s("MODE"), tuning.integer(s("MODE"), 0) | bit);
     }
 
-    private static Phase10AbilityTuning.Setting s(String name) {
-        return Phase10AbilityTuning.Setting.valueOf(name);
+    private static MartialCommandEldritchMasteryTuning.Setting s(String name) {
+        return MartialCommandEldritchMasteryTuning.Setting.valueOf(name);
     }
 }

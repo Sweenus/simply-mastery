@@ -2,9 +2,9 @@ package net.sweenus.simplymastery.mastery.effect;
 
 import net.sweenus.simplymastery.mastery.definition.BuiltInFamilyProfiles;
 import net.sweenus.simplymastery.mastery.definition.MasteryProfile;
-import net.sweenus.simplyswords.api.ability.Phase5AbilityTuning;
-import net.sweenus.simplyswords.api.ability.Phase5AbilityTuning.Setting;
-import net.sweenus.simplyswords.api.ability.Phase5UniqueAbilities;
+import net.sweenus.simplyswords.api.ability.FireForgeMasteryTuning;
+import net.sweenus.simplyswords.api.ability.FireForgeMasteryTuning.Setting;
+import net.sweenus.simplyswords.api.ability.FireForgeMasteryAbilities;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityTuning;
 import org.junit.jupiter.api.Test;
 
@@ -52,7 +52,7 @@ final class FlamewindMasterySkillEffectTest {
 
     @Test
     void freshFuelTunesDurationRatherThanDamage() {
-        Phase5AbilityTuning fresh = seed(List.of(15));
+        FireForgeMasteryTuning fresh = seed(List.of(15));
 
         assertEquals(.8, fresh.get(Setting.FLAMEWIND_SPREAD_DURATION_FRACTION, 0), 1.0E-6);
         assertEquals(1, fresh.get(Setting.PERIODIC_DAMAGE_MULTIPLIER, 1), 1.0E-6);
@@ -80,16 +80,16 @@ final class FlamewindMasterySkillEffectTest {
         }
     }
 
-    private static Phase5AbilityTuning seed(List<Integer> nodes) {
+    private static FireForgeMasteryTuning seed(List<Integer> nodes) {
         MasteryProfile profile = BuiltInFamilyProfiles.profile("flamewind");
-        UniqueAbilityTuning.Builder builder = UniqueAbilityTuning.builder(Phase5UniqueAbilities.FLAMEWIND_SEED);
-        builder.set(Phase5UniqueAbilities.COOLDOWN_TICKS, 350);
-        builder.set(Phase5UniqueAbilities.TUNING, Phase5AbilityTuning.EMPTY);
+        UniqueAbilityTuning.Builder builder = UniqueAbilityTuning.builder(FireForgeMasteryAbilities.FLAMEWIND_SEED);
+        builder.set(FireForgeMasteryAbilities.COOLDOWN_TICKS, 350);
+        builder.set(FireForgeMasteryAbilities.TUNING, FireForgeMasteryTuning.EMPTY);
         AbilitySkillEffectType effect = (AbilitySkillEffectType) SkillEffectRegistry.get(
                 profile.nodes().getFirst().effect().type());
         for (int node : nodes) {
-            effect.tune(null, Phase5UniqueAbilities.FLAMEWIND_SEED, builder, profile.nodes().get(node));
+            effect.tune(null, FireForgeMasteryAbilities.FLAMEWIND_SEED, builder, profile.nodes().get(node));
         }
-        return builder.get(Phase5UniqueAbilities.TUNING);
+        return builder.get(FireForgeMasteryAbilities.TUNING);
     }
 }

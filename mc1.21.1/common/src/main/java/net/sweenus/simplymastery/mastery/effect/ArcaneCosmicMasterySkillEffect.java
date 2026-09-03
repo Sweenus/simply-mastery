@@ -1,10 +1,10 @@
 package net.sweenus.simplymastery.mastery.effect;
 
 import net.minecraft.util.Identifier;
-import net.sweenus.simplymastery.SimplyMastery;
 import net.sweenus.simplymastery.mastery.definition.MasteryProfile;
-import net.sweenus.simplyswords.api.ability.Phase9AbilityTuning;
-import net.sweenus.simplyswords.api.ability.Phase9UniqueAbilities;
+import net.sweenus.simplymastery.mastery.definition.MasteryCohort;
+import net.sweenus.simplyswords.api.ability.ArcaneCosmicMasteryTuning;
+import net.sweenus.simplyswords.api.ability.ArcaneCosmicMasteryAbilities;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityContext;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityDefinition;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityTuning;
@@ -12,8 +12,8 @@ import net.sweenus.simplyswords.api.ability.UniqueAbilityTuning;
 import java.util.List;
 import java.util.Set;
 
-final class Phase9MasterySkillEffect implements AbilitySkillEffectType {
-    private static final Identifier ID = Identifier.of(SimplyMastery.MOD_ID, "phase9_mastery");
+final class ArcaneCosmicMasterySkillEffect implements AbilitySkillEffectType {
+    private static final Identifier ID = MasteryCohort.ARCANE_COSMIC.effectId();
 
     @Override
     public Identifier id() {
@@ -23,7 +23,7 @@ final class Phase9MasterySkillEffect implements AbilitySkillEffectType {
     @Override
     public void validate(MasteryProfile.Effect effect, String where, List<String> errors) {
         if (!effect.parameters().keySet().equals(Set.of("kind"))) {
-            errors.add(where + "phase9_mastery requires only kind");
+            errors.add(where + "cohort/arcane_cosmic requires only kind");
         }
         int kind = effect.parameters().getOrDefault("kind", -1);
         if (kind < 0 || kind >= 189) errors.add(where + "kind must be between 0 and 188");
@@ -38,7 +38,7 @@ final class Phase9MasterySkillEffect implements AbilitySkillEffectType {
         int branch = kind % 27 / 9;
         int slot = kind % 9;
         if (!matches(profile, branch, definition)) return;
-        Phase9AbilityTuning value = mode(tuning.get(Phase9UniqueAbilities.TUNING), 1 << (branch * 9 + slot));
+        ArcaneCosmicMasteryTuning value = mode(tuning.get(ArcaneCosmicMasteryAbilities.TUNING), 1 << (branch * 9 + slot));
         value = switch (profile) {
             case 0 -> arcanethyst(value, branch, slot);
             case 1 -> starsEdge(value, branch, slot);
@@ -49,12 +49,12 @@ final class Phase9MasterySkillEffect implements AbilitySkillEffectType {
             case 6 -> caelestis(value, branch, slot);
             default -> value;
         };
-        tuning.set(Phase9UniqueAbilities.TUNING, value);
-        if (definition.cooldownKey().isPresent()) tuning.set(Phase9UniqueAbilities.COOLDOWN_TICKS,
-                value.integer(s("COOLDOWN_TICKS"), tuning.get(Phase9UniqueAbilities.COOLDOWN_TICKS)));
+        tuning.set(ArcaneCosmicMasteryAbilities.TUNING, value);
+        if (definition.cooldownKey().isPresent()) tuning.set(ArcaneCosmicMasteryAbilities.COOLDOWN_TICKS,
+                value.integer(s("COOLDOWN_TICKS"), tuning.get(ArcaneCosmicMasteryAbilities.COOLDOWN_TICKS)));
     }
 
-    private static Phase9AbilityTuning arcanethyst(Phase9AbilityTuning t, int branch, int slot) {
+    private static ArcaneCosmicMasteryTuning arcanethyst(ArcaneCosmicMasteryTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
             case 0 -> t.add(s("CHANCE"), 7, 25);
             case 1 -> t.multiply(s("DAMAGE_MULTIPLIER"), 1.1, 1);
@@ -104,7 +104,7 @@ final class Phase9MasterySkillEffect implements AbilitySkillEffectType {
         };
     }
 
-    private static Phase9AbilityTuning starsEdge(Phase9AbilityTuning t, int branch, int slot) {
+    private static ArcaneCosmicMasteryTuning starsEdge(ArcaneCosmicMasteryTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
             case 0 -> t.multiply(s("DAMAGE_MULTIPLIER"), 1.1, 1);
             case 1 -> t.with(s("STATUS_DURATION_TICKS"), 60);
@@ -147,7 +147,7 @@ final class Phase9MasterySkillEffect implements AbilitySkillEffectType {
         };
     }
 
-    private static Phase9AbilityTuning magiscythe(Phase9AbilityTuning t, int branch, int slot) {
+    private static ArcaneCosmicMasteryTuning magiscythe(ArcaneCosmicMasteryTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
             case 0 -> t.add(s("DURATION_TICKS"), 30, 400);
             case 1 -> t.multiply(s("DAMAGE_MULTIPLIER"), 1.1, 1);
@@ -192,7 +192,7 @@ final class Phase9MasterySkillEffect implements AbilitySkillEffectType {
         };
     }
 
-    private static Phase9AbilityTuning magiblade(Phase9AbilityTuning t, int branch, int slot) {
+    private static ArcaneCosmicMasteryTuning magiblade(ArcaneCosmicMasteryTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
             case 0 -> t.add(s("CHANCE"), 8, 55);
             case 1 -> t.add(s("INTERVAL_TICKS"), -2, 8);
@@ -234,7 +234,7 @@ final class Phase9MasterySkillEffect implements AbilitySkillEffectType {
         };
     }
 
-    private static Phase9AbilityTuning magispear(Phase9AbilityTuning t, int branch, int slot) {
+    private static ArcaneCosmicMasteryTuning magispear(ArcaneCosmicMasteryTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
             case 0 -> t.add(s("CHANCE"), 8, 25);
             case 1 -> t.multiply(s("DAMAGE_MULTIPLIER"), 1.12, 1);
@@ -280,7 +280,7 @@ final class Phase9MasterySkillEffect implements AbilitySkillEffectType {
         };
     }
 
-    private static Phase9AbilityTuning enigma(Phase9AbilityTuning t, int branch, int slot) {
+    private static ArcaneCosmicMasteryTuning enigma(ArcaneCosmicMasteryTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
             case 0 -> t.add(s("RANGE"), 3, 16);
             case 1 -> t.multiply(s("SPEED"), 1.15, 1);
@@ -326,7 +326,7 @@ final class Phase9MasterySkillEffect implements AbilitySkillEffectType {
         };
     }
 
-    private static Phase9AbilityTuning caelestis(Phase9AbilityTuning t, int branch, int slot) {
+    private static ArcaneCosmicMasteryTuning caelestis(ArcaneCosmicMasteryTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
             case 0 -> t.add(s("WINDUP_TICKS"), -20, 140);
             case 1 -> t.add(s("INTERVAL_TICKS"), -4, 30);
@@ -374,45 +374,45 @@ final class Phase9MasterySkillEffect implements AbilitySkillEffectType {
     private static boolean matches(int profile, int branch, UniqueAbilityDefinition definition) {
         return definition == switch (profile) {
             case 0 -> switch (branch) {
-                case 0 -> Phase9UniqueAbilities.ARCANETHYST_SPARK;
-                case 1 -> Phase9UniqueAbilities.ARCANETHYST_SUSPENSION;
-                default -> Phase9UniqueAbilities.ARCANETHYST_IMPACT;
+                case 0 -> ArcaneCosmicMasteryAbilities.ARCANETHYST_SPARK;
+                case 1 -> ArcaneCosmicMasteryAbilities.ARCANETHYST_SUSPENSION;
+                default -> ArcaneCosmicMasteryAbilities.ARCANETHYST_IMPACT;
             };
             case 1 -> switch (branch) {
-                case 0 -> Phase9UniqueAbilities.STARS_SOLAR;
-                case 1 -> Phase9UniqueAbilities.STARS_LUNAR;
-                default -> Phase9UniqueAbilities.STARS_CONSTELLATION;
+                case 0 -> ArcaneCosmicMasteryAbilities.STARS_SOLAR;
+                case 1 -> ArcaneCosmicMasteryAbilities.STARS_LUNAR;
+                default -> ArcaneCosmicMasteryAbilities.STARS_CONSTELLATION;
             };
             case 2 -> switch (branch) {
-                case 0 -> Phase9UniqueAbilities.MAGISCYTHE_STORM;
-                case 1 -> Phase9UniqueAbilities.MAGISCYTHE_STRIKES;
-                default -> Phase9UniqueAbilities.MAGISCYTHE_MAGEWRIGHT;
+                case 0 -> ArcaneCosmicMasteryAbilities.MAGISCYTHE_STORM;
+                case 1 -> ArcaneCosmicMasteryAbilities.MAGISCYTHE_STRIKES;
+                default -> ArcaneCosmicMasteryAbilities.MAGISCYTHE_MAGEWRIGHT;
             };
             case 3 -> switch (branch) {
-                case 0 -> Phase9UniqueAbilities.MAGIBLADE_REPULSION;
-                case 1 -> Phase9UniqueAbilities.MAGIBLADE_WARDEN;
-                default -> Phase9UniqueAbilities.MAGIBLADE_JUDGMENT;
+                case 0 -> ArcaneCosmicMasteryAbilities.MAGIBLADE_REPULSION;
+                case 1 -> ArcaneCosmicMasteryAbilities.MAGIBLADE_WARDEN;
+                default -> ArcaneCosmicMasteryAbilities.MAGIBLADE_JUDGMENT;
             };
             case 4 -> switch (branch) {
-                case 0 -> Phase9UniqueAbilities.MAGISPEAR_SPELLPOINT;
-                case 1 -> Phase9UniqueAbilities.MAGISPEAR_RAIN;
-                default -> Phase9UniqueAbilities.MAGISPEAR_SLAM;
+                case 0 -> ArcaneCosmicMasteryAbilities.MAGISPEAR_SPELLPOINT;
+                case 1 -> ArcaneCosmicMasteryAbilities.MAGISPEAR_RAIN;
+                default -> ArcaneCosmicMasteryAbilities.MAGISPEAR_SLAM;
             };
             case 5 -> switch (branch) {
-                case 0 -> Phase9UniqueAbilities.ENIGMA_STORMCHASER;
-                case 1 -> Phase9UniqueAbilities.ENIGMA_VORTEX;
-                default -> Phase9UniqueAbilities.ENIGMA_TAILWIND;
+                case 0 -> ArcaneCosmicMasteryAbilities.ENIGMA_STORMCHASER;
+                case 1 -> ArcaneCosmicMasteryAbilities.ENIGMA_VORTEX;
+                default -> ArcaneCosmicMasteryAbilities.ENIGMA_TAILWIND;
             };
-            case 6 -> Phase9UniqueAbilities.CAELESTIS_HOST;
+            case 6 -> ArcaneCosmicMasteryAbilities.CAELESTIS_HOST;
             default -> null;
         };
     }
 
-    private static Phase9AbilityTuning mode(Phase9AbilityTuning tuning, int bit) {
+    private static ArcaneCosmicMasteryTuning mode(ArcaneCosmicMasteryTuning tuning, int bit) {
         return tuning.with(s("MODE"), tuning.integer(s("MODE"), 0) | bit);
     }
 
-    private static Phase9AbilityTuning.Setting s(String name) {
-        return Phase9AbilityTuning.Setting.valueOf(name);
+    private static ArcaneCosmicMasteryTuning.Setting s(String name) {
+        return ArcaneCosmicMasteryTuning.Setting.valueOf(name);
     }
 }

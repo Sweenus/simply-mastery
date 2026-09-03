@@ -365,15 +365,15 @@ public final class SkillEffectRegistry {
         });
         StormAbilitySkillEffects.all().forEach(SkillEffectRegistry::register);
         BrimstoneAbilitySkillEffects.all().forEach(SkillEffectRegistry::register);
-        register(new Phase2MasterySkillEffect());
-        register(new Phase3MasterySkillEffect());
-        register(new Phase4MasterySkillEffect());
-        register(new Phase5MasterySkillEffect());
-        register(new Phase6MasterySkillEffect());
-        register(new Phase7MasterySkillEffect());
-        register(new Phase8MasterySkillEffect());
-        register(new Phase9MasterySkillEffect());
-        register(new Phase10MasterySkillEffect());
+        register(new AbyssalSpectralMasterySkillEffect());
+        register(new StormSoulMasterySkillEffect());
+        register(new LongPathFinalFormsMasterySkillEffect());
+        register(new FireForgeMasterySkillEffect());
+        register(new StormFrostWaterMasterySkillEffect());
+        register(new NatureSwarmMasterySkillEffect());
+        register(new DeathShadowBloodMasterySkillEffect());
+        register(new ArcaneCosmicMasterySkillEffect());
+        register(new MartialCommandEldritchMasterySkillEffect());
     }
 
     private SkillEffectRegistry() {

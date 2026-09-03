@@ -2,8 +2,8 @@ package net.sweenus.simplymastery.mastery.effect;
 
 import net.sweenus.simplymastery.mastery.definition.BuiltInFamilyProfiles;
 import net.sweenus.simplymastery.mastery.definition.MasteryProfile;
-import net.sweenus.simplyswords.api.ability.Phase8AbilityTuning;
-import net.sweenus.simplyswords.api.ability.Phase8UniqueAbilities;
+import net.sweenus.simplyswords.api.ability.DeathShadowBloodMasteryTuning;
+import net.sweenus.simplyswords.api.ability.DeathShadowBloodMasteryAbilities;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityDefinition;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityTuning;
 import org.junit.jupiter.api.Test;
@@ -18,9 +18,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 final class BloodwakeMasterySkillEffectTest {
     private static final List<UniqueAbilityDefinition> DEFINITIONS = List.of(
-            Phase8UniqueAbilities.BLOOD_BURST,
-            Phase8UniqueAbilities.BLOOD_RITES,
-            Phase8UniqueAbilities.BLOOD_GROUND);
+            DeathShadowBloodMasteryAbilities.BLOOD_BURST,
+            DeathShadowBloodMasteryAbilities.BLOOD_RITES,
+            DeathShadowBloodMasteryAbilities.BLOOD_GROUND);
 
     @Test
     void allNodesRouteOnlyToTheirOwnedDefinition() {
@@ -35,7 +35,7 @@ final class BloodwakeMasterySkillEffectTest {
     @Test
     void nodesDoNotWriteGenericNumericSettings() {
         for (int branch = 0; branch < 3; branch++) {
-            Phase8AbilityTuning tuning = tune(DEFINITIONS.get(branch),
+            DeathShadowBloodMasteryTuning tuning = tune(DEFINITIONS.get(branch),
                     IntStream.range(branch * 9, branch * 9 + 9).boxed().toList());
             for (String generic : List.of("COOLDOWN_TICKS", "DURATION_TICKS", "INTERVAL_TICKS",
                     "WINDUP_TICKS", "DELAY_TICKS", "DAMAGE_MULTIPLIER", "SECONDARY_DAMAGE_MULTIPLIER",
@@ -55,7 +55,7 @@ final class BloodwakeMasterySkillEffectTest {
 
     @Test
     void burstRiteAndGroundChannelsStayIndependent() {
-        Phase8AbilityTuning burst = tune(Phase8UniqueAbilities.BLOOD_BURST, List.of(0, 1, 2, 3, 4, 5, 6));
+        DeathShadowBloodMasteryTuning burst = tune(DeathShadowBloodMasteryAbilities.BLOOD_BURST, List.of(0, 1, 2, 3, 4, 5, 6));
         assertEquals(3, burst.integer(s("BLOOD_VEIN_INTERVAL"), 0));
         assertEquals(.5, burst.get(s("BLOOD_BURST_RADIUS_BONUS"), 0), 1.0E-6);
         assertEquals(1.12, burst.get(s("BLOOD_BURST_DAMAGE_MULTIPLIER"), 0), 1.0E-6);
@@ -64,13 +64,13 @@ final class BloodwakeMasterySkillEffectTest {
         assertEquals(1.25, burst.get(s("BLOOD_HEMORRHAGE_MULTIPLIER"), 0), 1.0E-6);
         assertEquals(4, burst.integer(s("BLOOD_CHAIN_CAP"), 0));
 
-        Phase8AbilityTuning spray = tune(Phase8UniqueAbilities.BLOOD_BURST, List.of(1, 2, 7));
+        DeathShadowBloodMasteryTuning spray = tune(DeathShadowBloodMasteryAbilities.BLOOD_BURST, List.of(1, 2, 7));
         assertEquals(7, spray.get(s("BLOOD_CONE_RANGE"), 0), 1.0E-6);
         assertEquals(12, spray.integer(s("BLOOD_CONE_TARGET_CAP"), 0));
         assertEquals(1.12, spray.get(s("BLOOD_BURST_DAMAGE_MULTIPLIER"), 0), 1.0E-6);
         assertEquals(1.35, spray.get(s("BLOOD_SPRAY_DAMAGE_MULTIPLIER"), 0), 1.0E-6);
 
-        Phase8AbilityTuning rites = tune(Phase8UniqueAbilities.BLOOD_RITES, List.of(9, 10, 11, 12, 13, 14, 15));
+        DeathShadowBloodMasteryTuning rites = tune(DeathShadowBloodMasteryAbilities.BLOOD_RITES, List.of(9, 10, 11, 12, 13, 14, 15));
         assertEquals(-2, rites.integer(s("BLOOD_COOLDOWN_BONUS_TICKS"), 0));
         assertEquals(3, rites.integer(s("BLOOD_WAVE_STEP_BONUS"), 0));
         assertEquals(2, rites.integer(s("BLOOD_SCREAM_TARGET_BONUS"), 0));
@@ -80,7 +80,7 @@ final class BloodwakeMasterySkillEffectTest {
         assertEquals(-3, rites.integer(s("BLOOD_DELUGE_INTERVAL_BONUS"), 0));
         assertEquals(300, rites.integer(s("BLOOD_MEMORY_WINDOW_TICKS"), 0));
 
-        Phase8AbilityTuning ground = tune(Phase8UniqueAbilities.BLOOD_GROUND, List.of(18, 19, 20, 21, 23, 24));
+        DeathShadowBloodMasteryTuning ground = tune(DeathShadowBloodMasteryAbilities.BLOOD_GROUND, List.of(18, 19, 20, 21, 23, 24));
         assertEquals(100, ground.integer(s("BLOOD_STAIN_DURATION_BONUS_TICKS"), 0));
         assertEquals(1, ground.integer(s("BLOOD_STAIN_SLOW_BONUS"), 0));
         assertEquals(-8, ground.integer(s("BLOOD_STAIN_HEAL_INTERVAL_BONUS"), 0));
@@ -88,7 +88,7 @@ final class BloodwakeMasterySkillEffectTest {
         assertEquals(1.08, ground.get(s("BLOOD_FOOTING_MULTIPLIER"), 0), 1.0E-6);
         assertEquals(800, ground.integer(s("BLOOD_CONFLUENCE_CAP_TICKS"), 0));
 
-        Phase8AbilityTuning sea = tune(Phase8UniqueAbilities.BLOOD_GROUND, List.of(18, 25));
+        DeathShadowBloodMasteryTuning sea = tune(DeathShadowBloodMasteryAbilities.BLOOD_GROUND, List.of(18, 25));
         assertEquals(300, sea.integer(s("BLOOD_STAIN_DURATION_BONUS_TICKS"), 0));
         assertEquals(1.6, sea.get(s("BLOOD_SEA_RADIUS_MULTIPLIER"), 0), 1.0E-6);
     }
@@ -101,36 +101,36 @@ final class BloodwakeMasterySkillEffectTest {
     }
 
     private static int cooldown(List<Integer> nodes) {
-        UniqueAbilityTuning.Builder builder = UniqueAbilityTuning.builder(Phase8UniqueAbilities.BLOOD_RITES)
-                .set(Phase8UniqueAbilities.TUNING, Phase8AbilityTuning.EMPTY)
-                .set(Phase8UniqueAbilities.COOLDOWN_TICKS, 10);
+        UniqueAbilityTuning.Builder builder = UniqueAbilityTuning.builder(DeathShadowBloodMasteryAbilities.BLOOD_RITES)
+                .set(DeathShadowBloodMasteryAbilities.TUNING, DeathShadowBloodMasteryTuning.EMPTY)
+                .set(DeathShadowBloodMasteryAbilities.COOLDOWN_TICKS, 10);
         MasteryProfile profile = BuiltInFamilyProfiles.profile("bloodwake");
         AbilitySkillEffectType effect = (AbilitySkillEffectType) SkillEffectRegistry.get(
                 profile.nodes().getFirst().effect().type());
         for (int node : nodes) {
-            effect.tune(null, Phase8UniqueAbilities.BLOOD_RITES, builder, profile.nodes().get(node));
+            effect.tune(null, DeathShadowBloodMasteryAbilities.BLOOD_RITES, builder, profile.nodes().get(node));
         }
-        return builder.get(Phase8UniqueAbilities.COOLDOWN_TICKS);
+        return builder.get(DeathShadowBloodMasteryAbilities.COOLDOWN_TICKS);
     }
 
-    private static boolean hasBloodSetting(Phase8AbilityTuning tuning) {
-        return Arrays.stream(Phase8AbilityTuning.Setting.values())
+    private static boolean hasBloodSetting(DeathShadowBloodMasteryTuning tuning) {
+        return Arrays.stream(DeathShadowBloodMasteryTuning.Setting.values())
                 .filter(setting -> setting.name().startsWith("BLOOD_"))
                 .anyMatch(tuning::has);
     }
 
-    private static Phase8AbilityTuning tune(UniqueAbilityDefinition definition, List<Integer> nodes) {
+    private static DeathShadowBloodMasteryTuning tune(UniqueAbilityDefinition definition, List<Integer> nodes) {
         UniqueAbilityTuning.Builder builder = UniqueAbilityTuning.builder(definition)
-                .set(Phase8UniqueAbilities.TUNING, Phase8AbilityTuning.EMPTY);
-        if (definition.cooldownKey().isPresent()) builder.set(Phase8UniqueAbilities.COOLDOWN_TICKS, 10);
+                .set(DeathShadowBloodMasteryAbilities.TUNING, DeathShadowBloodMasteryTuning.EMPTY);
+        if (definition.cooldownKey().isPresent()) builder.set(DeathShadowBloodMasteryAbilities.COOLDOWN_TICKS, 10);
         MasteryProfile profile = BuiltInFamilyProfiles.profile("bloodwake");
         AbilitySkillEffectType effect = (AbilitySkillEffectType) SkillEffectRegistry.get(
                 profile.nodes().getFirst().effect().type());
         for (int node : nodes) effect.tune(null, definition, builder, profile.nodes().get(node));
-        return builder.get(Phase8UniqueAbilities.TUNING);
+        return builder.get(DeathShadowBloodMasteryAbilities.TUNING);
     }
 
-    private static Phase8AbilityTuning.Setting s(String name) {
-        return Phase8AbilityTuning.Setting.valueOf(name);
+    private static DeathShadowBloodMasteryTuning.Setting s(String name) {
+        return DeathShadowBloodMasteryTuning.Setting.valueOf(name);
     }
 }

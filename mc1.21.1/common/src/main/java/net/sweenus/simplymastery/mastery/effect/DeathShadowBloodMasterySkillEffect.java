@@ -1,10 +1,10 @@
 package net.sweenus.simplymastery.mastery.effect;
 
 import net.minecraft.util.Identifier;
-import net.sweenus.simplymastery.SimplyMastery;
 import net.sweenus.simplymastery.mastery.definition.MasteryProfile;
-import net.sweenus.simplyswords.api.ability.Phase8AbilityTuning;
-import net.sweenus.simplyswords.api.ability.Phase8UniqueAbilities;
+import net.sweenus.simplymastery.mastery.definition.MasteryCohort;
+import net.sweenus.simplyswords.api.ability.DeathShadowBloodMasteryTuning;
+import net.sweenus.simplyswords.api.ability.DeathShadowBloodMasteryAbilities;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityContext;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityDefinition;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityTuning;
@@ -12,8 +12,8 @@ import net.sweenus.simplyswords.api.ability.UniqueAbilityTuning;
 import java.util.List;
 import java.util.Set;
 
-final class Phase8MasterySkillEffect implements AbilitySkillEffectType {
-    private static final Identifier ID = Identifier.of(SimplyMastery.MOD_ID, "phase8_mastery");
+final class DeathShadowBloodMasterySkillEffect implements AbilitySkillEffectType {
+    private static final Identifier ID = MasteryCohort.DEATH_SHADOW_BLOOD.effectId();
 
     @Override
     public Identifier id() {
@@ -23,7 +23,7 @@ final class Phase8MasterySkillEffect implements AbilitySkillEffectType {
     @Override
     public void validate(MasteryProfile.Effect effect, String where, List<String> errors) {
         if (!effect.parameters().keySet().equals(Set.of("kind"))) {
-            errors.add(where + "phase8_mastery requires only kind");
+            errors.add(where + "cohort/death_shadow_blood requires only kind");
         }
         int kind = effect.parameters().getOrDefault("kind", -1);
         if (kind < 0 || kind >= 162) errors.add(where + "kind must be between 0 and 161");
@@ -38,7 +38,7 @@ final class Phase8MasterySkillEffect implements AbilitySkillEffectType {
         int branch = kind % 27 / 9;
         int slot = kind % 9;
         if (!matches(profile, branch, definition)) return;
-        Phase8AbilityTuning value = mode(tuning.get(Phase8UniqueAbilities.TUNING), 1 << (branch * 9 + slot));
+        DeathShadowBloodMasteryTuning value = mode(tuning.get(DeathShadowBloodMasteryAbilities.TUNING), 1 << (branch * 9 + slot));
         value = switch (profile) {
             case 0 -> plague(value, branch, slot);
             case 1 -> soulkeeper(value, branch, slot);
@@ -50,7 +50,7 @@ final class Phase8MasterySkillEffect implements AbilitySkillEffectType {
         };
         if (definition.cooldownKey().isPresent()) {
             int base = value.integer(s("MASTERY_BASE_COOLDOWN_TICKS"),
-                    tuning.get(Phase8UniqueAbilities.COOLDOWN_TICKS));
+                    tuning.get(DeathShadowBloodMasteryAbilities.COOLDOWN_TICKS));
             value = value.with(s("MASTERY_BASE_COOLDOWN_TICKS"), base);
             int cooldown = profile == 5
                     ? base + value.integer(s("BLOOD_COOLDOWN_BONUS_TICKS"), 0)
@@ -59,12 +59,12 @@ final class Phase8MasterySkillEffect implements AbilitySkillEffectType {
                 cooldown = (int) Math.round(cooldown
                         * value.get(s("SOUL_COOLDOWN_MULTIPLIER"), 1));
             }
-            tuning.set(Phase8UniqueAbilities.COOLDOWN_TICKS, Math.max(1, cooldown));
+            tuning.set(DeathShadowBloodMasteryAbilities.COOLDOWN_TICKS, Math.max(1, cooldown));
         }
-        tuning.set(Phase8UniqueAbilities.TUNING, value);
+        tuning.set(DeathShadowBloodMasteryAbilities.TUNING, value);
     }
 
-    private static Phase8AbilityTuning plague(Phase8AbilityTuning t, int branch, int slot) {
+    private static DeathShadowBloodMasteryTuning plague(DeathShadowBloodMasteryTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
             case 0 -> t.with(s("PLAGUE_CONVERSION_CHANCE_BONUS"), 10);
             case 1 -> t.with(s("PLAGUE_FEVER_DURATION_BONUS_TICKS"), 40);
@@ -122,7 +122,7 @@ final class Phase8MasterySkillEffect implements AbilitySkillEffectType {
         };
     }
 
-    private static Phase8AbilityTuning soulkeeper(Phase8AbilityTuning t, int branch, int slot) {
+    private static DeathShadowBloodMasteryTuning soulkeeper(DeathShadowBloodMasteryTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
             case 0 -> t.multiply(s("SOUL_CONTACT_DAMAGE_MULTIPLIER"), 1.1, 1);
             case 1 -> t.with(s("SOUL_ORBIT_RADIUS_BONUS"), .35);
@@ -185,7 +185,7 @@ final class Phase8MasterySkillEffect implements AbilitySkillEffectType {
         };
     }
 
-    private static Phase8AbilityTuning soulstealer(Phase8AbilityTuning t, int branch, int slot) {
+    private static DeathShadowBloodMasteryTuning soulstealer(DeathShadowBloodMasteryTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
             case 0 -> t.with(s("SOULSTEALER_CHANCE_BONUS"), 8);
             case 1 -> t.add(s("SOULSTEALER_MAX_DEBT_BONUS"), 2, 0);
@@ -243,7 +243,7 @@ final class Phase8MasterySkillEffect implements AbilitySkillEffectType {
         };
     }
 
-    private static Phase8AbilityTuning twisted(Phase8AbilityTuning t, int branch, int slot) {
+    private static DeathShadowBloodMasteryTuning twisted(DeathShadowBloodMasteryTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
             case 0 -> t.with(s("TWISTED_CHANCE_BONUS"), 8);
             case 1 -> t.with(s("TWISTED_DURATION_BONUS_TICKS"), 30);
@@ -307,7 +307,7 @@ final class Phase8MasterySkillEffect implements AbilitySkillEffectType {
         };
     }
 
-    private static Phase8AbilityTuning shadowsting(Phase8AbilityTuning t, int branch, int slot) {
+    private static DeathShadowBloodMasteryTuning shadowsting(DeathShadowBloodMasteryTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
             case 0 -> t.with(s("SHADOW_CHANCE_BONUS"), 8);
             case 1 -> t.multiply(s("SHADOW_CLONE_DAMAGE_MULTIPLIER"), 1.12, 1);
@@ -370,7 +370,7 @@ final class Phase8MasterySkillEffect implements AbilitySkillEffectType {
         };
     }
 
-    private static Phase8AbilityTuning bloodwake(Phase8AbilityTuning t, int branch, int slot) {
+    private static DeathShadowBloodMasteryTuning bloodwake(DeathShadowBloodMasteryTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
             case 0 -> t.with(s("BLOOD_VEIN_INTERVAL"), 3).with(s("BLOOD_VEIN_BONUS_STACKS"), 1);
             case 1 -> t.add(s("BLOOD_BURST_RADIUS_BONUS"), .5, 0);
@@ -431,42 +431,42 @@ final class Phase8MasterySkillEffect implements AbilitySkillEffectType {
     private static boolean matches(int profile, int branch, UniqueAbilityDefinition definition) {
         return switch (profile) {
             case 0 -> definition == switch (branch) {
-                case 0 -> Phase8UniqueAbilities.PLAGUE_PESTILENCE;
-                case 1 -> Phase8UniqueAbilities.PLAGUE_DEATH_KNELL;
-                default -> Phase8UniqueAbilities.PLAGUE_OUTBREAK;
+                case 0 -> DeathShadowBloodMasteryAbilities.PLAGUE_PESTILENCE;
+                case 1 -> DeathShadowBloodMasteryAbilities.PLAGUE_DEATH_KNELL;
+                default -> DeathShadowBloodMasteryAbilities.PLAGUE_OUTBREAK;
             };
             case 1 -> definition == switch (branch) {
-                case 0 -> Phase8UniqueAbilities.SOULKEEPER_LANTERNS;
-                case 1 -> Phase8UniqueAbilities.SOULKEEPER_VELOCITY;
-                default -> Phase8UniqueAbilities.SOULKEEPER_CONCLAVE;
+                case 0 -> DeathShadowBloodMasteryAbilities.SOULKEEPER_LANTERNS;
+                case 1 -> DeathShadowBloodMasteryAbilities.SOULKEEPER_VELOCITY;
+                default -> DeathShadowBloodMasteryAbilities.SOULKEEPER_CONCLAVE;
             };
             case 2 -> switch (branch) {
-                case 0 -> definition == Phase8UniqueAbilities.SOULSTEALER_DEBT
-                        || definition == Phase8UniqueAbilities.SOULSTEALER_REAP;
-                case 1 -> definition == Phase8UniqueAbilities.SOULSTEALER_APPROACH;
-                default -> definition == Phase8UniqueAbilities.SOULSTEALER_REAP;
+                case 0 -> definition == DeathShadowBloodMasteryAbilities.SOULSTEALER_DEBT
+                        || definition == DeathShadowBloodMasteryAbilities.SOULSTEALER_REAP;
+                case 1 -> definition == DeathShadowBloodMasteryAbilities.SOULSTEALER_APPROACH;
+                default -> definition == DeathShadowBloodMasteryAbilities.SOULSTEALER_REAP;
             };
             case 3 -> definition == switch (branch) {
-                case 0 -> Phase8UniqueAbilities.TWISTED_FEROCITY;
-                case 1 -> Phase8UniqueAbilities.TWISTED_CRESCENDO;
-                default -> Phase8UniqueAbilities.TWISTED_FINALE;
+                case 0 -> DeathShadowBloodMasteryAbilities.TWISTED_FEROCITY;
+                case 1 -> DeathShadowBloodMasteryAbilities.TWISTED_CRESCENDO;
+                default -> DeathShadowBloodMasteryAbilities.TWISTED_FINALE;
             };
-            case 4 -> branch == 0 ? definition == Phase8UniqueAbilities.SHADOW_ECHO
-                    : definition == Phase8UniqueAbilities.SHADOW_DANCE;
+            case 4 -> branch == 0 ? definition == DeathShadowBloodMasteryAbilities.SHADOW_ECHO
+                    : definition == DeathShadowBloodMasteryAbilities.SHADOW_DANCE;
             case 5 -> definition == switch (branch) {
-                case 0 -> Phase8UniqueAbilities.BLOOD_BURST;
-                case 1 -> Phase8UniqueAbilities.BLOOD_RITES;
-                default -> Phase8UniqueAbilities.BLOOD_GROUND;
+                case 0 -> DeathShadowBloodMasteryAbilities.BLOOD_BURST;
+                case 1 -> DeathShadowBloodMasteryAbilities.BLOOD_RITES;
+                default -> DeathShadowBloodMasteryAbilities.BLOOD_GROUND;
             };
             default -> false;
         };
     }
 
-    private static Phase8AbilityTuning mode(Phase8AbilityTuning tuning, int bit) {
+    private static DeathShadowBloodMasteryTuning mode(DeathShadowBloodMasteryTuning tuning, int bit) {
         return tuning.with(s("MODE"), tuning.integer(s("MODE"), 0) | bit);
     }
 
-    private static Phase8AbilityTuning.Setting s(String name) {
-        return Phase8AbilityTuning.Setting.valueOf(name);
+    private static DeathShadowBloodMasteryTuning.Setting s(String name) {
+        return DeathShadowBloodMasteryTuning.Setting.valueOf(name);
     }
 }

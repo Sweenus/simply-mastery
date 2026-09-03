@@ -2,6 +2,7 @@ package net.sweenus.simplymastery.mastery.effect;
 
 import net.minecraft.util.Identifier;
 import net.sweenus.simplymastery.mastery.definition.MasteryProfile;
+import net.sweenus.simplymastery.mastery.definition.MasteryCohort;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -42,6 +43,17 @@ final class SkillEffectRegistryTest {
                 Identifier.of("simplymastery", "chain_reaction"),
                 Identifier.of("simplymastery", "perpetual_furnace"),
                 Identifier.of("simplymastery", "last_reprisal"))));
+    }
+
+    @Test
+    void semanticCohortsAreRegisteredAndNumberedScaffoldIdsAreAbsent() {
+        for (MasteryCohort cohort : MasteryCohort.values()) {
+            assertTrue(SkillEffectRegistry.ids().contains(cohort.effectId()));
+        }
+        for (int number = 2; number <= 10; number++) {
+            assertFalse(SkillEffectRegistry.ids().contains(
+                    Identifier.of("simplymastery", "phase" + number + "_mastery")));
+        }
     }
 
     @Test

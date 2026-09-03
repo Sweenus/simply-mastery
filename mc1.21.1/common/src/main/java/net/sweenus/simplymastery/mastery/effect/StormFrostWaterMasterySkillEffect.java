@@ -1,10 +1,10 @@
 package net.sweenus.simplymastery.mastery.effect;
 
 import net.minecraft.util.Identifier;
-import net.sweenus.simplymastery.SimplyMastery;
 import net.sweenus.simplymastery.mastery.definition.MasteryProfile;
-import net.sweenus.simplyswords.api.ability.Phase6AbilityTuning;
-import net.sweenus.simplyswords.api.ability.Phase6UniqueAbilities;
+import net.sweenus.simplymastery.mastery.definition.MasteryCohort;
+import net.sweenus.simplyswords.api.ability.StormFrostWaterMasteryTuning;
+import net.sweenus.simplyswords.api.ability.StormFrostWaterMasteryAbilities;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityContext;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityDefinition;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityTuning;
@@ -12,8 +12,8 @@ import net.sweenus.simplyswords.api.ability.UniqueAbilityTuning;
 import java.util.List;
 import java.util.Set;
 
-final class Phase6MasterySkillEffect implements AbilitySkillEffectType {
-    private static final Identifier ID = Identifier.of(SimplyMastery.MOD_ID, "phase6_mastery");
+final class StormFrostWaterMasterySkillEffect implements AbilitySkillEffectType {
+    private static final Identifier ID = MasteryCohort.STORM_FROST_WATER.effectId();
 
     @Override
     public Identifier id() {
@@ -23,7 +23,7 @@ final class Phase6MasterySkillEffect implements AbilitySkillEffectType {
     @Override
     public void validate(MasteryProfile.Effect effect, String where, List<String> errors) {
         if (!effect.parameters().keySet().equals(Set.of("kind"))) {
-            errors.add(where + "phase6_mastery requires only kind");
+            errors.add(where + "cohort/storm_frost_water requires only kind");
         }
         int kind = effect.parameters().getOrDefault("kind", -1);
         if (kind < 0 || kind >= 189) errors.add(where + "kind must be between 0 and 188");
@@ -37,7 +37,7 @@ final class Phase6MasterySkillEffect implements AbilitySkillEffectType {
         int slot = kind % 9;
         if (kind < 0 || kind >= 189 || !matches(kind / 27, branch, slot, definition)) return;
         int profile = kind / 27;
-        Phase6AbilityTuning value = mode(tuning.get(Phase6UniqueAbilities.TUNING), 1 << (branch * 9 + slot));
+        StormFrostWaterMasteryTuning value = mode(tuning.get(StormFrostWaterMasteryAbilities.TUNING), 1 << (branch * 9 + slot));
         value = switch (profile) {
             case 0 -> stormbringer(value, branch, slot);
             case 1 -> mjolnir(value, branch, slot);
@@ -48,9 +48,9 @@ final class Phase6MasterySkillEffect implements AbilitySkillEffectType {
             case 6 -> livyatan(value, branch, slot);
             default -> value;
         };
-        tuning.set(Phase6UniqueAbilities.TUNING, value);
+        tuning.set(StormFrostWaterMasteryAbilities.TUNING, value);
         if (definition.cooldownKey().isPresent()) {
-            int cooldown = tuning.get(Phase6UniqueAbilities.COOLDOWN_TICKS);
+            int cooldown = tuning.get(StormFrostWaterMasteryAbilities.COOLDOWN_TICKS);
             if (profile == 2) {
                 if (branch == 0 && slot == 1) {
                     cooldown = Math.max(0, cooldown
@@ -69,11 +69,11 @@ final class Phase6MasterySkillEffect implements AbilitySkillEffectType {
             } else {
                 cooldown = value.integer(s("COOLDOWN_TICKS"), cooldown);
             }
-            tuning.set(Phase6UniqueAbilities.COOLDOWN_TICKS, cooldown);
+            tuning.set(StormFrostWaterMasteryAbilities.COOLDOWN_TICKS, cooldown);
         }
     }
 
-    private static Phase6AbilityTuning stormbringer(Phase6AbilityTuning t, int branch, int slot) {
+    private static StormFrostWaterMasteryTuning stormbringer(StormFrostWaterMasteryTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
             case 0 -> t.with(s("STORMBRINGER_PARRY_WINDOW_TICKS"), 24);
             case 1 -> t.with(s("STORMBRINGER_NORMAL_CHARGE_GAIN"), 2);
@@ -136,7 +136,7 @@ final class Phase6MasterySkillEffect implements AbilitySkillEffectType {
         };
     }
 
-    private static Phase6AbilityTuning mjolnir(Phase6AbilityTuning t, int branch, int slot) {
+    private static StormFrostWaterMasteryTuning mjolnir(StormFrostWaterMasteryTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
             case 0 -> t.with(s("MJOLNIR_DURATION_BONUS_TICKS"), 40);
             case 1 -> t.with(s("MJOLNIR_PULSE_INTERVAL_TICKS"), 9);
@@ -189,7 +189,7 @@ final class Phase6MasterySkillEffect implements AbilitySkillEffectType {
         };
     }
 
-    private static Phase6AbilityTuning thunderbrand(Phase6AbilityTuning t, int branch, int slot) {
+    private static StormFrostWaterMasteryTuning thunderbrand(StormFrostWaterMasteryTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
             case 0 -> t.with(s("THUNDERBRAND_REFRESH_CHANCE_BONUS"), 5);
             case 1 -> t.with(s("THUNDERBRAND_COOLDOWN_REDUCTION_TICKS"), 25);
@@ -247,7 +247,7 @@ final class Phase6MasterySkillEffect implements AbilitySkillEffectType {
         };
     }
 
-    private static Phase6AbilityTuning tempest(Phase6AbilityTuning t, int branch, int slot) {
+    private static StormFrostWaterMasteryTuning tempest(StormFrostWaterMasteryTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
             case 0 -> t.with(s("TEMPEST_START_RADIUS_BONUS"), 1);
             case 1 -> t.multiply(s("TEMPEST_RADIUS_PER_STACK_MULTIPLIER"), 1.1, 1);
@@ -315,7 +315,7 @@ final class Phase6MasterySkillEffect implements AbilitySkillEffectType {
         };
     }
 
-    private static Phase6AbilityTuning frostfall(Phase6AbilityTuning t, int branch, int slot) {
+    private static StormFrostWaterMasteryTuning frostfall(StormFrostWaterMasteryTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
             case 0 -> t.multiply(s("FROSTFALL_DIRECT_DAMAGE_MULTIPLIER"), 1.12, 1);
             case 1 -> t.with(s("FROSTFALL_DIRECT_SLOW_TICKS"), 40);
@@ -379,7 +379,7 @@ final class Phase6MasterySkillEffect implements AbilitySkillEffectType {
         };
     }
 
-    private static Phase6AbilityTuning icewhisper(Phase6AbilityTuning t, int branch, int slot) {
+    private static StormFrostWaterMasteryTuning icewhisper(StormFrostWaterMasteryTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
             case 0 -> t.multiply(s("ICEWHISPER_AURA_DAMAGE_MULTIPLIER"), 1.1, 1);
             case 1 -> t.add(s("ICEWHISPER_AURA_RADIUS_BONUS"), 1, 0)
@@ -444,7 +444,7 @@ final class Phase6MasterySkillEffect implements AbilitySkillEffectType {
         };
     }
 
-    private static Phase6AbilityTuning livyatan(Phase6AbilityTuning t, int branch, int slot) {
+    private static StormFrostWaterMasteryTuning livyatan(StormFrostWaterMasteryTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
             case 0 -> t.multiply(s("LIVYATAN_WAVE_DAMAGE_MULTIPLIER"), 1.1, 1);
             case 1 -> t.with(s("LIVYATAN_WAVE_WIDTH_BONUS"), 1);
@@ -513,55 +513,55 @@ final class Phase6MasterySkillEffect implements AbilitySkillEffectType {
 
     private static boolean matches(int profile, int branch, int slot, UniqueAbilityDefinition definition) {
         return switch (profile) {
-            case 0 -> branch == 0 ? definition == Phase6UniqueAbilities.STORMBRINGER_GUARD
-                    : branch == 2 ? definition == Phase6UniqueAbilities.STORMBRINGER_CHAIN
+            case 0 -> branch == 0 ? definition == StormFrostWaterMasteryAbilities.STORMBRINGER_GUARD
+                    : branch == 2 ? definition == StormFrostWaterMasteryAbilities.STORMBRINGER_CHAIN
                     : switch (slot) {
-                        case 0, 3, 7, 8 -> definition == Phase6UniqueAbilities.STORMBRINGER_GUARD
-                                || definition == Phase6UniqueAbilities.STORMBRINGER_CHAIN;
-                        default -> definition == Phase6UniqueAbilities.STORMBRINGER_CHAIN;
+                        case 0, 3, 7, 8 -> definition == StormFrostWaterMasteryAbilities.STORMBRINGER_GUARD
+                                || definition == StormFrostWaterMasteryAbilities.STORMBRINGER_CHAIN;
+                        default -> definition == StormFrostWaterMasteryAbilities.STORMBRINGER_CHAIN;
                     };
-            case 1 -> definition == Phase6UniqueAbilities.MJOLNIR_STORM;
+            case 1 -> definition == StormFrostWaterMasteryAbilities.MJOLNIR_STORM;
             case 2 -> branch == 0 && slot == 0
-                    ? definition == Phase6UniqueAbilities.THUNDERBRAND_REFRESH
-                    : definition == Phase6UniqueAbilities.THUNDERBRAND_BLITZ;
+                    ? definition == StormFrostWaterMasteryAbilities.THUNDERBRAND_REFRESH
+                    : definition == StormFrostWaterMasteryAbilities.THUNDERBRAND_BLITZ;
             case 3 -> branch == 0 || branch == 2
-                    ? definition == Phase6UniqueAbilities.TEMPEST_VORTEX
+                    ? definition == StormFrostWaterMasteryAbilities.TEMPEST_VORTEX
                     : slot == 8
-                    ? definition == Phase6UniqueAbilities.TEMPEST_MARK
-                            || definition == Phase6UniqueAbilities.TEMPEST_VORTEX
-                    : definition == Phase6UniqueAbilities.TEMPEST_MARK;
-            case 4 -> branch == 2 ? definition == Phase6UniqueAbilities.FROSTFALL_FIELD
-                    : definition == Phase6UniqueAbilities.FROSTFALL_THROW;
-            case 5 -> branch == 0 ? definition == Phase6UniqueAbilities.ICEWHISPER_AURA
-                    : branch == 1 ? definition == Phase6UniqueAbilities.ICEWHISPER_COMETS
+                    ? definition == StormFrostWaterMasteryAbilities.TEMPEST_MARK
+                            || definition == StormFrostWaterMasteryAbilities.TEMPEST_VORTEX
+                    : definition == StormFrostWaterMasteryAbilities.TEMPEST_MARK;
+            case 4 -> branch == 2 ? definition == StormFrostWaterMasteryAbilities.FROSTFALL_FIELD
+                    : definition == StormFrostWaterMasteryAbilities.FROSTFALL_THROW;
+            case 5 -> branch == 0 ? definition == StormFrostWaterMasteryAbilities.ICEWHISPER_AURA
+                    : branch == 1 ? definition == StormFrostWaterMasteryAbilities.ICEWHISPER_COMETS
                     : switch (slot) {
-                        case 2, 5 -> definition == Phase6UniqueAbilities.ICEWHISPER_AURA;
-                        default -> definition == Phase6UniqueAbilities.ICEWHISPER_COMETS;
+                        case 2, 5 -> definition == StormFrostWaterMasteryAbilities.ICEWHISPER_AURA;
+                        default -> definition == StormFrostWaterMasteryAbilities.ICEWHISPER_COMETS;
                     };
-            case 6 -> branch == 0 ? definition == Phase6UniqueAbilities.LIVYATAN_WAVE
-                    : branch == 1 ? definition == Phase6UniqueAbilities.LIVYATAN_RETURN
-                            || (slot == 4 || slot == 8) && definition == Phase6UniqueAbilities.LIVYATAN_WAVE
+            case 6 -> branch == 0 ? definition == StormFrostWaterMasteryAbilities.LIVYATAN_WAVE
+                    : branch == 1 ? definition == StormFrostWaterMasteryAbilities.LIVYATAN_RETURN
+                            || (slot == 4 || slot == 8) && definition == StormFrostWaterMasteryAbilities.LIVYATAN_WAVE
                     : switch (slot) {
-                        case 0, 1 -> definition == Phase6UniqueAbilities.LIVYATAN_THROW;
-                        case 2 -> definition == Phase6UniqueAbilities.LIVYATAN_RETURN
-                                || definition == Phase6UniqueAbilities.LIVYATAN_WAVE;
-                        case 3, 4, 7 -> definition == Phase6UniqueAbilities.LIVYATAN_WAVE;
-                        case 5 -> definition == Phase6UniqueAbilities.LIVYATAN_RETURN
-                                || definition == Phase6UniqueAbilities.LIVYATAN_WAVE;
-                        case 6, 8 -> definition == Phase6UniqueAbilities.LIVYATAN_THROW
-                                || definition == Phase6UniqueAbilities.LIVYATAN_RETURN
-                                || definition == Phase6UniqueAbilities.LIVYATAN_WAVE;
+                        case 0, 1 -> definition == StormFrostWaterMasteryAbilities.LIVYATAN_THROW;
+                        case 2 -> definition == StormFrostWaterMasteryAbilities.LIVYATAN_RETURN
+                                || definition == StormFrostWaterMasteryAbilities.LIVYATAN_WAVE;
+                        case 3, 4, 7 -> definition == StormFrostWaterMasteryAbilities.LIVYATAN_WAVE;
+                        case 5 -> definition == StormFrostWaterMasteryAbilities.LIVYATAN_RETURN
+                                || definition == StormFrostWaterMasteryAbilities.LIVYATAN_WAVE;
+                        case 6, 8 -> definition == StormFrostWaterMasteryAbilities.LIVYATAN_THROW
+                                || definition == StormFrostWaterMasteryAbilities.LIVYATAN_RETURN
+                                || definition == StormFrostWaterMasteryAbilities.LIVYATAN_WAVE;
                         default -> false;
                     };
             default -> false;
         };
     }
 
-    private static Phase6AbilityTuning mode(Phase6AbilityTuning tuning, int bit) {
+    private static StormFrostWaterMasteryTuning mode(StormFrostWaterMasteryTuning tuning, int bit) {
         return tuning.with(s("MODE"), tuning.integer(s("MODE"), 0) | bit);
     }
 
-    private static Phase6AbilityTuning.Setting s(String name) {
-        return Phase6AbilityTuning.Setting.valueOf(name);
+    private static StormFrostWaterMasteryTuning.Setting s(String name) {
+        return StormFrostWaterMasteryTuning.Setting.valueOf(name);
     }
 }

@@ -2,9 +2,9 @@ package net.sweenus.simplymastery.mastery.effect;
 
 import net.sweenus.simplymastery.mastery.definition.BuiltInFamilyProfiles;
 import net.sweenus.simplymastery.mastery.definition.MasteryProfile;
-import net.sweenus.simplyswords.api.ability.Phase2AbilityTuning;
-import net.sweenus.simplyswords.api.ability.Phase2AbilityTuning.Setting;
-import net.sweenus.simplyswords.api.ability.Phase2UniqueAbilities;
+import net.sweenus.simplyswords.api.ability.AbyssalSpectralMasteryTuning;
+import net.sweenus.simplyswords.api.ability.AbyssalSpectralMasteryTuning.Setting;
+import net.sweenus.simplyswords.api.ability.AbyssalSpectralMasteryAbilities;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityDefinition;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityTuning;
 
@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 final class WickpiercerMasterySkillEffectTest {
 
     @Test
-    void everyWickpiercerNodeRoutesToThePhase2AbilityEffect() {
+    void everyWickpiercerNodeRoutesToTheAbyssalSpectralAbilityEffect() {
         MasteryProfile profile = BuiltInFamilyProfiles.profile("wickpiercer");
 
         assertEquals(27, profile.nodes().size());
@@ -33,7 +33,7 @@ final class WickpiercerMasterySkillEffectTest {
 
     @Test
     void owningEveryNodeLeavesEachSharedSettingAtItsIntendedValue() {
-        Phase2AbilityTuning tuning = tuneAll();
+        AbyssalSpectralMasteryTuning tuning = tuneAll();
 
         assertEquals(60.0, tuning.get(Setting.PROJECTILE_FIRE_TICKS, 0));
         assertEquals(40.0, tuning.get(Setting.FIRE_TICKS, 0));
@@ -76,7 +76,7 @@ final class WickpiercerMasterySkillEffectTest {
 
     @Test
     void revivalNodesNoLongerRewriteTheThrowCooldown() {
-        Phase2AbilityTuning revival = tune(List.of(18, 19, 20, 21, 22, 23, 24, 25, 26));
+        AbyssalSpectralMasteryTuning revival = tune(List.of(18, 19, 20, 21, 22, 23, 24, 25, 26));
 
         assertEquals(33.0, revival.get(Setting.COOLDOWN_TICKS, 0));
         assertEquals(600.0, revival.get(Setting.REVIVE_COOLDOWN_FLOOR_TICKS, 0));
@@ -105,21 +105,21 @@ final class WickpiercerMasterySkillEffectTest {
 
     @Test
     void capstonesConfigureTheirOwnConsumers() {
-        Phase2AbilityTuning comet = tune(List.of(7));
+        AbyssalSpectralMasteryTuning comet = tune(List.of(7));
         assertTrue((comet.integer(Setting.MODE, 0) & 1) != 0);
         assertEquals(0.0, comet.get(Setting.LOYALTY, 3));
         assertEquals(60.0, comet.get(Setting.RETURN_DELAY_TICKS, 0));
 
-        Phase2AbilityTuning orbit = tune(List.of(8));
+        AbyssalSpectralMasteryTuning orbit = tune(List.of(8));
         assertTrue((orbit.integer(Setting.MODE, 0) & 2) != 0);
         assertEquals(60.0, orbit.get(Setting.ORBIT_DURATION_TICKS, 0));
         assertEquals(20.0, orbit.get(Setting.INTERVAL_TICKS, 1));
 
-        Phase2AbilityTuning wildfire = tune(List.of(16));
+        AbyssalSpectralMasteryTuning wildfire = tune(List.of(16));
         assertTrue((wildfire.integer(Setting.MODE, 0) & 64) != 0);
         assertEquals(0.0, wildfire.get(Setting.IMPACT_RADIUS, 0));
 
-        Phase2AbilityTuning pyre = tune(List.of(26));
+        AbyssalSpectralMasteryTuning pyre = tune(List.of(26));
         assertTrue((pyre.integer(Setting.MODE, 0) & 4096) != 0);
         assertEquals(0.0, pyre.get(Setting.REVIVE_HEALTH_MULTIPLIER, 1));
         assertEquals(0.0, pyre.get(Setting.IMPACT_RADIUS, 0));
@@ -127,7 +127,7 @@ final class WickpiercerMasterySkillEffectTest {
 
     @Test
     void returnPathAndLoyaltyNodesTuneTheirOwnConsumers() {
-        Phase2AbilityTuning trail = tune(List.of(2));
+        AbyssalSpectralMasteryTuning trail = tune(List.of(2));
         assertEquals(2.5, trail.get(Setting.RETURN_TRAIL_RADIUS, 0), 1.0E-6);
         assertEquals(.5, trail.get(Setting.RETURN_TRAIL_DAMAGE_MULTIPLIER, 0), 1.0E-6);
         assertEquals(100.0, trail.get(Setting.PROJECTILE_LIFETIME, 80));
@@ -136,16 +136,16 @@ final class WickpiercerMasterySkillEffectTest {
         assertEquals(0.0, tune(List.of(4, 7)).get(Setting.LOYALTY, 3));
     }
 
-    private static Phase2AbilityTuning tuneAll() {
+    private static AbyssalSpectralMasteryTuning tuneAll() {
         return tune(java.util.stream.IntStream.range(0, 27).boxed().toList());
     }
 
-    private static Phase2AbilityTuning tune(List<Integer> slots) {
+    private static AbyssalSpectralMasteryTuning tune(List<Integer> slots) {
         MasteryProfile profile = BuiltInFamilyProfiles.profile("wickpiercer");
-        UniqueAbilityDefinition definition = Phase2UniqueAbilities.WICKPIERCER_THROW;
+        UniqueAbilityDefinition definition = AbyssalSpectralMasteryAbilities.WICKPIERCER_THROW;
         UniqueAbilityTuning.Builder builder = UniqueAbilityTuning.builder(definition);
-        builder.set(Phase2UniqueAbilities.COOLDOWN_TICKS, 33);
-        builder.set(Phase2UniqueAbilities.TUNING, Phase2AbilityTuning.EMPTY
+        builder.set(AbyssalSpectralMasteryAbilities.COOLDOWN_TICKS, 33);
+        builder.set(AbyssalSpectralMasteryAbilities.TUNING, AbyssalSpectralMasteryTuning.EMPTY
                 .with(Setting.COOLDOWN_TICKS, 33)
                 .with(Setting.PROJECTILE_SPEED, 1.5)
                 .with(Setting.PROJECTILE_DAMAGE_MULTIPLIER, 1)
@@ -158,6 +158,6 @@ final class WickpiercerMasterySkillEffectTest {
         for (int slot : slots) {
             effect.tune(null, definition, builder, profile.nodes().get(slot));
         }
-        return builder.get(Phase2UniqueAbilities.TUNING);
+        return builder.get(AbyssalSpectralMasteryAbilities.TUNING);
     }
 }

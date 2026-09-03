@@ -70,13 +70,10 @@ public final class BuiltInFamilyProfiles {
         } else if (family.profilePath().equals("brimstone_claymore")) {
             version = 3;
             migrations.add(new MasteryProfile.Migration(2, 3, Map.of(), Map.of()));
-        } else if (phase2Profile(family.profilePath()) || phase3Profile(family.profilePath())
-                || phase4Profile(family.profilePath()) || phase5Profile(family.profilePath())
-                || phase6Profile(family.profilePath()) || phase7Profile(family.profilePath())
-                || phase8Profile(family.profilePath()) || phase9Profile(family.profilePath())
-                || phase10Profile(family.profilePath())) {
-            version = 3;
+        } else if (MasteryCohort.forProfile(family.profilePath()).isPresent()) {
+            version = 4;
             migrations.add(new MasteryProfile.Migration(2, 3, Map.of(), Map.of()));
+            migrations.add(new MasteryProfile.Migration(3, 4, Map.of(), Map.of()));
         }
         Optional<Identifier> progressionGroup = Optional.ofNullable(family.progressionGroup())
                 .map(path -> id("simplymastery", path));
@@ -106,11 +103,7 @@ public final class BuiltInFamilyProfiles {
         String style = branch.style().name().toLowerCase();
         Optional<MasteryProfile.Effect> authored = authoredEffect(family, branch.id(), slot);
         MasteryProfile.Effect effect = authored.orElseGet(() -> effect(branch.style(), slot));
-        boolean exactText = phase2Profile(family.profilePath()) || phase3Profile(family.profilePath())
-                || phase4Profile(family.profilePath()) || phase5Profile(family.profilePath())
-                || phase6Profile(family.profilePath()) || phase7Profile(family.profilePath())
-                || phase8Profile(family.profilePath()) || phase9Profile(family.profilePath())
-                || phase10Profile(family.profilePath());
+        boolean exactText = MasteryCohort.forProfile(family.profilePath()).isPresent();
         String nameKey = authored.isPresent()
                 ? "skill.simplymastery." + family.profilePath() + "." + branch.id() + "." + NODE_SLOTS[slot]
                 : "skill.simplymastery.style." + style + "." + NODE_SLOTS[slot];
@@ -124,24 +117,12 @@ public final class BuiltInFamilyProfiles {
     private static Optional<MasteryProfile.Effect> authoredEffect(Family family, String branch, int slot) {
         Optional<MasteryProfile.Effect> storm = authoredStormEffect(family, branch, slot);
         if (storm.isPresent()) return storm;
-        Optional<MasteryProfile.Effect> phase2 = authoredPhase2Effect(family, branch, slot);
-        if (phase2.isPresent()) return phase2;
-        Optional<MasteryProfile.Effect> phase3 = authoredPhase3Effect(family, branch, slot);
-        if (phase3.isPresent()) return phase3;
-        Optional<MasteryProfile.Effect> phase4 = authoredPhase4Effect(family, branch, slot);
-        if (phase4.isPresent()) return phase4;
-        Optional<MasteryProfile.Effect> phase5 = authoredPhase5Effect(family, branch, slot);
-        if (phase5.isPresent()) return phase5;
-        Optional<MasteryProfile.Effect> phase6 = authoredPhase6Effect(family, branch, slot);
-        if (phase6.isPresent()) return phase6;
-        Optional<MasteryProfile.Effect> phase7 = authoredPhase7Effect(family, branch, slot);
-        if (phase7.isPresent()) return phase7;
-        Optional<MasteryProfile.Effect> phase8 = authoredPhase8Effect(family, branch, slot);
-        if (phase8.isPresent()) return phase8;
-        Optional<MasteryProfile.Effect> phase9 = authoredPhase9Effect(family, branch, slot);
-        if (phase9.isPresent()) return phase9;
-        Optional<MasteryProfile.Effect> phase10 = authoredPhase10Effect(family, branch, slot);
-        if (phase10.isPresent()) return phase10;
+        Optional<MasteryCohort> cohort = MasteryCohort.forProfile(family.profilePath());
+        if (cohort.isPresent()) {
+            MasteryCohort value = cohort.get();
+            return Optional.of(new MasteryProfile.Effect(value.effectId(),
+                    Map.of("kind", value.kind(family.profilePath(), branch, slot))));
+        }
         if (!family.profilePath().equals("brimstone_claymore")) return Optional.empty();
         return Optional.of(switch (branch + ":" + slot) {
             case "signature:0" -> effect("sulfurous_edge", "chance_bonus", 5);
@@ -194,184 +175,6 @@ public final class BuiltInFamilyProfiles {
                     "final_damage_percent", 175, "duration_ticks", 60);
             default -> throw new IllegalArgumentException("Unknown Brimstone Claymore node " + branch + ":" + slot);
         });
-    }
-
-    private static Optional<MasteryProfile.Effect> authoredPhase2Effect(Family family, String branch, int slot) {
-        List<String> profiles = List.of("watcher_claymore", "the_devourer", "wickpiercer",
-                "gloampiercer", "wraithfang", "wraithmaw");
-        int profile = profiles.indexOf(family.profilePath());
-        if (profile < 0) return Optional.empty();
-        int branchIndex = switch (branch) {
-            case "signature" -> 0;
-            case "combat" -> 1;
-            case "transformation" -> 2;
-            default -> throw new IllegalArgumentException("Unknown branch " + branch);
-        };
-        return Optional.of(effect("phase2_mastery", "kind", profile * 27 + branchIndex * 9 + slot));
-    }
-
-    private static boolean phase2Profile(String profile) {
-        return profile.equals("watcher_claymore") || profile.equals("the_devourer")
-                || profile.equals("wickpiercer") || profile.equals("gloampiercer")
-                || profile.equals("wraithfang") || profile.equals("wraithmaw");
-    }
-
-    private static Optional<MasteryProfile.Effect> authoredPhase3Effect(Family family, String branch, int slot) {
-        List<String> profiles = List.of("stormscale", "ionbound_stormscale", "soulrender",
-                "soulstalker", "whisperwind", "dreadwhisper");
-        int profile = profiles.indexOf(family.profilePath());
-        if (profile < 0) return Optional.empty();
-        int branchIndex = switch (branch) {
-            case "signature" -> 0;
-            case "combat" -> 1;
-            case "transformation" -> 2;
-            default -> throw new IllegalArgumentException("Unknown branch " + branch);
-        };
-        return Optional.of(effect("phase3_mastery", "kind", profile * 27 + branchIndex * 9 + slot));
-    }
-
-    private static boolean phase3Profile(String profile) {
-        return profile.equals("stormscale") || profile.equals("ionbound_stormscale")
-                || profile.equals("soulrender") || profile.equals("soulstalker")
-                || profile.equals("whisperwind") || profile.equals("dreadwhisper");
-    }
-
-    private static Optional<MasteryProfile.Effect> authoredPhase4Effect(Family family, String branch, int slot) {
-        List<String> profiles = List.of("awakened_lichblade", "sunfire", "harbinger");
-        int profile = profiles.indexOf(family.profilePath());
-        if (profile < 0) return Optional.empty();
-        int branchIndex = switch (branch) {
-            case "signature" -> 0;
-            case "combat" -> 1;
-            case "transformation" -> 2;
-            default -> throw new IllegalArgumentException("Unknown branch " + branch);
-        };
-        return Optional.of(effect("phase4_mastery", "kind", profile * 27 + branchIndex * 9 + slot));
-    }
-
-    private static boolean phase4Profile(String profile) {
-        return profile.equals("awakened_lichblade") || profile.equals("sunfire")
-                || profile.equals("harbinger");
-    }
-
-    private static Optional<MasteryProfile.Effect> authoredPhase5Effect(Family family, String branch, int slot) {
-        List<String> profiles = List.of("hearthflame", "emberblade", "emberlash", "flamewind",
-                "molten_edge", "soulpyre");
-        int profile = profiles.indexOf(family.profilePath());
-        if (profile < 0) return Optional.empty();
-        int branchIndex = switch (branch) {
-            case "signature" -> 0;
-            case "combat" -> 1;
-            case "transformation" -> 2;
-            default -> throw new IllegalArgumentException("Unknown branch " + branch);
-        };
-        return Optional.of(effect("phase5_mastery", "kind", profile * 27 + branchIndex * 9 + slot));
-    }
-
-    private static boolean phase5Profile(String profile) {
-        return profile.equals("hearthflame") || profile.equals("emberblade")
-                || profile.equals("emberlash") || profile.equals("flamewind")
-                || profile.equals("molten_edge") || profile.equals("soulpyre");
-    }
-
-    private static Optional<MasteryProfile.Effect> authoredPhase6Effect(Family family, String branch, int slot) {
-        List<String> profiles = List.of("stormbringer", "mjolnir", "thunderbrand", "tempest",
-                "frostfall", "icewhisper", "livyatan");
-        int profile = profiles.indexOf(family.profilePath());
-        if (profile < 0) return Optional.empty();
-        int branchIndex = switch (branch) {
-            case "signature" -> 0;
-            case "combat" -> 1;
-            case "transformation" -> 2;
-            default -> throw new IllegalArgumentException("Unknown branch " + branch);
-        };
-        return Optional.of(effect("phase6_mastery", "kind", profile * 27 + branchIndex * 9 + slot));
-    }
-
-    private static boolean phase6Profile(String profile) {
-        return profile.equals("stormbringer") || profile.equals("mjolnir")
-                || profile.equals("thunderbrand") || profile.equals("tempest")
-                || profile.equals("frostfall") || profile.equals("icewhisper")
-                || profile.equals("livyatan");
-    }
-
-    private static Optional<MasteryProfile.Effect> authoredPhase7Effect(Family family, String branch, int slot) {
-        List<String> profiles = List.of("bramblethorn", "waxweaver", "hiveheart", "chompolotl");
-        int profile = profiles.indexOf(family.profilePath());
-        if (profile < 0) return Optional.empty();
-        int branchIndex = switch (branch) {
-            case "signature" -> 0;
-            case "combat" -> 1;
-            case "transformation" -> 2;
-            default -> throw new IllegalArgumentException("Unknown branch " + branch);
-        };
-        return Optional.of(effect("phase7_mastery", "kind", profile * 27 + branchIndex * 9 + slot));
-    }
-
-    private static boolean phase7Profile(String profile) {
-        return profile.equals("bramblethorn") || profile.equals("waxweaver")
-                || profile.equals("hiveheart") || profile.equals("chompolotl");
-    }
-
-    private static Optional<MasteryProfile.Effect> authoredPhase8Effect(Family family, String branch, int slot) {
-        List<String> profiles = List.of("toxic_longsword", "soulkeeper", "soulstealer",
-                "twisted_blade", "shadowsting", "bloodwake");
-        int profile = profiles.indexOf(family.profilePath());
-        if (profile < 0) return Optional.empty();
-        int branchIndex = switch (branch) {
-            case "signature" -> 0;
-            case "combat" -> 1;
-            case "transformation" -> 2;
-            default -> throw new IllegalArgumentException("Unknown branch " + branch);
-        };
-        return Optional.of(effect("phase8_mastery", "kind", profile * 27 + branchIndex * 9 + slot));
-    }
-
-    private static boolean phase8Profile(String profile) {
-        return profile.equals("toxic_longsword") || profile.equals("soulkeeper")
-                || profile.equals("soulstealer") || profile.equals("twisted_blade")
-                || profile.equals("shadowsting") || profile.equals("bloodwake");
-    }
-
-    private static Optional<MasteryProfile.Effect> authoredPhase9Effect(Family family, String branch, int slot) {
-        List<String> profiles = List.of("arcanethyst", "stars_edge", "magiscythe", "magiblade",
-                "magispear", "enigma", "caelestis");
-        int profile = profiles.indexOf(family.profilePath());
-        if (profile < 0) return Optional.empty();
-        int branchIndex = switch (branch) {
-            case "signature" -> 0;
-            case "combat" -> 1;
-            case "transformation" -> 2;
-            default -> throw new IllegalArgumentException("Unknown branch " + branch);
-        };
-        return Optional.of(effect("phase9_mastery", "kind", profile * 27 + branchIndex * 9 + slot));
-    }
-
-    private static boolean phase9Profile(String profile) {
-        return profile.equals("arcanethyst") || profile.equals("stars_edge")
-                || profile.equals("magiscythe") || profile.equals("magiblade")
-                || profile.equals("magispear") || profile.equals("enigma")
-                || profile.equals("caelestis");
-    }
-
-    private static Optional<MasteryProfile.Effect> authoredPhase10Effect(Family family, String branch, int slot) {
-        List<String> profiles = List.of("watching_warglaive", "ribboncleaver", "riftmane",
-                "dawnquiver", "dreadtide");
-        int profile = profiles.indexOf(family.profilePath());
-        if (profile < 0) return Optional.empty();
-        int branchIndex = switch (branch) {
-            case "signature" -> 0;
-            case "combat" -> 1;
-            case "transformation" -> 2;
-            default -> throw new IllegalArgumentException("Unknown branch " + branch);
-        };
-        return Optional.of(effect("phase10_mastery", "kind", profile * 27 + branchIndex * 9 + slot));
-    }
-
-    private static boolean phase10Profile(String profile) {
-        return profile.equals("watching_warglaive") || profile.equals("ribboncleaver")
-                || profile.equals("riftmane") || profile.equals("dawnquiver")
-                || profile.equals("dreadtide");
     }
 
     private static Optional<MasteryProfile.Effect> authoredStormEffect(Family family, String branch, int slot) {

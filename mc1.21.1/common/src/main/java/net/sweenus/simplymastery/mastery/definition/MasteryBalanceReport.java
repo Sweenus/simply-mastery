@@ -12,14 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public final class MasteryBalanceReport {
-
-    private static final Pattern PHASE_EFFECT = Pattern.compile("phase(\\d+)_mastery");
-    private static final Map<Integer, Integer> PHASE_COUNTS = Map.of(
-            2, 162, 3, 162, 4, 81, 5, 162, 6, 189, 7, 108, 8, 162, 9, 189, 10, 135);
 
     private MasteryBalanceReport() {
     }
@@ -31,13 +25,13 @@ public final class MasteryBalanceReport {
 
     static String render(List<MasteryProfile> profiles) {
         List<String> warnings = warnings(profiles);
-        long phasedNodes = profiles.stream().flatMap(profile -> profile.nodes().stream())
-                .filter(node -> phase(node.effect()) != 0).count();
+        long cohortNodes = profiles.stream().flatMap(profile -> profile.nodes().stream())
+                .filter(node -> MasteryCohort.forEffect(node.effect().type()).isPresent()).count();
         StringBuilder markdown = new StringBuilder("# Simply Mastery balance ledger\n\n")
                 .append("Profiles: ").append(profiles.size()).append("  \n")
                 .append("Nodes: ").append(profiles.stream().mapToInt(profile -> profile.nodes().size()).sum())
-                .append("  \nReference nodes: ").append(profiles.stream().mapToInt(profile -> profile.nodes().size()).sum() - phasedNodes)
-                .append("  \nPhased nodes: ").append(phasedNodes)
+                .append("  \nReference nodes: ").append(profiles.stream().mapToInt(profile -> profile.nodes().size()).sum() - cohortNodes)
+                .append("  \nCohort nodes: ").append(cohortNodes)
                 .append("  \nWarnings: ").append(warnings.size()).append("\n\n")
                 .append("## Audit warnings\n\n");
         if (warnings.isEmpty()) {
@@ -79,14 +73,14 @@ public final class MasteryBalanceReport {
         if (profiles.size() != 52) warnings.add("Expected 52 profiles, found " + profiles.size() + ".");
         if (nodeCount != 1_404) warnings.add("Expected 1,404 nodes, found " + nodeCount + ".");
 
-        Map<Integer, TreeSet<Integer>> kinds = new LinkedHashMap<>();
-        PHASE_COUNTS.keySet().stream().sorted().forEach(phase -> kinds.put(phase, new TreeSet<>()));
+        Map<MasteryCohort, TreeSet<Integer>> kinds = new LinkedHashMap<>();
+        for (MasteryCohort cohort : MasteryCohort.values()) kinds.put(cohort, new TreeSet<>());
         int referenceNodes = 0;
         for (MasteryProfile profile : profiles) {
             auditProfile(profile, warnings);
             for (MasteryProfile.Node node : profile.nodes()) {
-                int phase = phase(node.effect());
-                if (phase == 0) {
+                MasteryCohort cohort = MasteryCohort.forEffect(node.effect().type()).orElse(null);
+                if (cohort == null) {
                     referenceNodes++;
                     if (balance(profile, node).equals(Balance.GENERIC)) {
                         warnings.add(profile.id() + "/" + node.id() + " has no balance classification.");
@@ -98,21 +92,20 @@ public final class MasteryBalanceReport {
                     warnings.add(profile.id() + "/" + node.id() + " must contain only a kind parameter.");
                     continue;
                 }
-                Set<Integer> phaseKinds = kinds.get(phase);
-                if (phaseKinds == null) {
-                    warnings.add(profile.id() + "/" + node.id() + " uses unsupported phase " + phase + ".");
-                } else if (!phaseKinds.add(kind)) {
-                    warnings.add("Phase " + phase + " kind " + kind + " is duplicated.");
+                Set<Integer> cohortKinds = kinds.get(cohort);
+                if (!cohortKinds.add(kind)) {
+                    warnings.add("Cohort " + cohort.id() + " kind " + kind + " is duplicated.");
                 }
             }
         }
         if (referenceNodes != 54) warnings.add("Expected 54 reference nodes, found " + referenceNodes + ".");
-        for (Map.Entry<Integer, Integer> expected : PHASE_COUNTS.entrySet()) {
-            TreeSet<Integer> actual = kinds.get(expected.getKey());
-            if (actual.size() != expected.getValue() || actual.isEmpty() || actual.iterator().next() != 0
-                    || actual.last() != expected.getValue() - 1) {
-                warnings.add("Phase " + expected.getKey() + " must contain kinds 0-"
-                        + (expected.getValue() - 1) + "; found " + actual.size() + " distinct kinds.");
+        for (MasteryCohort cohort : MasteryCohort.values()) {
+            TreeSet<Integer> actual = kinds.get(cohort);
+            int expected = cohort.expectedNodeCount();
+            if (actual.size() != expected || actual.isEmpty() || actual.iterator().next() != 0
+                    || actual.last() != expected - 1) {
+                warnings.add("Cohort " + cohort.id() + " must contain kinds 0-"
+                        + (expected - 1) + "; found " + actual.size() + " distinct kinds.");
             }
         }
         return List.copyOf(warnings);
@@ -161,7 +154,7 @@ public final class MasteryBalanceReport {
     private static Balance balance(MasteryProfile profile, MasteryProfile.Node node) {
         MasteryProfile.Effect effect = node.effect();
         String path = effect.type().getPath();
-        if (phase(effect) != 0) {
+        if (MasteryCohort.forEffect(effect.type()).isPresent()) {
             String frequency = switch (node.branch()) {
                 case "signature" -> "signature ability or passive trigger";
                 case "combat" -> "combat event or active follow-up";
@@ -226,11 +219,6 @@ public final class MasteryBalanceReport {
             case "last_reprisal" -> new Balance("once per rite on low-health crossing", "emergency reprisal");
             default -> Balance.GENERIC;
         };
-    }
-
-    private static int phase(MasteryProfile.Effect effect) {
-        Matcher matcher = PHASE_EFFECT.matcher(effect.type().getPath());
-        return matcher.matches() ? Integer.parseInt(matcher.group(1)) : 0;
     }
 
     private static String branchTheme(MasteryProfile profile, String branchId) {

@@ -2,9 +2,9 @@ package net.sweenus.simplymastery.mastery.effect;
 
 import net.sweenus.simplymastery.mastery.definition.BuiltInFamilyProfiles;
 import net.sweenus.simplymastery.mastery.definition.MasteryProfile;
-import net.sweenus.simplyswords.api.ability.Phase4AbilityTuning;
-import net.sweenus.simplyswords.api.ability.Phase4AbilityTuning.Setting;
-import net.sweenus.simplyswords.api.ability.Phase4UniqueAbilities;
+import net.sweenus.simplyswords.api.ability.LongPathFinalFormsMasteryTuning;
+import net.sweenus.simplyswords.api.ability.LongPathFinalFormsMasteryTuning.Setting;
+import net.sweenus.simplyswords.api.ability.LongPathFinalFormsMasteryAbilities;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityDefinition;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityTuning;
 import org.junit.jupiter.api.Test;
@@ -24,7 +24,7 @@ final class SunfireMasterySkillEffectTest {
     private static final List<Integer> ALL = IntStream.range(0, 27).boxed().toList();
 
     @Test
-    void everySunfireNodeRoutesToThePhase4Abilities() {
+    void everySunfireNodeRoutesToTheLongPathFinalFormsAbilities() {
         MasteryProfile profile = BuiltInFamilyProfiles.profile("sunfire");
 
         assertEquals(27, profile.nodes().size());
@@ -47,7 +47,7 @@ final class SunfireMasterySkillEffectTest {
 
     @Test
     void flareCycleKeepsItsFourthPulseBesideRallyingStandard() {
-        Phase4AbilityTuning both = standard(List.of(5, 15));
+        LongPathFinalFormsMasteryTuning both = standard(List.of(5, 15));
 
         assertEquals(4, both.integer(Setting.CYCLE_PULSE_COUNT, 0));
         assertEquals(3, both.integer(Setting.RALLY_ALLY_COUNT, 0));
@@ -57,7 +57,7 @@ final class SunfireMasterySkillEffectTest {
 
     @Test
     void scorchingGroundKeepsItsOwnWindowAndWeaknessAgainstEverySupportNode() {
-        Phase4AbilityTuning all = standard(List.of(3, 5, 11, 17));
+        LongPathFinalFormsMasteryTuning all = standard(List.of(3, 5, 11, 17));
 
         assertEquals(3, all.integer(Setting.WEAKNESS_PULSE_COUNT, 0));
         assertEquals(40, all.integer(Setting.WEAKNESS_WINDOW_TICKS, 0));
@@ -69,7 +69,7 @@ final class SunfireMasterySkillEffectTest {
 
     @Test
     void theSupportBranchNoLongerSharesOneDurationKey() {
-        Phase4AbilityTuning all = standard(List.of(6, 12, 13, 14, 16, 17));
+        LongPathFinalFormsMasteryTuning all = standard(List.of(6, 12, 13, 14, 16, 17));
 
         assertEquals(100, all.integer(Setting.EARLY_WINDOW_TICKS, 0));
         assertEquals(160, all.integer(Setting.CLEANSE_LOCKOUT_TICKS, 0));
@@ -85,7 +85,7 @@ final class SunfireMasterySkillEffectTest {
 
     @Test
     void radiantReprisalAndRekindlingAndConsumingSunKeepTheirOwnLockouts() {
-        Phase4AbilityTuning all = regen(List.of(22, 24, 26));
+        LongPathFinalFormsMasteryTuning all = regen(List.of(22, 24, 26));
 
         assertEquals(40, all.integer(Setting.REPRISAL_LOCKOUT_TICKS, 0));
         assertEquals(40, all.integer(Setting.REPRISAL_FIRE_TICKS, 0));
@@ -96,8 +96,8 @@ final class SunfireMasterySkillEffectTest {
 
     @Test
     void emberReserveAndRekindlingCarryRealValuesAndExpiries() {
-        Phase4AbilityTuning reserve = regen(List.of(21));
-        Phase4AbilityTuning rekindle = regen(List.of(24));
+        LongPathFinalFormsMasteryTuning reserve = regen(List.of(21));
+        LongPathFinalFormsMasteryTuning rekindle = regen(List.of(24));
 
         assertTrue((reserve.integer(Setting.MODE, 0) & 4096) != 0);
         assertEquals(4, reserve.integer(Setting.RESERVE_CAP, 0));
@@ -110,7 +110,7 @@ final class SunfireMasterySkillEffectTest {
 
     @Test
     void standardBearerCarriesBothHalvesOfItsDescription() {
-        Phase4AbilityTuning guard = standard(List.of(23));
+        LongPathFinalFormsMasteryTuning guard = standard(List.of(23));
 
         assertEquals(7, guard.get(Setting.GUARD_RANGE, 0), 1.0E-6);
         assertEquals(.15, guard.get(Setting.DAMAGE_REDUCTION, 0), 1.0E-6);
@@ -120,7 +120,7 @@ final class SunfireMasterySkillEffectTest {
 
     @Test
     void phoenixStandardTunesItsOwnDurationAndCooldownSurcharge() {
-        Phase4AbilityTuning phoenix = standard(List.of(25));
+        LongPathFinalFormsMasteryTuning phoenix = standard(List.of(25));
 
         assertEquals(80, phoenix.integer(Setting.PHOENIX_DURATION_TICKS, 0));
         assertEquals(300, phoenix.integer(Setting.PHOENIX_COOLDOWN_TICKS, 0));
@@ -150,26 +150,26 @@ final class SunfireMasterySkillEffectTest {
         assertFalse(standard(List.of(26)).has(Setting.FLARE_DAMAGE_MULTIPLIER));
     }
 
-    private static Phase4AbilityTuning standard(List<Integer> nodes) {
-        return tune(Phase4UniqueAbilities.SUNFIRE_STANDARD, nodes);
+    private static LongPathFinalFormsMasteryTuning standard(List<Integer> nodes) {
+        return tune(LongPathFinalFormsMasteryAbilities.SUNFIRE_STANDARD, nodes);
     }
 
-    private static Phase4AbilityTuning regen(List<Integer> nodes) {
-        return tune(Phase4UniqueAbilities.SUNFIRE_REGEN, nodes);
+    private static LongPathFinalFormsMasteryTuning regen(List<Integer> nodes) {
+        return tune(LongPathFinalFormsMasteryAbilities.SUNFIRE_REGEN, nodes);
     }
 
-    private static Phase4AbilityTuning tune(UniqueAbilityDefinition definition, List<Integer> nodes) {
+    private static LongPathFinalFormsMasteryTuning tune(UniqueAbilityDefinition definition, List<Integer> nodes) {
         MasteryProfile profile = BuiltInFamilyProfiles.profile("sunfire");
         UniqueAbilityTuning.Builder builder = UniqueAbilityTuning.builder(definition);
         if (definition.cooldownKey().isPresent()) {
-            builder.set(Phase4UniqueAbilities.COOLDOWN_TICKS, 0);
+            builder.set(LongPathFinalFormsMasteryAbilities.COOLDOWN_TICKS, 0);
         }
-        builder.set(Phase4UniqueAbilities.TUNING, Phase4AbilityTuning.EMPTY);
+        builder.set(LongPathFinalFormsMasteryAbilities.TUNING, LongPathFinalFormsMasteryTuning.EMPTY);
         AbilitySkillEffectType effect = (AbilitySkillEffectType) SkillEffectRegistry.get(
                 profile.nodes().getFirst().effect().type());
         for (int node : nodes) {
             effect.tune(null, definition, builder, profile.nodes().get(node));
         }
-        return builder.get(Phase4UniqueAbilities.TUNING);
+        return builder.get(LongPathFinalFormsMasteryAbilities.TUNING);
     }
 }

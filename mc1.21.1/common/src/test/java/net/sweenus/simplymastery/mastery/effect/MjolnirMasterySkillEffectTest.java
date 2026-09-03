@@ -2,8 +2,8 @@ package net.sweenus.simplymastery.mastery.effect;
 
 import net.sweenus.simplymastery.mastery.definition.BuiltInFamilyProfiles;
 import net.sweenus.simplymastery.mastery.definition.MasteryProfile;
-import net.sweenus.simplyswords.api.ability.Phase6AbilityTuning;
-import net.sweenus.simplyswords.api.ability.Phase6UniqueAbilities;
+import net.sweenus.simplyswords.api.ability.StormFrostWaterMasteryTuning;
+import net.sweenus.simplyswords.api.ability.StormFrostWaterMasteryAbilities;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityDefinition;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityTuning;
 import net.sweenus.simplyswords.world.MjolnirStormManager;
@@ -26,7 +26,7 @@ final class MjolnirMasterySkillEffectTest {
 
     @Test
     void noNodeWritesAGenericKeyAnyMore() {
-        Phase6AbilityTuning all = tune(allNodes());
+        StormFrostWaterMasteryTuning all = tune(allNodes());
         for (String generic : List.of("DURATION_TICKS", "INTERVAL_TICKS", "RADIUS", "RANGE", "COUNT",
                 "TARGET_CAP", "LOCKOUT_TICKS", "REFUND_TICKS", "STATUS_DURATION_TICKS", "STATUS_AMPLIFIER",
                 "STACK_CAP", "PER_STACK_MULTIPLIER", "DAMAGE_MULTIPLIER", "SECONDARY_DAMAGE_MULTIPLIER",
@@ -39,8 +39,8 @@ final class MjolnirMasterySkillEffectTest {
     @Test
     void everyNodeWritesAtLeastOneKeyItsConsumerReads() {
         for (int node = 0; node < 27; node++) {
-            Phase6AbilityTuning tuning = tune(List.of(node));
-            long written = java.util.Arrays.stream(Phase6AbilityTuning.Setting.values())
+            StormFrostWaterMasteryTuning tuning = tune(List.of(node));
+            long written = java.util.Arrays.stream(StormFrostWaterMasteryTuning.Setting.values())
                     .filter(setting -> setting.name().startsWith("MJOLNIR_"))
                     .filter(tuning::has)
                     .count();
@@ -58,7 +58,7 @@ final class MjolnirMasterySkillEffectTest {
 
     @Test
     void swellingFrontNoLongerCancelsItselfOutAgainstTheConfiguredRadius() {
-        Phase6AbilityTuning tuning = tune(List.of(2));
+        StormFrostWaterMasteryTuning tuning = tune(List.of(2));
         assertEquals(2, tuning.get(s("MJOLNIR_STORM_RADIUS_BONUS"), 0), 1.0E-6);
         assertEquals(12, MjolnirStormManager.stormRadius(tuning, CONFIG_RADIUS), 1.0E-6);
         assertEquals(20, tuning.integer(s("MJOLNIR_STORM_TARGET_CAP"), 0));
@@ -67,7 +67,7 @@ final class MjolnirMasterySkillEffectTest {
 
     @Test
     void hammerfallThunderWakeAndStormAnchorNoLongerCrippleTheStormRadius() {
-        Phase6AbilityTuning tuning = tune(List.of(10, 13, 17));
+        StormFrostWaterMasteryTuning tuning = tune(List.of(10, 13, 17));
         assertEquals(CONFIG_RADIUS, MjolnirStormManager.stormRadius(tuning, CONFIG_RADIUS), 1.0E-6);
         assertEquals(2.5, tuning.get(s("MJOLNIR_ENTRY_RADIUS"), 0), 1.0E-6);
         assertEquals(2, tuning.get(s("MJOLNIR_WAKE_RADIUS"), 0), 1.0E-6);
@@ -76,7 +76,7 @@ final class MjolnirMasterySkillEffectTest {
 
     @Test
     void forkedBoltAndLightningRecallNoLongerRetuneTheFinalSequence() {
-        Phase6AbilityTuning tuning = tune(List.of(5, 12));
+        StormFrostWaterMasteryTuning tuning = tune(List.of(5, 12));
         assertEquals(CONFIG_FINAL_BOLTS, MjolnirStormManager.finalBoltCount(tuning, CONFIG_FINAL_BOLTS));
         assertEquals(4, tuning.integer(s("MJOLNIR_FORK_COUNT"), 0));
         assertEquals(60, tuning.integer(s("MJOLNIR_RECALL_ARM_TICKS"), 0));
@@ -85,19 +85,19 @@ final class MjolnirMasterySkillEffectTest {
 
     @Test
     void conductiveDurationIsUntouchedByEveryOtherStatusNode() {
-        Phase6AbilityTuning others = tune(List.of(9, 14, 15, 16, 17, 18, 25));
+        StormFrostWaterMasteryTuning others = tune(List.of(9, 14, 15, 16, 17, 18, 25));
         assertEquals(CONFIG_CONDUCTIVE, MjolnirStormManager.conductiveDuration(others, CONFIG_CONDUCTIVE));
         assertEquals(160, MjolnirStormManager.conductiveDuration(tune(List.of(4)), CONFIG_CONDUCTIVE));
     }
 
     @Test
     void skybreakerRaisesOnlyTheClapAndComposesWithWrathOfThunder() {
-        Phase6AbilityTuning skybreaker = tune(List.of(24));
+        StormFrostWaterMasteryTuning skybreaker = tune(List.of(24));
         assertEquals(7.5, MjolnirStormManager.finalRadius(skybreaker, CONFIG_FINAL_RADIUS), 1.0E-6);
         assertEquals(CONFIG_RADIUS, MjolnirStormManager.stormRadius(skybreaker, CONFIG_RADIUS), 1.0E-6);
         assertEquals(24, skybreaker.integer(s("MJOLNIR_FINAL_TARGET_CAP"), 0));
 
-        Phase6AbilityTuning both = tune(List.of(24, 26));
+        StormFrostWaterMasteryTuning both = tune(List.of(24, 26));
         assertEquals(2.5, both.get(s("MJOLNIR_FINAL_DAMAGE_MULTIPLIER"), 1), 1.0E-6);
         assertEquals(1.5, both.get(s("MJOLNIR_FINAL_KNOCKBACK_MULTIPLIER"), 1), 1.0E-6);
         assertFalse(MjolnirStormManager.grantsDefensiveBuffs(both));
@@ -105,7 +105,7 @@ final class MjolnirMasterySkillEffectTest {
 
     @Test
     void endlessSquallSuppressesTheClapWithoutZeroingAnotherNodesMultiplier() {
-        Phase6AbilityTuning squall = tune(List.of(7, 24));
+        StormFrostWaterMasteryTuning squall = tune(List.of(7, 24));
         assertTrue(MjolnirStormManager.suppressesFinalClap(squall));
         assertEquals(1.25, squall.get(s("MJOLNIR_FINAL_DAMAGE_MULTIPLIER"), 1), 1.0E-6);
         assertEquals(400, MjolnirStormManager.resolveDuration(squall, CONFIG_DURATION));
@@ -114,7 +114,7 @@ final class MjolnirMasterySkillEffectTest {
 
     @Test
     void suddenTempestOwnsAnExactFiveSecondStormAndAQuarterRadiusCut() {
-        Phase6AbilityTuning tempest = tune(List.of(0, 8));
+        StormFrostWaterMasteryTuning tempest = tune(List.of(0, 8));
         assertEquals(100, MjolnirStormManager.resolveDuration(tempest, CONFIG_DURATION));
         assertEquals(6, tempest.integer(s("MJOLNIR_PULSE_INTERVAL_TICKS"), 0));
         assertEquals(1.35, tempest.get(s("MJOLNIR_BOLT_DAMAGE_MULTIPLIER"), 1), 1.0E-6);
@@ -123,7 +123,7 @@ final class MjolnirMasterySkillEffectTest {
 
     @Test
     void chargedFinaleOwnsThirtyPercentAtSixConductiveTargets() {
-        Phase6AbilityTuning finale = tune(List.of(6));
+        StormFrostWaterMasteryTuning finale = tune(List.of(6));
         assertEquals(130, MjolnirStormManager.finaleDamage(finale, 100, 6), 1.0E-4);
         assertEquals(130, MjolnirStormManager.finaleDamage(finale, 100, 12), 1.0E-4);
     }
@@ -139,18 +139,18 @@ final class MjolnirMasterySkillEffectTest {
 
     @Test
     void absorptionGrantsCarryTheDurationsTheyAdvertise() {
-        Phase6AbilityTuning shell = tune(List.of(18));
+        StormFrostWaterMasteryTuning shell = tune(List.of(18));
         assertEquals(4, shell.get(s("MJOLNIR_SHELL_ABSORPTION"), 0), 1.0E-6);
         assertEquals(80, shell.integer(s("MJOLNIR_SHELL_DURATION_TICKS"), 0));
 
-        Phase6AbilityTuning aegis = tune(List.of(25));
+        StormFrostWaterMasteryTuning aegis = tune(List.of(25));
         assertEquals(8, aegis.get(s("MJOLNIR_AEGIS_ABSORPTION"), 0), 1.0E-6);
         assertEquals(120, aegis.integer(s("MJOLNIR_AEGIS_DURATION_TICKS"), 0));
     }
 
     @Test
     void updraftReachesTheConductiveBurstRatherThanTheFinalClap() {
-        Phase6AbilityTuning updraft = tune(List.of(21));
+        StormFrostWaterMasteryTuning updraft = tune(List.of(21));
         assertEquals(1.15, updraft.get(s("MJOLNIR_BURST_KNOCKBACK_MULTIPLIER"), 1), 1.0E-6);
         assertEquals(1.25, updraft.get(s("MJOLNIR_BURST_KNOCKUP_MULTIPLIER"), 1), 1.0E-6);
         assertFalse(updraft.has(s("MJOLNIR_FINAL_KNOCKBACK_MULTIPLIER")));
@@ -160,19 +160,19 @@ final class MjolnirMasterySkillEffectTest {
         return IntStream.range(0, 27).boxed().toList();
     }
 
-    private static Phase6AbilityTuning tune(List<Integer> nodes) {
-        UniqueAbilityDefinition definition = Phase6UniqueAbilities.MJOLNIR_STORM;
+    private static StormFrostWaterMasteryTuning tune(List<Integer> nodes) {
+        UniqueAbilityDefinition definition = StormFrostWaterMasteryAbilities.MJOLNIR_STORM;
         MasteryProfile profile = BuiltInFamilyProfiles.profile("mjolnir");
         UniqueAbilityTuning.Builder builder = UniqueAbilityTuning.builder(definition)
-                .set(Phase6UniqueAbilities.TUNING, Phase6AbilityTuning.EMPTY)
-                .set(Phase6UniqueAbilities.COOLDOWN_TICKS, 700);
+                .set(StormFrostWaterMasteryAbilities.TUNING, StormFrostWaterMasteryTuning.EMPTY)
+                .set(StormFrostWaterMasteryAbilities.COOLDOWN_TICKS, 700);
         AbilitySkillEffectType effect = (AbilitySkillEffectType) SkillEffectRegistry.get(
                 profile.nodes().getFirst().effect().type());
         for (int node : nodes) effect.tune(null, definition, builder, profile.nodes().get(node));
-        return builder.get(Phase6UniqueAbilities.TUNING);
+        return builder.get(StormFrostWaterMasteryAbilities.TUNING);
     }
 
-    private static Phase6AbilityTuning.Setting s(String name) {
-        return Phase6AbilityTuning.Setting.valueOf(name);
+    private static StormFrostWaterMasteryTuning.Setting s(String name) {
+        return StormFrostWaterMasteryTuning.Setting.valueOf(name);
     }
 }

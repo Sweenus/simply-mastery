@@ -1,10 +1,10 @@
 package net.sweenus.simplymastery.mastery.effect;
 
 import net.minecraft.util.Identifier;
-import net.sweenus.simplymastery.SimplyMastery;
 import net.sweenus.simplymastery.mastery.definition.MasteryProfile;
-import net.sweenus.simplyswords.api.ability.Phase4AbilityTuning;
-import net.sweenus.simplyswords.api.ability.Phase4UniqueAbilities;
+import net.sweenus.simplymastery.mastery.definition.MasteryCohort;
+import net.sweenus.simplyswords.api.ability.LongPathFinalFormsMasteryTuning;
+import net.sweenus.simplyswords.api.ability.LongPathFinalFormsMasteryAbilities;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityContext;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityDefinition;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityTuning;
@@ -12,8 +12,8 @@ import net.sweenus.simplyswords.api.ability.UniqueAbilityTuning;
 import java.util.List;
 import java.util.Set;
 
-final class Phase4MasterySkillEffect implements AbilitySkillEffectType {
-    private static final Identifier ID = Identifier.of(SimplyMastery.MOD_ID, "phase4_mastery");
+final class LongPathFinalFormsMasterySkillEffect implements AbilitySkillEffectType {
+    private static final Identifier ID = MasteryCohort.LONG_PATH_FINAL_FORMS.effectId();
 
     @Override
     public Identifier id() {
@@ -23,7 +23,7 @@ final class Phase4MasterySkillEffect implements AbilitySkillEffectType {
     @Override
     public void validate(MasteryProfile.Effect effect, String where, List<String> errors) {
         if (!effect.parameters().keySet().equals(Set.of("kind"))) {
-            errors.add(where + "phase4_mastery requires only kind");
+            errors.add(where + "cohort/long_path_final_forms requires only kind");
         }
         int kind = effect.parameters().getOrDefault("kind", -1);
         if (kind < 0 || kind >= 81) errors.add(where + "kind must be between 0 and 80");
@@ -37,23 +37,23 @@ final class Phase4MasterySkillEffect implements AbilitySkillEffectType {
         int profile = kind / 27;
         int branch = kind % 27 / 9;
         int slot = kind % 9;
-        Phase4AbilityTuning value = tuning.get(Phase4UniqueAbilities.TUNING);
+        LongPathFinalFormsMasteryTuning value = tuning.get(LongPathFinalFormsMasteryAbilities.TUNING);
         value = switch (profile) {
             case 0 -> lichblade(value, definition, branch, slot);
             case 1 -> sunfire(value, definition, branch, slot);
             case 2 -> harbinger(value, definition, branch, slot);
             default -> value;
         };
-        tuning.set(Phase4UniqueAbilities.TUNING, value);
+        tuning.set(LongPathFinalFormsMasteryAbilities.TUNING, value);
         if (definition.cooldownKey().isPresent()) {
-            tuning.set(Phase4UniqueAbilities.COOLDOWN_TICKS,
-                    value.integer(s("COOLDOWN_TICKS"), tuning.get(Phase4UniqueAbilities.COOLDOWN_TICKS)));
+            tuning.set(LongPathFinalFormsMasteryAbilities.COOLDOWN_TICKS,
+                    value.integer(s("COOLDOWN_TICKS"), tuning.get(LongPathFinalFormsMasteryAbilities.COOLDOWN_TICKS)));
         }
     }
 
-    private static Phase4AbilityTuning lichblade(Phase4AbilityTuning t, UniqueAbilityDefinition definition,
+    private static LongPathFinalFormsMasteryTuning lichblade(LongPathFinalFormsMasteryTuning t, UniqueAbilityDefinition definition,
                                                   int branch, int slot) {
-        boolean aura = definition == Phase4UniqueAbilities.LICHBLADE_AURA;
+        boolean aura = definition == LongPathFinalFormsMasteryAbilities.LICHBLADE_AURA;
         if (aura && (branch > 0 || slot >= 6)) return t;
         if (branch == 0) return switch (slot) {
             case 0 -> aura ? t.with(s("AURA_INTERVAL_TICKS"), 30) : t;
@@ -108,9 +108,9 @@ final class Phase4MasterySkillEffect implements AbilitySkillEffectType {
         };
     }
 
-    private static Phase4AbilityTuning sunfire(Phase4AbilityTuning t, UniqueAbilityDefinition definition,
+    private static LongPathFinalFormsMasteryTuning sunfire(LongPathFinalFormsMasteryTuning t, UniqueAbilityDefinition definition,
                                                 int branch, int slot) {
-        boolean regen = definition == Phase4UniqueAbilities.SUNFIRE_REGEN;
+        boolean regen = definition == LongPathFinalFormsMasteryAbilities.SUNFIRE_REGEN;
         if (branch == 0 && !regen) return switch (slot) {
             case 0 -> t.multiply(s("DAMAGE_MULTIPLIER"), 1.1, 1);
             case 1 -> t.with(s("RADIUS"), 7);
@@ -168,9 +168,9 @@ final class Phase4MasterySkillEffect implements AbilitySkillEffectType {
         };
     }
 
-    private static Phase4AbilityTuning harbinger(Phase4AbilityTuning t, UniqueAbilityDefinition definition,
+    private static LongPathFinalFormsMasteryTuning harbinger(LongPathFinalFormsMasteryTuning t, UniqueAbilityDefinition definition,
                                                   int branch, int slot) {
-        boolean omen = definition == Phase4UniqueAbilities.HARBINGER_OMEN;
+        boolean omen = definition == LongPathFinalFormsMasteryAbilities.HARBINGER_OMEN;
         if (branch == 0 && !omen) return switch (slot) {
             case 0 -> t.multiply(s("DAMAGE_MULTIPLIER"), 1.1, 1);
             case 1 -> t.with(s("RADIUS"), 7);
@@ -228,22 +228,22 @@ final class Phase4MasterySkillEffect implements AbilitySkillEffectType {
 
     private static boolean matches(int profile, UniqueAbilityDefinition definition) {
         return switch (profile) {
-            case 0 -> definition == Phase4UniqueAbilities.LICHBLADE_AURA
-                    || definition == Phase4UniqueAbilities.LICHBLADE_CHANNEL;
-            case 1 -> definition == Phase4UniqueAbilities.SUNFIRE_STANDARD
-                    || definition == Phase4UniqueAbilities.SUNFIRE_REGEN;
-            case 2 -> definition == Phase4UniqueAbilities.HARBINGER_STANDARD
-                    || definition == Phase4UniqueAbilities.HARBINGER_OMEN;
+            case 0 -> definition == LongPathFinalFormsMasteryAbilities.LICHBLADE_AURA
+                    || definition == LongPathFinalFormsMasteryAbilities.LICHBLADE_CHANNEL;
+            case 1 -> definition == LongPathFinalFormsMasteryAbilities.SUNFIRE_STANDARD
+                    || definition == LongPathFinalFormsMasteryAbilities.SUNFIRE_REGEN;
+            case 2 -> definition == LongPathFinalFormsMasteryAbilities.HARBINGER_STANDARD
+                    || definition == LongPathFinalFormsMasteryAbilities.HARBINGER_OMEN;
             default -> false;
         };
     }
 
-    private static Phase4AbilityTuning mode(Phase4AbilityTuning tuning, int bit) {
+    private static LongPathFinalFormsMasteryTuning mode(LongPathFinalFormsMasteryTuning tuning, int bit) {
         return tuning.with(s("MODE"), tuning.integer(s("MODE"), 0) | bit);
     }
 
-    private static Phase4AbilityTuning.Setting s(String name) {
-        return Phase4AbilityTuning.Setting.valueOf(name);
+    private static LongPathFinalFormsMasteryTuning.Setting s(String name) {
+        return LongPathFinalFormsMasteryTuning.Setting.valueOf(name);
     }
 
     private static int parameter(MasteryProfile.Node node, String key, int fallback) {

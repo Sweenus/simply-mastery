@@ -2,9 +2,9 @@ package net.sweenus.simplymastery.mastery.effect;
 
 import net.sweenus.simplymastery.mastery.definition.BuiltInFamilyProfiles;
 import net.sweenus.simplymastery.mastery.definition.MasteryProfile;
-import net.sweenus.simplyswords.api.ability.Phase2AbilityTuning;
-import net.sweenus.simplyswords.api.ability.Phase2AbilityTuning.Setting;
-import net.sweenus.simplyswords.api.ability.Phase2UniqueAbilities;
+import net.sweenus.simplyswords.api.ability.AbyssalSpectralMasteryTuning;
+import net.sweenus.simplyswords.api.ability.AbyssalSpectralMasteryTuning.Setting;
+import net.sweenus.simplyswords.api.ability.AbyssalSpectralMasteryAbilities;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityDefinition;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityTuning;
 
@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 final class DevourerMasterySkillEffectTest {
 
     @Test
-    void everyDevourerNodeRoutesToThePhase2AbilityEffect() {
+    void everyDevourerNodeRoutesToTheAbyssalSpectralAbilityEffect() {
         MasteryProfile profile = BuiltInFamilyProfiles.profile("the_devourer");
 
         assertEquals(27, profile.nodes().size());
@@ -32,7 +32,7 @@ final class DevourerMasterySkillEffectTest {
 
     @Test
     void owningEveryNodeLeavesEachSharedSettingAtItsIntendedValue() {
-        Phase2AbilityTuning tuning = tune(range(0, 27));
+        AbyssalSpectralMasteryTuning tuning = tune(range(0, 27));
 
         assertEquals(.03, tuning.get(Setting.BONUS_PER_TRIGGER, 0), 1.0E-6);
         assertEquals(.25, tuning.get(Setting.ROUTED_DAMAGE_BONUS, 0), 1.0E-6);
@@ -48,7 +48,7 @@ final class DevourerMasterySkillEffectTest {
 
     @Test
     void pulseIntervalsAreSeparateSettings() {
-        Phase2AbilityTuning both = tune(List.of(5, 8));
+        AbyssalSpectralMasteryTuning both = tune(List.of(5, 8));
 
         assertEquals(16.0, both.get(Setting.ACCELERATED_INTERVAL_TICKS, 0));
         assertEquals(30.0, both.get(Setting.PULSE_INTERVAL_TICKS, 0));
@@ -57,7 +57,7 @@ final class DevourerMasterySkillEffectTest {
 
     @Test
     void wanderingHungerConfiguresItsOwnFollowRange() {
-        Phase2AbilityTuning wandering = tune(List.of(7));
+        AbyssalSpectralMasteryTuning wandering = tune(List.of(7));
 
         assertEquals(10.0, wandering.get(Setting.FOLLOW_RANGE, 0));
         assertEquals(.25, wandering.get(Setting.MOVEMENT_SPEED, 0), 1.0E-6);
@@ -67,14 +67,14 @@ final class DevourerMasterySkillEffectTest {
 
     @Test
     void reprisalCapstonesConfigureTheirConsumers() {
-        Phase2AbilityTuning guardian = tune(List.of(25));
+        AbyssalSpectralMasteryTuning guardian = tune(List.of(25));
         assertEquals(.5, guardian.get(Setting.REPRISAL_DAMAGE_MULTIPLIER, 1), 1.0E-6);
         assertEquals(2.0, guardian.get(Setting.REPRISAL_PUSH_STRENGTH, 0), 1.0E-6);
         assertEquals(60.0, guardian.get(Setting.REPRISAL_GUARD_TICKS, 0));
         assertEquals(80.0, guardian.get(Setting.LOCKOUT_TICKS, 0));
         assertEquals(0.0, guardian.get(Setting.PULL_STRENGTH, 0));
 
-        Phase2AbilityTuning vengeful = tune(List.of(26));
+        AbyssalSpectralMasteryTuning vengeful = tune(List.of(26));
         assertEquals(2.25, vengeful.get(Setting.REPRISAL_DAMAGE_MULTIPLIER, 1), 1.0E-6);
         assertEquals(1.0, vengeful.get(Setting.REPRISAL_TARGET_CAP, 0));
         assertEquals(30.0, vengeful.get(Setting.RANGE, 0));
@@ -83,7 +83,7 @@ final class DevourerMasterySkillEffectTest {
 
     @Test
     void starvedBeastKeepsItsRefundBudget() {
-        Phase2AbilityTuning starved = tune(List.of(17));
+        AbyssalSpectralMasteryTuning starved = tune(List.of(17));
 
         assertEquals(20.0, starved.get(Setting.COOLDOWN_REFUND_TICKS, 0));
         assertEquals(160.0, starved.get(Setting.COOLDOWN_REFUND_CAP_TICKS, 0));
@@ -94,12 +94,12 @@ final class DevourerMasterySkillEffectTest {
         return java.util.stream.IntStream.range(from, to).boxed().toList();
     }
 
-    private static Phase2AbilityTuning tune(List<Integer> slots) {
+    private static AbyssalSpectralMasteryTuning tune(List<Integer> slots) {
         MasteryProfile profile = BuiltInFamilyProfiles.profile("the_devourer");
-        UniqueAbilityDefinition definition = Phase2UniqueAbilities.DEVOURER_MASS;
+        UniqueAbilityDefinition definition = AbyssalSpectralMasteryAbilities.DEVOURER_MASS;
         UniqueAbilityTuning.Builder builder = UniqueAbilityTuning.builder(definition);
-        builder.set(Phase2UniqueAbilities.COOLDOWN_TICKS, 1200);
-        builder.set(Phase2UniqueAbilities.TUNING, Phase2AbilityTuning.EMPTY
+        builder.set(AbyssalSpectralMasteryAbilities.COOLDOWN_TICKS, 1200);
+        builder.set(AbyssalSpectralMasteryAbilities.TUNING, AbyssalSpectralMasteryTuning.EMPTY
                 .with(Setting.COOLDOWN_TICKS, 1200)
                 .with(Setting.DURATION_TICKS, 800));
         AbilitySkillEffectType effect = (AbilitySkillEffectType) SkillEffectRegistry.get(
@@ -107,6 +107,6 @@ final class DevourerMasterySkillEffectTest {
         for (int slot : slots) {
             effect.tune(null, definition, builder, profile.nodes().get(slot));
         }
-        return builder.get(Phase2UniqueAbilities.TUNING);
+        return builder.get(AbyssalSpectralMasteryAbilities.TUNING);
     }
 }

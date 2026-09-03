@@ -1,10 +1,10 @@
 package net.sweenus.simplymastery.mastery.effect;
 
 import net.minecraft.util.Identifier;
-import net.sweenus.simplymastery.SimplyMastery;
 import net.sweenus.simplymastery.mastery.definition.MasteryProfile;
-import net.sweenus.simplyswords.api.ability.Phase7AbilityTuning;
-import net.sweenus.simplyswords.api.ability.Phase7UniqueAbilities;
+import net.sweenus.simplymastery.mastery.definition.MasteryCohort;
+import net.sweenus.simplyswords.api.ability.NatureSwarmMasteryTuning;
+import net.sweenus.simplyswords.api.ability.NatureSwarmMasteryAbilities;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityContext;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityDefinition;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityTuning;
@@ -12,8 +12,8 @@ import net.sweenus.simplyswords.api.ability.UniqueAbilityTuning;
 import java.util.List;
 import java.util.Set;
 
-final class Phase7MasterySkillEffect implements AbilitySkillEffectType {
-    private static final Identifier ID = Identifier.of(SimplyMastery.MOD_ID, "phase7_mastery");
+final class NatureSwarmMasterySkillEffect implements AbilitySkillEffectType {
+    private static final Identifier ID = MasteryCohort.NATURE_SWARM.effectId();
 
     @Override
     public Identifier id() {
@@ -23,7 +23,7 @@ final class Phase7MasterySkillEffect implements AbilitySkillEffectType {
     @Override
     public void validate(MasteryProfile.Effect effect, String where, List<String> errors) {
         if (!effect.parameters().keySet().equals(Set.of("kind"))) {
-            errors.add(where + "phase7_mastery requires only kind");
+            errors.add(where + "cohort/nature_swarm requires only kind");
         }
         int kind = effect.parameters().getOrDefault("kind", -1);
         if (kind < 0 || kind >= 108) errors.add(where + "kind must be between 0 and 107");
@@ -38,7 +38,7 @@ final class Phase7MasterySkillEffect implements AbilitySkillEffectType {
         int branch = kind % 27 / 9;
         int slot = kind % 9;
         if (!matches(profile, branch, slot, definition)) return;
-        Phase7AbilityTuning value = tuning.get(Phase7UniqueAbilities.TUNING);
+        NatureSwarmMasteryTuning value = tuning.get(NatureSwarmMasteryAbilities.TUNING);
         if (profile != 0) value = mode(value, 1 << (branch * 9 + slot));
         value = switch (profile) {
             case 0 -> bramblethorn(value, branch, slot);
@@ -47,14 +47,14 @@ final class Phase7MasterySkillEffect implements AbilitySkillEffectType {
             case 3 -> chompolotl(value, branch, slot);
             default -> value;
         };
-        tuning.set(Phase7UniqueAbilities.TUNING, value);
+        tuning.set(NatureSwarmMasteryAbilities.TUNING, value);
         if (definition.cooldownKey().isPresent()) {
-            tuning.set(Phase7UniqueAbilities.COOLDOWN_TICKS,
-                    value.integer(s("COOLDOWN_TICKS"), tuning.get(Phase7UniqueAbilities.COOLDOWN_TICKS)));
+            tuning.set(NatureSwarmMasteryAbilities.COOLDOWN_TICKS,
+                    value.integer(s("COOLDOWN_TICKS"), tuning.get(NatureSwarmMasteryAbilities.COOLDOWN_TICKS)));
         }
     }
 
-    private static Phase7AbilityTuning bramblethorn(Phase7AbilityTuning t, int branch, int slot) {
+    private static NatureSwarmMasteryTuning bramblethorn(NatureSwarmMasteryTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
             case 0 -> t.with(s("BRAMBLE_GRASP_RANGE_BONUS"), 4);
             case 1 -> t.with(s("BRAMBLE_GRASP_RADIUS_BONUS"), 1.5);
@@ -118,7 +118,7 @@ final class Phase7MasterySkillEffect implements AbilitySkillEffectType {
         };
     }
 
-    private static Phase7AbilityTuning waxweaver(Phase7AbilityTuning t, int branch, int slot) {
+    private static NatureSwarmMasteryTuning waxweaver(NatureSwarmMasteryTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
             case 0 -> t.with(s("WAX_PRISON_RANGE_BONUS"), 3);
             case 1 -> t.with(s("WAX_PRISON_DURATION_BONUS_TICKS"), 20);
@@ -180,7 +180,7 @@ final class Phase7MasterySkillEffect implements AbilitySkillEffectType {
         };
     }
 
-    private static Phase7AbilityTuning hiveheart(Phase7AbilityTuning t, int branch, int slot) {
+    private static NatureSwarmMasteryTuning hiveheart(NatureSwarmMasteryTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
             case 0 -> t.with(s("HIVE_PROC_DAMAGE_MULTIPLIER"), 1.12);
             case 1 -> t.with(s("HIVE_PROC_COOLDOWN_BONUS_TICKS"), -10);
@@ -248,7 +248,7 @@ final class Phase7MasterySkillEffect implements AbilitySkillEffectType {
         };
     }
 
-    private static Phase7AbilityTuning chompolotl(Phase7AbilityTuning t, int branch, int slot) {
+    private static NatureSwarmMasteryTuning chompolotl(NatureSwarmMasteryTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
             case 0 -> t.with(s("CHOMP_PROC_DAMAGE_MULTIPLIER"), 1.12);
             case 1 -> t.with(s("CHOMP_PROC_COOLDOWN_BONUS_TICKS"), -10);
@@ -315,26 +315,26 @@ final class Phase7MasterySkillEffect implements AbilitySkillEffectType {
 
     private static boolean matches(int profile, int branch, int slot, UniqueAbilityDefinition definition) {
         return switch (profile) {
-            case 0 -> definition == Phase7UniqueAbilities.BRAMBLE_GRASP ? branch != 1
-                    : definition == Phase7UniqueAbilities.BRAMBLE_HUNT && branch == 1;
-            case 1 -> definition == Phase7UniqueAbilities.WAXWEAVER_PRISON
+            case 0 -> definition == NatureSwarmMasteryAbilities.BRAMBLE_GRASP ? branch != 1
+                    : definition == NatureSwarmMasteryAbilities.BRAMBLE_HUNT && branch == 1;
+            case 1 -> definition == NatureSwarmMasteryAbilities.WAXWEAVER_PRISON
                     ? branch == 0 || branch == 2 && (slot == 2 || slot == 5)
-                    : definition == Phase7UniqueAbilities.WAXWEAVER_TEMPO ? branch == 1
-                    : definition == Phase7UniqueAbilities.WAXWEAVER_REVIVAL && branch == 2;
-            case 2 -> definition == Phase7UniqueAbilities.HIVEHEART_PROC ? branch == 0
-                    : definition == Phase7UniqueAbilities.HIVEHEART_SWARM && branch != 0;
-            case 3 -> definition == Phase7UniqueAbilities.CHOMPOLOTL_PROC ? branch == 0
-                    : (definition == Phase7UniqueAbilities.CHOMPOLOTL_RALLY
-                    || definition == Phase7UniqueAbilities.CHOMPOLOTL_GUARDIAN) && branch != 0;
+                    : definition == NatureSwarmMasteryAbilities.WAXWEAVER_TEMPO ? branch == 1
+                    : definition == NatureSwarmMasteryAbilities.WAXWEAVER_REVIVAL && branch == 2;
+            case 2 -> definition == NatureSwarmMasteryAbilities.HIVEHEART_PROC ? branch == 0
+                    : definition == NatureSwarmMasteryAbilities.HIVEHEART_SWARM && branch != 0;
+            case 3 -> definition == NatureSwarmMasteryAbilities.CHOMPOLOTL_PROC ? branch == 0
+                    : (definition == NatureSwarmMasteryAbilities.CHOMPOLOTL_RALLY
+                    || definition == NatureSwarmMasteryAbilities.CHOMPOLOTL_GUARDIAN) && branch != 0;
             default -> false;
         };
     }
 
-    private static Phase7AbilityTuning mode(Phase7AbilityTuning tuning, int bit) {
+    private static NatureSwarmMasteryTuning mode(NatureSwarmMasteryTuning tuning, int bit) {
         return tuning.with(s("MODE"), tuning.integer(s("MODE"), 0) | bit);
     }
 
-    private static Phase7AbilityTuning.Setting s(String name) {
-        return Phase7AbilityTuning.Setting.valueOf(name);
+    private static NatureSwarmMasteryTuning.Setting s(String name) {
+        return NatureSwarmMasteryTuning.Setting.valueOf(name);
     }
 }

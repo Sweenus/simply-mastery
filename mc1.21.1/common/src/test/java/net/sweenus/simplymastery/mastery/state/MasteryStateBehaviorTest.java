@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-final class MasteryPhase3StateTest {
+final class MasteryStateBehaviorTest {
 
     private static MasteryState state(int xp, int points, List<String> nodes, long revision) {
         return new MasteryState(1, Identifier.of("simplymastery", "test"), 1, xp, points, nodes, revision);

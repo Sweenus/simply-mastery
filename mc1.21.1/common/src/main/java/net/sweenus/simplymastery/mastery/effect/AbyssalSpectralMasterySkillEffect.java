@@ -1,18 +1,18 @@
 package net.sweenus.simplymastery.mastery.effect;
 
 import net.minecraft.util.Identifier;
-import net.sweenus.simplymastery.SimplyMastery;
 import net.sweenus.simplymastery.mastery.definition.MasteryProfile;
-import net.sweenus.simplyswords.api.ability.Phase2AbilityTuning;
-import net.sweenus.simplyswords.api.ability.Phase2UniqueAbilities;
+import net.sweenus.simplymastery.mastery.definition.MasteryCohort;
+import net.sweenus.simplyswords.api.ability.AbyssalSpectralMasteryTuning;
+import net.sweenus.simplyswords.api.ability.AbyssalSpectralMasteryAbilities;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityContext;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityDefinition;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityTuning;
 
 import java.util.List;
 
-final class Phase2MasterySkillEffect implements AbilitySkillEffectType {
-    private static final Identifier ID = Identifier.of(SimplyMastery.MOD_ID, "phase2_mastery");
+final class AbyssalSpectralMasterySkillEffect implements AbilitySkillEffectType {
+    private static final Identifier ID = MasteryCohort.ABYSSAL_SPECTRAL.effectId();
 
     @Override
     public Identifier id() {
@@ -22,7 +22,7 @@ final class Phase2MasterySkillEffect implements AbilitySkillEffectType {
     @Override
     public void validate(MasteryProfile.Effect effect, String where, List<String> errors) {
         if (!effect.parameters().keySet().equals(java.util.Set.of("kind"))) {
-            errors.add(where + "phase2_mastery requires only kind");
+            errors.add(where + "cohort/abyssal_spectral requires only kind");
         }
         int kind = effect.parameters().getOrDefault("kind", -1);
         if (kind < 0 || kind >= 162) errors.add(where + "kind must be between 0 and 161");
@@ -35,7 +35,7 @@ final class Phase2MasterySkillEffect implements AbilitySkillEffectType {
         if (kind < 0 || kind >= 162 || !matches(kind / 27, definition)) return;
         int branch = kind % 27 / 9;
         int slot = kind % 9;
-        Phase2AbilityTuning value = tuning.get(Phase2UniqueAbilities.TUNING);
+        AbyssalSpectralMasteryTuning value = tuning.get(AbyssalSpectralMasteryAbilities.TUNING);
         value = switch (kind / 27) {
             case 0 -> watcher(value, branch, slot);
             case 1 -> devourer(value, branch, slot);
@@ -45,15 +45,15 @@ final class Phase2MasterySkillEffect implements AbilitySkillEffectType {
             case 5 -> wraithmaw(value, branch, slot);
             default -> value;
         };
-        tuning.set(Phase2UniqueAbilities.TUNING, value);
+        tuning.set(AbyssalSpectralMasteryAbilities.TUNING, value);
         if (definition.cooldownKey().isPresent()) {
-            int cooldown = value.integer(Phase2AbilityTuning.Setting.COOLDOWN_TICKS,
-                    tuning.get(Phase2UniqueAbilities.COOLDOWN_TICKS));
-            tuning.set(Phase2UniqueAbilities.COOLDOWN_TICKS, cooldown);
+            int cooldown = value.integer(AbyssalSpectralMasteryTuning.Setting.COOLDOWN_TICKS,
+                    tuning.get(AbyssalSpectralMasteryAbilities.COOLDOWN_TICKS));
+            tuning.set(AbyssalSpectralMasteryAbilities.COOLDOWN_TICKS, cooldown);
         }
     }
 
-    private static Phase2AbilityTuning watcher(Phase2AbilityTuning t, int branch, int slot) {
+    private static AbyssalSpectralMasteryTuning watcher(AbyssalSpectralMasteryTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
             case 0 -> t.with(s("STACK_DURATION_TICKS"), 260);
             case 1 -> t.with(s("STACK_CAP"), 6);
@@ -106,7 +106,7 @@ final class Phase2MasterySkillEffect implements AbilitySkillEffectType {
         };
     }
 
-    private static Phase2AbilityTuning devourer(Phase2AbilityTuning t, int branch, int slot) {
+    private static AbyssalSpectralMasteryTuning devourer(AbyssalSpectralMasteryTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
             case 0 -> t.with(s("RADIUS"), 4.3).with(s("SCAN_RADIUS"), 8);
             case 1 -> t.multiply(s("DAMAGE_MULTIPLIER"), 1.1, 1);
@@ -160,7 +160,7 @@ final class Phase2MasterySkillEffect implements AbilitySkillEffectType {
         };
     }
 
-    private static Phase2AbilityTuning wickpiercer(Phase2AbilityTuning t, int branch, int slot) {
+    private static AbyssalSpectralMasteryTuning wickpiercer(AbyssalSpectralMasteryTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
             case 0 -> t.multiply(s("PROJECTILE_DAMAGE_MULTIPLIER"), 1.1, 1);
             case 1 -> t.with(s("PROJECTILE_SPEED"), 1.8);
@@ -216,10 +216,10 @@ final class Phase2MasterySkillEffect implements AbilitySkillEffectType {
         };
     }
 
-    private static Phase2AbilityTuning gloampiercer(Phase2AbilityTuning t, int branch, int slot,
+    private static AbyssalSpectralMasteryTuning gloampiercer(AbyssalSpectralMasteryTuning t, int branch, int slot,
                                                     UniqueAbilityDefinition definition) {
         if (branch == 0) {
-            if (definition != Phase2UniqueAbilities.GLOAMPIERCER_AMBUSH) return t;
+            if (definition != AbyssalSpectralMasteryAbilities.GLOAMPIERCER_AMBUSH) return t;
             return switch (slot) {
             case 0 -> t.with(s("PASSIVE_COOLDOWN_TICKS"), 10);
             case 1 -> t.with(s("FIRE_DELAY_TICKS"), 7);
@@ -237,7 +237,7 @@ final class Phase2MasterySkillEffect implements AbilitySkillEffectType {
             };
         }
         if (branch == 1) {
-            if (definition != Phase2UniqueAbilities.GLOAMPIERCER_BARRAGE) return t;
+            if (definition != AbyssalSpectralMasteryAbilities.GLOAMPIERCER_BARRAGE) return t;
             return switch (slot) {
             case 0 -> t.with(s("SPEAR_COUNT"), 20);
             case 1 -> t.with(s("CLONE_COUNT"), 6);
@@ -272,7 +272,7 @@ final class Phase2MasterySkillEffect implements AbilitySkillEffectType {
         };
     }
 
-    private static Phase2AbilityTuning wraithfang(Phase2AbilityTuning t, int branch, int slot) {
+    private static AbyssalSpectralMasteryTuning wraithfang(AbyssalSpectralMasteryTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
             case 0 -> t.multiply(s("PROJECTILE_DAMAGE_MULTIPLIER"), 1.1, 1);
             case 1 -> t.multiply(s("PROJECTILE_SPEED"), 1.85 / 1.5, 1.5);
@@ -329,7 +329,7 @@ final class Phase2MasterySkillEffect implements AbilitySkillEffectType {
         };
     }
 
-    private static Phase2AbilityTuning wraithmaw(Phase2AbilityTuning t, int branch, int slot) {
+    private static AbyssalSpectralMasteryTuning wraithmaw(AbyssalSpectralMasteryTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
             case 0 -> t.with(s("SPEAR_COUNT"), 18);
             case 1 -> t.with(s("MATERIALIZE_TICKS"), 10);
@@ -382,27 +382,27 @@ final class Phase2MasterySkillEffect implements AbilitySkillEffectType {
 
     private static boolean matches(int profile, UniqueAbilityDefinition definition) {
         return switch (profile) {
-            case 0 -> definition == Phase2UniqueAbilities.WATCHER_DREAD
-                    || definition == Phase2UniqueAbilities.WATCHER_OMEN;
-            case 1 -> definition == Phase2UniqueAbilities.DEVOURER_MASS
-                    || definition == Phase2UniqueAbilities.DEVOURER_REPRISAL;
-            case 2 -> definition == Phase2UniqueAbilities.WICKPIERCER_THROW
-                    || definition == Phase2UniqueAbilities.WICKPIERCER_REVIVE;
-            case 3 -> definition == Phase2UniqueAbilities.GLOAMPIERCER_AMBUSH
-                    || definition == Phase2UniqueAbilities.GLOAMPIERCER_BARRAGE;
-            case 4 -> definition == Phase2UniqueAbilities.WRAITHFANG_THROW;
-            case 5 -> definition == Phase2UniqueAbilities.WRAITHMAW_MUSTER;
+            case 0 -> definition == AbyssalSpectralMasteryAbilities.WATCHER_DREAD
+                    || definition == AbyssalSpectralMasteryAbilities.WATCHER_OMEN;
+            case 1 -> definition == AbyssalSpectralMasteryAbilities.DEVOURER_MASS
+                    || definition == AbyssalSpectralMasteryAbilities.DEVOURER_REPRISAL;
+            case 2 -> definition == AbyssalSpectralMasteryAbilities.WICKPIERCER_THROW
+                    || definition == AbyssalSpectralMasteryAbilities.WICKPIERCER_REVIVE;
+            case 3 -> definition == AbyssalSpectralMasteryAbilities.GLOAMPIERCER_AMBUSH
+                    || definition == AbyssalSpectralMasteryAbilities.GLOAMPIERCER_BARRAGE;
+            case 4 -> definition == AbyssalSpectralMasteryAbilities.WRAITHFANG_THROW;
+            case 5 -> definition == AbyssalSpectralMasteryAbilities.WRAITHMAW_MUSTER;
             default -> false;
         };
     }
 
-    private static Phase2AbilityTuning mode(Phase2AbilityTuning tuning, int bit) {
-        int current = tuning.integer(Phase2AbilityTuning.Setting.MODE, 0);
-        return tuning.with(Phase2AbilityTuning.Setting.MODE, current | bit);
+    private static AbyssalSpectralMasteryTuning mode(AbyssalSpectralMasteryTuning tuning, int bit) {
+        int current = tuning.integer(AbyssalSpectralMasteryTuning.Setting.MODE, 0);
+        return tuning.with(AbyssalSpectralMasteryTuning.Setting.MODE, current | bit);
     }
 
-    private static Phase2AbilityTuning.Setting s(String name) {
-        return Phase2AbilityTuning.Setting.valueOf(name);
+    private static AbyssalSpectralMasteryTuning.Setting s(String name) {
+        return AbyssalSpectralMasteryTuning.Setting.valueOf(name);
     }
 
     private static int parameter(MasteryProfile.Node node, String key, int fallback) {

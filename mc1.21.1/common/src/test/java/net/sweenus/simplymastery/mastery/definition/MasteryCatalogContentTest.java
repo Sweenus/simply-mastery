@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-final class MasteryPhase5ContentTest {
+final class MasteryCatalogContentTest {
 
     @Test
     void completeCatalogMeetsReleasedTreeGate() {
@@ -30,24 +30,18 @@ final class MasteryPhase5ContentTest {
         Set<Identifier> icons = new HashSet<>();
         Set<String> roots = new HashSet<>();
         for (MasteryProfile profile : catalog.values()) {
-            int expectedVersion = profile.id().getPath().equals("storms_edge") ? 4
-                    : profile.id().getPath().equals("brimstone_claymore")
-                    || List.of("watcher_claymore", "the_devourer", "wickpiercer", "gloampiercer",
-                    "wraithfang", "wraithmaw", "stormscale", "ionbound_stormscale", "soulrender",
-                    "soulstalker", "whisperwind", "dreadwhisper", "awakened_lichblade", "sunfire",
-                    "harbinger", "hearthflame", "emberblade", "emberlash", "flamewind",
-                    "molten_edge", "soulpyre", "stormbringer", "mjolnir", "thunderbrand",
-                    "tempest", "frostfall", "icewhisper", "livyatan", "bramblethorn",
-                    "waxweaver", "hiveheart", "chompolotl", "toxic_longsword", "soulkeeper",
-                    "soulstealer", "twisted_blade", "shadowsting", "bloodwake", "arcanethyst",
-                    "stars_edge", "magiscythe", "magiblade", "magispear", "enigma", "caelestis",
-                    "watching_warglaive", "ribboncleaver", "riftmane", "dawnquiver", "dreadtide")
-                    .contains(profile.id().getPath()) ? 3 : 2;
+            String path = profile.id().getPath();
+            int expectedVersion = path.equals("brimstone_claymore") ? 3 : 4;
             assertEquals(expectedVersion, profile.version());
             assertEquals(3, profile.branches().size());
             assertEquals(27, profile.nodes().size());
             assertTrue(profile.migrations().stream().anyMatch(migration -> migration.fromVersion() == 1
                     && migration.toVersion() == 2 && migration.renamedNodes().size() >= 12));
+            if (MasteryCohort.forProfile(path).isPresent()) {
+                assertTrue(profile.migrations().stream().anyMatch(migration -> migration.fromVersion() == 3
+                        && migration.toVersion() == 4 && migration.renamedNodes().isEmpty()
+                        && migration.removedNodeRefunds().isEmpty()));
+            }
             for (MasteryProfile.Branch branch : profile.branches()) {
                 List<MasteryProfile.Node> nodes = profile.nodes().stream()
                         .filter(node -> node.branch().equals(branch.id())).toList();
@@ -111,7 +105,7 @@ final class MasteryPhase5ContentTest {
         assertEquals(1_404, ledger.lines().filter(line -> line.startsWith("| `simplymastery:")).count());
         assertTrue(MasteryBalanceReport.warnings(profiles).isEmpty());
         assertTrue(ledger.contains("Reference nodes: 54"));
-        assertTrue(ledger.contains("Phased nodes: 1350"));
+        assertTrue(ledger.contains("Cohort nodes: 1350"));
         assertTrue(ledger.contains("Warnings: 0"));
         assertTrue(ledger.contains("Trigger frequency"));
         assertTrue(ledger.contains("Combat role"));

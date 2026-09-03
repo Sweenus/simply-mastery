@@ -2,9 +2,9 @@ package net.sweenus.simplymastery.mastery.effect;
 
 import net.sweenus.simplymastery.mastery.definition.BuiltInFamilyProfiles;
 import net.sweenus.simplymastery.mastery.definition.MasteryProfile;
-import net.sweenus.simplyswords.api.ability.Phase3AbilityTuning;
-import net.sweenus.simplyswords.api.ability.Phase3AbilityTuning.Setting;
-import net.sweenus.simplyswords.api.ability.Phase3UniqueAbilities;
+import net.sweenus.simplyswords.api.ability.StormSoulMasteryTuning;
+import net.sweenus.simplyswords.api.ability.StormSoulMasteryTuning.Setting;
+import net.sweenus.simplyswords.api.ability.StormSoulMasteryAbilities;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityDefinition;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityTuning;
 import org.junit.jupiter.api.Test;
@@ -35,11 +35,11 @@ final class IonboundStormscaleMasterySkillEffectTest {
 
     @Test
     void theIonReserveNeverAltersTheBeamCadenceOrTheCorridorPull() {
-        Phase3AbilityTuning beam = tune(Phase3UniqueAbilities.IONBOUND_BEAM, ALL);
-        Phase3AbilityTuning crusher = tune(Phase3UniqueAbilities.IONBOUND_CRUSHER, List.of(0, 3, 5, 8));
+        StormSoulMasteryTuning beam = tune(StormSoulMasteryAbilities.IONBOUND_BEAM, ALL);
+        StormSoulMasteryTuning crusher = tune(StormSoulMasteryAbilities.IONBOUND_CRUSHER, List.of(0, 3, 5, 8));
 
         assertEquals(4, beam.integer(Setting.INTERVAL_TICKS, 5));
-        assertEquals(145, tune(Phase3UniqueAbilities.IONBOUND_SHIELD, List.of(0))
+        assertEquals(145, tune(StormSoulMasteryAbilities.IONBOUND_SHIELD, List.of(0))
                 .integer(Setting.RESERVE_INTERVAL_TICKS, 160));
         assertFalse(crusher.has(Setting.PULL_STRENGTH));
         assertFalse(crusher.has(Setting.LOCKOUT_TICKS));
@@ -48,7 +48,7 @@ final class IonboundStormscaleMasterySkillEffectTest {
 
     @Test
     void aReserveOnlyLoadoutLeavesTheBeamOnItsConfiguredCadence() {
-        Phase3AbilityTuning beam = tune(Phase3UniqueAbilities.IONBOUND_BEAM, List.of(0, 8));
+        StormSoulMasteryTuning beam = tune(StormSoulMasteryAbilities.IONBOUND_BEAM, List.of(0, 8));
 
         assertFalse(beam.has(Setting.INTERVAL_TICKS));
         assertEquals(5, beam.integer(Setting.INTERVAL_TICKS, 5));
@@ -56,7 +56,7 @@ final class IonboundStormscaleMasterySkillEffectTest {
 
     @Test
     void crushingFocusUsesALaneWidthInsteadOfTheCorridorWidth() {
-        Phase3AbilityTuning crusher = tune(Phase3UniqueAbilities.IONBOUND_CRUSHER, List.of(9, 14));
+        StormSoulMasteryTuning crusher = tune(StormSoulMasteryAbilities.IONBOUND_CRUSHER, List.of(9, 14));
 
         assertEquals(7, crusher.get(Setting.WIDTH, 6), 1.0E-6);
         assertEquals(2, crusher.get(Setting.FOCUS_LANE_WIDTH, 0), 1.0E-6);
@@ -65,7 +65,7 @@ final class IonboundStormscaleMasterySkillEffectTest {
 
     @Test
     void repulsorGateExpressesItsBurstThroughADedicatedKey() {
-        Phase3AbilityTuning crusher = tune(Phase3UniqueAbilities.IONBOUND_CRUSHER, List.of(17));
+        StormSoulMasteryTuning crusher = tune(StormSoulMasteryAbilities.IONBOUND_CRUSHER, List.of(17));
 
         assertEquals(3, crusher.get(Setting.BURST_STRENGTH, 0), 1.0E-6);
         assertEquals(.75, crusher.get(Setting.BEAM_WIDTH_MULTIPLIER, 0), 1.0E-6);
@@ -74,21 +74,21 @@ final class IonboundStormscaleMasterySkillEffectTest {
 
     @Test
     void slamAndBeamCapstonesComposeWithTheirPrerequisites() {
-        assertEquals(2.464, tune(Phase3UniqueAbilities.IONBOUND_CRUSHER, List.of(12, 16))
+        assertEquals(2.464, tune(StormSoulMasteryAbilities.IONBOUND_CRUSHER, List.of(12, 16))
                 .get(Setting.DAMAGE_MULTIPLIER, 1), 1.0E-6);
-        assertEquals(1.68, tune(Phase3UniqueAbilities.IONBOUND_CRUSHER, List.of(12, 17))
+        assertEquals(1.68, tune(StormSoulMasteryAbilities.IONBOUND_CRUSHER, List.of(12, 17))
                 .get(Setting.DAMAGE_MULTIPLIER, 1), 1.0E-6);
-        assertEquals(.77, tune(Phase3UniqueAbilities.IONBOUND_BEAM, List.of(21, 25))
+        assertEquals(.77, tune(StormSoulMasteryAbilities.IONBOUND_BEAM, List.of(21, 25))
                 .get(Setting.DAMAGE_MULTIPLIER, 1), 1.0E-6);
-        assertEquals(2.475, tune(Phase3UniqueAbilities.IONBOUND_BEAM, List.of(21, 26))
+        assertEquals(2.475, tune(StormSoulMasteryAbilities.IONBOUND_BEAM, List.of(21, 26))
                 .get(Setting.DAMAGE_MULTIPLIER, 1), 1.0E-6);
-        assertEquals(1.32, tune(Phase3UniqueAbilities.IONBOUND_BEAM, List.of(21, 24))
+        assertEquals(1.32, tune(StormSoulMasteryAbilities.IONBOUND_BEAM, List.of(21, 24))
                 .get(Setting.DAMAGE_MULTIPLIER, 1), 1.0E-6);
     }
 
     @Test
     void everyPreviouslyInertNodeNowCarriesItsOwnConsumedSettings() {
-        Phase3AbilityTuning shield = tune(Phase3UniqueAbilities.IONBOUND_SHIELD, ALL);
+        StormSoulMasteryTuning shield = tune(StormSoulMasteryAbilities.IONBOUND_SHIELD, ALL);
 
         assertEquals(2, shield.get(Setting.SHIELD_PUSH_STRENGTH, 0), 1.0E-6);
         assertEquals(3, shield.integer(Setting.RESERVE_STACK_CAP, 0));
@@ -104,8 +104,8 @@ final class IonboundStormscaleMasterySkillEffectTest {
 
     @Test
     void trapArmourAndParalysisModesAreAllArmed() {
-        Phase3AbilityTuning crusher = tune(Phase3UniqueAbilities.IONBOUND_CRUSHER, ALL);
-        Phase3AbilityTuning beam = tune(Phase3UniqueAbilities.IONBOUND_BEAM, ALL);
+        StormSoulMasteryTuning crusher = tune(StormSoulMasteryAbilities.IONBOUND_CRUSHER, ALL);
+        StormSoulMasteryTuning beam = tune(StormSoulMasteryAbilities.IONBOUND_BEAM, ALL);
 
         assertEquals(.1, crusher.get(Setting.TRAP_MOVEMENT_SPEED, 0), 1.0E-6);
         assertTrue((crusher.integer(Setting.MODE, 0) & 2048) != 0);
@@ -115,18 +115,18 @@ final class IonboundStormscaleMasterySkillEffectTest {
         assertFalse(beam.has(Setting.TARGET_CAP));
     }
 
-    private static Phase3AbilityTuning tune(UniqueAbilityDefinition definition, List<Integer> nodes) {
+    private static StormSoulMasteryTuning tune(UniqueAbilityDefinition definition, List<Integer> nodes) {
         MasteryProfile profile = BuiltInFamilyProfiles.profile("ionbound_stormscale");
         UniqueAbilityTuning.Builder builder = UniqueAbilityTuning.builder(definition);
         if (definition.cooldownKey().isPresent()) {
-            builder.set(Phase3UniqueAbilities.COOLDOWN_TICKS, 60);
+            builder.set(StormSoulMasteryAbilities.COOLDOWN_TICKS, 60);
         }
-        builder.set(Phase3UniqueAbilities.TUNING, Phase3AbilityTuning.EMPTY);
+        builder.set(StormSoulMasteryAbilities.TUNING, StormSoulMasteryTuning.EMPTY);
         AbilitySkillEffectType effect = (AbilitySkillEffectType) SkillEffectRegistry.get(
                 profile.nodes().getFirst().effect().type());
         for (int node : nodes) {
             effect.tune(null, definition, builder, profile.nodes().get(node));
         }
-        return builder.get(Phase3UniqueAbilities.TUNING);
+        return builder.get(StormSoulMasteryAbilities.TUNING);
     }
 }

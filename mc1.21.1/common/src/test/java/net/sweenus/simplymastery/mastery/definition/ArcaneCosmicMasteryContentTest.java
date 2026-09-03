@@ -11,22 +11,22 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-final class Phase5MasteryContentTest {
+final class ArcaneCosmicMasteryContentTest {
     private static final List<String> PROFILES = List.of(
-            "hearthflame", "emberblade", "emberlash", "flamewind", "molten_edge", "soulpyre");
+            "arcanethyst", "stars_edge", "magiscythe", "magiblade", "magispear", "enigma", "caelestis");
 
     @Test
-    void phase5TreesUseStableOrderAndIdentityMigration() {
+    void arcaneCosmicTreesUseStableOrderAndIdentityMigration() {
         for (int profileIndex = 0; profileIndex < PROFILES.size(); profileIndex++) {
             MasteryProfile profile = BuiltInFamilyProfiles.profile(PROFILES.get(profileIndex));
-            assertEquals(3, profile.version());
+            assertEquals(4, profile.version());
             assertEquals(27, profile.nodes().size());
-            assertTrue(profile.migrations().stream().anyMatch(migration -> migration.fromVersion() == 2
-                    && migration.toVersion() == 3 && migration.renamedNodes().isEmpty()
+            assertTrue(profile.migrations().stream().anyMatch(migration -> migration.fromVersion() == 3
+                    && migration.toVersion() == 4 && migration.renamedNodes().isEmpty()
                     && migration.removedNodeRefunds().isEmpty()));
             for (int nodeIndex = 0; nodeIndex < profile.nodes().size(); nodeIndex++) {
                 MasteryProfile.Node node = profile.nodes().get(nodeIndex);
-                assertEquals(Identifier.of("simplymastery", "phase5_mastery"), node.effect().type());
+                assertEquals(Identifier.of("simplymastery", "cohort/arcane_cosmic"), node.effect().type());
                 assertEquals(profileIndex * 27 + nodeIndex, node.effect().parameters().get("kind"));
                 assertEquals(node.nameKey() + ".description", node.descriptionKey());
             }
@@ -34,14 +34,14 @@ final class Phase5MasteryContentTest {
     }
 
     @Test
-    void phase5ParameterBoundsRejectUnknownKindsAndFields() {
+    void arcaneCosmicParameterBoundsRejectUnknownKindsAndFields() {
         List<String> errors = new ArrayList<>();
         SkillEffectRegistry.validate(new MasteryProfile.Effect(
-                Identifier.of("simplymastery", "phase5_mastery"), Map.of("kind", 162)), "node: ", errors);
-        assertTrue(errors.stream().anyMatch(error -> error.contains("between 0 and 161")));
+                Identifier.of("simplymastery", "cohort/arcane_cosmic"), Map.of("kind", 189)), "node: ", errors);
+        assertTrue(errors.stream().anyMatch(error -> error.contains("between 0 and 188")));
         errors.clear();
         SkillEffectRegistry.validate(new MasteryProfile.Effect(
-                Identifier.of("simplymastery", "phase5_mastery"), Map.of("kind", 0, "extra", 1)),
+                Identifier.of("simplymastery", "cohort/arcane_cosmic"), Map.of("kind", 0, "extra", 1)),
                 "node: ", errors);
         assertTrue(errors.stream().anyMatch(error -> error.contains("requires only kind")));
     }

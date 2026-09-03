@@ -1,10 +1,10 @@
 package net.sweenus.simplymastery.mastery.effect;
 
 import net.minecraft.util.Identifier;
-import net.sweenus.simplymastery.SimplyMastery;
 import net.sweenus.simplymastery.mastery.definition.MasteryProfile;
-import net.sweenus.simplyswords.api.ability.Phase5AbilityTuning;
-import net.sweenus.simplyswords.api.ability.Phase5UniqueAbilities;
+import net.sweenus.simplymastery.mastery.definition.MasteryCohort;
+import net.sweenus.simplyswords.api.ability.FireForgeMasteryTuning;
+import net.sweenus.simplyswords.api.ability.FireForgeMasteryAbilities;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityContext;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityDefinition;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityTuning;
@@ -12,8 +12,8 @@ import net.sweenus.simplyswords.api.ability.UniqueAbilityTuning;
 import java.util.List;
 import java.util.Set;
 
-final class Phase5MasterySkillEffect implements AbilitySkillEffectType {
-    private static final Identifier ID = Identifier.of(SimplyMastery.MOD_ID, "phase5_mastery");
+final class FireForgeMasterySkillEffect implements AbilitySkillEffectType {
+    private static final Identifier ID = MasteryCohort.FIRE_FORGE.effectId();
 
     @Override
     public Identifier id() {
@@ -23,7 +23,7 @@ final class Phase5MasterySkillEffect implements AbilitySkillEffectType {
     @Override
     public void validate(MasteryProfile.Effect effect, String where, List<String> errors) {
         if (!effect.parameters().keySet().equals(Set.of("kind"))) {
-            errors.add(where + "phase5_mastery requires only kind");
+            errors.add(where + "cohort/fire_forge requires only kind");
         }
         int kind = effect.parameters().getOrDefault("kind", -1);
         if (kind < 0 || kind >= 162) errors.add(where + "kind must be between 0 and 161");
@@ -38,7 +38,7 @@ final class Phase5MasterySkillEffect implements AbilitySkillEffectType {
         int branch = kind % 27 / 9;
         int slot = kind % 9;
         if (!matches(profile, branch, definition)) return;
-        Phase5AbilityTuning value = tuning.get(Phase5UniqueAbilities.TUNING);
+        FireForgeMasteryTuning value = tuning.get(FireForgeMasteryAbilities.TUNING);
         value = mode(value, 1 << (branch * 9 + slot));
         value = switch (profile) {
             case 0 -> hearthflame(value, branch, slot);
@@ -49,14 +49,14 @@ final class Phase5MasterySkillEffect implements AbilitySkillEffectType {
             case 5 -> soulPyre(value, branch, slot);
             default -> value;
         };
-        tuning.set(Phase5UniqueAbilities.TUNING, value);
+        tuning.set(FireForgeMasteryAbilities.TUNING, value);
         if (definition.cooldownKey().isPresent()) {
-            tuning.set(Phase5UniqueAbilities.COOLDOWN_TICKS,
-                    value.integer(s("COOLDOWN_TICKS"), tuning.get(Phase5UniqueAbilities.COOLDOWN_TICKS)));
+            tuning.set(FireForgeMasteryAbilities.COOLDOWN_TICKS,
+                    value.integer(s("COOLDOWN_TICKS"), tuning.get(FireForgeMasteryAbilities.COOLDOWN_TICKS)));
         }
     }
 
-    private static Phase5AbilityTuning hearthflame(Phase5AbilityTuning t, int branch, int slot) {
+    private static FireForgeMasteryTuning hearthflame(FireForgeMasteryTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
             case 0 -> t.multiply(s("HEARTH_ECHO_DAMAGE_MULTIPLIER"), 1.1, 1);
             case 1 -> t.add(s("HEARTH_BIND_RANGE"), 2, 10);
@@ -119,7 +119,7 @@ final class Phase5MasterySkillEffect implements AbilitySkillEffectType {
         };
     }
 
-    private static Phase5AbilityTuning emberblade(Phase5AbilityTuning t, int branch, int slot) {
+    private static FireForgeMasteryTuning emberblade(FireForgeMasteryTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
             case 0 -> t.multiply(s("EMBERBLADE_MIN_DAMAGE_MULTIPLIER"), 1.12, 1);
             case 1 -> t.multiply(s("EMBERBLADE_MAX_DAMAGE_MULTIPLIER"), 1.15, 1);
@@ -189,7 +189,7 @@ final class Phase5MasterySkillEffect implements AbilitySkillEffectType {
         };
     }
 
-    private static Phase5AbilityTuning emberlash(Phase5AbilityTuning t, int branch, int slot) {
+    private static FireForgeMasteryTuning emberlash(FireForgeMasteryTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
             case 0 -> t.multiply(s("EMBERLASH_SMOULDER_DAMAGE_MULTIPLIER"), 1.1, 1);
             case 1 -> t.with(s("EMBERLASH_SMOULDER_STACK_CAP"), 6);
@@ -247,7 +247,7 @@ final class Phase5MasterySkillEffect implements AbilitySkillEffectType {
         };
     }
 
-    static Phase5AbilityTuning flamewind(Phase5AbilityTuning t, int branch, int slot) {
+    static FireForgeMasteryTuning flamewind(FireForgeMasteryTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
             case 0 -> t.multiply(s("PERIODIC_DAMAGE_MULTIPLIER"), 1.1, 1);
             case 1 -> t.add(s("RADIUS"), .75, 5);
@@ -301,7 +301,7 @@ final class Phase5MasterySkillEffect implements AbilitySkillEffectType {
         };
     }
 
-    private static Phase5AbilityTuning moltenEdge(Phase5AbilityTuning t, int branch, int slot) {
+    private static FireForgeMasteryTuning moltenEdge(FireForgeMasteryTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
             case 0 -> t.with(s("MOLTEN_MELEE_HEAT_GAIN"), 6);
             case 1 -> t.with(s("MOLTEN_INCOMING_HEAT_GAIN"), 7);
@@ -369,7 +369,7 @@ final class Phase5MasterySkillEffect implements AbilitySkillEffectType {
         };
     }
 
-    private static Phase5AbilityTuning soulPyre(Phase5AbilityTuning t, int branch, int slot) {
+    private static FireForgeMasteryTuning soulPyre(FireForgeMasteryTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
             case 0 -> t.add(s("SOULPYRE_TETHER_DURATION_TICKS"), 100, 600);
             case 1 -> t.add(s("SOULPYRE_START_RADIUS"), 1, 3)
@@ -444,26 +444,26 @@ final class Phase5MasterySkillEffect implements AbilitySkillEffectType {
 
     private static boolean matches(int profile, int branch, UniqueAbilityDefinition definition) {
         return switch (profile) {
-            case 0 -> definition == Phase5UniqueAbilities.HEARTHFLAME_CHAINS
-                    || definition == Phase5UniqueAbilities.HEARTHFLAME_BRAND;
-            case 1 -> definition == Phase5UniqueAbilities.EMBERBLADE_SHRAPNEL;
-            case 2 -> definition == Phase5UniqueAbilities.EMBERLASH_SMOULDER
-                    || definition == Phase5UniqueAbilities.EMBERLASH_CAUTERY;
-            case 3 -> definition == Phase5UniqueAbilities.FLAMEWIND_SEED;
-            case 4 -> branch == 0 && definition == Phase5UniqueAbilities.MOLTEN_EDGE_HEAT
-                    || branch == 1 && definition == Phase5UniqueAbilities.MOLTEN_EDGE_VENT
-                    || branch == 2 && definition == Phase5UniqueAbilities.MOLTEN_EDGE_RUPTURE;
-            case 5 -> branch == 1 && definition == Phase5UniqueAbilities.SOUL_PYRE_WISP
-                    || branch != 1 && definition == Phase5UniqueAbilities.SOUL_PYRE_TETHER;
+            case 0 -> definition == FireForgeMasteryAbilities.HEARTHFLAME_CHAINS
+                    || definition == FireForgeMasteryAbilities.HEARTHFLAME_BRAND;
+            case 1 -> definition == FireForgeMasteryAbilities.EMBERBLADE_SHRAPNEL;
+            case 2 -> definition == FireForgeMasteryAbilities.EMBERLASH_SMOULDER
+                    || definition == FireForgeMasteryAbilities.EMBERLASH_CAUTERY;
+            case 3 -> definition == FireForgeMasteryAbilities.FLAMEWIND_SEED;
+            case 4 -> branch == 0 && definition == FireForgeMasteryAbilities.MOLTEN_EDGE_HEAT
+                    || branch == 1 && definition == FireForgeMasteryAbilities.MOLTEN_EDGE_VENT
+                    || branch == 2 && definition == FireForgeMasteryAbilities.MOLTEN_EDGE_RUPTURE;
+            case 5 -> branch == 1 && definition == FireForgeMasteryAbilities.SOUL_PYRE_WISP
+                    || branch != 1 && definition == FireForgeMasteryAbilities.SOUL_PYRE_TETHER;
             default -> false;
         };
     }
 
-    private static Phase5AbilityTuning mode(Phase5AbilityTuning tuning, int bit) {
+    private static FireForgeMasteryTuning mode(FireForgeMasteryTuning tuning, int bit) {
         return tuning.with(s("MODE"), tuning.integer(s("MODE"), 0) | bit);
     }
 
-    private static Phase5AbilityTuning.Setting s(String name) {
-        return Phase5AbilityTuning.Setting.valueOf(name);
+    private static FireForgeMasteryTuning.Setting s(String name) {
+        return FireForgeMasteryTuning.Setting.valueOf(name);
     }
 }

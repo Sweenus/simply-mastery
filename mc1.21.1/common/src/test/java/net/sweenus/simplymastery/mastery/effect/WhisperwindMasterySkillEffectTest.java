@@ -2,9 +2,9 @@ package net.sweenus.simplymastery.mastery.effect;
 
 import net.sweenus.simplymastery.mastery.definition.BuiltInFamilyProfiles;
 import net.sweenus.simplymastery.mastery.definition.MasteryProfile;
-import net.sweenus.simplyswords.api.ability.Phase3AbilityTuning;
-import net.sweenus.simplyswords.api.ability.Phase3AbilityTuning.Setting;
-import net.sweenus.simplyswords.api.ability.Phase3UniqueAbilities;
+import net.sweenus.simplyswords.api.ability.StormSoulMasteryTuning;
+import net.sweenus.simplyswords.api.ability.StormSoulMasteryTuning.Setting;
+import net.sweenus.simplyswords.api.ability.StormSoulMasteryAbilities;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityDefinition;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityTuning;
 import org.junit.jupiter.api.Test;
@@ -37,8 +37,8 @@ final class WhisperwindMasterySkillEffectTest {
 
     @Test
     void noNodeWritesTheOldSharedKeysAnyMore() {
-        Phase3AbilityTuning dash = tune(Phase3UniqueAbilities.WHISPERWIND_DASH, ALL);
-        Phase3AbilityTuning reset = tune(Phase3UniqueAbilities.WHISPERWIND_RESET, ALL);
+        StormSoulMasteryTuning dash = tune(StormSoulMasteryAbilities.WHISPERWIND_DASH, ALL);
+        StormSoulMasteryTuning reset = tune(StormSoulMasteryAbilities.WHISPERWIND_RESET, ALL);
 
         assertFalse(dash.has(Setting.TARGET_CAP));
         assertFalse(dash.has(Setting.DAMAGE_MULTIPLIER));
@@ -53,7 +53,7 @@ final class WhisperwindMasterySkillEffectTest {
 
     @Test
     void stillWindNoLongerHijacksEveryDelayedStrike() {
-        Phase3AbilityTuning withBloom = tune(Phase3UniqueAbilities.WHISPERWIND_DASH, List.of(9, 10, 26));
+        StormSoulMasteryTuning withBloom = tune(StormSoulMasteryAbilities.WHISPERWIND_DASH, List.of(9, 10, 26));
 
         assertEquals(1.232, withBloom.get(Setting.STRIKE_DAMAGE_MULTIPLIER, 1), 1.0E-6);
         assertEquals(1.75, withBloom.get(Setting.STILL_WIND_MULTIPLIER, 1), 1.0E-6);
@@ -63,9 +63,9 @@ final class WhisperwindMasterySkillEffectTest {
 
     @Test
     void crosswindAndSecondFloweringNoLongerCapTheStrike() {
-        Phase3AbilityTuning crosswind = tune(Phase3UniqueAbilities.WHISPERWIND_DASH, List.of(6));
-        Phase3AbilityTuning flowering = tune(Phase3UniqueAbilities.WHISPERWIND_DASH, List.of(13));
-        Phase3AbilityTuning passing = tune(Phase3UniqueAbilities.WHISPERWIND_DASH, List.of(4));
+        StormSoulMasteryTuning crosswind = tune(StormSoulMasteryAbilities.WHISPERWIND_DASH, List.of(6));
+        StormSoulMasteryTuning flowering = tune(StormSoulMasteryAbilities.WHISPERWIND_DASH, List.of(13));
+        StormSoulMasteryTuning passing = tune(StormSoulMasteryAbilities.WHISPERWIND_DASH, List.of(4));
 
         assertFalse(crosswind.has(Setting.STRIKE_TARGET_CAP));
         assertEquals(1, crosswind.get(Setting.DASH_EXTENSION_PER_TARGET, 0), 1.0E-6);
@@ -78,7 +78,7 @@ final class WhisperwindMasterySkillEffectTest {
 
     @Test
     void repriseNoLongerForcesEveryRefresh() {
-        Phase3AbilityTuning reset = tune(Phase3UniqueAbilities.WHISPERWIND_RESET, List.of(18, 23));
+        StormSoulMasteryTuning reset = tune(StormSoulMasteryAbilities.WHISPERWIND_RESET, List.of(18, 23));
 
         assertEquals(20, reset.integer(Setting.CHANCE, 15));
         assertEquals(80, reset.integer(Setting.REPRISE_WINDOW_TICKS, 0));
@@ -86,7 +86,7 @@ final class WhisperwindMasterySkillEffectTest {
 
     @Test
     void thePlayerPathValuesReachTheDash() {
-        Phase3AbilityTuning dash = tune(Phase3UniqueAbilities.WHISPERWIND_DASH, List.of(0, 2, 19));
+        StormSoulMasteryTuning dash = tune(StormSoulMasteryAbilities.WHISPERWIND_DASH, List.of(0, 2, 19));
 
         assertEquals(3.3, dash.get(Setting.DASH_SPEED, 3), 1.0E-6);
         assertEquals(18, dash.integer(Setting.DASH_TICKS, 12));
@@ -96,29 +96,29 @@ final class WhisperwindMasterySkillEffectTest {
 
     @Test
     void gentleGuardNoLongerShortensLastingFlicker() {
-        assertEquals(120, tune(Phase3UniqueAbilities.WHISPERWIND_DASH, List.of(2, 19))
+        assertEquals(120, tune(StormSoulMasteryAbilities.WHISPERWIND_DASH, List.of(2, 19))
                 .integer(Setting.DASH_ABSORPTION_TICKS, 100));
     }
 
     @Test
     void strikeCapstonesComposeWithTheirPrerequisites() {
-        assertEquals(1.1, tune(Phase3UniqueAbilities.WHISPERWIND_DASH, List.of(9))
+        assertEquals(1.1, tune(StormSoulMasteryAbilities.WHISPERWIND_DASH, List.of(9))
                 .get(Setting.STRIKE_DAMAGE_MULTIPLIER, 1), 1.0E-6);
-        assertEquals(1.232, tune(Phase3UniqueAbilities.WHISPERWIND_DASH, List.of(9, 10))
+        assertEquals(1.232, tune(StormSoulMasteryAbilities.WHISPERWIND_DASH, List.of(9, 10))
                 .get(Setting.STRIKE_DAMAGE_MULTIPLIER, 1), 1.0E-6);
-        assertEquals(.5544, tune(Phase3UniqueAbilities.WHISPERWIND_DASH, List.of(9, 10, 16))
+        assertEquals(.5544, tune(StormSoulMasteryAbilities.WHISPERWIND_DASH, List.of(9, 10, 16))
                 .get(Setting.STRIKE_DAMAGE_MULTIPLIER, 1), 1.0E-6);
-        assertEquals(2.772, tune(Phase3UniqueAbilities.WHISPERWIND_DASH, List.of(9, 10, 17))
+        assertEquals(2.772, tune(StormSoulMasteryAbilities.WHISPERWIND_DASH, List.of(9, 10, 17))
                 .get(Setting.STRIKE_DAMAGE_MULTIPLIER, 1), 1.0E-6);
-        assertEquals(.924, tune(Phase3UniqueAbilities.WHISPERWIND_DASH, List.of(9, 10, 7))
+        assertEquals(.924, tune(StormSoulMasteryAbilities.WHISPERWIND_DASH, List.of(9, 10, 7))
                 .get(Setting.STRIKE_DAMAGE_MULTIPLIER, 1), 1.0E-6);
     }
 
     @Test
     void everyPreviouslyInertNodeNowCarriesItsOwnConsumedSettings() {
-        Phase3AbilityTuning petal = tune(Phase3UniqueAbilities.WHISPERWIND_DASH, PETAL);
-        Phase3AbilityTuning bloom = tune(Phase3UniqueAbilities.WHISPERWIND_DASH, BLOOM);
-        Phase3AbilityTuning rhythm = tune(Phase3UniqueAbilities.WHISPERWIND_RESET, RHYTHM);
+        StormSoulMasteryTuning petal = tune(StormSoulMasteryAbilities.WHISPERWIND_DASH, PETAL);
+        StormSoulMasteryTuning bloom = tune(StormSoulMasteryAbilities.WHISPERWIND_DASH, BLOOM);
+        StormSoulMasteryTuning rhythm = tune(StormSoulMasteryAbilities.WHISPERWIND_RESET, RHYTHM);
 
         assertEquals(30, petal.integer(Setting.WAKE_DURATION_TICKS, 0));
         assertEquals(.2, petal.get(Setting.WAKE_KNOCKBACK_RESISTANCE, 0), 1.0E-6);
@@ -146,21 +146,21 @@ final class WhisperwindMasterySkillEffectTest {
 
     @Test
     void galePassageAndSingleFallingLeafReachTheCooldown() {
-        UniqueAbilityTuning.Builder gale = builder(Phase3UniqueAbilities.WHISPERWIND_DASH);
-        apply(gale, Phase3UniqueAbilities.WHISPERWIND_DASH, List.of(1, 7));
-        UniqueAbilityTuning.Builder leaf = builder(Phase3UniqueAbilities.WHISPERWIND_DASH);
-        apply(leaf, Phase3UniqueAbilities.WHISPERWIND_DASH, List.of(1, 17));
+        UniqueAbilityTuning.Builder gale = builder(StormSoulMasteryAbilities.WHISPERWIND_DASH);
+        apply(gale, StormSoulMasteryAbilities.WHISPERWIND_DASH, List.of(1, 7));
+        UniqueAbilityTuning.Builder leaf = builder(StormSoulMasteryAbilities.WHISPERWIND_DASH);
+        apply(leaf, StormSoulMasteryAbilities.WHISPERWIND_DASH, List.of(1, 17));
 
-        assertEquals(186, gale.get(Phase3UniqueAbilities.COOLDOWN_TICKS));
-        assertEquals(185, leaf.get(Phase3UniqueAbilities.COOLDOWN_TICKS));
+        assertEquals(186, gale.get(StormSoulMasteryAbilities.COOLDOWN_TICKS));
+        assertEquals(185, leaf.get(StormSoulMasteryAbilities.COOLDOWN_TICKS));
     }
 
     private static UniqueAbilityTuning.Builder builder(UniqueAbilityDefinition definition) {
         UniqueAbilityTuning.Builder builder = UniqueAbilityTuning.builder(definition);
         if (definition.cooldownKey().isPresent()) {
-            builder.set(Phase3UniqueAbilities.COOLDOWN_TICKS, 175);
+            builder.set(StormSoulMasteryAbilities.COOLDOWN_TICKS, 175);
         }
-        builder.set(Phase3UniqueAbilities.TUNING, Phase3AbilityTuning.EMPTY);
+        builder.set(StormSoulMasteryAbilities.TUNING, StormSoulMasteryTuning.EMPTY);
         return builder;
     }
 
@@ -174,9 +174,9 @@ final class WhisperwindMasterySkillEffectTest {
         }
     }
 
-    private static Phase3AbilityTuning tune(UniqueAbilityDefinition definition, List<Integer> nodes) {
+    private static StormSoulMasteryTuning tune(UniqueAbilityDefinition definition, List<Integer> nodes) {
         UniqueAbilityTuning.Builder builder = builder(definition);
         apply(builder, definition, nodes);
-        return builder.get(Phase3UniqueAbilities.TUNING);
+        return builder.get(StormSoulMasteryAbilities.TUNING);
     }
 }

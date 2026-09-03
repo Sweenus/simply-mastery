@@ -4,17 +4,17 @@ import net.minecraft.item.ItemStack;
 import net.sweenus.simplymastery.mastery.state.MasteryRuntimeState;
 import net.sweenus.simplymastery.mastery.state.MasteryStateAccess;
 
-final class Phase3MasteryRuntime {
-    private Phase3MasteryRuntime() {
+final class StormSoulMasteryRuntime {
+    private StormSoulMasteryRuntime() {
     }
 
     static MasteryRuntimeState.Value value(ItemStack stack, String key, long tick) {
-        return MasteryStateAccess.runtime(stack).get("phase3/" + key, tick);
+        return MasteryStateAccess.runtime(stack).get("storm_soul/" + key, tick);
     }
 
     static void set(ItemStack stack, String key, int amount, long expiresAt, long tick) {
         MasteryStateAccess.writeRuntime(stack, MasteryStateAccess.runtime(stack)
-                .put("phase3/" + key, amount, expiresAt, tick));
+                .put("storm_soul/" + key, amount, expiresAt, tick));
     }
 
     static int advance(ItemStack stack, String key, long tick, int maximum, int duration) {
@@ -24,6 +24,6 @@ final class Phase3MasteryRuntime {
     }
 
     static void clear(ItemStack stack, String key) {
-        MasteryStateAccess.writeRuntime(stack, MasteryStateAccess.runtime(stack).clear("phase3/" + key));
+        MasteryStateAccess.writeRuntime(stack, MasteryStateAccess.runtime(stack).clear("storm_soul/" + key));
     }
 }

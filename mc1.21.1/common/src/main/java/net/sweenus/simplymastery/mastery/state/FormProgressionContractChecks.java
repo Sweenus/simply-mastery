@@ -15,9 +15,9 @@ import net.sweenus.simplyswords.registry.ItemsRegistry;
 
 import java.util.List;
 
-public final class Phase1ContractChecks {
+public final class FormProgressionContractChecks {
 
-    private Phase1ContractChecks() {
+    private FormProgressionContractChecks() {
     }
 
     public static void requireFormProgressionFoundation() {

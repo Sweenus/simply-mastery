@@ -580,42 +580,42 @@ final class MasteryNodeAuditCatalog {
                 "Repaired: the duplicate hard-capped frenzy application was removed, so the tuned cap is reachable");
         wickpiercer(evidence, "combat_pressure", "Frenzy attack damage",
                 "Frenzy melee hit", "wickpiercer/throw", "Melee bonus x1.1",
-                "Phase2CombatStateManager applyWickFrenzyHit", "Wick state TTL",
+                "WickpiercerMasteryStateManager applyWickFrenzyHit", "Wick state TTL",
                 MasteryNodeAuditReport.Verdict.VERIFIED,
                 "Repaired: composes with the release capstone instead of being discarded by a hard-coded multiplier");
         wickpiercer(evidence, "combat_reversal", "Frenzy conservation",
                 "Frenzy killing blow", "wickpiercer/throw", "Mode 4; lockout 20t",
-                "Phase2CombatStateManager conserve branch", "Lockout carried across throws",
+                "WickpiercerMasteryStateManager conserve branch", "Lockout carried across throws",
                 MasteryNodeAuditReport.Verdict.VERIFIED,
                 "Repaired: the lockout no longer shares a setting with three other nodes");
         wickpiercer(evidence, "combat_reserve", "Frenzy ignition",
                 "Frenzy melee hit", "wickpiercer/throw", "Mode 8; fire 40t; burn bonus 0.2",
-                "Phase2CombatStateManager applyWickFrenzyHit", "Vanilla fire ticks",
+                "WickpiercerMasteryStateManager applyWickFrenzyHit", "Vanilla fire ticks",
                 MasteryNodeAuditReport.Verdict.VERIFIED,
                 "Repaired: the burning bonus moved off the chain node's shared setting");
         wickpiercer(evidence, "combat_threshold", "Frenzy chain",
                 "Frenzy melee hit", "wickpiercer/throw", "Mode 16; window 40t; bonus 0.05; cap 0.2",
-                "Phase2CombatStateManager chain branch", "Wick state TTL",
+                "WickpiercerMasteryStateManager chain branch", "Wick state TTL",
                 MasteryNodeAuditReport.Verdict.VERIFIED,
                 "Repaired: the chain window is no longer stretched by the throw and revive nodes");
         wickpiercer(evidence, "combat_convergence", "Dual-wield frenzy grant",
                 "Wickpiercer throw", "wickpiercer/throw", "Mode 32; grant 2; lockout 40t",
-                "Phase2CombatStateManager frenzyGrant and consumption", "Lockout carried across throws",
+                "WickpiercerMasteryStateManager frenzyGrant and consumption", "Lockout carried across throws",
                 MasteryNodeAuditReport.Verdict.VERIFIED,
                 "Repaired: mode bit 32 had no consumer, so the node did nothing");
         wickpiercer(evidence, "combat_focus", "Wildfire Frenzy focus capstone",
                 "Frenzy melee hit", "wickpiercer/throw", "Mode 64; burst x0.45; radius 3; cap 6",
-                "Phase2CombatStateManager burst and consumption", "Wick state TTL",
+                "WickpiercerMasteryStateManager burst and consumption", "Wick state TTL",
                 MasteryNodeAuditReport.Verdict.VERIFIED,
                 "Repaired: its own burst settings, and kills are no longer conserved as the description states");
         wickpiercer(evidence, "combat_release", "White-Hot Focus release capstone",
                 "Frenzy melee hit", "wickpiercer/throw", "Mode 128; stack cap 3; melee bonus x1.75; armor ignore 4",
-                "Phase2CombatStateManager armorIgnoreMultiplier", "Wick state TTL",
+                "WickpiercerMasteryStateManager armorIgnoreMultiplier", "Wick state TTL",
                 MasteryNodeAuditReport.Verdict.VERIFIED,
                 "Repaired: the armor ignore is implemented and the stack cap is reachable");
         wickpiercer(evidence, "transformation_opening", "Frenzy damage reduction",
                 "Incoming damage", "wickpiercer/throw", "Reduction 0.1",
-                "Phase2CombatStateManager modifyIncomingDamage", "Wick state TTL",
+                "WickpiercerMasteryStateManager modifyIncomingDamage", "Wick state TTL",
                 MasteryNodeAuditReport.Verdict.VERIFIED,
                 "Repaired: no Wickpiercer incoming-damage hook existed, so the node was inert");
         wickpiercer(evidence, "transformation_cadence", "Revival absorption",
@@ -630,7 +630,7 @@ final class MasteryNodeAuditCatalog {
                 "Repaired: the ally regeneration and low-health guard now use their own durations");
         wickpiercer(evidence, "transformation_reversal", "Low-health guard",
                 "Incoming damage", "wickpiercer/throw", "Mode 256; threshold 30%; status 60t; lockout 300t",
-                "Phase2CombatStateManager modifyIncomingDamage", "Lockout carried across throws",
+                "WickpiercerMasteryStateManager modifyIncomingDamage", "Lockout carried across throws",
                 MasteryNodeAuditReport.Verdict.VERIFIED,
                 "Repaired: mode bit 256 had no consumer, so the node was inert");
         wickpiercer(evidence, "transformation_reserve", "Ally regeneration",
@@ -640,7 +640,7 @@ final class MasteryNodeAuditCatalog {
                 "Repaired: the regeneration duration no longer follows the revival resistance duration");
         wickpiercer(evidence, "transformation_threshold", "Post-revival strike",
                 "First attack after reviving", "wickpiercer/revive", "Mode 1024; window 100t; damage x0.6; fire 100t",
-                "Phase2CombatStateManager applyPhoenixBlow", "Consumed on first attack or window expiry",
+                "WickpiercerMasteryStateManager applyPhoenixBlow", "Consumed on first attack or window expiry",
                 MasteryNodeAuditReport.Verdict.VERIFIED,
                 "Repaired: nothing tracked a post-revival window, so the node was inert");
         wickpiercer(evidence, "transformation_convergence", "Revival cooldown reduction",
@@ -1228,7 +1228,7 @@ final class MasteryNodeAuditCatalog {
                 "Distance 8; bonus 15%", "trackMomentum feeding cleave and footfall damage", "Reset when the stride stops",
                 "Repaired: implemented; no distance tracking existed");
         soulstalker(evidence, "combat_convergence", "Swift Summons", "Ability preparation",
-                "Cooldown 1020t", "Phase 3 cooldown pipeline", "Execution-scoped",
+                "Cooldown 1020t", "Storm and Soul cohort cooldown pipeline", "Execution-scoped",
                 "Verified: reaches the weapon cooldown, and both capstone multipliers now compose on top of it");
         soulstalker(evidence, "combat_focus", "Endless Procession capstone", "Ability activation",
                 "Duration +400t; trail width x1.5; cooldown x1.2; footfall damage x0.75",
@@ -1270,7 +1270,7 @@ final class MasteryNodeAuditCatalog {
                 "Dash speed x1.1", "FatalFlickerEffect.performDash tuned velocity", "Effect TTL",
                 "Repaired: the dash effect now reads tuning; it used the config velocity, so the node did nothing for a player");
         whisperwind(evidence, "signature_cadence", "Dash cooldown", "Ability preparation",
-                "Cooldown 155t", "Phase 3 cooldown pipeline", "Execution-scoped",
+                "Cooldown 155t", "Storm and Soul cohort cooldown pipeline", "Execution-scoped",
                 "Verified: consumed on the player path and composed by both cooldown capstones");
         whisperwind(evidence, "signature_pressure", "Dash and guard duration", "Ability activation",
                 "Dash 18t; Absorption 120t", "startPlayerAbility tuned effect durations", "Status TTL",
@@ -1430,241 +1430,241 @@ final class MasteryNodeAuditCatalog {
                 "No dash damage or leech; range 30; collapse 160% within 12", "resolveDashFinish Gloam-scoped collapse", "Execution-scoped",
                 "Repaired: the collapse exists, so the zeroed dash damage is a real trade; the node previously reduced Shadow Rend to nothing at all");
         lichblade(evidence, "signature_opening", "Soul Anguish passive aura", "Held tick",
-                "AURA_INTERVAL_TICKS 30", "Phase4LichbladeManager.tickPassive interval gate", "Execution-scoped; aura cache cleared on unload",
+                "AURA_INTERVAL_TICKS 30", "LichbladeMasteryManager.tickPassive interval gate", "Execution-scoped; aura cache cleared on unload",
                 "Repaired: moved off the shared INTERVAL_TICKS key, and the manager aura now emits the vanilla particle field and no longer siphons");
         lichblade(evidence, "signature_cadence", "Soul Anguish pulse radius", "Pulse",
-                "RADIUS 3.5; TARGET_CAP 24", "Phase4LichbladeManager.pulse box and nearest() cap", "Execution-scoped",
+                "RADIUS 3.5; TARGET_CAP 24", "LichbladeMasteryManager.pulse box and nearest() cap", "Execution-scoped",
                 "Repaired: Resonant Souls no longer overwrites this cap with 8");
         lichblade(evidence, "signature_pressure", "Soul Anguish pulse damage", "Pulse",
-                "DAMAGE_MULTIPLIER x1.1", "Phase4LichbladeManager.pulse multiplier", "Execution-scoped",
+                "DAMAGE_MULTIPLIER x1.1", "LichbladeMasteryManager.pulse multiplier", "Execution-scoped",
                 "Composes multiplicatively and survives both signature capstones");
         lichblade(evidence, "signature_reversal", "Repeated Soul Anguish pulses", "Second pulse on the same target",
-                "Mode 1; SLOW_DURATION_TICKS 60; REPEAT_WINDOW_TICKS 40", "Phase4LichbladeManager.recordPulse per-world history", "History cleared per world on unload",
+                "Mode 1; SLOW_DURATION_TICKS 60; REPEAT_WINDOW_TICKS 40", "LichbladeMasteryManager.recordPulse per-world history", "History cleared per world on unload",
                 "Repaired: dedicated window and slow keys, and the history is keyed per world so a dimension change cannot misfire it");
         lichblade(evidence, "signature_reserve", "Soul Anguish pulse damage per target", "Pulse",
-                "Mode 2; PER_TARGET_BONUS .03; BONUS_CAP .24", "Phase4LichbladeManager.pulse target-count bonus", "Execution-scoped",
+                "Mode 2; PER_TARGET_BONUS .03; BONUS_CAP .24", "LichbladeMasteryManager.pulse target-count bonus", "Execution-scoped",
                 "Repaired: dropped the stray TARGET_CAP write and moved Grave Interest off the shared bonus keys");
         lichblade(evidence, "signature_threshold", "Soul Anguish kill", "Pulse kill",
-                "Mode 4; DEATH_BURST_DAMAGE_MULTIPLIER .35; DEATH_BURST_RADIUS 3; DEATH_BURST_TARGET_CAP 4", "Phase4LichbladeManager.deathBurst from the victim position", "Execution-scoped",
+                "Mode 4; DEATH_BURST_DAMAGE_MULTIPLIER .35; DEATH_BURST_RADIUS 3; DEATH_BURST_TARGET_CAP 4", "LichbladeMasteryManager.deathBurst from the victim position", "Execution-scoped",
                 "Repaired: dropped the stray LOCKOUT_TICKS write that halved Clinging Misery's window");
         lichblade(evidence, "signature_convergence", "Soul Anguish pulse cadence", "Channel age past the window",
-                "Mode 8; FAST_PULSE_INTERVAL_TICKS 4; FAST_PULSE_AFTER_TICKS 60", "Phase4LichbladeManager.pulseInterval", "Execution-scoped",
+                "Mode 8; FAST_PULSE_INTERVAL_TICKS 4; FAST_PULSE_AFTER_TICKS 60", "LichbladeMasteryManager.pulseInterval", "Execution-scoped",
                 "Repaired: real consumers for both values, and the mode bit no longer suppresses Swift Haunting");
         lichblade(evidence, "signature_focus", "Soul Anguish area capstone", "Channel start and pulse",
-                "Mode 16; RADIUS 6; TARGET_CAP 32; DAMAGE_MULTIPLIER x.65; MOVEMENT_MULTIPLIER .6; COOLDOWN_MULTIPLIER x1.2", "Phase4LichbladeManager.pulse plus a managed movement-speed modifier and the cooldown pipeline", "Modifier removed on every finish path, world unload and server stop",
+                "Mode 16; RADIUS 6; TARGET_CAP 32; DAMAGE_MULTIPLIER x.65; MOVEMENT_MULTIPLIER .6; COOLDOWN_MULTIPLIER x1.2", "LichbladeMasteryManager.pulse plus a managed movement-speed modifier and the cooldown pipeline", "Modifier removed on every finish path, world unload and server stop",
                 "Repaired: the movement penalty is a real attribute modifier instead of an unread key and a player-ignored setVelocity, and the cooldown multiplies the configured base");
         lichblade(evidence, "signature_release", "Soul Anguish single-target capstone", "Pulse",
-                "Mode 32; RADIUS 1.5; TARGET_CAP 1; DAMAGE_MULTIPLIER x2", "Phase4LichbladeManager.pulse primary-only branch", "Execution-scoped; dispersal resolves Absorption",
+                "Mode 32; RADIUS 1.5; TARGET_CAP 1; DAMAGE_MULTIPLIER x2", "LichbladeMasteryManager.pulse primary-only branch", "Execution-scoped; dispersal resolves Absorption",
                 "Repaired: dispersal no longer forfeits earned Absorption, and the description states the lock follows at any range");
         lichblade(evidence, "combat_opening", "Soul Anguish siphon", "Pulse hit",
-                "CHANCE 12", "Phase4LichbladeManager.heal exact roll", "Execution-scoped",
+                "CHANCE 12", "LichbladeMasteryManager.heal exact roll", "Execution-scoped",
                 "Rolls once per damaged enemy, matching the description");
         lichblade(evidence, "combat_cadence", "Soul Anguish siphon amount", "Successful siphon",
-                "HEAL_AMOUNT .75", "Phase4LichbladeManager.heal", "Execution-scoped",
+                "HEAL_AMOUNT .75", "LichbladeMasteryManager.heal", "Execution-scoped",
                 "Replaces the configured 0.5 heal");
         lichblade(evidence, "combat_pressure", "Soul Anguish return Absorption", "Channel end",
-                "ABSORPTION_CAP 10", "Phase4LichbladeManager.resolveAbsorption cap", "Execution-scoped",
+                "ABSORPTION_CAP 10", "LichbladeMasteryManager.resolveAbsorption cap", "Execution-scoped",
                 "Reachable under the global ability absorption cap");
         lichblade(evidence, "combat_reversal", "Soul Anguish charge", "Pulse hit",
-                "Mode 64; CHARGE_LOCKOUT_TICKS 10; CHARGE_PER_HIT 2", "Phase4LichbladeManager.addCharge per-target lockout", "Execution-scoped; expired locks pruned",
+                "Mode 64; CHARGE_LOCKOUT_TICKS 10; CHARGE_PER_HIT 2", "LichbladeMasteryManager.addCharge per-target lockout", "Execution-scoped; expired locks pruned",
                 "Repaired: dedicated CHARGE_PER_HIT key ends the four-way COUNT collision that made each hit grant ten charge");
         lichblade(evidence, "combat_reserve", "Soul Anguish charge overflow", "Channel end at a capped Absorption grant",
-                "Mode 128; RESISTANCE_CHARGE_STEP 4; RESISTANCE_STEP_TICKS 40; RESISTANCE_DURATION_CAP_TICKS 120", "Phase4LichbladeManager.applyOverflowResistance", "Status-effect duration",
+                "Mode 128; RESISTANCE_CHARGE_STEP 4; RESISTANCE_STEP_TICKS 40; RESISTANCE_DURATION_CAP_TICKS 120", "LichbladeMasteryManager.applyOverflowResistance", "Status-effect duration",
                 "Repaired: the maximum-Absorption gate and the additional-charge accounting are now implemented instead of firing on raw charge");
         lichblade(evidence, "combat_threshold", "Soul Anguish overheal", "Siphon above maximum health",
-                "Mode 256; HEAL_MULTIPLIER .5; TEMP_ABSORPTION_CAP 4; OVERHEAL_ABSORPTION_TICKS 80", "Phase4LichbladeManager.heal overheal conversion and the temporary absorption tracker", "Expires on the owner tick; cleared on unload and server stop",
+                "Mode 256; HEAL_MULTIPLIER .5; TEMP_ABSORPTION_CAP 4; OVERHEAL_ABSORPTION_TICKS 80", "LichbladeMasteryManager.heal overheal conversion and the temporary absorption tracker", "Expires on the owner tick; cleared on unload and server stop",
                 "Repaired: no longer truncates the channel through DURATION_TICKS, no longer strips existing Absorption down to four, and the four-second expiry is real");
         lichblade(evidence, "combat_convergence", "Soul Anguish return Absorption", "Channel end",
-                "Mode 512; INTEREST_CHARGE_STEP 10; INTEREST_PER_STEP .1; INTEREST_CAP .4", "Phase4LichbladeManager.resolveAbsorption interest", "Execution-scoped",
+                "Mode 512; INTEREST_CHARGE_STEP 10; INTEREST_PER_STEP .1; INTEREST_CAP .4", "LichbladeMasteryManager.resolveAbsorption interest", "Execution-scoped",
                 "Repaired: dedicated interest keys no longer overwrite Resonant Souls");
         lichblade(evidence, "combat_focus", "Soul Anguish defensive capstone", "Channel end",
-                "Mode 1024; DAMAGE_MULTIPLIER x.7; CHANCE 0; BASTION_CHARGE_PER_ABSORPTION 2; ABSORPTION_CAP 16; BASTION_ABSORPTION_TICKS 160", "Phase4LichbladeManager.resolveAbsorption bastion branch and the temporary absorption tracker", "Expires on the owner tick; cleared on unload and server stop",
+                "Mode 1024; DAMAGE_MULTIPLIER x.7; CHANCE 0; BASTION_CHARGE_PER_ABSORPTION 2; ABSORPTION_CAP 16; BASTION_ABSORPTION_TICKS 160", "LichbladeMasteryManager.resolveAbsorption bastion branch and the temporary absorption tracker", "Expires on the owner tick; cleared on unload and server stop",
                 "Repaired: no longer truncates the channel to eight seconds, and the advertised eight-second Absorption really expires");
         lichblade(evidence, "combat_release", "Soul Anguish siphon capstone", "Successful siphon then channel end",
-                "Mode 2048; CHANCE 25; HEAL_AMOUNT 1; COOLDOWN_PER_SIPHON_TICKS 10; COOLDOWN_PENALTY_CAP_TICKS 200", "Phase4LichbladeManager.cooldownTicks siphon penalty", "Execution-scoped",
+                "Mode 2048; CHANCE 25; HEAL_AMOUNT 1; COOLDOWN_PER_SIPHON_TICKS 10; COOLDOWN_PENALTY_CAP_TICKS 200", "LichbladeMasteryManager.cooldownTicks siphon penalty", "Execution-scoped",
                 "Repaired: the penalty reads its own keys, and the stray LOCKOUT_TICKS and ABSORPTION_CAP writes are gone");
         lichblade(evidence, "transformation_opening", "Soul Anguish target acquisition", "Ability preparation",
-                "ACQUISITION_RANGE 26", "Phase4LichbladeManager.beginChannel lenient target search", "Execution-scoped",
+                "ACQUISITION_RANGE 26", "LichbladeMasteryManager.beginChannel lenient target search", "Execution-scoped",
                 "Consumed before the channel starts, over the configured 22 block range");
         lichblade(evidence, "transformation_cadence", "Soul Anguish cloud advance", "Channel tick",
-                "CLOUD_MOVE_INTERVAL_TICKS 4", "Phase4LichbladeManager.tickChannel move interval", "Execution-scoped",
+                "CLOUD_MOVE_INTERVAL_TICKS 4", "LichbladeMasteryManager.tickChannel move interval", "Execution-scoped",
                 "Repaired: a dedicated key, so Unceasing Cry no longer suppresses this node entirely");
         lichblade(evidence, "transformation_pressure", "Soul Anguish channel length", "Channel tick and maximum use time",
-                "DURATION_TICKS 240", "Phase4LichbladeManager.tickChannel duration and maxUseTime", "Execution-scoped",
+                "DURATION_TICKS 240", "LichbladeMasteryManager.tickChannel duration and maxUseTime", "Execution-scoped",
                 "Now the only node writing the channel duration");
         lichblade(evidence, "transformation_reversal", "Soul Anguish channel under damage", "First incoming damage during the channel",
-                "Mode 4096; INTERRUPT_RESISTANCE_TICKS 20", "Phase4LichbladeManager.onOwnerDamaged once-per-cast guard", "Execution-scoped",
+                "Mode 4096; INTERRUPT_RESISTANCE_TICKS 20", "LichbladeMasteryManager.onOwnerDamaged once-per-cast guard", "Execution-scoped",
                 "Repaired: the description now matches the mechanic, because no base weapon path interrupts the channel on damage; the stray STATUS_DURATION_TICKS write is gone");
         lichblade(evidence, "transformation_reserve", "Soul Anguish return", "Return after losing every target",
-                "Mode 8192; SPEED 1.5", "Phase4LichbladeManager.returnSpeed in moveCloud", "Execution-scoped",
+                "Mode 8192; SPEED 1.5", "LichbladeMasteryManager.returnSpeed in moveCloud", "Execution-scoped",
                 "Repaired: gated on a death-caused return and the redundant no-damage clause is gone, since the base return leg never pulses");
         lichblade(evidence, "transformation_threshold", "Soul Anguish retargeting", "Target death inside the window",
-                "Mode 16384; RETARGET_RANGE 8; RETARGET_CAP 1; RETARGET_WINDOW_TICKS 80", "Phase4LichbladeManager.retargetMaximum and retargetOrReturn", "Execution-scoped",
+                "Mode 16384; RETARGET_RANGE 8; RETARGET_CAP 1; RETARGET_WINDOW_TICKS 80", "LichbladeMasteryManager.retargetMaximum and retargetOrReturn", "Execution-scoped",
                 "Repaired: a real window key replaces the unread THRESHOLD, and this node no longer silently pays Wandering Phylactery's damage penalty");
         lichblade(evidence, "transformation_convergence", "Soul Anguish cooldown", "Channel end",
-                "COOLDOWN_TICKS 600", "Phase4LichbladeManager.cooldownTicks over the execution cooldown key", "Execution-scoped",
+                "COOLDOWN_TICKS 600", "LichbladeMasteryManager.cooldownTicks over the execution cooldown key", "Execution-scoped",
                 "Repaired: composes with Choir of the Damned through COOLDOWN_MULTIPLIER instead of hand-coding a 720 tick branch");
         lichblade(evidence, "transformation_focus", "Soul Anguish chaining capstone", "Each target death",
-                "Mode 32768; RETARGET_RANGE 8; RETARGET_CAP 4; RETARGET_DAMAGE_PENALTY .15; RETARGET_DAMAGE_FLOOR .4; ABSORPTION_CAP 0", "Phase4LichbladeManager.retargetPenalty and retargetOrReturn", "Execution-scoped",
+                "Mode 32768; RETARGET_RANGE 8; RETARGET_CAP 4; RETARGET_DAMAGE_PENALTY .15; RETARGET_DAMAGE_FLOOR .4; ABSORPTION_CAP 0", "LichbladeMasteryManager.retargetPenalty and retargetOrReturn", "Execution-scoped",
                 "Repaired: the penalty reads its own keys, applies only to this capstone, and no longer overwrites Resonant Souls or Grave Interest");
         lichblade(evidence, "transformation_release", "Soul Anguish recall capstone", "Early channel release",
-                "Mode 65536; RECALL_DAMAGE_MULTIPLIER 1.25; RECALL_RADIUS 4; RECALL_COOLDOWN_TICKS 100", "Phase4LichbladeManager.releaseChannel and recallBurst", "Execution-scoped; components cleared on finish",
+                "Mode 65536; RECALL_DAMAGE_MULTIPLIER 1.25; RECALL_RADIUS 4; RECALL_COOLDOWN_TICKS 100", "LichbladeMasteryManager.releaseChannel and recallBurst", "Execution-scoped; components cleared on finish",
                 "Redesigned: reactivation could never fire on a hold channel, so an early release now triggers the recall; the burst also composes the pulse damage multiplier");
         sunfire(evidence, "signature_opening", "Righteous Standard aura damage", "Aura pulse",
-                "DAMAGE_MULTIPLIER x1.1", "Phase4StandardManager.sunfireHostilePulse multiplier", "Execution-scoped",
+                "DAMAGE_MULTIPLIER x1.1", "BattleStandardMasteryManager.sunfireHostilePulse multiplier", "Execution-scoped",
                 "Repaired: Solar Pillar now multiplies instead of overwriting, so this bonus survives its capstone");
         sunfire(evidence, "signature_cadence", "Righteous Standard hostile radius", "Aura pulse",
-                "RADIUS 7", "Phase4StandardManager.sunfireHostilePulse target box", "Execution-scoped",
+                "RADIUS 7", "BattleStandardMasteryManager.sunfireHostilePulse target box", "Execution-scoped",
                 "Repaired: dropped the TARGET_CAP write that only restated the default");
         sunfire(evidence, "signature_pressure", "Righteous Standard burn", "Aura pulse and landing",
                 "FIRE_TICKS 40", "setOnFireFor in sunfireHostilePulse and sunfireLanding", "Vanilla fire duration",
                 "Two seconds on both the pulse and the landing");
         sunfire(evidence, "signature_reversal", "Repeated aura pulses", "Third pulse inside the window",
-                "Mode 1; WEAKNESS_PULSE_COUNT 3; WEAKNESS_WINDOW_TICKS 40; WEAKNESS_DURATION_TICKS 60", "Phase4StandardManager.nextPulseCount and the Weakness application", "Window entries pruned per pulse",
+                "Mode 1; WEAKNESS_PULSE_COUNT 3; WEAKNESS_WINDOW_TICKS 40; WEAKNESS_DURATION_TICKS 60", "BattleStandardMasteryManager.nextPulseCount and the Weakness application", "Window entries pruned per pulse",
                 "Repaired: the two-second window is real. The count previously accumulated for the standard's whole life and never decayed, so Weakness applied on every pulse forever, and its duration was overwritten by Enduring Valor");
         sunfire(evidence, "signature_reserve", "Righteous Standard landing", "Standard touching ground",
-                "LANDING_DAMAGE_MULTIPLIER 3.5; LANDING_RADIUS 2; LANDING_TARGET_CAP 12", "Phase4StandardManager.sunfireLanding", "One-shot per standard",
+                "LANDING_DAMAGE_MULTIPLIER 3.5; LANDING_RADIUS 2; LANDING_TARGET_CAP 12", "BattleStandardMasteryManager.sunfireLanding", "One-shot per standard",
                 "Repaired: the landing restores the vanilla launch and particles the manager path had dropped");
         sunfire(evidence, "signature_threshold", "Righteous Standard aura cycle", "Every fourth pulse",
-                "Mode 2; CYCLE_PULSE_COUNT 4; CYCLE_DAMAGE_MULTIPLIER 1.4; GLOWING_DURATION_TICKS 60", "Phase4StandardManager.sunfireHostilePulse cycle branch", "Execution-scoped",
+                "Mode 2; CYCLE_PULSE_COUNT 4; CYCLE_DAMAGE_MULTIPLIER 1.4; GLOWING_DURATION_TICKS 60", "BattleStandardMasteryManager.sunfireHostilePulse cycle branch", "Execution-scoped",
                 "Repaired: a dedicated cycle count, so Rallying Standard no longer turns every fourth pulse into every third");
         sunfire(evidence, "signature_convergence", "Righteous Standard early aura", "First five seconds",
-                "Mode 4; EARLY_WINDOW_TICKS 100; EARLY_DAMAGE_MULTIPLIER 1.2", "Phase4StandardManager.sunfireHostilePulse early branch", "Execution-scoped",
+                "Mode 4; EARLY_WINDOW_TICKS 100; EARLY_DAMAGE_MULTIPLIER 1.2", "BattleStandardMasteryManager.sunfireHostilePulse early branch", "Execution-scoped",
                 "Repaired: the window is a real consumer rather than a hardcoded age check with a dead write");
         sunfire(evidence, "signature_focus", "Righteous Standard following capstone", "Standard tick",
-                "Mode 8; MOVEMENT_SPEED .35; RADIUS 5; DAMAGE_MULTIPLIER x.75", "Phase4StandardManager.moveSunfire and the support suppression", "Execution-scoped",
+                "Mode 8; MOVEMENT_SPEED .35; RADIUS 5; DAMAGE_MULTIPLIER x.75", "BattleStandardMasteryManager.moveSunfire and the support suppression", "Execution-scoped",
                 "Movement, radius, damage penalty and the suppressed ally support are all consumed");
         sunfire(evidence, "signature_release", "Righteous Standard stationary capstone", "Standard tick and aura pulse",
-                "Mode 16; RADIUS 9; INTERVAL_TICKS 15; DAMAGE_MULTIPLIER x1.6; LIFETIME_MULTIPLIER .65", "Phase4StandardManager.standardLifetime, pulse interval and the suppressed Slowness", "Execution-scoped",
+                "Mode 16; RADIUS 9; INTERVAL_TICKS 15; DAMAGE_MULTIPLIER x1.6; LIFETIME_MULTIPLIER .65", "BattleStandardMasteryManager.standardLifetime, pulse interval and the suppressed Slowness", "Execution-scoped",
                 "Repaired: multiplies instead of overwriting so Hotter Aura survives, and the description no longer claims immobility the base standard already has");
         sunfire(evidence, "combat_opening", "Righteous Standard ally healing", "Support pulse",
-                "HEAL_MULTIPLIER x1.12", "Phase4StandardManager.sunfireSupportPulse heal", "Execution-scoped",
+                "HEAL_MULTIPLIER x1.12", "BattleStandardMasteryManager.sunfireSupportPulse heal", "Execution-scoped",
                 "Repaired: Sanctuary of Noon now multiplies, so this bonus survives its capstone");
         sunfire(evidence, "combat_cadence", "Righteous Standard support radius", "Support pulse",
-                "SUPPORT_RADIUS 7", "Phase4StandardManager.sunfireSupportPulse ally query", "Execution-scoped",
+                "SUPPORT_RADIUS 7", "BattleStandardMasteryManager.sunfireSupportPulse ally query", "Execution-scoped",
                 "Repaired: dropped the SUPPORT_TARGET_CAP write that only restated the default");
         sunfire(evidence, "combat_pressure", "Righteous Standard Strength", "Support pulse",
-                "STRENGTH_DURATION_TICKS 120", "Phase4StandardManager.sunfireSupportPulse Strength application", "Status-effect duration",
+                "STRENGTH_DURATION_TICKS 120", "BattleStandardMasteryManager.sunfireSupportPulse Strength application", "Status-effect duration",
                 "Repaired: a dedicated key, so this no longer doubles Scorching Ground's Weakness");
         sunfire(evidence, "combat_reversal", "Righteous Standard ally cleanse", "Support pulse",
-                "Mode 32; CLEANSE_LOCKOUT_TICKS 160", "Phase4StandardManager.removeHarmful and the per-ally lockout", "Expired locks pruned per pulse",
+                "Mode 32; CLEANSE_LOCKOUT_TICKS 160", "BattleStandardMasteryManager.removeHarmful and the per-ally lockout", "Expired locks pruned per pulse",
                 "Repaired: the eight-second lockout is a real consumer instead of a hardcoded constant");
         sunfire(evidence, "combat_reserve", "Righteous Standard ally Regeneration", "Support pulse",
-                "Mode 64; ALLY_REGEN_TICKS 60", "Phase4StandardManager.sunfireSupportPulse Regeneration", "Status-effect duration",
+                "Mode 64; ALLY_REGEN_TICKS 60", "BattleStandardMasteryManager.sunfireSupportPulse Regeneration", "Status-effect duration",
                 "Repaired: moved off the shared DURATION_TICKS key");
         sunfire(evidence, "combat_threshold", "Righteous Standard ally Absorption", "Support pulse on a wounded ally",
-                "Mode 128; GUARDIAN_THRESHOLD .35; GUARDIAN_ABSORPTION 4; GUARDIAN_ABSORPTION_TICKS 100; GUARDIAN_LOCKOUT_TICKS 200", "Phase4AbsorptionTracker grant driven by sunfireSupportPulse", "Expires on the owner tick and on the standard sweep; cleared on unload and server stop",
+                "Mode 128; GUARDIAN_THRESHOLD .35; GUARDIAN_ABSORPTION 4; GUARDIAN_ABSORPTION_TICKS 100; GUARDIAN_LOCKOUT_TICKS 200", "MasteryAbsorptionTracker grant driven by sunfireSupportPulse", "Expires on the owner tick and on the standard sweep; cleared on unload and server stop",
                 "Repaired: all four values were inert against hardcoded constants, and the advertised five-second Absorption was permanent");
         sunfire(evidence, "combat_convergence", "Righteous Standard cooldown", "Support pulse reaching the ally count",
-                "Mode 256; RALLY_ALLY_COUNT 3; RALLY_REFUND_TICKS 40", "Phase4StandardManager.rallyTriggers and reduceCooldown", "One-shot per standard; refund capped at 100 ticks",
+                "Mode 256; RALLY_ALLY_COUNT 3; RALLY_REFUND_TICKS 40", "BattleStandardMasteryManager.rallyTriggers and reduceCooldown", "One-shot per standard; refund capped at 100 ticks",
                 "Repaired: the refund now shortens the remaining cooldown through reduceWeaponCooldown. The absolute set it used could lengthen a part-elapsed cooldown, and it resolved the Harbinger standard first");
         sunfire(evidence, "combat_focus", "Righteous Standard support capstone", "Support pulse",
-                "Mode 512; SUPPORT_INTERVAL_TICKS 40; HEAL_MULTIPLIER x1.5; SANCTUARY_RESISTANCE_TICKS 60", "Phase4StandardManager.sunfireSupportPulse and the suppressed hostile pulse and landing", "Execution-scoped",
+                "Mode 512; SUPPORT_INTERVAL_TICKS 40; HEAL_MULTIPLIER x1.5; SANCTUARY_RESISTANCE_TICKS 60", "BattleStandardMasteryManager.sunfireSupportPulse and the suppressed hostile pulse and landing", "Execution-scoped",
                 "Repaired: the landing burst is now suppressed too, so 'deals no damage' is true, and the heal bonus composes with Generous Light");
         sunfire(evidence, "combat_release", "Righteous Standard offensive support capstone", "Support pulse then the ally's next attack",
                 "Mode 1024; SUPPORT_RADIUS 5; STRENGTH_DURATION_TICKS 100; ALLY_CHARGE_TICKS 60; FIRE_TICKS 40", "supportSunfireAlly through modifyOutgoingDamage and onDamageApplied", "Charge expires or is consumed on the next attack",
                 "Repaired: its charge window moved off the shared DURATION_TICKS key");
         sunfire(evidence, "transformation_opening", "Sunfire melee Regeneration chance", "Melee hit",
-                "CHANCE 20", "Phase4PassiveManager.sunfireMelee exact roll", "Execution-scoped",
+                "CHANCE 20", "LongPathFinalFormsMasteryCombatManager.sunfireMelee exact roll", "Execution-scoped",
                 "Twenty percent through the exact-chance path");
         sunfire(evidence, "transformation_cadence", "Sunfire melee Regeneration duration", "Regeneration proc",
-                "STATUS_DURATION_TICKS 60", "Phase4PassiveManager.sunfireMelee Regeneration and regenUntil", "Status-effect duration",
+                "STATUS_DURATION_TICKS 60", "LongPathFinalFormsMasteryCombatManager.sunfireMelee Regeneration and regenUntil", "Status-effect duration",
                 "The only writer of this key in regeneration scope");
         sunfire(evidence, "transformation_pressure", "Sunfire melee Fire Resistance", "Regeneration proc",
-                "Mode 2048; FIRE_RESISTANCE_TICKS 80", "Phase4PassiveManager.sunfireMelee Fire Resistance", "Status-effect duration",
+                "Mode 2048; FIRE_RESISTANCE_TICKS 80", "LongPathFinalFormsMasteryCombatManager.sunfireMelee Fire Resistance", "Status-effect duration",
                 "Repaired: a real consumer replaces the hardcoded duration and its dead write");
         sunfire(evidence, "transformation_reversal", "Sunfire stored healing", "Regeneration proc at full health, spent below the threshold",
-                "Mode 4096; RESERVE_CAP 4; RESERVE_THRESHOLD .5; RESERVE_ABSORPTION_TICKS 100", "Phase4PassiveManager.sunfireMelee accumulation and tickHeld payout through Phase4AbsorptionTracker", "Expires on the owner tick; cleared on unload and server stop",
+                "Mode 4096; RESERVE_CAP 4; RESERVE_THRESHOLD .5; RESERVE_ABSORPTION_TICKS 100", "LongPathFinalFormsMasteryCombatManager.sunfireMelee accumulation and tickHeld payout through MasteryAbsorptionTracker", "Expires on the owner tick; cleared on unload and server stop",
                 "Repaired: mode bit 4096 had no consumer, so the whole mechanic ran for every Sunfire wielder whether or not they owned the node. Its cap, threshold and five-second duration were all inert");
         sunfire(evidence, "transformation_reserve", "Sunfire retaliation burn", "Melee hit taken while Regeneration is active",
-                "Mode 8192; REPRISAL_FIRE_TICKS 40; REPRISAL_LOCKOUT_TICKS 40", "Phase4PassiveManager.modifyIncomingDamage per-attacker lockout", "Expired locks pruned on use",
+                "Mode 8192; REPRISAL_FIRE_TICKS 40; REPRISAL_LOCKOUT_TICKS 40", "LongPathFinalFormsMasteryCombatManager.modifyIncomingDamage per-attacker lockout", "Expired locks pruned on use",
                 "Repaired: dedicated lockout and fire keys, so Rekindling no longer stretches the two-second lockout to thirty");
         sunfire(evidence, "transformation_threshold", "Righteous Standard proximity guard", "Incoming damage near the standard",
-                "Mode 16384; GUARD_RANGE 7; DAMAGE_REDUCTION .15; KNOCKBACK_RESISTANCE .2", "Phase4StandardManager.modifyIncomingDamage and a managed knockback-resistance modifier", "Modifier removed out of range, on the Phoenix trigger, on unload and on server stop",
+                "Mode 16384; GUARD_RANGE 7; DAMAGE_REDUCTION .15; KNOCKBACK_RESISTANCE .2", "BattleStandardMasteryManager.modifyIncomingDamage and a managed knockback-resistance modifier", "Modifier removed out of range, on the Phoenix trigger, on unload and on server stop",
                 "Repaired: the advertised knockback resistance did not exist anywhere, and the range was a hardcoded squared constant");
         sunfire(evidence, "transformation_convergence", "Sunfire low-health recovery", "Held tick below the threshold",
-                "Mode 32768; REKINDLE_THRESHOLD .3; REKINDLE_DURATION_TICKS 100; REKINDLE_ABSORPTION 4; REKINDLE_LOCKOUT_TICKS 600", "Phase4PassiveManager.tickHeld and Phase4AbsorptionTracker", "Expires on the owner tick; cleared on unload and server stop",
+                "Mode 32768; REKINDLE_THRESHOLD .3; REKINDLE_DURATION_TICKS 100; REKINDLE_ABSORPTION 4; REKINDLE_LOCKOUT_TICKS 600", "LongPathFinalFormsMasteryCombatManager.tickHeld and MasteryAbsorptionTracker", "Expires on the owner tick; cleared on unload and server stop",
                 "Repaired: three inert values given real consumers and its lockout separated from Radiant Reprisal's");
         sunfire(evidence, "transformation_focus", "Righteous Standard lethal-damage capstone", "Lethal incoming damage",
-                "Mode 65536; PHOENIX_DURATION_TICKS 80; PHOENIX_COOLDOWN_TICKS 300; DAMAGE_MULTIPLIER x.8", "Phase4StandardManager.modifyIncomingDamage lethal branch", "Standard discarded, guard removed and execution finished",
+                "Mode 65536; PHOENIX_DURATION_TICKS 80; PHOENIX_COOLDOWN_TICKS 300; DAMAGE_MULTIPLIER x.8", "BattleStandardMasteryManager.modifyIncomingDamage lethal branch", "Standard discarded, guard removed and execution finished",
                 "Repaired: duration and cooldown surcharge are tuned rather than hardcoded, and the proximity guard is removed with the standard");
         sunfire(evidence, "transformation_release", "Sunfire combo flare capstone", "Third melee hit inside the window",
-                "Mode 131072; CHANCE 0; COMBO_COUNT 3; COMBO_WINDOW_TICKS 80; FLARE_LOCKOUT_TICKS 40; RADIUS 3; FLARE_DAMAGE_MULTIPLIER .7; TARGET_CAP 8; HEAL_AMOUNT 1", "Phase4PassiveManager.flare driven by the combo counter", "Per-owner lockout; state expires after 2400 idle ticks",
+                "Mode 131072; CHANCE 0; COMBO_COUNT 3; COMBO_WINDOW_TICKS 80; FLARE_LOCKOUT_TICKS 40; RADIUS 3; FLARE_DAMAGE_MULTIPLIER .7; TARGET_CAP 8; HEAL_AMOUNT 1", "LongPathFinalFormsMasteryCombatManager.flare driven by the combo counter", "Per-owner lockout; state expires after 2400 idle ticks",
                 "Repaired: the flare now scales off aura damage as described rather than weapon attack damage, its combo count and window are tuned, and the description states that it also stops Ember Reserve");
         harbinger(evidence, "signature_opening", "Abyssal Standard aura damage", "Aura pulse",
-                "DAMAGE_MULTIPLIER x1.1", "Phase4StandardManager.harbingerHostilePulse multiplier", "Execution-scoped",
+                "DAMAGE_MULTIPLIER x1.1", "BattleStandardMasteryManager.harbingerHostilePulse multiplier", "Execution-scoped",
                 "Repaired: Black Monolith and Solitary Harbinger both multiply now. The latter sits in the combat branch and its absolute write discarded the entire signature branch's damage tuning");
         harbinger(evidence, "signature_cadence", "Abyssal Standard hostile radius", "Aura pulse",
-                "RADIUS 7", "Phase4StandardManager.harbingerHostilePulse target box", "Execution-scoped",
+                "RADIUS 7", "BattleStandardMasteryManager.harbingerHostilePulse target box", "Execution-scoped",
                 "Repaired: Doom Cycle's and Executioner's Portent's stray TARGET_CAP writes are gone, so the cap is no longer cut to 24 or to 1");
         harbinger(evidence, "signature_pressure", "Abyssal Standard inward pull", "Aura pulse beyond the edge",
-                "PULL_STRENGTH x1.25", "Phase4StandardManager.applyHarbingerPull base branch", "Execution-scoped",
+                "PULL_STRENGTH x1.25", "BattleStandardMasteryManager.applyHarbingerPull base branch", "Execution-scoped",
                 "Repaired: the base pull is distance-proportional again, matching the vanilla aura it replaced, and the two capstones no longer overwrite this multiplier with an absolute value the consumer ignored");
         harbinger(evidence, "signature_reversal", "Repeated aura pulses", "Third pulse inside the window",
-                "Mode 1; WEAKNESS_PULSE_COUNT 3; WEAKNESS_WINDOW_TICKS 40; WEAKNESS_DURATION_TICKS 80", "Phase4StandardManager.nextPulseCount and the Weakness application", "Window entries pruned per pulse",
+                "Mode 1; WEAKNESS_PULSE_COUNT 3; WEAKNESS_WINDOW_TICKS 40; WEAKNESS_DURATION_TICKS 80", "BattleStandardMasteryManager.nextPulseCount and the Weakness application", "Window entries pruned per pulse",
                 "Repaired: the two-second window is real. The count accumulated for the standard's whole life, and the duration was overwritten by Lingering Haste, Solitary Harbinger or Plague Standard");
         harbinger(evidence, "signature_reserve", "Abyssal Standard landing", "Standard touching ground",
-                "LANDING_DAMAGE_MULTIPLIER 3.5; LANDING_RADIUS 2; LANDING_TARGET_CAP 12", "Phase4StandardManager.harbingerLanding", "One-shot per standard",
+                "LANDING_DAMAGE_MULTIPLIER 3.5; LANDING_RADIUS 2; LANDING_TARGET_CAP 12", "BattleStandardMasteryManager.harbingerLanding", "One-shot per standard",
                 "Repaired: the landing restores the vanilla launch and particles the manager path had dropped");
         harbinger(evidence, "signature_threshold", "Abyssal Standard near-target damage", "Aura pulse inside the core",
-                "Mode 2; CORE_RANGE 2; NEAR_DAMAGE_MULTIPLIER 1.2", "Phase4StandardManager.harbingerHostilePulse core branch", "Execution-scoped",
+                "Mode 2; CORE_RANGE 2; NEAR_DAMAGE_MULTIPLIER 1.2", "BattleStandardMasteryManager.harbingerHostilePulse core branch", "Execution-scoped",
                 "Repaired: a dedicated range key, so this no longer lands on the pursuit and owner-aura ranges");
         harbinger(evidence, "signature_convergence", "Abyssal Standard aura cycle", "Every fifth pulse",
-                "Mode 4; CYCLE_PULSE_COUNT 5; CYCLE_PULL_STRENGTH 1.5; CYCLE_DAMAGE_MULTIPLIER 1.4", "Phase4StandardManager.harbingerHostilePulse cycle branch and applyHarbingerPull", "Execution-scoped",
+                "Mode 4; CYCLE_PULSE_COUNT 5; CYCLE_PULL_STRENGTH 1.5; CYCLE_DAMAGE_MULTIPLIER 1.4", "BattleStandardMasteryManager.harbingerHostilePulse cycle branch and applyHarbingerPull", "Execution-scoped",
                 "Repaired: the cycle pull was ungated, so every standard pulled everything every fifth pulse without this node; its count and pull strength were inert and its stray TARGET_CAP shrank the aura");
         harbinger(evidence, "signature_focus", "Abyssal Standard pursuing capstone", "Standard tick",
-                "Mode 8; PURSUIT_RANGE 12; MOVEMENT_SPEED .3; RADIUS 4; DAMAGE_MULTIPLIER x.8", "Phase4StandardManager.moveHarbinger and the suppressed ally support", "Execution-scoped",
+                "Mode 8; PURSUIT_RANGE 12; MOVEMENT_SPEED .3; RADIUS 4; DAMAGE_MULTIPLIER x.8", "BattleStandardMasteryManager.moveHarbinger and the suppressed ally support", "Execution-scoped",
                 "Repaired: a dedicated pursuit range, so Commanding Presence no longer shrinks the chase to seven blocks");
         harbinger(evidence, "signature_release", "Abyssal Standard stationary capstone", "Aura pulse",
-                "Mode 16; RADIUS 9; INTERVAL_TICKS 15; CONSTANT_PULL_STRENGTH 1.5; DAMAGE_MULTIPLIER x1.6; LIFETIME_MULTIPLIER .65", "Phase4StandardManager.applyHarbingerPull constant branch and standardLifetime", "Execution-scoped",
+                "Mode 16; RADIUS 9; INTERVAL_TICKS 15; CONSTANT_PULL_STRENGTH 1.5; DAMAGE_MULTIPLIER x1.6; LIFETIME_MULTIPLIER .65", "BattleStandardMasteryManager.applyHarbingerPull constant branch and standardLifetime", "Execution-scoped",
                 "Repaired: multiplies instead of overwriting, its pull strength is a real consumer, and the description no longer claims immobility the base standard already has");
         harbinger(evidence, "combat_opening", "Abyssal Standard ally Haste", "Support pulse",
-                "HASTE_DURATION_TICKS 120", "Phase4StandardManager.harbingerSupportPulse Haste application", "Status-effect duration",
+                "HASTE_DURATION_TICKS 120", "BattleStandardMasteryManager.harbingerSupportPulse Haste application", "Status-effect duration",
                 "Repaired: a dedicated key, so this no longer lengthens Crushing Gloom's Weakness");
         harbinger(evidence, "combat_cadence", "Abyssal Standard support radius", "Support pulse",
-                "SUPPORT_RADIUS 7", "Phase4StandardManager.harbingerSupportPulse ally query", "Execution-scoped",
+                "SUPPORT_RADIUS 7", "BattleStandardMasteryManager.harbingerSupportPulse ally query", "Execution-scoped",
                 "Repaired: dropped the SUPPORT_TARGET_CAP write that only restated the default");
         harbinger(evidence, "combat_pressure", "Abyssal Standard owner aura", "Owner within range of the standard",
-                "Mode 32; OWNER_AURA_RANGE 7", "Phase4StandardManager.harbingerOwnerAura", "Status-effect duration",
+                "Mode 32; OWNER_AURA_RANGE 7", "BattleStandardMasteryManager.harbingerOwnerAura", "Status-effect duration",
                 "Repaired: mode bit 32 had no consumer, so the range came from a shared key that Crushing Core and Marching Omen also wrote and that applied to wielders who did not own this node");
         harbinger(evidence, "combat_reversal", "Abyssal Standard ally Speed", "Support pulse",
-                "Mode 64; ALLY_SPEED_TICKS 80", "Phase4StandardManager.harbingerSupportPulse Speed application", "Status-effect duration",
+                "Mode 64; ALLY_SPEED_TICKS 80", "BattleStandardMasteryManager.harbingerSupportPulse Speed application", "Status-effect duration",
                 "Repaired: moved off the shared DURATION_TICKS key");
         harbinger(evidence, "combat_reserve", "Abyssal Standard ally malice", "Support pulse then the ally's next melee hit",
                 "Mode 128; ALLY_CHARGE_TICKS 80; ALLY_WEAKNESS_TICKS 60", "supportHarbingerAlly through modifyOutgoingDamage and onDamageApplied", "Charge expires or is consumed on the next hit",
                 "Repaired: both the charge window and the applied Weakness read their own keys instead of literals");
         harbinger(evidence, "combat_threshold", "Abyssal Standard cooldown", "Support pulse reaching the ally count",
-                "Mode 256; RALLY_ALLY_COUNT 3; RALLY_REFUND_TICKS 40", "Phase4StandardManager.rallyTriggers and reduceCooldown", "One-shot per standard; refund capped",
+                "Mode 256; RALLY_ALLY_COUNT 3; RALLY_REFUND_TICKS 40", "BattleStandardMasteryManager.rallyTriggers and reduceCooldown", "One-shot per standard; refund capped",
                 "Repaired: both values are real consumers, and the refund direction was corrected during the Sunfire repair");
         harbinger(evidence, "combat_convergence", "Abyssal Standard ally formation", "Support pulse",
                 "Mode 512; ALLY_CHARGE_TICKS 80; SUPPORT_DAMAGE_BONUS .1; KNOCKBACK_RESISTANCE .15", "supportHarbingerAlly damage bonus and a managed ally knockback-resistance modifier", "Modifier released when a pulse no longer reaches the ally, on standard end, unload and server stop",
                 "Repaired: the advertised knockback resistance did not exist anywhere");
         harbinger(evidence, "combat_focus", "Abyssal Standard support capstone", "Support pulse",
-                "Mode 1024; SUPPORT_INTERVAL_TICKS 40; STATUS_AMPLIFIER 3; OWNER_HASTE_AMPLIFIER 1; ALLY_SPEED_TICKS 60; HASTE_DURATION_TICKS 60; ALLY_CHARGE_TICKS 60; SUPPORT_DAMAGE_BONUS .15", "Phase4StandardManager.harbingerSupportPulse and the suppressed hostile pulse and landing", "Execution-scoped",
+                "Mode 1024; SUPPORT_INTERVAL_TICKS 40; STATUS_AMPLIFIER 3; OWNER_HASTE_AMPLIFIER 1; ALLY_SPEED_TICKS 60; HASTE_DURATION_TICKS 60; ALLY_CHARGE_TICKS 60; SUPPORT_DAMAGE_BONUS .15", "BattleStandardMasteryManager.harbingerSupportPulse and the suppressed hostile pulse and landing", "Execution-scoped",
                 "Repaired: the landing burst is now suppressed too, so 'deals no damage' is true, and the Haste amplifiers are tuned rather than hardcoded");
         harbinger(evidence, "combat_release", "Abyssal Standard solitary capstone", "Owner within range",
-                "Mode 2048; RADIUS 5; DAMAGE_MULTIPLIER x1.25; OWNER_HASTE_AMPLIFIER 2", "Phase4StandardManager.harbingerOwnerAura and setHarbingerOwnerBonus", "Owner bonus expires on its deadline",
+                "Mode 2048; RADIUS 5; DAMAGE_MULTIPLIER x1.25; OWNER_HASTE_AMPLIFIER 2", "BattleStandardMasteryManager.harbingerOwnerAura and setHarbingerOwnerBonus", "Owner bonus expires on its deadline",
                 "Repaired: multiplies instead of overwriting, and its stray STATUS_DURATION_TICKS write no longer cuts Crushing Gloom to three seconds");
         harbinger(evidence, "transformation_opening", "Harbinger melee omen chance", "Melee hit",
-                "CHANCE 20", "Phase4PassiveManager.harbingerMelee exact roll", "Execution-scoped",
+                "CHANCE 20", "LongPathFinalFormsMasteryCombatManager.harbingerMelee exact roll", "Execution-scoped",
                 "Twenty percent through the exact-chance path");
         harbinger(evidence, "transformation_cadence", "Harbinger melee omen duration", "Weakness application",
-                "STATUS_DURATION_TICKS 220", "Phase4PassiveManager.harbingerMelee Weakness", "Status-effect duration",
+                "STATUS_DURATION_TICKS 220", "LongPathFinalFormsMasteryCombatManager.harbingerMelee Weakness", "Status-effect duration",
                 "Eleven seconds; the description now states that Plague Standard sets its own duration instead");
         harbinger(evidence, "transformation_pressure", "Repeated omens on one enemy", "Third application inside the window",
-                "Mode 4096; OMEN_UPGRADE_COUNT 3; OMEN_UPGRADE_TICKS 80; OMEN_WINDOW_TICKS 200", "Phase4PassiveManager.harbingerMelee omen counter", "Counter resets on a new target or a lapsed window",
+                "Mode 4096; OMEN_UPGRADE_COUNT 3; OMEN_UPGRADE_TICKS 80; OMEN_WINDOW_TICKS 200", "LongPathFinalFormsMasteryCombatManager.harbingerMelee omen counter", "Counter resets on a new target or a lapsed window",
                 "Repaired: all three values were inert against literals, and the window write broke Drawn to Doom's lockout");
         harbinger(evidence, "transformation_reversal", "Harbinger melee against weakened enemies", "Melee hit on a weakened target",
-                "MELEE_DAMAGE_MULTIPLIER 1.1", "Phase4PassiveManager.modifyOutgoingDamage", "Execution-scoped",
+                "MELEE_DAMAGE_MULTIPLIER 1.1", "LongPathFinalFormsMasteryCombatManager.modifyOutgoingDamage", "Execution-scoped",
                 "Correctly gated on Weakness and on the Harbinger weapon stack");
         harbinger(evidence, "transformation_reserve", "Harbinger melee pull", "Melee hit on a weakened enemy near the standard",
-                "Mode 8192; DOOM_PULL_RANGE 10; PULL_STRENGTH .75; DOOM_PULL_LOCKOUT_TICKS 20", "Phase4PassiveManager.harbingerMelee pull with a per-enemy lockout", "Expired locks pruned on use",
+                "Mode 8192; DOOM_PULL_RANGE 10; PULL_STRENGTH .75; DOOM_PULL_LOCKOUT_TICKS 20", "LongPathFinalFormsMasteryCombatManager.harbingerMelee pull with a per-enemy lockout", "Expired locks pruned on use",
                 "Repaired: it pulled on any melee hit rather than only weakened targets, its range was a hardcoded squared constant, and its lockout was one per-owner timer that Deep Foretelling and Fulfilled Prophecy also overwrote");
         harbinger(evidence, "transformation_threshold", "Harbinger weakened kill", "Killing a weakened enemy",
-                "Mode 16384; REFUND_TICKS 20; PROPHECY_REFUND_CAP_TICKS 100", "Phase4PassiveManager.harbingerMelee kill branch and reduceCooldown", "Refund capped per standard",
+                "Mode 16384; REFUND_TICKS 20; PROPHECY_REFUND_CAP_TICKS 100", "LongPathFinalFormsMasteryCombatManager.harbingerMelee kill branch and reduceCooldown", "Refund capped per standard",
                 "Repaired: the five-second cap is a real consumer, and its LOCKOUT_TICKS write no longer breaks Drawn to Doom");
         harbinger(evidence, "transformation_convergence", "Abyssal Standard against weakened prey", "Aura pulse on a weakened target",
-                "Mode 32768; LOW_HEALTH_THRESHOLD .25; LOW_HEALTH_DAMAGE_MULTIPLIER 1.2; BOSS_DAMAGE_MULTIPLIER 1.1", "Phase4StandardManager.finalOmenMultiplier using the execution-immune tag", "Execution-scoped",
+                "Mode 32768; LOW_HEALTH_THRESHOLD .25; LOW_HEALTH_DAMAGE_MULTIPLIER 1.2; BOSS_DAMAGE_MULTIPLIER 1.1", "BattleStandardMasteryManager.finalOmenMultiplier using the execution-immune tag", "Execution-scoped",
                 "Repaired: the Weakness requirement was never checked and the boss clause was entirely unimplemented. The boss test reuses WatcherAbilityManager.isExecutionImmune, matching Dreadwhisper's Mortal Tell");
         harbinger(evidence, "transformation_focus", "Harbinger plague capstone", "Aura pulse and melee hit",
                 "Mode 65536; CHANCE 100; PLAGUE_DAMAGE_MULTIPLIER .8; PLAGUE_WEAKNESS_TICKS 120", "harbingerHostilePulse and modifyOutgoingDamage plague branches", "Status-effect duration",
@@ -1672,247 +1672,247 @@ final class MasteryNodeAuditCatalog {
         harbinger(evidence, "transformation_release", "Harbinger single-omen capstone", "Aura pulse and melee hit on the marked enemy",
                 "Mode 131072; EXECUTION_DAMAGE_MULTIPLIER 1.4; EXECUTION_COOLDOWN_TICKS 80; COOLDOWN_TICKS +80", "harbingerMelee omen tracking, harbingerHostilePulse and modifyOutgoingDamage", "Previous omen cleared when a new target is marked",
                 "Repaired: its stray TARGET_CAP 1 reached the standard definition and cut the aura from thirty-two targets to one, and its damage multiplier now has its own key");
-        phase5Fire(evidence, "hearthflame", "signature_opening", "Furnace-chain echo damage", "Echo pulse",
+        fireForgeFire(evidence, "hearthflame", "signature_opening", "Furnace-chain echo damage", "Echo pulse",
                 "HEARTH_ECHO_DAMAGE_MULTIPLIER x1.1", "HearthflameAbilityManager.echoHit", "Execution-scoped",
                 "Verified after moving Hearthflame onto its dedicated runtime manager");
-        phase5Fire(evidence, "hearthflame", "signature_cadence", "Furnace-chain acquisition", "Ability activation",
+        fireForgeFire(evidence, "hearthflame", "signature_cadence", "Furnace-chain acquisition", "Ability activation",
                 "HEARTH_BIND_RANGE +2", "HearthflameAbilityManager.findTargets", "Execution-scoped",
                 "The range now reaches the live target query while preserving the six-target base cap");
-        phase5Fire(evidence, "hearthflame", "signature_pressure", "Chain contraction and pull", "Active-chain tick",
+        fireForgeFire(evidence, "hearthflame", "signature_pressure", "Chain contraction and pull", "Active-chain tick",
                 "PULL_STRENGTH x1.2; HEARTH_MIN_LENGTH -0.5", "HearthflameAbilityManager.tickAbilities and pullTarget", "Execution-scoped",
                 "Both advertised changes are consumed by the contraction loop");
-        phase5Fire(evidence, "hearthflame", "signature_reversal", "Chain echo ignition", "Echo pulse hit",
+        fireForgeFire(evidence, "hearthflame", "signature_reversal", "Chain echo ignition", "Echo pulse hit",
                 "HEARTH_ECHO_FIRE_TICKS 40", "HearthflameAbilityManager.echoHit", "Vanilla fire duration",
                 "Two seconds of fire refreshes on each echo");
-        phase5Fire(evidence, "hearthflame", "signature_reserve", "Furnace-chain echo damage", "Echo pulse",
+        fireForgeFire(evidence, "hearthflame", "signature_reserve", "Furnace-chain echo damage", "Echo pulse",
                 "HEARTH_ECHO_DAMAGE_MULTIPLIER x1.15", "HearthflameAbilityManager.echoHit", "Execution-scoped",
                 "Composes multiplicatively with Tempered Links instead of overwriting it");
-        phase5Fire(evidence, "hearthflame", "signature_threshold", "Pressure from snapped chains", "Chain snap",
+        fireForgeFire(evidence, "hearthflame", "signature_threshold", "Pressure from snapped chains", "Chain snap",
                 "HEARTH_SNAP_PRESSURE_MULTIPLIER x1.2; HEARTH_SNAP_RADIUS +0.5", "HearthflameAbilityManager.addSnapPressure and snapChain", "Execution-scoped",
                 "Redesigned from an inert pressure threshold into a snap-pressure and radius bonus");
-        phase5Fire(evidence, "hearthflame", "signature_convergence", "Six-chain finale", "Final shatter after six initial bindings",
+        fireForgeFire(evidence, "hearthflame", "signature_convergence", "Six-chain finale", "Final shatter after six initial bindings",
                 "HEARTH_FINAL_DAMAGE_MULTIPLIER x1.25", "HearthflameAbilityManager.gatedFinalDamage", "Execution-scoped",
                 "The multiplier is gated on all six enemies having been bound");
-        phase5Fire(evidence, "hearthflame", "signature_focus", "Wide furnace network", "Ability activation and echo pulse",
+        fireForgeFire(evidence, "hearthflame", "signature_focus", "Wide furnace network", "Ability activation and echo pulse",
                 "TARGET_CAP 8; HEARTH_ECHO_DAMAGE_MULTIPLIER x1.2; PULL_STRENGTH x0.7", "HearthflameAbilityManager.findTargets, echoHit and pullTarget", "Execution-scoped",
                 "The extra targets, echo bonus and pull penalty all compose in one execution");
-        phase5Fire(evidence, "hearthflame", "signature_release", "Single-target furnace sentence", "Ability activation and finale",
+        fireForgeFire(evidence, "hearthflame", "signature_release", "Single-target furnace sentence", "Ability activation and finale",
                 "TARGET_CAP 1; HEARTH_CHAIN_DURATION_TICKS x0.6; HEARTH_FINAL_DAMAGE_MULTIPLIER x2", "HearthflameAbilityManager activation, tickAbilities and finishAbility", "Execution-scoped",
                 "The target cap, faster contraction window and doubled finale are all consumed");
-        phase5Fire(evidence, "hearthflame", "combat_opening", "Cast protection", "Ability activation",
+        fireForgeFire(evidence, "hearthflame", "combat_opening", "Cast protection", "Ability activation",
                 "HEARTH_CAST_ABSORPTION 4; HEARTH_CAST_ABSORPTION_DURATION_TICKS 80", "HearthflameAbilityManager.grantTimedAbsorption", "Tracked absorption expires after four seconds and clears on lifecycle teardown",
                 "Repaired by giving the advertised temporary absorption a bounded tracker");
-        phase5Fire(evidence, "hearthflame", "combat_cadence", "Fire protection while chained", "Incoming fire damage",
+        fireForgeFire(evidence, "hearthflame", "combat_cadence", "Fire protection while chained", "Incoming fire damage",
                 "HEARTH_FIRE_DAMAGE_REDUCTION 0.3", "HearthflameAbilityManager.modifyIncomingDamage", "Ends with the active chain execution",
                 "The damage hook now reaches Hearthflame and only applies while chains persist");
-        phase5Fire(evidence, "hearthflame", "combat_pressure", "Snap resistance", "Each chain snap",
+        fireForgeFire(evidence, "hearthflame", "combat_pressure", "Snap resistance", "Each chain snap",
                 "HEARTH_SNAP_RESISTANCE_DURATION_TICKS 30; HEARTH_SNAP_RESISTANCE_MAX_TICKS 90", "HearthflameAbilityManager.grantSnapResistance", "Vanilla status duration capped at 4.5 seconds",
                 "Refresh and extension are deterministic and bounded");
-        phase5Fire(evidence, "hearthflame", "combat_reversal", "Protection from nearby bound enemies", "Incoming damage from a bound attacker",
+        fireForgeFire(evidence, "hearthflame", "combat_reversal", "Protection from nearby bound enemies", "Incoming damage from a bound attacker",
                 "HEARTH_BOUND_DAMAGE_REDUCTION 0.15; HEARTH_BOUND_DAMAGE_REDUCTION_RANGE 6", "HearthflameAbilityManager.modifyIncomingDamage", "Ends when the chain snaps or the execution clears",
                 "Both the bound-attacker identity and six-block range are checked");
-        phase5Fire(evidence, "hearthflame", "combat_reserve", "Brand-hit absorption", "Melee hit on a Branded enemy",
+        fireForgeFire(evidence, "hearthflame", "combat_reserve", "Brand-hit absorption", "Melee hit on a Branded enemy",
                 "HEARTH_BRAND_ABSORPTION 2; HEARTH_BRAND_ABSORPTION_LOCKOUT_TICKS 40", "HearthflameAbilityManager.onMeleeHit", "Per-owner/target lockout expires; absorption remains until spent",
                 "The two-second lockout is isolated from reactive branding");
-        phase5Fire(evidence, "hearthflame", "combat_threshold", "Chain preservation", "First would-be snap",
+        fireForgeFire(evidence, "hearthflame", "combat_threshold", "Chain preservation", "First would-be snap",
                 "HEARTH_CHAIN_PRESERVE_TICKS 20", "HearthflameAbilityManager.onMeleeHit and tickAbilities expiry", "One use per chain; execution-scoped",
                 "The first snap is postponed exactly one second and cannot retrigger");
-        phase5Fire(evidence, "hearthflame", "combat_convergence", "Safe finale protection", "Final shatter with three completed chains",
+        fireForgeFire(evidence, "hearthflame", "combat_convergence", "Safe finale protection", "Final shatter with three completed chains",
                 "HEARTH_COMPLETION_ABSORPTION 4; HEARTH_COMPLETION_ABSORPTION_DURATION_TICKS 60; HEARTH_COMPLETION_MIN_CHAINS 3", "HearthflameAbilityManager.grantCompletionAbsorption", "Tracked absorption expires after three seconds and clears on lifecycle teardown",
                 "Completion count, value and duration all have live consumers");
-        phase5Fire(evidence, "hearthflame", "combat_focus", "Fixed Bastion anchor", "Ability activation and active-chain tick",
+        fireForgeFire(evidence, "hearthflame", "combat_focus", "Fixed Bastion anchor", "Ability activation and active-chain tick",
                 "HEARTH_ANCHOR_SPEED_MULTIPLIER 0.75", "HearthflameAbilityManager.anchor, applyBastionMovementPenalty and anchored visuals", "Movement modifier, managed status and visuals clear when the execution ends, unloads or stops",
                 "Repaired so mechanics and chain visuals remain at the cast position while Resistance II persists");
-        phase5Fire(evidence, "hearthflame", "combat_release", "Mobile Hearth stance", "Ability activation and active-chain tick",
+        fireForgeFire(evidence, "hearthflame", "combat_release", "Mobile Hearth stance", "Ability activation and active-chain tick",
                 "HEARTH_BREAK_RANGE +6; HEARTH_BIND_RANGE x0.8; HEARTH_FINAL_DAMAGE_MULTIPLIER x0.8", "HearthflameAbilityManager activation, findTargets, tickAbilities and finishAbility", "Managed Speed duration and execution-scoped tuning",
                 "Redesigned to provide a real break-range benefit with explicit radius and finale penalties");
-        phase5Fire(evidence, "hearthflame", "transformation_opening", "Furnace Brand chance", "Melee hit",
+        fireForgeFire(evidence, "hearthflame", "transformation_opening", "Furnace Brand chance", "Melee hit",
                 "CHANCE +10 percentage points", "HearthflameAbilityManager.rollBrand", "Execution-scoped roll",
                 "The additive chance reaches the exact brand roll");
-        phase5Fire(evidence, "hearthflame", "transformation_cadence", "Furnace Brand duration", "Successful brand application",
+        fireForgeFire(evidence, "hearthflame", "transformation_cadence", "Furnace Brand duration", "Successful brand application",
                 "HEARTH_BRAND_DURATION_TICKS +80", "HearthflameAbilityManager.applyBrand", "Brand expires by deadline and clears on unload or stop",
                 "Adds four seconds to the live brand deadline");
-        phase5Fire(evidence, "hearthflame", "transformation_pressure", "Attacks against Branded enemies", "Melee hit on own Brand",
+        fireForgeFire(evidence, "hearthflame", "transformation_pressure", "Attacks against Branded enemies", "Melee hit on own Brand",
                 "HEARTH_BRAND_HIT_DAMAGE_MULTIPLIER 1.12; HEARTH_BRAND_HIT_FIRE_TICKS 20", "HearthflameAbilityManager.onMeleeHit", "Fire refreshes; Brand retains its own deadline",
                 "Bonus damage and one-second burning both require the attacker's Brand");
-        phase5Fire(evidence, "hearthflame", "transformation_reversal", "Reactive Furnace Brand", "Melee damage taken",
+        fireForgeFire(evidence, "hearthflame", "transformation_reversal", "Reactive Furnace Brand", "Melee damage taken",
                 "HEARTH_REACTIVE_BRAND_DURATION_TICKS 120; HEARTH_REACTIVE_BRAND_LOCKOUT_TICKS 60", "HearthflameAbilityManager.onDamageApplied", "Per-owner lockout and Brand deadlines are pruned and lifecycle-cleared",
                 "The post-damage hook now applies a six-second Brand once every three seconds");
-        phase5Fire(evidence, "hearthflame", "transformation_reserve", "Violent chain snap", "Chain snap",
+        fireForgeFire(evidence, "hearthflame", "transformation_reserve", "Violent chain snap", "Chain snap",
                 "HEARTH_SNAP_DAMAGE_MULTIPLIER x1.2; HEARTH_SNAP_RADIUS +0.5", "HearthflameAbilityManager.snapChain", "Execution-scoped",
                 "Damage and blast radius are separate live values");
-        phase5Fire(evidence, "hearthflame", "transformation_threshold", "Brand conduction", "A Branded target's chain snap",
+        fireForgeFire(evidence, "hearthflame", "transformation_threshold", "Brand conduction", "A Branded target's chain snap",
                 "HEARTH_BRAND_SPREAD_COUNT 2; HEARTH_BRAND_SPREAD_RANGE 4; HEARTH_BRAND_SPREAD_DURATION_TICKS 100", "HearthflameAbilityManager.spreadBrand", "Spread Brands expire and clear with world lifecycle",
                 "Count, range and five-second duration are all enforced");
-        phase5Fire(evidence, "hearthflame", "transformation_convergence", "Final Rebuke", "Final shatter",
+        fireForgeFire(evidence, "hearthflame", "transformation_convergence", "Final Rebuke", "Final shatter",
                 "HEARTH_FINAL_DAMAGE_MULTIPLIER x1.3; HEARTH_FINAL_KNOCKBACK_MULTIPLIER 1.25", "HearthflameAbilityManager.finishAbility", "Execution-scoped",
                 "Final damage and knockback scale independently");
-        phase5Fire(evidence, "hearthflame", "transformation_focus", "Timed Judgment Pyre snaps", "Three seconds after activation",
+        fireForgeFire(evidence, "hearthflame", "transformation_focus", "Timed Judgment Pyre snaps", "Three seconds after activation",
                 "HEARTH_FORCED_SNAP_TICKS 60; HEARTH_SNAP_DAMAGE_MULTIPLIER 1.6; PULL_STRENGTH 0", "HearthflameAbilityManager.forcedSnapAt, tickAbilities and snapChain", "Execution-scoped",
                 "Every chain uses the forced deadline while pull is disabled");
-        phase5Fire(evidence, "hearthflame", "transformation_release", "Endless Furnace rebinding", "Chain snap near a Branded enemy",
+        fireForgeFire(evidence, "hearthflame", "transformation_release", "Endless Furnace rebinding", "Chain snap near a Branded enemy",
                 "HEARTH_REBIND_COUNT 3; HEARTH_REBIND_RANGE 5; HEARTH_REBIND_DAMAGE_MULTIPLIER 0.75", "HearthflameAbilityManager.createReboundChain and rebindDamageMultiplier", "Rebound generation is execution-scoped and capped",
                 "Up to three rebounds use cumulative 25% generation penalties");
-        phase5Fire(evidence, "emberblade", "signature_opening", "Minimum-charge shrapnel", "Channel release",
+        fireForgeFire(evidence, "emberblade", "signature_opening", "Minimum-charge shrapnel", "Channel release",
                 "EMBERBLADE_MIN_DAMAGE_MULTIPLIER x1.12", "EmberbladeAbilityManager.release", "Execution-scoped",
                 "Minimum output is isolated from maximum-charge tuning");
-        phase5Fire(evidence, "emberblade", "signature_cadence", "Maximum-charge shrapnel", "Full channel release",
+        fireForgeFire(evidence, "emberblade", "signature_cadence", "Maximum-charge shrapnel", "Full channel release",
                 "EMBERBLADE_MAX_DAMAGE_MULTIPLIER x1.15", "EmberbladeAbilityManager.release", "Execution-scoped",
                 "Raises full-charge output without changing channel time");
-        phase5Fire(evidence, "emberblade", "signature_pressure", "Shrapnel piercing", "Primary shrapnel hit",
+        fireForgeFire(evidence, "emberblade", "signature_pressure", "Shrapnel piercing", "Primary shrapnel hit",
                 "EMBERBLADE_PIERCE_COUNT 1; EMBERBLADE_PIERCE_DAMAGE_MULTIPLIER 0.7; EMBERBLADE_PIERCE_RANGE 12", "EmberbladeAbilityManager.release", "Execution-scoped and target-capped",
                 "The second target is selected in range and receives the advertised scaled hit");
-        phase5Fire(evidence, "emberblade", "signature_reversal", "Precision shrapnel", "Release with target inside two degrees",
+        fireForgeFire(evidence, "emberblade", "signature_reversal", "Precision shrapnel", "Release with target inside two degrees",
                 "EMBERBLADE_AIM_DAMAGE_MULTIPLIER 1.2", "EmberbladeAbilityManager.aimAngle and release", "Execution-scoped",
                 "Crosshair angle now gates the 20% multiplier");
-        phase5Fire(evidence, "emberblade", "signature_reserve", "Interrupted-channel bank", "Interruption after two seconds",
+        fireForgeFire(evidence, "emberblade", "signature_reserve", "Interrupted-channel bank", "Interruption after two seconds",
                 "EMBERBLADE_BANK_DURATION_TICKS 60; EMBERBLADE_BANK_MULTIPLIER 0.5", "EmberbladeAbilityManager.interruptChannel and bankInterrupted", "Bank expires after three seconds, clears on damage, disconnect and world lifecycle",
                 "Repaired as real per-owner channel state instead of inert tuning");
-        phase5Fire(evidence, "emberblade", "signature_threshold", "Molten shrapnel splash", "Shrapnel impact",
+        fireForgeFire(evidence, "emberblade", "signature_threshold", "Molten shrapnel splash", "Shrapnel impact",
                 "FIRE_TICKS 60; EMBERBLADE_SPLASH_DAMAGE_MULTIPLIER 0.25; EMBERBLADE_SPLASH_RADIUS 2; EMBERBLADE_SPLASH_TARGET_CAP 6", "EmberbladeAbilityManager.splash and ignite", "Execution-scoped and target-capped",
                 "Fire, radius, cap and splash damage are all consumed");
-        phase5Fire(evidence, "emberblade", "signature_convergence", "White Heat release window", "Release during the final ten ticks",
+        fireForgeFire(evidence, "emberblade", "signature_convergence", "White Heat release window", "Release during the final ten ticks",
                 "EMBERBLADE_FULL_CHARGE_WINDOW_TICKS 10; EMBERBLADE_MAX_DAMAGE_MULTIPLIER x1.25; EMBERBLADE_FULL_CHARGE_FIRE_TICKS 80", "EmberbladeAbilityManager.inFullChargeWindow and release", "Execution-scoped",
                 "The half-second timing window controls both damage and four-second fire");
-        phase5Fire(evidence, "emberblade", "signature_focus", "Siege Crucible channel", "Channel tick and full release",
+        fireForgeFire(evidence, "emberblade", "signature_focus", "Siege Crucible channel", "Channel tick and full release",
                 "EMBERBLADE_CHANNEL_TICKS +20; EMBERBLADE_MAX_DAMAGE_MULTIPLIER x1.6", "EmberbladeAbilityManager.channelTicks, tickHolder and release", "Channel modifier removed on cancel/release/disconnect and lifecycle clear",
                 "The extra second, Slowness II and full-charge multiplier share the same execution");
-        phase5Fire(evidence, "emberblade", "signature_release", "Hair Trigger channel", "Channel tick and release",
+        fireForgeFire(evidence, "emberblade", "signature_release", "Hair Trigger channel", "Channel tick and release",
                 "EMBERBLADE_CHANNEL_TICKS x0.5; COOLDOWN_TICKS -20; EMBERBLADE_MAX_DAMAGE_MULTIPLIER x0.65", "EmberbladeAbilityManager.channelTicks and releaseDelegated", "Execution-scoped",
                 "Half channel time, one-second refund and damage penalty all reach runtime");
-        phase5Fire(evidence, "emberblade", "combat_opening", "Quickdraw Speed", "Release after at least one second",
+        fireForgeFire(evidence, "emberblade", "combat_opening", "Quickdraw Speed", "Release after at least one second",
                 "EMBERBLADE_QUICKDRAW_DURATION_TICKS 60", "EmberbladeAbilityManager.applyRewards", "Vanilla status duration",
                 "The minimum channel threshold is enforced before granting Speed I");
-        phase5Fire(evidence, "emberblade", "combat_cadence", "Forged Rhythm Haste", "Shrapnel hit",
+        fireForgeFire(evidence, "emberblade", "combat_cadence", "Forged Rhythm Haste", "Shrapnel hit",
                 "EMBERBLADE_HASTE_DURATION_TICKS 80", "EmberbladeAbilityManager.applyRewards", "Vanilla status refresh",
                 "Each hit refreshes Haste I for four seconds");
-        phase5Fire(evidence, "emberblade", "combat_pressure", "Recoil Step", "Channel release",
+        fireForgeFire(evidence, "emberblade", "combat_pressure", "Recoil Step", "Channel release",
                 "EMBERBLADE_RECOIL_DISTANCE 1.5; EMBERBLADE_FALL_PROTECTION_TICKS 20", "EmberbladeAbilityManager.applyReleaseMovement", "Fall protection expires after one second",
                 "Backward displacement and one-second fall protection are both managed");
-        phase5Fire(evidence, "emberblade", "combat_reversal", "Scorching Footwork reward", "Move six blocks while Quickdraw is active",
+        fireForgeFire(evidence, "emberblade", "combat_reversal", "Scorching Footwork reward", "Move six blocks while Quickdraw is active",
                 "EMBERBLADE_MOVE_DISTANCE 6; EMBERBLADE_NEXT_HIT_MULTIPLIER 1.15; EMBERBLADE_NEXT_HIT_DURATION_TICKS 80", "EmberbladeAbilityManager.tickHolder and modifyOutgoingDamage", "Charge expires after four seconds or is consumed by the next attack",
                 "Movement is measured from release and awards one bounded attack charge");
-        phase5Fire(evidence, "emberblade", "combat_reserve", "Late-channel guard", "Incoming damage during the final eight ticks",
+        fireForgeFire(evidence, "emberblade", "combat_reserve", "Late-channel guard", "Incoming damage during the final eight ticks",
                 "EMBERBLADE_LATE_DAMAGE_REDUCTION 0.25; EMBERBLADE_LATE_GUARD_TICKS 8", "EmberbladeAbilityManager.modifyIncomingDamage", "Ends on release or channel cancellation",
                 "The live incoming-damage hook now recognizes the exact late-channel window");
-        phase5Fire(evidence, "emberblade", "combat_threshold", "Full-charge Ire Rush", "Full-charge shrapnel hit",
+        fireForgeFire(evidence, "emberblade", "combat_threshold", "Full-charge Ire Rush", "Full-charge shrapnel hit",
                 "EMBERBLADE_IRE_RUSH_DURATION_TICKS 60; EMBERBLADE_FULL_BUFF_LOCKOUT_TICKS 100", "EmberbladeAbilityManager.applyRewards", "Per-owner lockout expires and clears with owner/world state",
                 "Strength I is bounded by the five-second lockout");
-        phase5Fire(evidence, "emberblade", "combat_convergence", "Ember Pursuit reset", "Shrapnel kill",
+        fireForgeFire(evidence, "emberblade", "combat_convergence", "Ember Pursuit reset", "Shrapnel kill",
                 "EMBERBLADE_PURSUIT_SPEED_TICKS 40", "EmberbladeAbilityManager.dealAndRecord and applyRewards", "Vanilla Speed duration; fall-protection state reset",
                 "A lethal shrapnel event resets Recoil Step and grants Speed II");
-        phase5Fire(evidence, "emberblade", "combat_focus", "Duelist teleport", "First shrapnel hit",
+        fireForgeFire(evidence, "emberblade", "combat_focus", "Duelist teleport", "First shrapnel hit",
                 "Mode 65536", "EmberbladeAbilityManager.applyReleaseMovement, fragments and splash", "Execution-scoped",
                 "Teleports beside the primary target while piercing and splash paths are suppressed");
-        phase5Fire(evidence, "emberblade", "combat_release", "Blastback release", "Channel release",
+        fireForgeFire(evidence, "emberblade", "combat_release", "Blastback release", "Channel release",
                 "EMBERBLADE_RECOIL_DISTANCE 4; EMBERBLADE_BLASTBACK_RESISTANCE_TICKS 40; EMBERBLADE_MIN_DAMAGE_MULTIPLIER x0.8; EMBERBLADE_MAX_DAMAGE_MULTIPLIER x0.8", "EmberbladeAbilityManager.applyReleaseMovement and release", "Vanilla Resistance duration and bounded fall protection",
                 "Launch, Resistance and the across-curve damage penalty all apply");
-        phase5Fire(evidence, "emberblade", "transformation_opening", "Ember Ire chance", "Shrapnel hit",
+        fireForgeFire(evidence, "emberblade", "transformation_opening", "Ember Ire chance", "Shrapnel hit",
                 "CHANCE 10 percentage points", "EmberbladeAbilityManager.ireChance and applyRewards", "Execution-scoped roll",
                 "The chance is additive and bounded by the exact roll helper");
-        phase5Fire(evidence, "emberblade", "transformation_cadence", "Ember Ire status duration", "Speed, Haste or Strength reward",
+        fireForgeFire(evidence, "emberblade", "transformation_cadence", "Ember Ire status duration", "Speed, Haste or Strength reward",
                 "EMBERBLADE_IRE_DURATION_BONUS_TICKS 40", "EmberbladeAbilityManager.ireDuration and applyRewards", "Vanilla status duration",
                 "Adds two seconds to each qualifying Ember Ire buff");
-        phase5Fire(evidence, "emberblade", "transformation_pressure", "Shrapnel Bloom", "Full-charge release",
+        fireForgeFire(evidence, "emberblade", "transformation_pressure", "Shrapnel Bloom", "Full-charge release",
                 "EMBERBLADE_FRAGMENT_COUNT 2; EMBERBLADE_FRAGMENT_DAMAGE_MULTIPLIER 0.35; EMBERBLADE_FRAGMENT_RANGE 5", "EmberbladeAbilityManager.fragments", "Execution-scoped and count-capped",
                 "Two distinct side targets receive 35% fragment hits");
-        phase5Fire(evidence, "emberblade", "transformation_reversal", "Cinder Hunt fragments", "Fragment target selection",
+        fireForgeFire(evidence, "emberblade", "transformation_reversal", "Cinder Hunt fragments", "Fragment target selection",
                 "EMBERBLADE_FRAGMENT_SEEK_RANGE 10; EMBERBLADE_FRAGMENT_SEEK_MULTIPLIER 1.2", "EmberbladeAbilityManager.fragments", "Execution-scoped",
                 "Burning targets are sought over the larger range and receive the bonus");
-        phase5Fire(evidence, "emberblade", "transformation_reserve", "Flashover combo", "Third shrapnel hit within five seconds",
+        fireForgeFire(evidence, "emberblade", "transformation_reserve", "Flashover combo", "Third shrapnel hit within five seconds",
                 "EMBERBLADE_FLASHOVER_COUNT 3; EMBERBLADE_FLASHOVER_WINDOW_TICKS 100; EMBERBLADE_FLASHOVER_RADIUS 3; EMBERBLADE_FLASHOVER_DAMAGE_MULTIPLIER 0.4; EMBERBLADE_FLASHOVER_TARGET_CAP 8", "EmberbladeAbilityManager.applyRewards", "Combo window resets after detonation or expiry and clears with owner/world state",
                 "Count, window, radius, cap and damage are all live");
-        phase5Fire(evidence, "emberblade", "transformation_threshold", "Fed by Flame bank", "Melee hit on a burning enemy",
+        fireForgeFire(evidence, "emberblade", "transformation_threshold", "Fed by Flame bank", "Melee hit on a burning enemy",
                 "EMBERBLADE_BANK_GAIN 0.05; EMBERBLADE_BANK_CAP 0.25; EMBERBLADE_BANK_DURATION_TICKS 100", "EmberbladeAbilityManager.onMeleeHit and validBank", "Bank expires after five seconds, is capped and clears on owner/world lifecycle",
                 "Each qualifying hit banks exactly 5% up to 25%");
-        phase5Fire(evidence, "emberblade", "transformation_convergence", "Wildfire Volley jumps", "Side-fragment impact",
+        fireForgeFire(evidence, "emberblade", "transformation_convergence", "Wildfire Volley jumps", "Side-fragment impact",
                 "EMBERBLADE_FRAGMENT_JUMP_RANGE 6; EMBERBLADE_FRAGMENT_JUMP_MULTIPLIER 0.5", "EmberbladeAbilityManager.fragments", "One jump per fragment and execution-scoped target exclusion",
                 "Each side fragment can select one new target for half fragment damage");
-        phase5Fire(evidence, "emberblade", "transformation_focus", "Ember Barrage", "Full-charge release",
+        fireForgeFire(evidence, "emberblade", "transformation_focus", "Ember Barrage", "Full-charge release",
                 "EMBERBLADE_FRAGMENT_COUNT 5; EMBERBLADE_FRAGMENT_DAMAGE_MULTIPLIER 0.45; EMBERBLADE_MIN_DAMAGE_MULTIPLIER x0.6; EMBERBLADE_MAX_DAMAGE_MULTIPLIER x0.6", "EmberbladeAbilityManager.fragments and release", "Execution-scoped",
                 "Five fragments and the 40% primary penalty are independently consumed");
-        phase5Fire(evidence, "emberblade", "transformation_release", "Ire Incarnate", "Full-charge shrapnel hit",
+        fireForgeFire(evidence, "emberblade", "transformation_release", "Ire Incarnate", "Full-charge shrapnel hit",
                 "STATUS_AMPLIFIER 1; EMBERBLADE_INCARNATE_DURATION_TICKS 100; COOLDOWN_TICKS +80", "EmberbladeAbilityManager.applyRewards and releaseDelegated", "Vanilla status duration and execution cooldown",
                 "Strength II, Haste II and the four-second cooldown surcharge share the full-charge gate");
-        phase5Fire(evidence, "emberlash", "signature_opening", "Smouldering bonus damage", "Melee hit on a marked target",
+        fireForgeFire(evidence, "emberlash", "signature_opening", "Smouldering bonus damage", "Melee hit on a marked target",
                 "EMBERLASH_SMOULDER_DAMAGE_MULTIPLIER x1.1", "EmberlashAbilityManager.perStackDamage and onHit", "Mark deadline and execution-scoped tuning",
                 "Uses an Emberlash-scoped multiplier rather than colliding with Hearthflame or Emberblade");
-        phase5Fire(evidence, "emberlash", "signature_cadence", "Smouldering stack cap", "Smouldering application",
+        fireForgeFire(evidence, "emberlash", "signature_cadence", "Smouldering stack cap", "Smouldering application",
                 "EMBERLASH_SMOULDER_STACK_CAP 6", "EmberlashAbilityManager.applyStacks", "Stacks expire with their mark and clear on owner/world lifecycle",
                 "Exact stack counting now permits six stacks");
-        phase5Fire(evidence, "emberlash", "signature_pressure", "Smouldering duration", "Smouldering application or refresh",
+        fireForgeFire(evidence, "emberlash", "signature_pressure", "Smouldering duration", "Smouldering application or refresh",
                 "EMBERLASH_SMOULDER_DURATION_TICKS +60", "EmberlashAbilityManager.applyStacks", "All stacks share the refreshed mark deadline",
                 "Adds three seconds and refreshes the complete stack set");
-        phase5Fire(evidence, "emberlash", "signature_reversal", "Searing Lash", "Applying the third Smouldering stack",
+        fireForgeFire(evidence, "emberlash", "signature_reversal", "Searing Lash", "Applying the third Smouldering stack",
                 "COUNT 3; FIRE_TICKS 60", "EmberlashAbilityManager.onHit", "Vanilla fire duration",
                 "The third stack applies exactly three seconds of fire");
-        phase5Fire(evidence, "emberlash", "signature_reserve", "Sweep Smouldering", "Qualifying sweep attack",
+        fireForgeFire(evidence, "emberlash", "signature_reserve", "Sweep Smouldering", "Qualifying sweep attack",
                 "EMBERLASH_SWEEP_RADIUS 3; EMBERLASH_SWEEP_TARGET_CAP 4", "EmberlashAbilityManager.isSweepAttack and onHit", "Target-capped; marks retain their own deadlines",
                 "Up to four nearby enemies receive one stack without replacing the primary hit");
-        phase5Fire(evidence, "emberlash", "signature_threshold", "Bellows Rhythm combo", "Third consecutive hit inside two seconds",
+        fireForgeFire(evidence, "emberlash", "signature_threshold", "Bellows Rhythm combo", "Third consecutive hit inside two seconds",
                 "EMBERLASH_COMBO_HITS 3; EMBERLASH_COMBO_WINDOW_TICKS 40", "EmberlashAbilityManager.onHit", "Combo resets after proc, target change or window expiry",
                 "The cadence counter awards one additional stack and is bounded");
-        phase5Fire(evidence, "emberlash", "signature_convergence", "White Smoulder suppression", "Incoming melee damage from a maximum-marked attacker",
+        fireForgeFire(evidence, "emberlash", "signature_convergence", "White Smoulder suppression", "Incoming melee damage from a maximum-marked attacker",
                 "EMBERLASH_MAX_DAMAGE_REDUCTION 0.12; EMBERLASH_MAX_REDUCTION_DURATION_TICKS 60", "EmberlashAbilityManager.modifyIncomingDamage", "Requires the damaged wearer to own the mark and its live deadline",
                 "Repaired ownership validation prevents another wielder's mark from granting protection");
-        phase5Fire(evidence, "emberlash", "signature_focus", "Endless Smoulder echo", "Hit within the three-second cadence",
+        fireForgeFire(evidence, "emberlash", "signature_focus", "Endless Smoulder echo", "Hit within the three-second cadence",
                 "EMBERLASH_SMOULDER_DAMAGE_MULTIPLIER x0.75; LOCKOUT_TICKS 60", "EmberlashAbilityManager.withinCadence and onHit", "Cadence state expires and clears with owner/world state",
                 "Redesigned as a 50%-strength second Smouldering echo while retaining the advertised 25% per-stack penalty");
-        phase5Fire(evidence, "emberlash", "signature_release", "Ashen Brand", "Smouldering application and hit",
+        fireForgeFire(evidence, "emberlash", "signature_release", "Ashen Brand", "Smouldering application and hit",
                 "EMBERLASH_SMOULDER_STACK_CAP 3; EMBERLASH_SMOULDER_DAMAGE_MULTIPLIER x1.45", "EmberlashAbilityManager.applyStacks, onHit and sweep suppression", "One owned target at a time; prior mark is cleared",
                 "The three-stack cap, 45% scaling and single-target restriction are all enforced");
-        phase5Fire(evidence, "emberlash", "combat_opening", "Cauterizing evade distance", "Cauterizing activation",
+        fireForgeFire(evidence, "emberlash", "combat_opening", "Cauterizing evade distance", "Cauterizing activation",
                 "EMBERLASH_EVADE_DISTANCE_MULTIPLIER 1.2", "EmberlashAbilityManager.activate", "One-shot movement",
                 "The live evade vector is multiplied by 1.2");
-        phase5Fire(evidence, "emberlash", "combat_cadence", "Cauterizing cooldown", "Successful activation",
-                "COOLDOWN_TICKS -12", "Phase5MasterySkillEffect cooldown export and EmberlashSwordItem", "Execution cooldown",
+        fireForgeFire(evidence, "emberlash", "combat_cadence", "Cauterizing cooldown", "Successful activation",
+                "COOLDOWN_TICKS -12", "FireForgeMasterySkillEffect cooldown export and EmberlashSwordItem", "Execution cooldown",
                 "Reduces the cooldown by exactly 0.6 seconds");
-        phase5Fire(evidence, "emberlash", "combat_pressure", "Sealed Wounds", "Cauterizing activation",
-                "EMBERLASH_CAUTERY_ABSORPTION 4; EMBERLASH_CAUTERY_ABSORPTION_TICKS 60", "EmberlashAbilityManager.activate through Phase4AbsorptionTracker", "Absorption expires after three seconds and clears on lifecycle teardown",
+        fireForgeFire(evidence, "emberlash", "combat_pressure", "Sealed Wounds", "Cauterizing activation",
+                "EMBERLASH_CAUTERY_ABSORPTION 4; EMBERLASH_CAUTERY_ABSORPTION_TICKS 60", "EmberlashAbilityManager.activate through MasteryAbsorptionTracker", "Absorption expires after three seconds and clears on lifecycle teardown",
                 "Targetless Cauterizing now grants bounded Absorption instead of requiring a victim");
-        phase5Fire(evidence, "emberlash", "combat_reversal", "Smoke Screen", "Cauterizing activation",
+        fireForgeFire(evidence, "emberlash", "combat_reversal", "Smoke Screen", "Cauterizing activation",
                 "EMBERLASH_BLIND_RADIUS 3; EMBERLASH_BLIND_TARGET_CAP 6; EMBERLASH_BLIND_DURATION_TICKS 30", "EmberlashAbilityManager.activate", "Vanilla status duration and target cap",
                 "Radius, cap and 1.5-second Blindness are all consumed");
-        phase5Fire(evidence, "emberlash", "combat_reserve", "Backlash stacks", "Next attack after evading",
+        fireForgeFire(evidence, "emberlash", "combat_reserve", "Backlash stacks", "Next attack after evading",
                 "EMBERLASH_BACKLASH_STACKS 2; EMBERLASH_BACKLASH_DURATION_TICKS 80", "EmberlashAbilityManager.activate and onHit", "Charge expires after four seconds or is consumed by the next attack",
                 "The evasion charge applies exactly two additional stacks once");
-        phase5Fire(evidence, "emberlash", "combat_threshold", "Burning Pace", "Cauterizing activation",
+        fireForgeFire(evidence, "emberlash", "combat_threshold", "Burning Pace", "Cauterizing activation",
                 "EMBERLASH_BURNING_PACE_DURATION_TICKS 40; EMBERLASH_BURNING_PACE_AMPLIFIER 1", "EmberlashAbilityManager.activate", "Vanilla status duration",
                 "Grants Speed II for exactly two seconds");
-        phase5Fire(evidence, "emberlash", "combat_convergence", "Emergency Brand", "Cauterizing below 35% health",
+        fireForgeFire(evidence, "emberlash", "combat_convergence", "Emergency Brand", "Cauterizing below 35% health",
                 "EMBERLASH_EMERGENCY_LOCKOUT_TICKS 160; EMBERLASH_EMERGENCY_RESISTANCE_TICKS 60", "EmberlashAbilityManager.activate", "Per-owner lockout expires and clears with world state",
                 "Resistance I is health-gated and bounded by the eight-second lockout");
-        phase5Fire(evidence, "emberlash", "combat_focus", "Phoenix Step", "Cauterizing movement segment",
+        fireForgeFire(evidence, "emberlash", "combat_focus", "Phoenix Step", "Cauterizing movement segment",
                 "EMBERLASH_PHOENIX_DAMAGE_MULTIPLIER 0.35; EMBERLASH_PHOENIX_TARGET_CAP 6; EMBERLASH_PHOENIX_FIRE_TICKS 60", "EmberlashAbilityManager.phoenixStep", "One-shot segment query and target cap",
                 "Damages and ignites only enemies crossed by the evade while healing is suppressed");
-        phase5Fire(evidence, "emberlash", "combat_release", "Surgeon's Flame", "Cauterizing activation",
+        fireForgeFire(evidence, "emberlash", "combat_release", "Surgeon's Flame", "Cauterizing activation",
                 "HEAL_MULTIPLIER x1.5", "EmberlashAbilityManager.activate and removeOneHarmfulEffect", "One harmful effect removed; no persistent custom state",
                 "Healing increases by 50%, one debuff is removed, and evade/Speed benefits are disabled");
-        phase5Fire(evidence, "emberlash", "transformation_opening", "Hot Blood retaliation", "Melee damage taken",
+        fireForgeFire(evidence, "emberlash", "transformation_opening", "Hot Blood retaliation", "Melee damage taken",
                 "EMBERLASH_HOT_BLOOD_LOCKOUT_TICKS 30", "EmberlashAbilityManager.onDamageApplied", "Per-owner lockout expires and clears with world state",
                 "The post-damage hook applies one stack to the attacker once every 1.5 seconds");
-        phase5Fire(evidence, "emberlash", "transformation_cadence", "Reprisal charges", "Damage taken",
+        fireForgeFire(evidence, "emberlash", "transformation_cadence", "Reprisal charges", "Damage taken",
                 "EMBERLASH_REPRISAL_DURATION_TICKS 100; EMBERLASH_REPRISAL_STACK_CAP 3", "EmberlashAbilityManager.onDamageApplied and liveReprisalCharges", "Charges expire after five seconds and clear on owner/world lifecycle",
                 "Exact charges replace the prior status-amplifier approximation");
-        phase5Fire(evidence, "emberlash", "transformation_pressure", "Crackling Retort", "Attack with three reprisal charges",
+        fireForgeFire(evidence, "emberlash", "transformation_pressure", "Crackling Retort", "Attack with three reprisal charges",
                 "EMBERLASH_REPRISAL_TRIGGER_COUNT 3; EMBERLASH_REPRISAL_DAMAGE_MULTIPLIER 0.25", "EmberlashAbilityManager.onHit and consumeReprisal", "Charges are consumed atomically",
                 "Three live charges produce one 25% bonus hit and then clear");
-        phase5Fire(evidence, "emberlash", "transformation_reversal", "Ash Burst", "Reprisal consumption",
+        fireForgeFire(evidence, "emberlash", "transformation_reversal", "Ash Burst", "Reprisal consumption",
                 "EMBERLASH_ASH_RADIUS 2.5; EMBERLASH_ASH_DAMAGE_PER_STACK 0.08; EMBERLASH_ASH_TARGET_CAP 8", "EmberlashAbilityManager.consumeReprisal", "One-shot target-capped burst",
                 "Only Smouldering enemies in range are detonated for their exact stack count");
-        phase5Fire(evidence, "emberlash", "transformation_reserve", "Shared Embers", "Ash Burst hit",
+        fireForgeFire(evidence, "emberlash", "transformation_reserve", "Shared Embers", "Ash Burst hit",
                 "EMBERLASH_ASH_APPLIED_STACKS 1", "EmberlashAbilityManager.consumeReprisal", "Applied marks retain their normal deadlines",
                 "Every enemy hit by Ash Burst receives one Smouldering stack");
-        phase5Fire(evidence, "emberlash", "transformation_threshold", "Lashback", "Maximum-Smouldering enemy hits its owner",
+        fireForgeFire(evidence, "emberlash", "transformation_threshold", "Lashback", "Maximum-Smouldering enemy hits its owner",
                 "EMBERLASH_LASHBACK_DURATION_TICKS 40; EMBERLASH_LASHBACK_AMPLIFIER 1", "EmberlashAbilityManager.onDamageApplied", "Vanilla status duration",
                 "Ownership and maximum-stack checks gate Slowness II");
-        phase5Fire(evidence, "emberlash", "transformation_convergence", "Final Coal cooldown refund", "Kill an enemy at maximum Smouldering",
+        fireForgeFire(evidence, "emberlash", "transformation_convergence", "Final Coal cooldown refund", "Kill an enemy at maximum Smouldering",
                 "EMBERLASH_KILL_REFUND_TICKS 20", "EmberlashAbilityManager.onKill", "One refund per lethal callback",
                 "The death hook verifies the victim's pre-clear mark and reduces Cauterizing by one second");
-        phase5Fire(evidence, "emberlash", "transformation_focus", "Detonation Lash", "Attack a Smouldering target",
+        fireForgeFire(evidence, "emberlash", "transformation_focus", "Detonation Lash", "Attack a Smouldering target",
                 "EMBERLASH_DETONATION_DAMAGE_PER_STACK 0.3", "EmberlashAbilityManager.onHit", "All owned stacks are consumed by the attack",
                 "Sustained bonus damage is suppressed and replaced with a 30%-per-stack detonation");
-        phase5Fire(evidence, "emberlash", "transformation_release", "Spitefire", "Damage taken and reprisal lifetime",
+        fireForgeFire(evidence, "emberlash", "transformation_release", "Spitefire", "Damage taken and reprisal lifetime",
                 "EMBERLASH_REPRISAL_DURATION_TICKS 200; EMBERLASH_REPRISAL_STACK_CAP 5; EMBERLASH_INCOMING_PER_CHARGE_MULTIPLIER 1.04", "EmberlashAbilityManager.modifyIncomingDamage and onDamageApplied", "Charges expire after ten seconds or are spent; state clears on owner/world lifecycle",
                 "Up to five exact charges increase incoming damage multiplicatively until spent");
         hearthflame(evidence, "signature_opening", "Chain echo damage", "Melee hit on a bound enemy",
@@ -1943,7 +1943,7 @@ final class MasteryNodeAuditCatalog {
                 "TARGET_CAP 1; HEARTH_CHAIN_DURATION_TICKS x0.6; HEARTH_FINAL_DAMAGE_MULTIPLIER x2", "HearthflameAbilityManager.findTargets and finishAbility", "Execution-scoped",
                 "Note that it makes Sixfold Sentence unreachable by design, since one chain can never meet a six-chain requirement");
         hearthflame(evidence, "combat_opening", "Cast absorption", "Ability activation",
-                "HEARTH_CAST_ABSORPTION 4; HEARTH_CAST_ABSORPTION_DURATION_TICKS 80", "Phase4AbsorptionTracker grant through grantTimedAbsorption", "Expires on the tracker sweep; cleared on unload and server stop",
+                "HEARTH_CAST_ABSORPTION 4; HEARTH_CAST_ABSORPTION_DURATION_TICKS 80", "MasteryAbsorptionTracker grant through grantTimedAbsorption", "Expires on the tracker sweep; cleared on unload and server stop",
                 "Four absorption is Absorption I, matching the description");
         hearthflame(evidence, "combat_cadence", "Incoming fire damage while chains persist", "Fire damage taken",
                 "HEARTH_FIRE_DAMAGE_REDUCTION .3", "HearthflameAbilityManager.modifyIncomingDamage", "Execution-scoped",
@@ -1955,13 +1955,13 @@ final class MasteryNodeAuditCatalog {
                 "HEARTH_BOUND_DAMAGE_REDUCTION .15; HEARTH_BOUND_DAMAGE_REDUCTION_RANGE 6", "HearthflameAbilityManager.modifyIncomingDamage bound branch", "Execution-scoped",
                 "Checks that the attacker is bound and within range; defaults to a no-op");
         hearthflame(evidence, "combat_reserve", "Furnace Brand absorption", "Melee hit on a branded enemy",
-                "HEARTH_BRAND_ABSORPTION 2; HEARTH_BRAND_ABSORPTION_DURATION_TICKS 200; HEARTH_BRAND_ABSORPTION_CAP 8; HEARTH_BRAND_ABSORPTION_LOCKOUT_TICKS 40", "grantTimedAbsorption through Phase4AbsorptionTracker", "Expires on the tracker sweep; cleared on unload and server stop",
+                "HEARTH_BRAND_ABSORPTION 2; HEARTH_BRAND_ABSORPTION_DURATION_TICKS 200; HEARTH_BRAND_ABSORPTION_CAP 8; HEARTH_BRAND_ABSORPTION_LOCKOUT_TICKS 40", "grantTimedAbsorption through MasteryAbsorptionTracker", "Expires on the tracker sweep; cleared on unload and server stop",
                 "Repaired: this was the one absorption grant in the profile that bypassed the tracker, adding two absorption every two seconds per branded enemy with no cap and no expiry. Hearthflame's three absorption sources now top up one bounded, expiring pool");
         hearthflame(evidence, "combat_threshold", "Chain preservation", "Hit that would snap a chain",
                 "HEARTH_CHAIN_PRESERVE_TICKS 20", "HearthflameAbilityManager.onMeleeHit preserve branch", "Once per chain; the tick path respects the deadline",
                 "Preserves the chain for one second on the first snapping hit only");
         hearthflame(evidence, "combat_convergence", "Completion absorption", "Finale after enough chains completed",
-                "HEARTH_COMPLETION_ABSORPTION 8; HEARTH_COMPLETION_ABSORPTION_DURATION_TICKS 60; HEARTH_COMPLETION_MIN_CHAINS 3", "grantCompletionAbsorption through Phase4AbsorptionTracker", "Expires on the tracker sweep; cleared on unload and server stop",
+                "HEARTH_COMPLETION_ABSORPTION 8; HEARTH_COMPLETION_ABSORPTION_DURATION_TICKS 60; HEARTH_COMPLETION_MIN_CHAINS 3", "grantCompletionAbsorption through MasteryAbsorptionTracker", "Expires on the tracker sweep; cleared on unload and server stop",
                 "Repaired: it granted four, which is Absorption I, while its description promised Absorption II. Eight matches the text and its position behind a three-chain condition");
         hearthflame(evidence, "combat_focus", "Anchored chain capstone", "Ability activation",
                 "HEARTH_ANCHOR_SPEED_MULTIPLIER .75; ownership bit 16", "HearthflameAbilityManager.anchor, a managed movement modifier and Resistance II", "Modifier and effect restored in cleanupActor on every exit path",
@@ -2046,7 +2046,7 @@ final class MasteryNodeAuditCatalog {
                 "The description no longer claims to reset Recoil Step, which has no cooldown to reset. It refreshes fall protection, which is what the code does");
         emberblade(evidence, "combat_focus", "Shrapnel teleport capstone", "Release that hits",
                 "Ownership bit 16 only", "EmberbladeAbilityManager.applyReleaseMovement teleport and the suppressed pierce and splash", "Execution-scoped",
-                "A pure mode node, which Phase 5's automatic per-node ownership bit makes legitimate without any tuned value");
+                "A pure mode node, which the Fire and Forge cohort's automatic per-node ownership bit makes legitimate without any tuned value");
         emberblade(evidence, "combat_release", "Blastback capstone", "Release",
                 "EMBERBLADE_RECOIL_DISTANCE 4; EMBERBLADE_BLASTBACK_RESISTANCE_TICKS 40; min and max damage x0.8", "EmberbladeAbilityManager.applyReleaseMovement", "Status-effect duration",
                 "Both damage penalties compose with their prerequisites");
@@ -2111,7 +2111,7 @@ final class MasteryNodeAuditCatalog {
                 "COOLDOWN_TICKS -12", "The execution cooldown key on the active definition", "Execution-scoped",
                 "Reaches only the active definition, since the smoulder passive has no cooldown key");
         emberlash(evidence, "combat_pressure", "Cauterizing absorption", "Ability activation",
-                "EMBERLASH_CAUTERY_ABSORPTION 4; EMBERLASH_CAUTERY_ABSORPTION_TICKS 60", "Phase4AbsorptionTracker grant from activate", "Expires on the tracker sweep; cleared on unload, server stop and disconnect",
+                "EMBERLASH_CAUTERY_ABSORPTION 4; EMBERLASH_CAUTERY_ABSORPTION_TICKS 60", "MasteryAbsorptionTracker grant from activate", "Expires on the tracker sweep; cleared on unload, server stop and disconnect",
                 "Replaces the heal outright, as the description states");
         emberlash(evidence, "combat_reversal", "Evade blindness", "Ability activation",
                 "EMBERLASH_BLIND_RADIUS 3; EMBERLASH_BLIND_TARGET_CAP 6; EMBERLASH_BLIND_DURATION_TICKS 30", "EmberlashAbilityManager.activate smoke screen branch", "Status-effect duration",
@@ -2174,10 +2174,10 @@ final class MasteryNodeAuditCatalog {
                 "FLAMEWIND_DEATH_DAMAGE_MULTIPLIER 1.25", "FlameSeedEffect expiry detonation branch", "Execution-scoped",
                 "Repaired: it wrote FINAL_DAMAGE_MULTIPLIER, which applied to every detonation rather than only host-death ones and was discarded by all three release capstones");
         flamewind(evidence, "signature_threshold", "Nearby owned seeds", "Seed tick",
-                "FLAMEWIND_DRAFT_PER_SEED .03; FLAMEWIND_DRAFT_CAP .15; FLAMEWIND_DRAFT_RANGE 8", "Phase5FlamewindManager.refreshDraft as a managed attack-speed modifier", "Modifier removed when no seeds remain, on unload and on server stop",
+                "FLAMEWIND_DRAFT_PER_SEED .03; FLAMEWIND_DRAFT_CAP .15; FLAMEWIND_DRAFT_RANGE 8", "FlamewindMasteryManager.refreshDraft as a managed attack-speed modifier", "Modifier removed when no seeds remain, on unload and on server stop",
                 "Repaired: the node was entirely inert. No attack-speed mechanic existed and all three of its values were unread");
         flamewind(evidence, "signature_convergence", "Detonation knockback", "Detonation",
-                "PULL_STRENGTH .2; FLAMEWIND_KNOCKBACK_MULTIPLIER 1.2", "Phase5FlamewindManager.detonationKnockback", "Execution-scoped",
+                "PULL_STRENGTH .2; FLAMEWIND_KNOCKBACK_MULTIPLIER 1.2", "FlamewindMasteryManager.detonationKnockback", "Execution-scoped",
                 "Repaired: PULL_STRENGTH was read only as a sign flip with a hardcoded magnitude, and the push reached only newly seeded targets rather than every detonation victim");
         flamewind(evidence, "signature_focus", "Seed pulse capstone", "Seed tick",
                 "INTERVAL_TICKS 20; PERIODIC_DAMAGE_MULTIPLIER .3; FINAL_DAMAGE_MULTIPLIER x0.6", "FlameSeedEffect frequency and detonation damage", "Seed effect duration",
@@ -2186,16 +2186,16 @@ final class MasteryNodeAuditCatalog {
                 "PERIODIC_DAMAGE_MULTIPLIER 0; RADIUS 5; FINAL_DAMAGE_MULTIPLIER x1.5; TARGET_CAP 12", "FlameSeedEffect.triggerDetonation", "Execution-scoped",
                 "Zero periodic damage is deliberate, and the final multiplier composes");
         flamewind(evidence, "combat_opening", "Emberstorm seeding range", "Ability activation",
-                "FLAMEWIND_SEED_RANGE +4", "Phase5FlamewindManager.findSeedTarget", "Execution-scoped",
+                "FLAMEWIND_SEED_RANGE +4", "FlamewindMasteryManager.findSeedTarget", "Execution-scoped",
                 "Repaired: the node was inert. The seeding search used a hardcoded ten-block box");
         flamewind(evidence, "combat_cadence", "Flame seed duration", "Seed application",
-                "DURATION_TICKS -20", "Phase5FlamewindManager.activate duration", "Seed effect duration",
+                "DURATION_TICKS -20", "FlamewindMasteryManager.activate duration", "Seed effect duration",
                 "Composes additively with Hardy Ember");
         flamewind(evidence, "combat_pressure", "Flame seed duration and damage", "Seed application and tick",
-                "DURATION_TICKS +40; PERIODIC_DAMAGE_MULTIPLIER x1.08", "Phase5FlamewindManager.activate and FlameSeedEffect", "Seed effect duration",
+                "DURATION_TICKS +40; PERIODIC_DAMAGE_MULTIPLIER x1.08", "FlamewindMasteryManager.activate and FlameSeedEffect", "Seed effect duration",
                 "Repaired: Fresh Fuel's absolute write discarded the damage half");
         flamewind(evidence, "combat_reversal", "Emberstorm fallback targeting", "Activation with no target in front",
-                "FLAMEWIND_RETARGET_RANGE 6", "Phase5FlamewindManager.findSeedTarget extended range", "Execution-scoped",
+                "FLAMEWIND_RETARGET_RANGE 6", "FlamewindMasteryManager.findSeedTarget extended range", "Execution-scoped",
                 "Repaired and rescoped: the base weapon already fell back to the nearest enemy within ten blocks, so a six-block fallback would have been strictly worse. The range is now additive and the description says so");
         flamewind(evidence, "combat_reserve", "Detonation spread", "Detonation",
                 "SPREAD_CAP +1", "FlameSeedEffect.triggerDetonation spread accounting", "Seed effect duration",
@@ -2204,40 +2204,40 @@ final class MasteryNodeAuditCatalog {
                 "FLAMEWIND_SPREAD_RANGE +2; FLAMEWIND_SEARCH_CAP 16", "FlameSeedEffect spread range check", "Execution-scoped",
                 "Repaired: the node was inert. Spread used the detonation radius with no separate range");
         flamewind(evidence, "combat_convergence", "Spread seed duration", "Seed spreading to a new host",
-                "FLAMEWIND_SPREAD_DURATION_FRACTION .8", "Phase5FlamewindManager.spreadDuration", "Seed effect duration",
+                "FLAMEWIND_SPREAD_DURATION_FRACTION .8", "FlamewindMasteryManager.spreadDuration", "Seed effect duration",
                 "Repaired: it wrote PERIODIC_DAMAGE_MULTIPLIER, an unadvertised damage cut that also discarded Hot Seed and Hardy Ember, while spread seeds used a hardcoded duration");
         flamewind(evidence, "combat_focus", "Spread generation capstone", "Detonation spread",
-                "FLAMEWIND_GENERATION_CAP 3; FLAMEWIND_GENERATION_MULTIPLIER 1.25", "Phase5FlamewindManager.generationMultiplier and the spread generation limit", "Execution-scoped",
+                "FLAMEWIND_GENERATION_CAP 3; FLAMEWIND_GENERATION_MULTIPLIER 1.25", "FlamewindMasteryManager.generationMultiplier and the spread generation limit", "Execution-scoped",
                 "Repaired: the node was inert. SeedSnapshot tracked a generation that nothing read");
         flamewind(evidence, "combat_release", "Runaway spread capstone", "Detonation spread",
                 "SPREAD_CAP 10; FLAMEWIND_SPREAD_RANGE +3; FLAMEWIND_GENERATION_MULTIPLIER .8", "FlameSeedEffect spread accounting and generationMultiplier", "Execution-scoped",
                 "Repaired: only the spread cap worked; the range and the per-generation penalty were both unread");
         flamewind(evidence, "transformation_opening", "Detonation cooldown refund", "Detonation",
-                "FLAMEWIND_HARVEST_REFUND_TICKS 6; FLAMEWIND_HARVEST_REFUND_CAP_TICKS 30", "Phase5FlamewindManager.onDetonation through reduceWeaponCooldown", "Per-cast refund ceiling reset on each cast",
+                "FLAMEWIND_HARVEST_REFUND_TICKS 6; FLAMEWIND_HARVEST_REFUND_CAP_TICKS 30", "FlamewindMasteryManager.onDetonation through reduceWeaponCooldown", "Per-cast refund ceiling reset on each cast",
                 "Repaired: the node was inert. No per-detonation refund existed");
         flamewind(evidence, "transformation_cadence", "Closely spaced detonations", "Second detonation inside the window",
-                "FLAMEWIND_CHAIN_WINDOW_TICKS 10; FLAMEWIND_CHAIN_DAMAGE_MULTIPLIER 1.15", "Phase5FlamewindManager.chainBonus", "Per-owner detonation timestamp",
+                "FLAMEWIND_CHAIN_WINDOW_TICKS 10; FLAMEWIND_CHAIN_DAMAGE_MULTIPLIER 1.15", "FlamewindMasteryManager.chainBonus", "Per-owner detonation timestamp",
                 "Repaired: the node was inert. No detonation timing was tracked");
         flamewind(evidence, "transformation_pressure", "Rapid detonations", "Third detonation inside the window",
-                "FLAMEWIND_FLASH_COUNT 3; FLAMEWIND_FLASH_WINDOW_TICKS 20; FLAMEWIND_FLASH_HASTE_TICKS 80; FLAMEWIND_FLASH_HASTE_AMPLIFIER 1", "Phase5FlamewindManager.onDetonation flash counter", "Counter resets on a lapsed window",
+                "FLAMEWIND_FLASH_COUNT 3; FLAMEWIND_FLASH_WINDOW_TICKS 20; FLAMEWIND_FLASH_HASTE_TICKS 80; FLAMEWIND_FLASH_HASTE_AMPLIFIER 1", "FlamewindMasteryManager.onDetonation flash counter", "Counter resets on a lapsed window",
                 "Repaired: the node was inert. No detonation counter existed");
         flamewind(evidence, "transformation_reversal", "Manual release", "Reactivation with seeds owned",
-                "FINAL_DAMAGE_MULTIPLIER x0.7; FLAMEWIND_RECAST_LOCKOUT_TICKS 100; COOLDOWN_TICKS 100", "Phase5FlamewindManager.activate release branch", "Per-owner recast lockout",
+                "FINAL_DAMAGE_MULTIPLIER x0.7; FLAMEWIND_RECAST_LOCKOUT_TICKS 100; COOLDOWN_TICKS 100", "FlamewindMasteryManager.activate release branch", "Per-owner recast lockout",
                 "Repaired: the advertised five-second lockout did not exist, and the multiplier was absolute. The contract-checked release cooldowns of 100, 140 and 160 are preserved");
         flamewind(evidence, "transformation_reserve", "Manual detonation pull", "Detonation",
-                "PULL_STRENGTH .25", "Phase5FlamewindManager.detonationKnockback", "Execution-scoped",
+                "PULL_STRENGTH .25", "FlamewindMasteryManager.detonationKnockback", "Execution-scoped",
                 "The description now states that it reverses the push for all detonations, which is what the shared knockback path does");
         flamewind(evidence, "transformation_threshold", "Manual detonation absorption", "Detonation during a manual release",
-                "FLAMEWIND_RESERVE_ABSORPTION 2; FLAMEWIND_RESERVE_ABSORPTION_CAP 8; FLAMEWIND_RESERVE_ABSORPTION_TICKS 80", "Phase4AbsorptionTracker grant from onDetonation", "Expires on the tracker sweep; cleared on unload and server stop",
+                "FLAMEWIND_RESERVE_ABSORPTION 2; FLAMEWIND_RESERVE_ABSORPTION_CAP 8; FLAMEWIND_RESERVE_ABSORPTION_TICKS 80", "MasteryAbsorptionTracker grant from onDetonation", "Expires on the tracker sweep; cleared on unload and server stop",
                 "Repaired: the node was inert, and its stray TARGET_CAP 8 was reducing the detonation cap from twelve to eight");
         flamewind(evidence, "transformation_convergence", "Kills in one release", "Manual release",
-                "FLAMEWIND_RESET_KILL_COUNT 3; FLAMEWIND_RESET_REFUND_FRACTION .25", "Phase5FlamewindManager.onReleaseKill and applyReleaseReset", "Kill count reset at the start of each release",
+                "FLAMEWIND_RESET_KILL_COUNT 3; FLAMEWIND_RESET_REFUND_FRACTION .25", "FlamewindMasteryManager.onReleaseKill and applyReleaseReset", "Kill count reset at the start of each release",
                 "Repaired: the node was inert. No release kill counting existed");
         flamewind(evidence, "transformation_focus", "Oldest-seed release capstone", "Reactivation with seeds owned",
-                "FINAL_DAMAGE_MULTIPLIER x1.4; COOLDOWN_TICKS +40", "Phase5FlamewindManager.activate limited release", "Per-owner recast lockout",
+                "FINAL_DAMAGE_MULTIPLIER x1.4; COOLDOWN_TICKS +40", "FlamewindMasteryManager.activate limited release", "Per-owner recast lockout",
                 "Repaired: multiplies instead of overwriting, so the signature branch survives; its contract-checked 140 tick cooldown is preserved");
         flamewind(evidence, "transformation_release", "Full release capstone", "Reactivation with seeds owned",
-                "SPREAD_CAP 0; FLAMEWIND_RECAST_LOCKOUT_TICKS 160; COOLDOWN_TICKS 160", "Phase5FlamewindManager.activate release branch and the suppressed spread", "Per-owner recast lockout",
+                "SPREAD_CAP 0; FLAMEWIND_RECAST_LOCKOUT_TICKS 160; COOLDOWN_TICKS 160", "FlamewindMasteryManager.activate release branch and the suppressed spread", "Per-owner recast lockout",
                 "Repaired: the advertised eight-second lockout did not exist, and its absolute FINAL_DAMAGE_MULTIPLIER of 1 reset every prior multiplier to neutral");
         molten(evidence, "signature_opening", "Heat gained from melee", "Successful melee hit",
                 "MOLTEN_MELEE_HEAT_GAIN 6", "MoltenEdgeAbilityManager.gainHeatFromMelee", "Heat stored on the weapon stack",
@@ -2252,7 +2252,7 @@ final class MasteryNodeAuditCatalog {
                 "MOLTEN_REDLINE_THRESHOLD 75; MOLTEN_REDLINE_DAMAGE_MULTIPLIER 1.1", "MoltenEdgeAbilityManager.modifyOutgoingDamage", "Execution-scoped",
                 "Repaired: both threshold and multiplier are real consumers, and the description states the exact melee-only trigger");
         molten(evidence, "signature_reserve", "Heat Sink absorption", "Crossing each 20-Heat threshold",
-                "MOLTEN_HEAT_SINK_ABSORPTION 2; MOLTEN_HEAT_SINK_STEP 20; MOLTEN_HEAT_SINK_DURATION_TICKS 60; MOLTEN_HEAT_SINK_CAP 6", "MoltenEdgeAbilityManager.applyHeatGainRewards and Phase4AbsorptionTracker", "Timed absorption expires through the shared tracker",
+                "MOLTEN_HEAT_SINK_ABSORPTION 2; MOLTEN_HEAT_SINK_STEP 20; MOLTEN_HEAT_SINK_DURATION_TICKS 60; MOLTEN_HEAT_SINK_CAP 6", "MoltenEdgeAbilityManager.applyHeatGainRewards and MasteryAbsorptionTracker", "Timed absorption expires through the shared tracker",
                 "Repaired: both melee and incoming heat paths now grant bounded, expiring absorption");
         molten(evidence, "signature_threshold", "Stable Furnace heat decay", "Carried but not wielded",
                 "MOLTEN_UNWIELDED_DECAY_INTERVAL_TICKS 2", "MoltenEdgeAbilityManager.tickHeldStack", "Heat state is clamped and cleared with the stack lifecycle",
@@ -2333,7 +2333,7 @@ final class MasteryNodeAuditCatalog {
         soulpyre(evidence, "signature_threshold", "Periodic inward pull", "Every fifth pulse",
                 "Interval 5; strength .3", "SoulPyreAbilityManager.performPulse", "Cast cadence", "Repaired: undescribed base pulling was removed");
         soulpyre(evidence, "signature_convergence", "Early-kill absorption", "First three kills",
-                "2 absorption 80t; cap 6", "Phase4AbsorptionTracker", "Bounded expiry", "Repaired: count, duration and cap are consumed");
+                "2 absorption 80t; cap 6", "MasteryAbsorptionTracker", "Bounded expiry", "Repaired: count, duration and cap are consumed");
         soulpyre(evidence, "signature_focus", "Devouring Tether", "Activation, kill and pulse",
                 "Growth 2; +1 pulse; damage x.75", "SoulPyreAbilityManager schedule and growth", "Cast-owned state", "Repaired: all capstone clauses compose");
         soulpyre(evidence, "signature_release", "Closed Circle", "Activation and regular pulse",
@@ -2527,7 +2527,7 @@ final class MasteryNodeAuditCatalog {
         icewhisper(evidence, "combat_convergence", "Fracture stacks", "Consecutive comet impacts", "Window 60t; +15% per stack; cap 3", "Owner-scoped stack ledger read before it counts the hit", "Stacks expire with the window", "Implemented: the multiplier had no consumer and the node tripled comet fall time");
         icewhisper(evidence, "combat_focus", "Hailstorm profile", "Wave spawn and impact", "Count x2; damage x.55; splash 1.5; +40t", "Scoped count, damage, splash and duration resolvers", "Exclusive capstone; storm snapshot", "Repaired: the count multiplier composes against the configured count and aura damage is untouched");
         icewhisper(evidence, "combat_release", "Extinction Comet profile", "Wave spawn and impact", "Count 1; damage x2.2; splash 4; interval 24t", "Absolute count that suppresses Twin Wake", "Exclusive capstone; storm snapshot", "Repaired: a single comet per wave is authoritative and aura damage is untouched");
-        icewhisper(evidence, "transformation_opening", "Frost Ward absorption", "Comet storm activation", "4 absorption for 80t", "Phase4AbsorptionTracker grant", "Tracked, capped and expiring", "Repaired: the grant was permanent and its duration key shortened the Permafrost slow");
+        icewhisper(evidence, "transformation_opening", "Frost Ward absorption", "Comet storm activation", "4 absorption for 80t", "MasteryAbsorptionTracker grant", "Tracked, capped and expiring", "Repaired: the grant was permanent and its duration key shortened the Permafrost slow");
         icewhisper(evidence, "transformation_cadence", "Snowblind", "Comet impact", "Blindness 30t", "Mode-gated blind duration key", "Status expiry", "Repaired: the blind duration no longer collapses the aura slow below its pulse period");
         icewhisper(evidence, "transformation_pressure", "Ice Armor", "Projectile damage while Permafrost is active", "Incoming x.85", "Owner-side aura tuning window", "Aura tuning window expiry", "Implemented: the node had no consumer");
         icewhisper(evidence, "transformation_reversal", "Winter Step", "Comet impact within 3 blocks", "Speed I 40t", "Impact-relative owner distance check", "Status expiry", "Implemented: no Speed consumer existed and the radius write shrank both abilities");
@@ -2581,7 +2581,7 @@ final class MasteryNodeAuditCatalog {
         bramblethorn(evidence, "combat_convergence", "Crosscut sequence", "Third distinct target swap", "3 targets in 100t; damage x1.35", "Owner sequence window", "TTL, proc reset and lifecycle cleanup", "Repaired: all sequence values are consumed and stale queues are swept");
         bramblethorn(evidence, "combat_focus", "Thorn Waltz profile", "Target swap", "2 roots at x.55; no slow", "Multi-execution launch loop", "Exclusive capstone; hunt executions", "Repaired: Crosscut applies to both roots and both reserve the selected target");
         bramblethorn(evidence, "combat_release", "Predator Vine profile", "Target swap", "Target only; damage x1.8; memory 30t", "Scoped target-only hunt profile", "Exclusive capstone; hunt execution", "Verified: all three mechanics use isolated settings");
-        bramblethorn(evidence, "transformation_opening", "Barkskin absorption", "Successful Grasp cast", "4 absorption for 80t", "Phase4AbsorptionTracker grant", "Tracked expiry and lifecycle sweep", "Repaired: Sap Rise no longer reduces the grant and it now expires");
+        bramblethorn(evidence, "transformation_opening", "Barkskin absorption", "Successful Grasp cast", "4 absorption for 80t", "MasteryAbsorptionTracker grant", "Tracked expiry and lifecycle sweep", "Repaired: Sap Rise no longer reduces the grant and it now expires");
         bramblethorn(evidence, "transformation_cadence", "Rooted Guard", "Direct melee during binding with 3 targets", "Incoming x.88", "Direct melee damage modifier", "Grasp execution", "Repaired: Thornward cannot raise the threshold and non-melee damage is excluded");
         bramblethorn(evidence, "transformation_pressure", "Thorn Retort", "Successful direct melee from a bound enemy", "Hunt damage x.2; lockout 30t", "Post-damage retaliation hook", "Per-target lockout and recursion guard", "Repaired: slam damage tuning and failed damage attempts cannot trigger it");
         bramblethorn(evidence, "transformation_reversal", "Sap Rise", "Bound-target kill", "2 absorption; 8 per cast", "Cast-local absorption ledger", "Ledger ends with grasp", "Repaired: existing absorption is preserved and Reclaimed Growth cannot overwrite the cap");
@@ -2614,7 +2614,7 @@ final class MasteryNodeAuditCatalog {
         waxweaver(evidence, "transformation_reversal", "Reactive prison", "Successful incoming damage below 35% health", "40t prison; 200t lockout", "Awakening-gated damage callback", "World-scoped lockout and prison cleanup", "Repaired: dormant weapons cannot trigger it and stale state is swept");
         waxweaver(evidence, "transformation_reserve", "Molten Rebirth", "Successful revival", "Radius 4; fire 80t; cap 8", "Nearest-first spherical ignition query", "Bounded target set", "Repaired: Explosive Emergence cannot change its area");
         waxweaver(evidence, "transformation_threshold", "Prison refuge", "Projectile damage while owning a prison", "Incoming x.85", "Owner-scoped active-prison lookup", "Prison and lifecycle cleanup", "Repaired: active state is restored and cleared on every terminal path");
-        waxweaver(evidence, "transformation_convergence", "Second Skin", "Revival Resistance expires", "6 absorption for 100t", "Exact Phase4AbsorptionTracker grant", "Tracked expiry and lifecycle cleanup", "Repaired: six is no longer rounded down to four");
+        waxweaver(evidence, "transformation_convergence", "Second Skin", "Revival Resistance expires", "6 absorption for 100t", "Exact MasteryAbsorptionTracker grant", "Tracked expiry and lifecycle cleanup", "Repaired: six is no longer rounded down to four");
         waxweaver(evidence, "transformation_focus", "Queen's Chrysalis profile", "Successful revival", "Health 50%; Resistance IV 140t; cooldown +400t", "Scoped health, resistance and cooldown resolvers", "Exclusive capstone; status and cooldown expiry", "Repaired: Reinforced Cocoon and configured cooldown both compose");
         waxweaver(evidence, "transformation_release", "Explosive Emergence profile", "Successful revival", "Radius 6; prison damage x1.25; cap 16", "Nearest-first spherical prison-damage pipeline", "Exclusive capstone; bounded hit set", "Repaired: enchantments, implicit suppression and Molten Rebirth isolation are retained");
         warglaive(evidence, "signature_opening", "Dread mark duration", "Melee hit applies Dread", "+40t over the configured duration", "addDread expiry from seeded DURATION_TICKS", "Mark expiry discards its bats", "Repaired: the 160t literal resolved to the configured 200t and added nothing");
@@ -2639,7 +2639,7 @@ final class MasteryNodeAuditCatalog {
         warglaive(evidence, "transformation_cadence", "Lifesteal rate", "Vitality removed by a strike", "Heal x1.1", "applyHuntStrike heal composition", "Execution-scoped", "Verified on a dedicated Sanguine Watch execution");
         warglaive(evidence, "transformation_pressure", "Lifesteal cap", "Heal accumulation", "+5% over the configured cap", "applyHuntStrike heal cap", "Execution-scoped", "Repaired: composes against the configured cap instead of writing 45% absolutely");
         warglaive(evidence, "transformation_reversal", "Dread-scaled strike damage", "Each strike in the cast", "+4% per Dread consumed; cap 7", "applyHuntStrike sanguine stack multiplier", "Execution-scoped", "Repaired: the consumer counted struck targets, not Dread consumed, and collided with Murder Flight");
-        warglaive(evidence, "transformation_reserve", "Overheal absorption", "Heal at full health", "Absorption cap 8", "Phase4AbsorptionTracker grant", "Tracked expiry after 200t", "Repaired: raw setAbsorptionAmount never expired");
+        warglaive(evidence, "transformation_reserve", "Overheal absorption", "Heal at full health", "Absorption cap 8", "MasteryAbsorptionTracker grant", "Tracked expiry after 200t", "Repaired: raw setAbsorptionAmount never expired");
         warglaive(evidence, "transformation_threshold", "Multi-target reprieve", "3 distinct targets struck", "Threshold 3; Resistance 60t", "applyHuntStrike resistance branch", "Status expiry", "Repaired: the node silently capped the hunt at three marks and retuned Wing Buffet");
         warglaive(evidence, "transformation_convergence", "Cooldown refund on kill", "A bat strike kills its target", "15t per kill; 60t cap per cast", "onHuntKill refund through SimplySwordsAPI", "Refund total held on the cast", "Implemented: REFUND_TICKS had no reader and the node's STACK_CAP write destroyed two other nodes");
         warglaive(evidence, "transformation_focus", "Bloodwing profile", "Bat strike lands", "Heal x2; damage x.8; heal cap 60%", "applyHuntStrike heal and damage composition", "Exclusive capstone; execution-scoped", "Verified on a dedicated Sanguine Watch execution");
@@ -2650,7 +2650,7 @@ final class MasteryNodeAuditCatalog {
         ribboncleaver(evidence, "signature_reversal", "Sustained-movement guard", "Continuous movement", "Window 40t; Resistance 20t", "tickRibbon movement counter", "Counter resets when stationary", "Repaired: cumulative horizontalSpeed made the guard permanent; the test is now a per-tick position delta");
         ribboncleaver(evidence, "signature_reserve", "Retort window", "Melee damage taken", "Outgoing x1.1; lockout 40t", "onRibbonHit retort consumption", "Window consumed on the next hit", "Implemented: the window was only ever read by Dreadtide, and the lockout was not enforced");
         ribboncleaver(evidence, "signature_threshold", "Low-health reprieve", "Health at or below 35%", "Relief speed factor 1", "tickRibbon health-gated speed factor", "Reverts above the threshold", "Repaired: the node removed the penalty unconditionally and clobbered Balanced Grip");
-        ribboncleaver(evidence, "signature_convergence", "Absorbed-hit absorption", "Every third hit absorbed", "Interval 3; absorption 4; 60t", "Phase4AbsorptionTracker grant", "Tracked expiry", "Repaired: raw setAbsorptionAmount never expired and all three keys were unread");
+        ribboncleaver(evidence, "signature_convergence", "Absorbed-hit absorption", "Every third hit absorbed", "Interval 3; absorption 4; 60t", "MasteryAbsorptionTracker grant", "Tracked expiry", "Repaired: raw setAbsorptionAmount never expired and all three keys were unread");
         ribboncleaver(evidence, "signature_focus", "Iron Ribbon profile", "Held each tick", "Speed factor .88; incoming .7", "tickRibbon modifier and sprint lock", "Exclusive capstone; unheld cleanup", "Verified: 30% reduction and a real 12% penalty against the Ribbonwrath baseline");
         ribboncleaver(evidence, "signature_release", "Flowing Ribbon profile", "Incoming damage while moving", "Speed factor 1; incoming 1; moving reduction .88", "modifyIncomingDamage movement branch", "Exclusive capstone; held-state scoped", "Repaired: cumulative horizontalSpeed made the moving reduction unconditional, and the key collided with Heavy Retort");
         ribboncleaver(evidence, "combat_opening", "Rush speed", "Cast", "Speed x1.1", "ribbonRush dash velocity", "Execution-scoped", "Verified: composes against the seeded 1.7 base");
@@ -2711,7 +2711,7 @@ final class MasteryNodeAuditCatalog {
         dawnquiver(evidence, "combat_cadence", "Empty-quiver chance", "Chorus gain at zero stacks", "+10 over the configured chance", "onChorusHit zero-stack branch", "Passive execution per hit", "Repaired: the node lowered the chance and applied at every stack count");
         dawnquiver(evidence, "combat_pressure", "Full-impact chance", "Full-draw arrow impact", "+15 over the base pity chance", "onChorusHit full-impact term", "Passive execution per hit", "Repaired: composed from a literal 20 against a base of zero");
         dawnquiver(evidence, "combat_reversal", "Chorus refund", "Spending at least two stacks", "Refund 1; chance 20%", "release refund branch", "Execution-scoped", "Implemented: REFUND_TICKS had no reader and the node's CHANCE write lowered the chorus chance to 20");
-        dawnquiver(evidence, "combat_reserve", "Chorus absorption", "Chorus gain", "Absorption 4; 40t; lockout 40t", "Phase4AbsorptionTracker grant and owner lockout", "Tracked expiry", "Repaired: raw setAbsorptionAmount never expired and neither the duration nor the lockout was read");
+        dawnquiver(evidence, "combat_reserve", "Chorus absorption", "Chorus gain", "Absorption 4; 40t; lockout 40t", "MasteryAbsorptionTracker grant and owner lockout", "Tracked expiry", "Repaired: raw setAbsorptionAmount never expired and neither the duration nor the lockout was read");
         dawnquiver(evidence, "combat_threshold", "Stored-chorus damage", "Lesser bow shot", "+3% per stored stack", "tickHeldPassive chorus multiplier", "Passive execution per shot", "Repaired: the value was written on the chorus definition but read from the lesser definition, and its cap write clobbered Fourth Voice");
         dawnquiver(evidence, "combat_convergence", "Cooldown on full chorus", "Reaching maximum Dawn Chorus", "Cooldown x.8", "release cooldown resolver", "Flag consumed by the next release", "Implemented: the node wrote a cooldown onto a passive definition that has no cooldown key");
         dawnquiver(evidence, "combat_focus", "Endless Hymn profile", "Release", "Cap 3; stacks never consumed; damage x.75", "release consumption gate", "Exclusive capstone; execution-scoped", "Verified: all three effects are consumed");
@@ -2748,7 +2748,7 @@ final class MasteryNodeAuditCatalog {
         dreadtide(evidence, "transformation_pressure", "High-corruption damage", "Cast above the threshold", "Threshold 40; outgoing x1.1", "activateDreadtide damage composition", "Execution-scoped", "Repaired: both the threshold and the multiplier are read from tuning");
         dreadtide(evidence, "transformation_reversal", "High-corruption defence", "Damage taken above the threshold", "Threshold 60; incoming x.92", "modifyVoidcloakDamage conditional term", "Held-state scoped", "Repaired: its INCOMING_MULTIPLIER write was overwriting the per-stack cloak reduction");
         dreadtide(evidence, "transformation_reserve", "Corruption purge", "Cast", "5 Corruption per stack", "activateDreadtide purge", "Execution-scoped", "Repaired: the purge rate is read from tuning instead of a literal");
-        dreadtide(evidence, "transformation_threshold", "Purge absorption", "Cast that purges Corruption", "4 per 20 purged; cap 12; 200t", "Phase4AbsorptionTracker grant", "Tracked expiry", "Repaired: raw setAbsorptionAmount never expired and its cap shared a key with the final pulse");
+        dreadtide(evidence, "transformation_threshold", "Purge absorption", "Cast that purges Corruption", "4 per 20 purged; cap 12; 200t", "MasteryAbsorptionTracker grant", "Tracked expiry", "Repaired: raw setAbsorptionAmount never expired and its cap shared a key with the final pulse");
         dreadtide(evidence, "transformation_convergence", "Edge of Madness", "Held above the threshold", "Threshold 80; interval x.7; incoming x1.08", "tickDreadtide cadence and modifyVoidcloakDamage", "Held-state scoped", "Repaired: its INCOMING_MULTIPLIER write inverted the cloak into a damage amplifier");
         dreadtide(evidence, "transformation_focus", "Embrace the Tide profile", "Held each tick and on cast", "Floor 75; damage x1.25; -8 maximum health", "tickDreadtide floor and applyDreadAttributes", "Exclusive capstone; modifier stripped when unheld", "Repaired: the floor, multiplier and health penalty are read from tuning");
         dreadtide(evidence, "transformation_release", "Cleanse the Void profile", "Cast", "Purges all Corruption; +1t duration per point; cloak locked 200t", "activateDreadtide purge and lockout", "Exclusive capstone; lockout held on the owner state", "Repaired: moved off the shared lockout channel it was breaking");
@@ -2758,7 +2758,7 @@ final class MasteryNodeAuditCatalog {
         arcanethyst(evidence, "signature_reversal", "Arcane brand", "Melee hit", "Brand 60t; marked slam damage x1.1", "markTarget brand map and slam multiplier", "Brand map bounded to 32 entries and cleared with the owner", "Verified: brand duration and the marked bonus are both consumed");
         arcanethyst(evidence, "signature_reserve", "Levitation spread", "Every fourth proc", "Delay 6t; radius 4; spread 30t", "Pending pulse queue", "Queue cleared on unload and server stop", "Repaired: the spread radius was written to a key the pulse does not read");
         arcanethyst(evidence, "signature_threshold", "Weakness on proc", "Levitation proc", "Weakness 40t", "onPassiveProc status branch", "Status expiry", "Repaired: the Weakness duration shared the Levitation channel and was cutting it from 3 seconds to 2");
-        arcanethyst(evidence, "signature_convergence", "Full-health absorption", "Proc at full health", "Absorption 4; 60t; lockout 100t", "Phase4AbsorptionTracker grant", "Tracked expiry; owner lockout", "Repaired: raw absorption never expired and its duration overwrote the Levitation channel");
+        arcanethyst(evidence, "signature_convergence", "Full-health absorption", "Proc at full health", "Absorption 4; 60t; lockout 100t", "MasteryAbsorptionTracker grant", "Tracked expiry; owner lockout", "Repaired: raw absorption never expired and its duration overwrote the Levitation channel");
         arcanethyst(evidence, "signature_focus", "Doubled proc chance", "Melee hit", "Chance x2; assault damage x.65; lift 36t", "postHit chance and spark damage factor", "Exclusive capstone; passive execution per hit", "Repaired: the 35% damage penalty had no reader, so the capstone carried no drawback");
         arcanethyst(evidence, "signature_release", "Fixed proc profile", "Melee hit", "Chance 15; Levitation IV 100t", "postHit chance, duration and amplifier", "Exclusive capstone; status expiry", "Verified: all three values are consumed");
         arcanethyst(evidence, "combat_opening", "Lift height", "Cast", "+1 over the configured height", "scanForTargets hover height", "Execution-scoped", "Verified: composes against the configured lift height");
@@ -2853,7 +2853,7 @@ final class MasteryNodeAuditCatalog {
                         "Vengeful Hive targets the recorded attacker and applies its own damage profile"});
         verifiedProfile(evidence, "chompolotl",
                 new String[]{"chompolotl/chompocalypse", "chompolotl/rally, blue_guardian", "chompolotl/rally, blue_guardian"},
-                "Chomp'olotl summon and Axolotl combat", "CHOMP_", "ChompolotlSwordItem, SimplySwordsAxolotlEntity and Phase7CombatManager",
+                "Chomp'olotl summon and Axolotl combat", "CHOMP_", "ChompolotlSwordItem, SimplySwordsAxolotlEntity and NatureSwarmMasteryCombatManager",
                 new String[]{
                         "Proc damage composes by 12%", "Proc cooldown is reduced by ten ticks",
                         "Summon lifetime gains four seconds", "Low-health damage uses the configured threshold and multiplier",
@@ -2889,7 +2889,7 @@ final class MasteryNodeAuditCatalog {
                         "Quarantine produces one bounded seven-block Fever pulse"});
         verifiedProfile(evidence, "soulkeeper",
                 new String[]{"soulkeeper/soul_lanterns", "soulkeeper/soul_velocity", "soulkeeper/lantern_conclave"},
-                "Soul lantern contact, orbit velocity and Lantern Conclave", "SOUL_", "SoulkeeperLanternManager and Phase8CombatManager",
+                "Soul lantern contact, orbit velocity and Lantern Conclave", "SOUL_", "SoulkeeperLanternManager and DeathShadowBloodMasteryCombatManager",
                 new String[]{
                         "Keen Flame multiplies configured contact damage by 1.1", "Loose Orbit adds .35 blocks to configured radius",
                         "Scouring Light applies two seconds of Glowing", "Crossing Paths tracks distinct lantern identities per target",
@@ -2907,7 +2907,7 @@ final class MasteryNodeAuditCatalog {
                         "Lone Warden creates one non-damaging extra lantern for fourteen seconds and pulses absorption"});
         verifiedProfile(evidence, "soulstealer",
                 new String[]{"soulstealer/soul_debt, soulstealer/soul_reap", "soulstealer/stygian_approach", "soulstealer/soul_reap"},
-                "Soul Debt acquisition, Stygian Approach and Soul Reap", "SOULSTEALER_", "StealSwordItem and Phase8CombatManager",
+                "Soul Debt acquisition, Stygian Approach and Soul Reap", "SOULSTEALER_", "StealSwordItem and DeathShadowBloodMasteryCombatManager",
                 new String[]{
                         "Greedy Edge adds eight points to the configured debt chance", "Deep Pockets adds two to the live debt maximum",
                         "Mortal Dividend adds one debt to configured and capstone kill gains", "Compound Interest keeps its interval and bonus on per-item counters",
@@ -2943,7 +2943,7 @@ final class MasteryNodeAuditCatalog {
                         "Sustained Coda consumes half the live stacks, retains the rest through expiry and applies its fifty-five-percent multiplier exactly once"});
         verifiedProfile(evidence, "shadowsting",
                 new String[]{"shadowsting/shadow_echo", "shadowsting/shadow_dance", "shadowsting/shadow_dance"},
-                "Shadow Echo clones and Shadow Dance", "SHADOW_", "ShadowstingShadowDanceManager and Phase8CombatManager",
+                "Shadow Echo clones and Shadow Dance", "SHADOW_", "ShadowstingShadowDanceManager and DeathShadowBloodMasteryCombatManager",
                 new String[]{
                         "Eager Shadow adds eight points to the configured clone chance; its add against a literal 25 was cutting a configured 40 to 33",
                         "Sharp Echo multiplies only the clone damage channel",
@@ -2975,7 +2975,7 @@ final class MasteryNodeAuditCatalog {
         verifiedProfile(evidence, "bloodwake",
                 new String[]{"bloodwake/crimson_burst", "bloodwake/blood_rites", "bloodwake/sanguine_ground"},
                 "Crimson Burst, Blood Rites and Sanguine Ground", "BLOOD_",
-                "BloodwakeAbilityManager, BloodStainManager and Phase8CombatManager",
+                "BloodwakeAbilityManager, BloodStainManager and DeathShadowBloodMasteryCombatManager",
                 new String[]{
                         "Open Vein reads its own third-hit interval and additional Bleed stack",
                         "Gore Spatter adds half a block to the configured burst radius on a dedicated channel",
@@ -3019,7 +3019,7 @@ final class MasteryNodeAuditCatalog {
         magibladeNode(evidence, "combat_reversal", "Second Voice", "Every third wave", "3 waves; delay 8t; damage x.55", "Sonic cycle counter", "Head-scoped", "Implemented: no follow-up wave existed");
         magibladeNode(evidence, "combat_reserve", "Head range", "Head targeting", "+3 over the configured range", "findTarget range", "Head-scoped", "Repaired: composed from a literal 12 against a configured 16");
         magibladeNode(evidence, "combat_threshold", "Recalled Echo", "Reactivation", "+80t over the configured duration", "Head refresh path", "Head-scoped", "Repaired: config-relative composition");
-        magibladeNode(evidence, "combat_convergence", "Bound Warden", "While the head persists", "Absorption 4 every 80t", "Phase4AbsorptionTracker grant and Resistance", "Tracked expiry", "Implemented: no flag consumer existed and its interval write was retiming the sonic cadence");
+        magibladeNode(evidence, "combat_convergence", "Bound Warden", "While the head persists", "Absorption 4 every 80t", "MasteryAbsorptionTracker grant and Resistance", "Tracked expiry", "Implemented: no flag consumer existed and its interval write was retiming the sonic cadence");
         magibladeNode(evidence, "combat_focus", "Twin Sentinels", "Cast", "Damage x.65; charge +15t", "completeCharge composition", "Exclusive capstone; head-scoped", "Repaired: composed against the configured charge; the description no longer promises a second head");
         magibladeNode(evidence, "combat_release", "Crown of the Deep", "Cast", "Duration x2; no orbit", "Head duration and orbit speed", "Exclusive capstone; head-scoped", "Repaired: config-relative composition; the target-lock clause is described honestly");
         magibladeNode(evidence, "transformation_opening", "Wave damage", "Sonic wave", "Damage x1.1", "Head damage on a dedicated judgment execution", "Execution-scoped", "Repaired: separated from the head's own damage channel");
@@ -3142,14 +3142,14 @@ final class MasteryNodeAuditCatalog {
         }
     }
 
-    private static void phase5Fire(Map<String, MasteryNodeAuditReport.Evidence> evidence,
+    private static void fireForgeFire(Map<String, MasteryNodeAuditReport.Evidence> evidence,
                                    String profile, String node, String baseMechanic, String trigger,
                                    String tuning, String consumer, String cleanup, String finding) {
         String definitions = switch (profile) {
             case "hearthflame" -> "hearthflame/furnace_chains, furnace_brand";
             case "emberblade" -> "emberblade/shrapnel";
             case "emberlash" -> "emberlash/smoulder, cauterizing";
-            default -> throw new IllegalArgumentException("Unknown Phase 5 fire profile: " + profile);
+            default -> throw new IllegalArgumentException("Unknown Fire and Forge cohort profile: " + profile);
         };
         String displayName = switch (profile) {
             case "hearthflame" -> "Hearthflame";

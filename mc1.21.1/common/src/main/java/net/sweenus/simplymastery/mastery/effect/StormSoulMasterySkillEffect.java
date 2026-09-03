@@ -1,10 +1,10 @@
 package net.sweenus.simplymastery.mastery.effect;
 
 import net.minecraft.util.Identifier;
-import net.sweenus.simplymastery.SimplyMastery;
 import net.sweenus.simplymastery.mastery.definition.MasteryProfile;
-import net.sweenus.simplyswords.api.ability.Phase3AbilityTuning;
-import net.sweenus.simplyswords.api.ability.Phase3UniqueAbilities;
+import net.sweenus.simplymastery.mastery.definition.MasteryCohort;
+import net.sweenus.simplyswords.api.ability.StormSoulMasteryTuning;
+import net.sweenus.simplyswords.api.ability.StormSoulMasteryAbilities;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityContext;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityDefinition;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityEvent;
@@ -14,8 +14,8 @@ import net.sweenus.simplyswords.api.ability.UniqueAbilityTuning;
 import java.util.List;
 import java.util.Set;
 
-final class Phase3MasterySkillEffect implements AbilitySkillEffectType {
-    private static final Identifier ID = Identifier.of(SimplyMastery.MOD_ID, "phase3_mastery");
+final class StormSoulMasterySkillEffect implements AbilitySkillEffectType {
+    private static final Identifier ID = MasteryCohort.STORM_SOUL.effectId();
 
     @Override
     public Identifier id() {
@@ -25,7 +25,7 @@ final class Phase3MasterySkillEffect implements AbilitySkillEffectType {
     @Override
     public void validate(MasteryProfile.Effect effect, String where, List<String> errors) {
         if (!effect.parameters().keySet().equals(Set.of("kind"))) {
-            errors.add(where + "phase3_mastery requires only kind");
+            errors.add(where + "cohort/storm_soul requires only kind");
         }
         int kind = effect.parameters().getOrDefault("kind", -1);
         if (kind < 0 || kind >= 162) errors.add(where + "kind must be between 0 and 161");
@@ -40,7 +40,7 @@ final class Phase3MasterySkillEffect implements AbilitySkillEffectType {
         int branch = kind % 27 / 9;
         int slot = kind % 9;
         if (!applies(profile, branch, slot, definition)) return;
-        Phase3AbilityTuning value = tuning.get(Phase3UniqueAbilities.TUNING);
+        StormSoulMasteryTuning value = tuning.get(StormSoulMasteryAbilities.TUNING);
         value = switch (profile) {
             case 0 -> stormscale(value, branch, slot);
             case 1 -> ionbound(value, branch, slot);
@@ -51,19 +51,19 @@ final class Phase3MasterySkillEffect implements AbilitySkillEffectType {
             default -> value;
         };
         if (definition.cooldownKey().isPresent() && !value.has(s("COOLDOWN_BASE_TICKS"))) {
-            value = value.with(s("COOLDOWN_BASE_TICKS"), tuning.get(Phase3UniqueAbilities.COOLDOWN_TICKS));
+            value = value.with(s("COOLDOWN_BASE_TICKS"), tuning.get(StormSoulMasteryAbilities.COOLDOWN_TICKS));
         }
-        tuning.set(Phase3UniqueAbilities.TUNING, value);
+        tuning.set(StormSoulMasteryAbilities.TUNING, value);
         if (definition.cooldownKey().isPresent()) {
             int base = value.integer(s("COOLDOWN_BASE_TICKS"),
-                    tuning.get(Phase3UniqueAbilities.COOLDOWN_TICKS));
+                    tuning.get(StormSoulMasteryAbilities.COOLDOWN_TICKS));
             int cooldown = value.integer(s("COOLDOWN_TICKS"), base);
             double multiplier = value.get(s("COOLDOWN_MULTIPLIER"), 1);
-            tuning.set(Phase3UniqueAbilities.COOLDOWN_TICKS, (int) Math.round(cooldown * multiplier));
+            tuning.set(StormSoulMasteryAbilities.COOLDOWN_TICKS, (int) Math.round(cooldown * multiplier));
         }
     }
 
-    private static Phase3AbilityTuning stormscale(Phase3AbilityTuning t, int branch, int slot) {
+    private static StormSoulMasteryTuning stormscale(StormSoulMasteryTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
             case 0 -> t.with(s("RANGE"), 22);
             case 1 -> t.with(s("RADIUS"), 4);
@@ -118,7 +118,7 @@ final class Phase3MasterySkillEffect implements AbilitySkillEffectType {
         };
     }
 
-    private static Phase3AbilityTuning ionbound(Phase3AbilityTuning t, int branch, int slot) {
+    private static StormSoulMasteryTuning ionbound(StormSoulMasteryTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
             case 0 -> t.with(s("RESERVE_INTERVAL_TICKS"), 145);
             case 1 -> t.with(s("SHIELD_THRESHOLD"), .25);
@@ -170,7 +170,7 @@ final class Phase3MasterySkillEffect implements AbilitySkillEffectType {
         };
     }
 
-    private static Phase3AbilityTuning soulrender(Phase3AbilityTuning t, int branch, int slot) {
+    private static StormSoulMasteryTuning soulrender(StormSoulMasteryTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
             case 0 -> t.with(s("CHANCE_BONUS"), 5);
             case 1 -> t.with(s("MARK_DURATION_TICKS"), 600);
@@ -225,7 +225,7 @@ final class Phase3MasterySkillEffect implements AbilitySkillEffectType {
         };
     }
 
-    private static Phase3AbilityTuning soulstalker(Phase3AbilityTuning t, int branch, int slot) {
+    private static StormSoulMasteryTuning soulstalker(StormSoulMasteryTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
             case 0 -> t.with(s("CHANCE"), 30);
             case 1 -> t.with(s("TENDRIL_RANGE"), 10);
@@ -281,7 +281,7 @@ final class Phase3MasterySkillEffect implements AbilitySkillEffectType {
         };
     }
 
-    private static Phase3AbilityTuning whisperwind(Phase3AbilityTuning t, int branch, int slot) {
+    private static StormSoulMasteryTuning whisperwind(StormSoulMasteryTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
             case 0 -> t.multiply(s("DASH_SPEED"), 1.1, 3);
             case 1 -> t.with(s("COOLDOWN_TICKS"), 155);
@@ -333,7 +333,7 @@ final class Phase3MasterySkillEffect implements AbilitySkillEffectType {
         };
     }
 
-    private static Phase3AbilityTuning dreadwhisper(Phase3AbilityTuning t, int branch, int slot) {
+    private static StormSoulMasteryTuning dreadwhisper(StormSoulMasteryTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
             case 0 -> t.with(s("REND_WIDTH"), 5);
             case 1 -> t.multiply(s("REND_DAMAGE_MULTIPLIER"), 1.1, 1);
@@ -391,19 +391,19 @@ final class Phase3MasterySkillEffect implements AbilitySkillEffectType {
 
     private static boolean matches(int profile, UniqueAbilityDefinition definition) {
         return switch (profile) {
-            case 0 -> definition == Phase3UniqueAbilities.STORMSCALE_ROD;
-            case 1 -> definition == Phase3UniqueAbilities.IONBOUND_CRUSHER
-                    || definition == Phase3UniqueAbilities.IONBOUND_BEAM
-                    || definition == Phase3UniqueAbilities.IONBOUND_SHIELD;
-            case 2 -> definition == Phase3UniqueAbilities.SOULRENDER_MARK
-                    || definition == Phase3UniqueAbilities.SOULRENDER_REAP
-                    || definition == Phase3UniqueAbilities.SOULRENDER_GRAVE;
-            case 3 -> definition == Phase3UniqueAbilities.SOULSTALKER_TENDRIL
-                    || definition == Phase3UniqueAbilities.SOULSTALKER_STRIDE;
-            case 4 -> definition == Phase3UniqueAbilities.WHISPERWIND_DASH
-                    || definition == Phase3UniqueAbilities.WHISPERWIND_RESET;
-            case 5 -> definition == Phase3UniqueAbilities.DREADWHISPER_REAVE
-                    || definition == Phase3UniqueAbilities.DREADWHISPER_WOUND;
+            case 0 -> definition == StormSoulMasteryAbilities.STORMSCALE_ROD;
+            case 1 -> definition == StormSoulMasteryAbilities.IONBOUND_CRUSHER
+                    || definition == StormSoulMasteryAbilities.IONBOUND_BEAM
+                    || definition == StormSoulMasteryAbilities.IONBOUND_SHIELD;
+            case 2 -> definition == StormSoulMasteryAbilities.SOULRENDER_MARK
+                    || definition == StormSoulMasteryAbilities.SOULRENDER_REAP
+                    || definition == StormSoulMasteryAbilities.SOULRENDER_GRAVE;
+            case 3 -> definition == StormSoulMasteryAbilities.SOULSTALKER_TENDRIL
+                    || definition == StormSoulMasteryAbilities.SOULSTALKER_STRIDE;
+            case 4 -> definition == StormSoulMasteryAbilities.WHISPERWIND_DASH
+                    || definition == StormSoulMasteryAbilities.WHISPERWIND_RESET;
+            case 5 -> definition == StormSoulMasteryAbilities.DREADWHISPER_REAVE
+                    || definition == StormSoulMasteryAbilities.DREADWHISPER_WOUND;
             default -> false;
         };
     }
@@ -412,18 +412,18 @@ final class Phase3MasterySkillEffect implements AbilitySkillEffectType {
         return switch (profile) {
             case 0 -> true;
             case 1 -> branch == 0
-                    || branch == 1 && definition == Phase3UniqueAbilities.IONBOUND_CRUSHER
-                    || branch == 2 && definition == Phase3UniqueAbilities.IONBOUND_BEAM;
+                    || branch == 1 && definition == StormSoulMasteryAbilities.IONBOUND_CRUSHER
+                    || branch == 2 && definition == StormSoulMasteryAbilities.IONBOUND_BEAM;
             case 2 -> switch (branch) {
-                case 0 -> definition == Phase3UniqueAbilities.SOULRENDER_MARK
-                        || definition == Phase3UniqueAbilities.SOULRENDER_REAP && reapReaching(slot);
-                case 1 -> definition == Phase3UniqueAbilities.SOULRENDER_REAP;
-                default -> definition == Phase3UniqueAbilities.SOULRENDER_REAP
-                        || definition == Phase3UniqueAbilities.SOULRENDER_GRAVE;
+                case 0 -> definition == StormSoulMasteryAbilities.SOULRENDER_MARK
+                        || definition == StormSoulMasteryAbilities.SOULRENDER_REAP && reapReaching(slot);
+                case 1 -> definition == StormSoulMasteryAbilities.SOULRENDER_REAP;
+                default -> definition == StormSoulMasteryAbilities.SOULRENDER_REAP
+                        || definition == StormSoulMasteryAbilities.SOULRENDER_GRAVE;
             };
-            case 3 -> definition == Phase3UniqueAbilities.SOULSTALKER_TENDRIL ? branch == 0 : branch > 0;
-            case 4 -> definition == Phase3UniqueAbilities.WHISPERWIND_DASH || branch == 2;
-            case 5 -> definition == Phase3UniqueAbilities.DREADWHISPER_REAVE || branch == 1;
+            case 3 -> definition == StormSoulMasteryAbilities.SOULSTALKER_TENDRIL ? branch == 0 : branch > 0;
+            case 4 -> definition == StormSoulMasteryAbilities.WHISPERWIND_DASH || branch == 2;
+            case 5 -> definition == StormSoulMasteryAbilities.DREADWHISPER_REAVE || branch == 1;
             default -> false;
         };
     }
@@ -438,18 +438,18 @@ final class Phase3MasterySkillEffect implements AbilitySkillEffectType {
         String key = "execution/" + event.execution().definition().id().getPath();
         long tick = event.execution().context().world().getTime();
         if (event.phase() == UniqueAbilityPhase.START) {
-            Phase3MasteryRuntime.set(event.execution().context().stack(), key, 1, tick + 1200, tick);
+            StormSoulMasteryRuntime.set(event.execution().context().stack(), key, 1, tick + 1200, tick);
         } else if (event.phase() == UniqueAbilityPhase.FINISH || event.phase() == UniqueAbilityPhase.CANCEL) {
-            Phase3MasteryRuntime.clear(event.execution().context().stack(), key);
+            StormSoulMasteryRuntime.clear(event.execution().context().stack(), key);
         }
     }
 
-    private static Phase3AbilityTuning mode(Phase3AbilityTuning tuning, int bit) {
+    private static StormSoulMasteryTuning mode(StormSoulMasteryTuning tuning, int bit) {
         return tuning.with(s("MODE"), tuning.integer(s("MODE"), 0) | bit);
     }
 
-    private static Phase3AbilityTuning.Setting s(String name) {
-        return Phase3AbilityTuning.Setting.valueOf(name);
+    private static StormSoulMasteryTuning.Setting s(String name) {
+        return StormSoulMasteryTuning.Setting.valueOf(name);
     }
 
     private static int parameter(MasteryProfile.Node node, String key, int fallback) {

@@ -2,9 +2,9 @@ package net.sweenus.simplymastery.mastery.effect;
 
 import net.sweenus.simplymastery.mastery.definition.BuiltInFamilyProfiles;
 import net.sweenus.simplymastery.mastery.definition.MasteryProfile;
-import net.sweenus.simplyswords.api.ability.Phase4AbilityTuning;
-import net.sweenus.simplyswords.api.ability.Phase4AbilityTuning.Setting;
-import net.sweenus.simplyswords.api.ability.Phase4UniqueAbilities;
+import net.sweenus.simplyswords.api.ability.LongPathFinalFormsMasteryTuning;
+import net.sweenus.simplyswords.api.ability.LongPathFinalFormsMasteryTuning.Setting;
+import net.sweenus.simplyswords.api.ability.LongPathFinalFormsMasteryAbilities;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityDefinition;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityTuning;
 import org.junit.jupiter.api.Test;
@@ -24,7 +24,7 @@ final class HarbingerMasterySkillEffectTest {
     private static final List<Integer> ALL = IntStream.range(0, 27).boxed().toList();
 
     @Test
-    void everyHarbingerNodeRoutesToThePhase4Abilities() {
+    void everyHarbingerNodeRoutesToTheLongPathFinalFormsAbilities() {
         MasteryProfile profile = BuiltInFamilyProfiles.profile("harbinger");
 
         assertEquals(27, profile.nodes().size());
@@ -63,7 +63,7 @@ final class HarbingerMasterySkillEffectTest {
 
     @Test
     void everyRangeKeepsItsOwnMeaning() {
-        Phase4AbilityTuning all = standard(List.of(5, 7, 11));
+        LongPathFinalFormsMasteryTuning all = standard(List.of(5, 7, 11));
 
         assertEquals(2, all.get(Setting.CORE_RANGE, 0), 1.0E-6);
         assertEquals(12, all.get(Setting.PURSUIT_RANGE, 0), 1.0E-6);
@@ -73,7 +73,7 @@ final class HarbingerMasterySkillEffectTest {
 
     @Test
     void crushingGloomKeepsItsWindowAndDurationAgainstEverySupportNode() {
-        Phase4AbilityTuning all = standard(List.of(3, 9, 17));
+        LongPathFinalFormsMasteryTuning all = standard(List.of(3, 9, 17));
 
         assertEquals(3, all.integer(Setting.WEAKNESS_PULSE_COUNT, 0));
         assertEquals(40, all.integer(Setting.WEAKNESS_WINDOW_TICKS, 0));
@@ -84,7 +84,7 @@ final class HarbingerMasterySkillEffectTest {
 
     @Test
     void theSupportBranchNoLongerSharesOneDurationKey() {
-        Phase4AbilityTuning all = standard(List.of(12, 13, 14, 15));
+        LongPathFinalFormsMasteryTuning all = standard(List.of(12, 13, 14, 15));
 
         assertEquals(80, all.integer(Setting.ALLY_SPEED_TICKS, 0));
         assertEquals(80, all.integer(Setting.ALLY_CHARGE_TICKS, 0));
@@ -97,7 +97,7 @@ final class HarbingerMasterySkillEffectTest {
 
     @Test
     void theOmenLockoutsNoLongerOverwriteEachOther() {
-        Phase4AbilityTuning all = omen(List.of(20, 22, 23));
+        LongPathFinalFormsMasteryTuning all = omen(List.of(20, 22, 23));
 
         assertEquals(200, all.integer(Setting.OMEN_WINDOW_TICKS, 0));
         assertEquals(80, all.integer(Setting.OMEN_UPGRADE_TICKS, 0));
@@ -109,7 +109,7 @@ final class HarbingerMasterySkillEffectTest {
 
     @Test
     void finalOmenCarriesItsThresholdAndItsBossClause() {
-        Phase4AbilityTuning omen = standard(List.of(24));
+        LongPathFinalFormsMasteryTuning omen = standard(List.of(24));
 
         assertEquals(.25, omen.get(Setting.LOW_HEALTH_THRESHOLD, 0), 1.0E-6);
         assertEquals(1.2, omen.get(Setting.LOW_HEALTH_DAMAGE_MULTIPLIER, 0), 1.0E-6);
@@ -158,26 +158,26 @@ final class HarbingerMasterySkillEffectTest {
         assertTrue(standard(List.of(18, 19, 20, 21, 22, 23)).isEmpty());
     }
 
-    private static Phase4AbilityTuning standard(List<Integer> nodes) {
-        return tune(Phase4UniqueAbilities.HARBINGER_STANDARD, nodes);
+    private static LongPathFinalFormsMasteryTuning standard(List<Integer> nodes) {
+        return tune(LongPathFinalFormsMasteryAbilities.HARBINGER_STANDARD, nodes);
     }
 
-    private static Phase4AbilityTuning omen(List<Integer> nodes) {
-        return tune(Phase4UniqueAbilities.HARBINGER_OMEN, nodes);
+    private static LongPathFinalFormsMasteryTuning omen(List<Integer> nodes) {
+        return tune(LongPathFinalFormsMasteryAbilities.HARBINGER_OMEN, nodes);
     }
 
-    private static Phase4AbilityTuning tune(UniqueAbilityDefinition definition, List<Integer> nodes) {
+    private static LongPathFinalFormsMasteryTuning tune(UniqueAbilityDefinition definition, List<Integer> nodes) {
         MasteryProfile profile = BuiltInFamilyProfiles.profile("harbinger");
         UniqueAbilityTuning.Builder builder = UniqueAbilityTuning.builder(definition);
         if (definition.cooldownKey().isPresent()) {
-            builder.set(Phase4UniqueAbilities.COOLDOWN_TICKS, 700);
+            builder.set(LongPathFinalFormsMasteryAbilities.COOLDOWN_TICKS, 700);
         }
-        builder.set(Phase4UniqueAbilities.TUNING, Phase4AbilityTuning.EMPTY);
+        builder.set(LongPathFinalFormsMasteryAbilities.TUNING, LongPathFinalFormsMasteryTuning.EMPTY);
         AbilitySkillEffectType effect = (AbilitySkillEffectType) SkillEffectRegistry.get(
                 profile.nodes().getFirst().effect().type());
         for (int node : nodes) {
             effect.tune(null, definition, builder, profile.nodes().get(node));
         }
-        return builder.get(Phase4UniqueAbilities.TUNING);
+        return builder.get(LongPathFinalFormsMasteryAbilities.TUNING);
     }
 }

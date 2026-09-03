@@ -2,9 +2,9 @@ package net.sweenus.simplymastery.mastery.effect;
 
 import net.sweenus.simplymastery.mastery.definition.BuiltInFamilyProfiles;
 import net.sweenus.simplymastery.mastery.definition.MasteryProfile;
-import net.sweenus.simplyswords.api.ability.Phase2AbilityTuning;
-import net.sweenus.simplyswords.api.ability.Phase2AbilityTuning.Setting;
-import net.sweenus.simplyswords.api.ability.Phase2UniqueAbilities;
+import net.sweenus.simplyswords.api.ability.AbyssalSpectralMasteryTuning;
+import net.sweenus.simplyswords.api.ability.AbyssalSpectralMasteryTuning.Setting;
+import net.sweenus.simplyswords.api.ability.AbyssalSpectralMasteryAbilities;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityDefinition;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityTuning;
 import org.junit.jupiter.api.Test;
@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 final class GloampiercerMasterySkillEffectTest {
 
     @Test
-    void everyGloampiercerNodeRoutesToThePhase2AbilityEffect() {
+    void everyGloampiercerNodeRoutesToTheAbyssalSpectralAbilityEffect() {
         MasteryProfile profile = BuiltInFamilyProfiles.profile("gloampiercer");
 
         assertEquals(27, profile.nodes().size());
@@ -33,8 +33,8 @@ final class GloampiercerMasterySkillEffectTest {
     @Test
     void phantomAmbushNodesDoNotRewriteTheBarrage() {
         List<Integer> nodes = List.of(1, 2, 3, 4);
-        Phase2AbilityTuning ambush = tune(Phase2UniqueAbilities.GLOAMPIERCER_AMBUSH, nodes);
-        Phase2AbilityTuning barrage = tune(Phase2UniqueAbilities.GLOAMPIERCER_BARRAGE, nodes);
+        AbyssalSpectralMasteryTuning ambush = tune(AbyssalSpectralMasteryAbilities.GLOAMPIERCER_AMBUSH, nodes);
+        AbyssalSpectralMasteryTuning barrage = tune(AbyssalSpectralMasteryAbilities.GLOAMPIERCER_BARRAGE, nodes);
 
         assertEquals(7, ambush.integer(Setting.FIRE_DELAY_TICKS, 9));
         assertEquals(125, ambush.integer(Setting.CONE_DEGREES, 110));
@@ -49,8 +49,8 @@ final class GloampiercerMasterySkillEffectTest {
     @Test
     void barrageNodesDoNotRewritePhantomAmbush() {
         List<Integer> nodes = List.of(10, 11, 12, 13);
-        Phase2AbilityTuning barrage = tune(Phase2UniqueAbilities.GLOAMPIERCER_BARRAGE, nodes);
-        Phase2AbilityTuning ambush = tune(Phase2UniqueAbilities.GLOAMPIERCER_AMBUSH, nodes);
+        AbyssalSpectralMasteryTuning barrage = tune(AbyssalSpectralMasteryAbilities.GLOAMPIERCER_BARRAGE, nodes);
+        AbyssalSpectralMasteryTuning ambush = tune(AbyssalSpectralMasteryAbilities.GLOAMPIERCER_AMBUSH, nodes);
 
         assertEquals(6, barrage.integer(Setting.CLONE_COUNT, 5));
         assertEquals(10, barrage.integer(Setting.FIRE_DELAY_TICKS, 12));
@@ -65,8 +65,8 @@ final class GloampiercerMasterySkillEffectTest {
     @Test
     void transformationNodesNoLongerCollideWithPassiveOrBarrageKeys() {
         List<Integer> nodes = List.of(1, 2, 11, 23, 25);
-        Phase2AbilityTuning ambush = tune(Phase2UniqueAbilities.GLOAMPIERCER_AMBUSH, nodes);
-        Phase2AbilityTuning barrage = tune(Phase2UniqueAbilities.GLOAMPIERCER_BARRAGE, nodes);
+        AbyssalSpectralMasteryTuning ambush = tune(AbyssalSpectralMasteryAbilities.GLOAMPIERCER_AMBUSH, nodes);
+        AbyssalSpectralMasteryTuning barrage = tune(AbyssalSpectralMasteryAbilities.GLOAMPIERCER_BARRAGE, nodes);
 
         assertEquals(7, ambush.integer(Setting.FIRE_DELAY_TICKS, 9));
         assertEquals(14, ambush.integer(Setting.RANGE, 12));
@@ -80,9 +80,9 @@ final class GloampiercerMasterySkillEffectTest {
 
     @Test
     void capstonesConfigureOnlyTheirAdvertisedAbility() {
-        Phase2AbilityTuning hall = tune(Phase2UniqueAbilities.GLOAMPIERCER_AMBUSH, List.of(7));
-        Phase2AbilityTuning royal = tune(Phase2UniqueAbilities.GLOAMPIERCER_BARRAGE, List.of(17));
-        Phase2AbilityTuning shortRoyal = tune(Phase2UniqueAbilities.GLOAMPIERCER_BARRAGE, List.of(15, 17));
+        AbyssalSpectralMasteryTuning hall = tune(AbyssalSpectralMasteryAbilities.GLOAMPIERCER_AMBUSH, List.of(7));
+        AbyssalSpectralMasteryTuning royal = tune(AbyssalSpectralMasteryAbilities.GLOAMPIERCER_BARRAGE, List.of(17));
+        AbyssalSpectralMasteryTuning shortRoyal = tune(AbyssalSpectralMasteryAbilities.GLOAMPIERCER_BARRAGE, List.of(15, 17));
 
         assertEquals(3, hall.integer(Setting.CLONE_COUNT, 1));
         assertEquals(.55, hall.get(Setting.PROJECTILE_DAMAGE_MULTIPLIER, 1), 1.0E-6);
@@ -96,7 +96,7 @@ final class GloampiercerMasterySkillEffectTest {
 
     @Test
     void stainedGroundNodesConfigureEveryRuntimeConsumer() {
-        Phase2AbilityTuning tuning = tune(Phase2UniqueAbilities.GLOAMPIERCER_AMBUSH,
+        AbyssalSpectralMasteryTuning tuning = tune(AbyssalSpectralMasteryAbilities.GLOAMPIERCER_AMBUSH,
                 java.util.stream.IntStream.range(18, 27).boxed().toList());
 
         assertEquals(1.8, tuning.get(Setting.STAIN_RADIUS, 0), 1.0E-6);
@@ -118,23 +118,23 @@ final class GloampiercerMasterySkillEffectTest {
                 == (64 | 128 | 256 | 512));
     }
 
-    private static Phase2AbilityTuning tune(UniqueAbilityDefinition definition, List<Integer> nodes) {
+    private static AbyssalSpectralMasteryTuning tune(UniqueAbilityDefinition definition, List<Integer> nodes) {
         MasteryProfile profile = BuiltInFamilyProfiles.profile("gloampiercer");
         UniqueAbilityTuning.Builder builder = UniqueAbilityTuning.builder(definition);
         if (definition.cooldownKey().isPresent()) {
-            builder.set(Phase2UniqueAbilities.COOLDOWN_TICKS, 450);
+            builder.set(AbyssalSpectralMasteryAbilities.COOLDOWN_TICKS, 450);
         }
-        builder.set(Phase2UniqueAbilities.TUNING, Phase2AbilityTuning.EMPTY
+        builder.set(AbyssalSpectralMasteryAbilities.TUNING, AbyssalSpectralMasteryTuning.EMPTY
                 .with(Setting.COOLDOWN_TICKS, 450)
                 .with(Setting.CHANNEL_DURATION_TICKS, 60)
                 .with(Setting.SPEAR_COUNT, 18)
                 .with(Setting.CLONE_COUNT,
-                        definition == Phase2UniqueAbilities.GLOAMPIERCER_AMBUSH ? 1 : 5)
+                        definition == AbyssalSpectralMasteryAbilities.GLOAMPIERCER_AMBUSH ? 1 : 5)
                 .with(Setting.PROJECTILE_SPEED, 1.55)
                 .with(Setting.PROJECTILE_DAMAGE_MULTIPLIER, 1));
         AbilitySkillEffectType effect = (AbilitySkillEffectType) SkillEffectRegistry.get(
                 profile.nodes().getFirst().effect().type());
         for (int node : nodes) effect.tune(null, definition, builder, profile.nodes().get(node));
-        return builder.get(Phase2UniqueAbilities.TUNING);
+        return builder.get(AbyssalSpectralMasteryAbilities.TUNING);
     }
 }

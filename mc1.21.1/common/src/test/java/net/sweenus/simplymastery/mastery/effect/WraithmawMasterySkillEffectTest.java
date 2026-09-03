@@ -2,9 +2,9 @@ package net.sweenus.simplymastery.mastery.effect;
 
 import net.sweenus.simplymastery.mastery.definition.BuiltInFamilyProfiles;
 import net.sweenus.simplymastery.mastery.definition.MasteryProfile;
-import net.sweenus.simplyswords.api.ability.Phase2AbilityTuning;
-import net.sweenus.simplyswords.api.ability.Phase2AbilityTuning.Setting;
-import net.sweenus.simplyswords.api.ability.Phase2UniqueAbilities;
+import net.sweenus.simplyswords.api.ability.AbyssalSpectralMasteryTuning;
+import net.sweenus.simplyswords.api.ability.AbyssalSpectralMasteryTuning.Setting;
+import net.sweenus.simplyswords.api.ability.AbyssalSpectralMasteryAbilities;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityTuning;
 import org.junit.jupiter.api.Test;
 
@@ -31,7 +31,7 @@ final class WraithmawMasterySkillEffectTest {
 
     @Test
     void hauntedSteelNoLongerOverwritesTheFallCadence() {
-        Phase2AbilityTuning tuning = tune(List.of(5, 22));
+        AbyssalSpectralMasteryTuning tuning = tune(List.of(5, 22));
 
         assertEquals(1, tuning.integer(Setting.INTERVAL_TICKS, 2));
         assertEquals(40, tuning.integer(Setting.HAUNT_INTERVAL_TICKS, 0));
@@ -41,7 +41,7 @@ final class WraithmawMasterySkillEffectTest {
 
     @Test
     void graveWoundNoLongerOverwritesStoredMalice() {
-        Phase2AbilityTuning tuning = tune(List.of(15, 21));
+        AbyssalSpectralMasteryTuning tuning = tune(List.of(15, 21));
 
         assertEquals(.04, tuning.get(Setting.BONUS_PER_TRIGGER, 0), 1.0E-6);
         assertEquals(.24, tuning.get(Setting.BONUS_CAP, 0), 1.0E-6);
@@ -50,7 +50,7 @@ final class WraithmawMasterySkillEffectTest {
 
     @Test
     void everyGloamGraveyardNodeUsesItsOwnRangeAndTargetCap() {
-        Phase2AbilityTuning tuning = tune(IntStream.range(18, 27).boxed().toList());
+        AbyssalSpectralMasteryTuning tuning = tune(IntStream.range(18, 27).boxed().toList());
 
         assertEquals(3, tuning.get(Setting.HAUNT_RANGE, 0), 1.0E-6);
         assertEquals(5, tuning.get(Setting.BURIAL_RANGE, 0), 1.0E-6);
@@ -69,7 +69,7 @@ final class WraithmawMasterySkillEffectTest {
 
     @Test
     void mausoleumBurstDoesNotTouchTheCastDamageMultiplier() {
-        Phase2AbilityTuning tuning = tune(List.of(2, 26));
+        AbyssalSpectralMasteryTuning tuning = tune(List.of(2, 26));
 
         assertEquals(1.1, tuning.get(Setting.DAMAGE_MULTIPLIER, 1), 1.0E-6);
         assertEquals(.9, tuning.get(Setting.BURST_DAMAGE_MULTIPLIER, 0), 1.0E-6);
@@ -78,8 +78,8 @@ final class WraithmawMasterySkillEffectTest {
 
     @Test
     void heavyFallComposesWithBothSignatureCapstones() {
-        Phase2AbilityTuning tempest = tune(List.of(2, 7));
-        Phase2AbilityTuning guillotine = tune(List.of(2, 8));
+        AbyssalSpectralMasteryTuning tempest = tune(List.of(2, 7));
+        AbyssalSpectralMasteryTuning guillotine = tune(List.of(2, 8));
 
         assertEquals(.715, tempest.get(Setting.DAMAGE_MULTIPLIER, 1), 1.0E-6);
         assertEquals(2.75, guillotine.get(Setting.DAMAGE_MULTIPLIER, 1), 1.0E-6);
@@ -96,8 +96,8 @@ final class WraithmawMasterySkillEffectTest {
 
     @Test
     void crownOfBladesTunesItsLaunchCountAndLoneExecutionerItsLockout() {
-        Phase2AbilityTuning crown = tune(List.of(16));
-        Phase2AbilityTuning lone = tune(List.of(17));
+        AbyssalSpectralMasteryTuning crown = tune(List.of(16));
+        AbyssalSpectralMasteryTuning lone = tune(List.of(17));
 
         assertEquals(2, crown.integer(Setting.LAUNCH_COUNT, 1));
         assertEquals(12, crown.integer(Setting.ORBIT_CAP, 6));
@@ -106,11 +106,11 @@ final class WraithmawMasterySkillEffectTest {
         assertEquals(1, lone.integer(Setting.LAUNCH_COUNT, 1));
     }
 
-    private static Phase2AbilityTuning tune(List<Integer> nodes) {
+    private static AbyssalSpectralMasteryTuning tune(List<Integer> nodes) {
         MasteryProfile profile = BuiltInFamilyProfiles.profile("wraithmaw");
-        UniqueAbilityTuning.Builder builder = UniqueAbilityTuning.builder(Phase2UniqueAbilities.WRAITHMAW_MUSTER);
-        builder.set(Phase2UniqueAbilities.COOLDOWN_TICKS, 600);
-        builder.set(Phase2UniqueAbilities.TUNING, Phase2AbilityTuning.EMPTY
+        UniqueAbilityTuning.Builder builder = UniqueAbilityTuning.builder(AbyssalSpectralMasteryAbilities.WRAITHMAW_MUSTER);
+        builder.set(AbyssalSpectralMasteryAbilities.COOLDOWN_TICKS, 600);
+        builder.set(AbyssalSpectralMasteryAbilities.TUNING, AbyssalSpectralMasteryTuning.EMPTY
                 .with(Setting.COOLDOWN_TICKS, 600)
                 .with(Setting.DAMAGE_MULTIPLIER, 1)
                 .with(Setting.MATERIALIZE_TICKS, 12)
@@ -118,8 +118,8 @@ final class WraithmawMasterySkillEffectTest {
         AbilitySkillEffectType effect = (AbilitySkillEffectType) SkillEffectRegistry.get(
                 profile.nodes().getFirst().effect().type());
         for (int node : nodes) {
-            effect.tune(null, Phase2UniqueAbilities.WRAITHMAW_MUSTER, builder, profile.nodes().get(node));
+            effect.tune(null, AbyssalSpectralMasteryAbilities.WRAITHMAW_MUSTER, builder, profile.nodes().get(node));
         }
-        return builder.get(Phase2UniqueAbilities.TUNING);
+        return builder.get(AbyssalSpectralMasteryAbilities.TUNING);
     }
 }

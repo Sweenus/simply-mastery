@@ -2,9 +2,9 @@ package net.sweenus.simplymastery.mastery.effect;
 
 import net.sweenus.simplymastery.mastery.definition.BuiltInFamilyProfiles;
 import net.sweenus.simplymastery.mastery.definition.MasteryProfile;
-import net.sweenus.simplyswords.api.ability.Phase5AbilityTuning;
-import net.sweenus.simplyswords.api.ability.Phase5AbilityTuning.Setting;
-import net.sweenus.simplyswords.api.ability.Phase5UniqueAbilities;
+import net.sweenus.simplyswords.api.ability.FireForgeMasteryTuning;
+import net.sweenus.simplyswords.api.ability.FireForgeMasteryTuning.Setting;
+import net.sweenus.simplyswords.api.ability.FireForgeMasteryAbilities;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityDefinition;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityTuning;
 import org.junit.jupiter.api.Test;
@@ -22,7 +22,7 @@ final class EmberlashMasterySkillEffectTest {
 
     @Test
     void endlessSmoulderCarriesATunableEcho() {
-        Phase5AbilityTuning endless = smoulder(List.of(7));
+        FireForgeMasteryTuning endless = smoulder(List.of(7));
 
         assertEquals(.5, endless.get(Setting.EMBERLASH_ECHO_DAMAGE_MULTIPLIER, 0), 1.0E-6);
         assertEquals(60, endless.integer(Setting.LOCKOUT_TICKS, 0));
@@ -44,7 +44,7 @@ final class EmberlashMasterySkillEffectTest {
 
     @Test
     void smoulderAndReprisalNeverShareCapsOrDurations() {
-        Phase5AbilityTuning all = smoulder(List.of(1, 2, 19, 26));
+        FireForgeMasteryTuning all = smoulder(List.of(1, 2, 19, 26));
 
         assertEquals(6, all.integer(Setting.EMBERLASH_SMOULDER_STACK_CAP, 0));
         assertEquals(160, all.integer(Setting.EMBERLASH_SMOULDER_DURATION_TICKS, 0));
@@ -62,7 +62,7 @@ final class EmberlashMasterySkillEffectTest {
 
     @Test
     void theCauteryRidersKeepTheirOwnKeys() {
-        Phase5AbilityTuning all = cautery(List.of(11, 12, 13, 14, 15));
+        FireForgeMasteryTuning all = cautery(List.of(11, 12, 13, 14, 15));
 
         assertEquals(4, all.get(Setting.EMBERLASH_CAUTERY_ABSORPTION, 0), 1.0E-6);
         assertEquals(60, all.integer(Setting.EMBERLASH_CAUTERY_ABSORPTION_TICKS, 0));
@@ -82,26 +82,26 @@ final class EmberlashMasterySkillEffectTest {
         }
     }
 
-    private static Phase5AbilityTuning smoulder(List<Integer> nodes) {
-        return tune(Phase5UniqueAbilities.EMBERLASH_SMOULDER, nodes);
+    private static FireForgeMasteryTuning smoulder(List<Integer> nodes) {
+        return tune(FireForgeMasteryAbilities.EMBERLASH_SMOULDER, nodes);
     }
 
-    private static Phase5AbilityTuning cautery(List<Integer> nodes) {
-        return tune(Phase5UniqueAbilities.EMBERLASH_CAUTERY, nodes);
+    private static FireForgeMasteryTuning cautery(List<Integer> nodes) {
+        return tune(FireForgeMasteryAbilities.EMBERLASH_CAUTERY, nodes);
     }
 
-    private static Phase5AbilityTuning tune(UniqueAbilityDefinition definition, List<Integer> nodes) {
+    private static FireForgeMasteryTuning tune(UniqueAbilityDefinition definition, List<Integer> nodes) {
         MasteryProfile profile = BuiltInFamilyProfiles.profile("emberlash");
         UniqueAbilityTuning.Builder builder = UniqueAbilityTuning.builder(definition);
         if (definition.cooldownKey().isPresent()) {
-            builder.set(Phase5UniqueAbilities.COOLDOWN_TICKS, 80);
+            builder.set(FireForgeMasteryAbilities.COOLDOWN_TICKS, 80);
         }
-        builder.set(Phase5UniqueAbilities.TUNING, Phase5AbilityTuning.EMPTY);
+        builder.set(FireForgeMasteryAbilities.TUNING, FireForgeMasteryTuning.EMPTY);
         AbilitySkillEffectType effect = (AbilitySkillEffectType) SkillEffectRegistry.get(
                 profile.nodes().getFirst().effect().type());
         for (int node : nodes) {
             effect.tune(null, definition, builder, profile.nodes().get(node));
         }
-        return builder.get(Phase5UniqueAbilities.TUNING);
+        return builder.get(FireForgeMasteryAbilities.TUNING);
     }
 }

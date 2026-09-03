@@ -2,9 +2,9 @@ package net.sweenus.simplymastery.mastery.effect;
 
 import net.sweenus.simplymastery.mastery.definition.BuiltInFamilyProfiles;
 import net.sweenus.simplymastery.mastery.definition.MasteryProfile;
-import net.sweenus.simplyswords.api.ability.Phase5AbilityTuning;
-import net.sweenus.simplyswords.api.ability.Phase5AbilityTuning.Setting;
-import net.sweenus.simplyswords.api.ability.Phase5UniqueAbilities;
+import net.sweenus.simplyswords.api.ability.FireForgeMasteryTuning;
+import net.sweenus.simplyswords.api.ability.FireForgeMasteryTuning.Setting;
+import net.sweenus.simplyswords.api.ability.FireForgeMasteryAbilities;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityDefinition;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityTuning;
 import org.junit.jupiter.api.Test;
@@ -22,7 +22,7 @@ final class EmberbladeMasterySkillEffectTest {
 
     @Test
     void bankedIreAndFedByFlameKeepIndependentWindows() {
-        Phase5AbilityTuning both = shrapnel(List.of(4, 23));
+        FireForgeMasteryTuning both = shrapnel(List.of(4, 23));
 
         assertEquals(60, both.integer(Setting.EMBERBLADE_BANK_DURATION_TICKS, 0));
         assertEquals(100, both.integer(Setting.EMBERBLADE_FLAME_BANK_DURATION_TICKS, 0));
@@ -33,7 +33,7 @@ final class EmberbladeMasterySkillEffectTest {
 
     @Test
     void whiteHeatSendsItsGateAsDataRatherThanPreApplyingIt() {
-        Phase5AbilityTuning whiteHeat = shrapnel(List.of(6));
+        FireForgeMasteryTuning whiteHeat = shrapnel(List.of(6));
 
         assertEquals(10, whiteHeat.integer(Setting.EMBERBLADE_FULL_CHARGE_WINDOW_TICKS, 0));
         assertEquals(1.25, whiteHeat.get(Setting.EMBERBLADE_FULL_CHARGE_MULTIPLIER, 1), 1.0E-6);
@@ -66,7 +66,7 @@ final class EmberbladeMasterySkillEffectTest {
 
     @Test
     void flashoverCarriesEveryValueItsBlastNeeds() {
-        Phase5AbilityTuning flashover = shrapnel(List.of(22));
+        FireForgeMasteryTuning flashover = shrapnel(List.of(22));
 
         assertEquals(3, flashover.integer(Setting.EMBERBLADE_FLASHOVER_COUNT, 0));
         assertEquals(100, flashover.integer(Setting.EMBERBLADE_FLASHOVER_WINDOW_TICKS, 0));
@@ -93,22 +93,22 @@ final class EmberbladeMasterySkillEffectTest {
         assertFalse((shrapnel(List.of(0)).integer(Setting.MODE, 0) & (1 << 16)) != 0);
     }
 
-    private static Phase5AbilityTuning shrapnel(List<Integer> nodes) {
-        return tune(Phase5UniqueAbilities.EMBERBLADE_SHRAPNEL, nodes);
+    private static FireForgeMasteryTuning shrapnel(List<Integer> nodes) {
+        return tune(FireForgeMasteryAbilities.EMBERBLADE_SHRAPNEL, nodes);
     }
 
-    private static Phase5AbilityTuning tune(UniqueAbilityDefinition definition, List<Integer> nodes) {
+    private static FireForgeMasteryTuning tune(UniqueAbilityDefinition definition, List<Integer> nodes) {
         MasteryProfile profile = BuiltInFamilyProfiles.profile("emberblade");
         UniqueAbilityTuning.Builder builder = UniqueAbilityTuning.builder(definition);
         if (definition.cooldownKey().isPresent()) {
-            builder.set(Phase5UniqueAbilities.COOLDOWN_TICKS, 60);
+            builder.set(FireForgeMasteryAbilities.COOLDOWN_TICKS, 60);
         }
-        builder.set(Phase5UniqueAbilities.TUNING, Phase5AbilityTuning.EMPTY);
+        builder.set(FireForgeMasteryAbilities.TUNING, FireForgeMasteryTuning.EMPTY);
         AbilitySkillEffectType effect = (AbilitySkillEffectType) SkillEffectRegistry.get(
                 profile.nodes().getFirst().effect().type());
         for (int node : nodes) {
             effect.tune(null, definition, builder, profile.nodes().get(node));
         }
-        return builder.get(Phase5UniqueAbilities.TUNING);
+        return builder.get(FireForgeMasteryAbilities.TUNING);
     }
 }

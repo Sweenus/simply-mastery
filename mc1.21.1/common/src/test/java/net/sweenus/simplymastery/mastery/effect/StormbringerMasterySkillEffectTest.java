@@ -2,8 +2,8 @@ package net.sweenus.simplymastery.mastery.effect;
 
 import net.sweenus.simplymastery.mastery.definition.BuiltInFamilyProfiles;
 import net.sweenus.simplymastery.mastery.definition.MasteryProfile;
-import net.sweenus.simplyswords.api.ability.Phase6AbilityTuning;
-import net.sweenus.simplyswords.api.ability.Phase6UniqueAbilities;
+import net.sweenus.simplyswords.api.ability.StormFrostWaterMasteryTuning;
+import net.sweenus.simplyswords.api.ability.StormFrostWaterMasteryAbilities;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityDefinition;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityTuning;
 import org.junit.jupiter.api.Test;
@@ -19,8 +19,8 @@ final class StormbringerMasterySkillEffectTest {
 
     @Test
     void branchesRouteOnlyToTheirOwningDefinitions() {
-        Phase6AbilityTuning guard = tune(Phase6UniqueAbilities.STORMBRINGER_GUARD, allNodes());
-        Phase6AbilityTuning chain = tune(Phase6UniqueAbilities.STORMBRINGER_CHAIN, allNodes());
+        StormFrostWaterMasteryTuning guard = tune(StormFrostWaterMasteryAbilities.STORMBRINGER_GUARD, allNodes());
+        StormFrostWaterMasteryTuning chain = tune(StormFrostWaterMasteryAbilities.STORMBRINGER_CHAIN, allNodes());
 
         assertTrue(guard.has(s("STORMBRINGER_PARRY_WINDOW_TICKS")));
         assertTrue(guard.has(s("STORMBRINGER_CHARGE_CAP")));
@@ -35,7 +35,7 @@ final class StormbringerMasterySkillEffectTest {
 
     @Test
     void guardValuesComposeWithoutGenericCollisions() {
-        Phase6AbilityTuning tuning = tune(Phase6UniqueAbilities.STORMBRINGER_GUARD,
+        StormFrostWaterMasteryTuning tuning = tune(StormFrostWaterMasteryAbilities.STORMBRINGER_GUARD,
                 List.of(0, 1, 2, 4, 7, 9, 17));
 
         assertEquals(8, tuning.integer(s("STORMBRINGER_PARRY_WINDOW_TICKS"), 0));
@@ -51,8 +51,8 @@ final class StormbringerMasterySkillEffectTest {
 
     @Test
     void fullBatteryAndHotArcHaveIndependentDamageChannels() {
-        Phase6AbilityTuning guard = tune(Phase6UniqueAbilities.STORMBRINGER_GUARD, List.of(2, 15, 19));
-        Phase6AbilityTuning chain = tune(Phase6UniqueAbilities.STORMBRINGER_CHAIN, List.of(2, 15, 19));
+        StormFrostWaterMasteryTuning guard = tune(StormFrostWaterMasteryAbilities.STORMBRINGER_GUARD, List.of(2, 15, 19));
+        StormFrostWaterMasteryTuning chain = tune(StormFrostWaterMasteryAbilities.STORMBRINGER_CHAIN, List.of(2, 15, 19));
 
         assertEquals(1.12, guard.get(s("STORMBRINGER_COUNTER_DAMAGE_MULTIPLIER"), 1), 1.0E-6);
         assertFalse(guard.has(s("STORMBRINGER_FULL_DAMAGE_MULTIPLIER")));
@@ -64,8 +64,8 @@ final class StormbringerMasterySkillEffectTest {
 
     @Test
     void focusedAndRollingPayloadsStayIndependent() {
-        Phase6AbilityTuning focused = tune(Phase6UniqueAbilities.STORMBRINGER_CHAIN, List.of(25));
-        Phase6AbilityTuning rolling = tune(Phase6UniqueAbilities.STORMBRINGER_CHAIN, List.of(26));
+        StormFrostWaterMasteryTuning focused = tune(StormFrostWaterMasteryAbilities.STORMBRINGER_CHAIN, List.of(25));
+        StormFrostWaterMasteryTuning rolling = tune(StormFrostWaterMasteryAbilities.STORMBRINGER_CHAIN, List.of(26));
 
         assertEquals(3, focused.integer(s("STORMBRINGER_FOCUSED_HIT_COUNT"), 0));
         assertEquals(.55, focused.get(s("STORMBRINGER_FOCUSED_HIT_DAMAGE_MULTIPLIER"), 0), 1.0E-6);
@@ -77,8 +77,8 @@ final class StormbringerMasterySkillEffectTest {
 
     @Test
     void guardCapstonesOwnTheirExactTradeoffs() {
-        Phase6AbilityTuning razor = tune(Phase6UniqueAbilities.STORMBRINGER_GUARD, List.of(2, 7));
-        Phase6AbilityTuning bulwark = tune(Phase6UniqueAbilities.STORMBRINGER_GUARD, List.of(8));
+        StormFrostWaterMasteryTuning razor = tune(StormFrostWaterMasteryAbilities.STORMBRINGER_GUARD, List.of(2, 7));
+        StormFrostWaterMasteryTuning bulwark = tune(StormFrostWaterMasteryAbilities.STORMBRINGER_GUARD, List.of(8));
 
         assertEquals(8, razor.integer(s("STORMBRINGER_PARRY_WINDOW_TICKS"), 0));
         assertEquals(2.24, razor.get(s("STORMBRINGER_COUNTER_DAMAGE_MULTIPLIER"), 1), 1.0E-6);
@@ -92,18 +92,18 @@ final class StormbringerMasterySkillEffectTest {
         return IntStream.range(0, 27).boxed().toList();
     }
 
-    private static Phase6AbilityTuning tune(UniqueAbilityDefinition definition, List<Integer> nodes) {
+    private static StormFrostWaterMasteryTuning tune(UniqueAbilityDefinition definition, List<Integer> nodes) {
         MasteryProfile profile = BuiltInFamilyProfiles.profile("stormbringer");
         UniqueAbilityTuning.Builder builder = UniqueAbilityTuning.builder(definition)
-                .set(Phase6UniqueAbilities.TUNING, Phase6AbilityTuning.EMPTY);
-        if (definition.cooldownKey().isPresent()) builder.set(Phase6UniqueAbilities.COOLDOWN_TICKS, 240);
+                .set(StormFrostWaterMasteryAbilities.TUNING, StormFrostWaterMasteryTuning.EMPTY);
+        if (definition.cooldownKey().isPresent()) builder.set(StormFrostWaterMasteryAbilities.COOLDOWN_TICKS, 240);
         AbilitySkillEffectType effect = (AbilitySkillEffectType) SkillEffectRegistry.get(
                 profile.nodes().getFirst().effect().type());
         for (int node : nodes) effect.tune(null, definition, builder, profile.nodes().get(node));
-        return builder.get(Phase6UniqueAbilities.TUNING);
+        return builder.get(StormFrostWaterMasteryAbilities.TUNING);
     }
 
-    private static Phase6AbilityTuning.Setting s(String name) {
-        return Phase6AbilityTuning.Setting.valueOf(name);
+    private static StormFrostWaterMasteryTuning.Setting s(String name) {
+        return StormFrostWaterMasteryTuning.Setting.valueOf(name);
     }
 }

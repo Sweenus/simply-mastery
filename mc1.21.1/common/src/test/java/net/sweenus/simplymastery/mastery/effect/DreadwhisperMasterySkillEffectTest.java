@@ -2,9 +2,9 @@ package net.sweenus.simplymastery.mastery.effect;
 
 import net.sweenus.simplymastery.mastery.definition.BuiltInFamilyProfiles;
 import net.sweenus.simplymastery.mastery.definition.MasteryProfile;
-import net.sweenus.simplyswords.api.ability.Phase3AbilityTuning;
-import net.sweenus.simplyswords.api.ability.Phase3AbilityTuning.Setting;
-import net.sweenus.simplyswords.api.ability.Phase3UniqueAbilities;
+import net.sweenus.simplyswords.api.ability.StormSoulMasteryTuning;
+import net.sweenus.simplyswords.api.ability.StormSoulMasteryTuning.Setting;
+import net.sweenus.simplyswords.api.ability.StormSoulMasteryAbilities;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityDefinition;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityTuning;
 import org.junit.jupiter.api.Test;
@@ -37,8 +37,8 @@ final class DreadwhisperMasterySkillEffectTest {
 
     @Test
     void nothingOutsideReavingFrontCanTouchTheDashGeometry() {
-        Phase3AbilityTuning wound = tune(Phase3UniqueAbilities.DREADWHISPER_REAVE, WOUND);
-        Phase3AbilityTuning gloam = tune(Phase3UniqueAbilities.DREADWHISPER_REAVE, List.of(18, 19, 20, 21, 22, 23, 24, 25));
+        StormSoulMasteryTuning wound = tune(StormSoulMasteryAbilities.DREADWHISPER_REAVE, WOUND);
+        StormSoulMasteryTuning gloam = tune(StormSoulMasteryAbilities.DREADWHISPER_REAVE, List.of(18, 19, 20, 21, 22, 23, 24, 25));
 
         assertFalse(wound.has(Setting.REND_RANGE));
         assertFalse(wound.has(Setting.REND_DAMAGE_MULTIPLIER));
@@ -51,8 +51,8 @@ final class DreadwhisperMasterySkillEffectTest {
 
     @Test
     void theOldSharedKeysAreGoneEntirely() {
-        Phase3AbilityTuning reave = tune(Phase3UniqueAbilities.DREADWHISPER_REAVE, ALL);
-        Phase3AbilityTuning wound = tune(Phase3UniqueAbilities.DREADWHISPER_WOUND, ALL);
+        StormSoulMasteryTuning reave = tune(StormSoulMasteryAbilities.DREADWHISPER_REAVE, ALL);
+        StormSoulMasteryTuning wound = tune(StormSoulMasteryAbilities.DREADWHISPER_WOUND, ALL);
 
         assertFalse(reave.has(Setting.RANGE));
         assertFalse(reave.has(Setting.WIDTH));
@@ -67,22 +67,22 @@ final class DreadwhisperMasterySkillEffectTest {
 
     @Test
     void splinteredPainAndShadowRecallNoLongerShortenTheDash() {
-        assertEquals(23, tune(Phase3UniqueAbilities.DREADWHISPER_REAVE, List.of(3, 13))
+        assertEquals(23, tune(StormSoulMasteryAbilities.DREADWHISPER_REAVE, List.of(3, 13))
                 .get(Setting.REND_RANGE, 20), 1.0E-6);
-        assertEquals(23, tune(Phase3UniqueAbilities.DREADWHISPER_REAVE, List.of(3, 22))
+        assertEquals(23, tune(StormSoulMasteryAbilities.DREADWHISPER_REAVE, List.of(3, 22))
                 .get(Setting.REND_RANGE, 20), 1.0E-6);
-        assertEquals(23, tune(Phase3UniqueAbilities.DREADWHISPER_REAVE, List.of(3, 16))
+        assertEquals(23, tune(StormSoulMasteryAbilities.DREADWHISPER_REAVE, List.of(3, 16))
                 .get(Setting.REND_RANGE, 20), 1.0E-6);
-        assertEquals(3, tune(Phase3UniqueAbilities.DREADWHISPER_REAVE, List.of(13))
+        assertEquals(3, tune(StormSoulMasteryAbilities.DREADWHISPER_REAVE, List.of(13))
                 .get(Setting.SPLINTER_RANGE, 0), 1.0E-6);
-        assertEquals(6, tune(Phase3UniqueAbilities.DREADWHISPER_REAVE, List.of(22))
+        assertEquals(6, tune(StormSoulMasteryAbilities.DREADWHISPER_REAVE, List.of(22))
                 .get(Setting.RECALL_RANGE, 0), 1.0E-6);
     }
 
     @Test
     void livingShadowAndVoidCrossingNoLongerGutTheDashSilently() {
-        Phase3AbilityTuning living = tune(Phase3UniqueAbilities.DREADWHISPER_REAVE, List.of(1, 25));
-        Phase3AbilityTuning voidCrossing = tune(Phase3UniqueAbilities.DREADWHISPER_REAVE, List.of(1, 26));
+        StormSoulMasteryTuning living = tune(StormSoulMasteryAbilities.DREADWHISPER_REAVE, List.of(1, 25));
+        StormSoulMasteryTuning voidCrossing = tune(StormSoulMasteryAbilities.DREADWHISPER_REAVE, List.of(1, 26));
 
         assertEquals(1.1, living.get(Setting.REND_DAMAGE_MULTIPLIER, 1), 1.0E-6);
         assertEquals(.2, living.get(Setting.LIVING_SHADOW_MULTIPLIER, 0), 1.0E-6);
@@ -94,35 +94,35 @@ final class DreadwhisperMasterySkillEffectTest {
 
     @Test
     void reopenAndPlagueNoLongerShortenPersistentCorruption() {
-        assertEquals(260, tune(Phase3UniqueAbilities.DREADWHISPER_WOUND, List.of(9, 14))
+        assertEquals(260, tune(StormSoulMasteryAbilities.DREADWHISPER_WOUND, List.of(9, 14))
                 .integer(Setting.WOUND_DURATION_TICKS, 200));
-        assertEquals(260, tune(Phase3UniqueAbilities.DREADWHISPER_WOUND, List.of(9, 16))
+        assertEquals(260, tune(StormSoulMasteryAbilities.DREADWHISPER_WOUND, List.of(9, 16))
                 .integer(Setting.WOUND_DURATION_TICKS, 200));
-        assertEquals(80, tune(Phase3UniqueAbilities.DREADWHISPER_WOUND, List.of(9, 14))
+        assertEquals(80, tune(StormSoulMasteryAbilities.DREADWHISPER_WOUND, List.of(9, 14))
                 .integer(Setting.REOPEN_DURATION_TICKS, 0));
-        assertEquals(120, tune(Phase3UniqueAbilities.DREADWHISPER_WOUND, List.of(9, 16))
+        assertEquals(120, tune(StormSoulMasteryAbilities.DREADWHISPER_WOUND, List.of(9, 16))
                 .integer(Setting.SPREAD_DURATION_TICKS, 0));
     }
 
     @Test
     void capstonesComposeWithTheirPrerequisites() {
-        assertEquals(1.1, tune(Phase3UniqueAbilities.DREADWHISPER_REAVE, List.of(1))
+        assertEquals(1.1, tune(StormSoulMasteryAbilities.DREADWHISPER_REAVE, List.of(1))
                 .get(Setting.REND_DAMAGE_MULTIPLIER, 1), 1.0E-6);
-        assertEquals(.77, tune(Phase3UniqueAbilities.DREADWHISPER_REAVE, List.of(1, 7))
+        assertEquals(.77, tune(StormSoulMasteryAbilities.DREADWHISPER_REAVE, List.of(1, 7))
                 .get(Setting.REND_DAMAGE_MULTIPLIER, 1), 1.0E-6);
-        assertEquals(2.42, tune(Phase3UniqueAbilities.DREADWHISPER_REAVE, List.of(1, 8))
+        assertEquals(2.42, tune(StormSoulMasteryAbilities.DREADWHISPER_REAVE, List.of(1, 8))
                 .get(Setting.REND_DAMAGE_MULTIPLIER, 1), 1.0E-6);
-        assertEquals(1.12, tune(Phase3UniqueAbilities.DREADWHISPER_WOUND, List.of(10))
+        assertEquals(1.12, tune(StormSoulMasteryAbilities.DREADWHISPER_WOUND, List.of(10))
                 .get(Setting.WOUND_DAMAGE_MULTIPLIER, 1), 1.0E-6);
-        assertEquals(2.8, tune(Phase3UniqueAbilities.DREADWHISPER_WOUND, List.of(10, 17))
+        assertEquals(2.8, tune(StormSoulMasteryAbilities.DREADWHISPER_WOUND, List.of(10, 17))
                 .get(Setting.WOUND_DAMAGE_MULTIPLIER, 1), 1.0E-6);
-        assertEquals(.784, tune(Phase3UniqueAbilities.DREADWHISPER_WOUND, List.of(10, 16))
+        assertEquals(.784, tune(StormSoulMasteryAbilities.DREADWHISPER_WOUND, List.of(10, 16))
                 .get(Setting.WOUND_DAMAGE_MULTIPLIER, 1), 1.0E-6);
     }
 
     @Test
     void deepLeechCarriesItsAdvertisedCeiling() {
-        Phase3AbilityTuning leech = tune(Phase3UniqueAbilities.DREADWHISPER_REAVE, List.of(4));
+        StormSoulMasteryTuning leech = tune(StormSoulMasteryAbilities.DREADWHISPER_REAVE, List.of(4));
 
         assertEquals(.4, leech.get(Setting.LEECH_RATIO, .35), 1.0E-6);
         assertEquals(18, leech.get(Setting.LEECH_CAP, 0), 1.0E-6);
@@ -130,7 +130,7 @@ final class DreadwhisperMasterySkillEffectTest {
 
     @Test
     void sweepingFrontNoLongerCapsTheDashUndocumented() {
-        Phase3AbilityTuning front = tune(Phase3UniqueAbilities.DREADWHISPER_REAVE, List.of(0));
+        StormSoulMasteryTuning front = tune(StormSoulMasteryAbilities.DREADWHISPER_REAVE, List.of(0));
 
         assertEquals(5, front.get(Setting.REND_WIDTH, 4.5), 1.0E-6);
         assertFalse(front.has(Setting.REND_TARGET_CAP));
@@ -138,9 +138,9 @@ final class DreadwhisperMasterySkillEffectTest {
 
     @Test
     void everyPreviouslyInertNodeNowCarriesItsOwnConsumedSettings() {
-        Phase3AbilityTuning rend = tune(Phase3UniqueAbilities.DREADWHISPER_REAVE, REND);
-        Phase3AbilityTuning wound = tune(Phase3UniqueAbilities.DREADWHISPER_WOUND, WOUND);
-        Phase3AbilityTuning gloam = tune(Phase3UniqueAbilities.DREADWHISPER_REAVE, GLOAM);
+        StormSoulMasteryTuning rend = tune(StormSoulMasteryAbilities.DREADWHISPER_REAVE, REND);
+        StormSoulMasteryTuning wound = tune(StormSoulMasteryAbilities.DREADWHISPER_WOUND, WOUND);
+        StormSoulMasteryTuning gloam = tune(StormSoulMasteryAbilities.DREADWHISPER_REAVE, GLOAM);
 
         assertEquals(.4, rend.get(Setting.COLLISION_MULTIPLIER, 0), 1.0E-6);
         assertEquals(3, rend.get(Setting.COLLISION_RADIUS, 0), 1.0E-6);
@@ -169,18 +169,18 @@ final class DreadwhisperMasterySkillEffectTest {
         assertEquals(12, gloam.integer(Setting.LIVING_SHADOW_TARGET_CAP, 0));
     }
 
-    private static Phase3AbilityTuning tune(UniqueAbilityDefinition definition, List<Integer> nodes) {
+    private static StormSoulMasteryTuning tune(UniqueAbilityDefinition definition, List<Integer> nodes) {
         MasteryProfile profile = BuiltInFamilyProfiles.profile("dreadwhisper");
         UniqueAbilityTuning.Builder builder = UniqueAbilityTuning.builder(definition);
         if (definition.cooldownKey().isPresent()) {
-            builder.set(Phase3UniqueAbilities.COOLDOWN_TICKS, 250);
+            builder.set(StormSoulMasteryAbilities.COOLDOWN_TICKS, 250);
         }
-        builder.set(Phase3UniqueAbilities.TUNING, Phase3AbilityTuning.EMPTY);
+        builder.set(StormSoulMasteryAbilities.TUNING, StormSoulMasteryTuning.EMPTY);
         AbilitySkillEffectType effect = (AbilitySkillEffectType) SkillEffectRegistry.get(
                 profile.nodes().getFirst().effect().type());
         for (int node : nodes) {
             effect.tune(null, definition, builder, profile.nodes().get(node));
         }
-        return builder.get(Phase3UniqueAbilities.TUNING);
+        return builder.get(StormSoulMasteryAbilities.TUNING);
     }
 }
