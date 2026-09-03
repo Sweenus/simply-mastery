@@ -48,19 +48,20 @@ final class Phase8MasterySkillEffect implements AbilitySkillEffectType {
             case 5 -> bloodwake(value, branch, slot);
             default -> value;
         };
-        if (profile == 5 && branch == 1 && value.flag(1 << 17) && context.actor().isSneaking()) {
-            value = value.with(s("COOLDOWN_TICKS"), 0);
-        }
-        tuning.set(Phase8UniqueAbilities.TUNING, value);
         if (definition.cooldownKey().isPresent()) {
-            int cooldown = value.integer(s("COOLDOWN_TICKS"),
+            int base = value.integer(s("MASTERY_BASE_COOLDOWN_TICKS"),
                     tuning.get(Phase8UniqueAbilities.COOLDOWN_TICKS));
+            value = value.with(s("MASTERY_BASE_COOLDOWN_TICKS"), base);
+            int cooldown = profile == 5
+                    ? base + value.integer(s("BLOOD_COOLDOWN_BONUS_TICKS"), 0)
+                    : value.integer(s("COOLDOWN_TICKS"), base);
             if (profile == 1 && branch == 2) {
                 cooldown = (int) Math.round(cooldown
                         * value.get(s("SOUL_COOLDOWN_MULTIPLIER"), 1));
             }
-            tuning.set(Phase8UniqueAbilities.COOLDOWN_TICKS, cooldown);
+            tuning.set(Phase8UniqueAbilities.COOLDOWN_TICKS, Math.max(1, cooldown));
         }
+        tuning.set(Phase8UniqueAbilities.TUNING, value);
     }
 
     private static Phase8AbilityTuning plague(Phase8AbilityTuning t, int branch, int slot) {
@@ -244,126 +245,185 @@ final class Phase8MasterySkillEffect implements AbilitySkillEffectType {
 
     private static Phase8AbilityTuning twisted(Phase8AbilityTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
-            case 0 -> t.add(s("CHANCE"), 8, 25);
-            case 1 -> t.add(s("DURATION_TICKS"), 30, 80);
-            case 2 -> t.with(s("PER_STACK_MULTIPLIER"), .11);
-            case 3 -> t.with(s("COUNT"), 5);
-            case 4 -> t.with(s("STACK_CAP"), 8).with(s("DURATION_TICKS"), 40)
-                    .with(s("DURATION_CAP_TICKS"), 120);
-            case 5 -> t.with(s("STATUS_DURATION_TICKS"), 20);
-            case 6 -> t.add(s("STACK_CAP"), 3, 15).with(s("SECONDARY_DAMAGE_MULTIPLIER"), .05);
-            case 7 -> t.with(s("STACK_CAP"), 10).with(s("LOCKOUT_TICKS"), 40);
-            case 8 -> t.with(s("STACK_CAP"), 20).with(s("HEALTH_THRESHOLD"), .5)
-                    .with(s("DAMAGE_MULTIPLIER"), 2).with(s("DURATION_TICKS"), 80);
+            case 0 -> t.with(s("TWISTED_CHANCE_BONUS"), 8);
+            case 1 -> t.with(s("TWISTED_DURATION_BONUS_TICKS"), 30);
+            case 2 -> t.with(s("TWISTED_ATTACK_SPEED_PER_STACK_BONUS"), .01);
+            case 3 -> t.with(s("TWISTED_GUARANTEED_HIT_INTERVAL"), 5);
+            case 4 -> t.with(s("TWISTED_CADENCE_THRESHOLD"), 8)
+                    .with(s("TWISTED_CADENCE_BONUS_TICKS"), 40)
+                    .with(s("TWISTED_CADENCE_BONUS_CAP_TICKS"), 120);
+            case 5 -> t.with(s("TWISTED_FOOTWORK_THRESHOLD"), 8);
+            case 6 -> t.with(s("TWISTED_MAX_STACK_BONUS"), 3)
+                    .with(s("TWISTED_OVERFLOW_THRESHOLD"), 15)
+                    .with(s("TWISTED_OVERFLOW_ATTACK_SPEED_PER_STACK"), .05);
+            case 7 -> t.with(s("TWISTED_ENDLESS_MAX_STACKS"), 10)
+                    .with(s("TWISTED_ENDLESS_HIT_WINDOW_TICKS"), 40);
+            case 8 -> t.with(s("TWISTED_FEVER_MAX_STACKS"), 20)
+                    .with(s("TWISTED_FEVER_HEALTH_THRESHOLD"), .5)
+                    .with(s("TWISTED_FEVER_GAIN"), 2)
+                    .with(s("TWISTED_FEVER_DURATION_TICKS"), 80);
             default -> t;
         };
         if (branch == 1) return switch (slot) {
-            case 0 -> t.multiply(s("DAMAGE_MULTIPLIER"), 1.1, 1);
-            case 1 -> t.add(s("RADIUS"), .4, 3);
-            case 2 -> t.add(s("INTERVAL_TICKS"), -1, 4);
-            case 3 -> t.add(s("KNOCKBACK"), .15, .5);
-            case 4 -> t.with(s("DAMAGE_MULTIPLIER"), 1.15).with(s("PULL_STRENGTH"), .2).with(s("COUNT"), 2);
-            case 5 -> t.with(s("LOCKOUT_TICKS"), 60).with(s("OUTGOING_MULTIPLIER"), 1.1);
-            case 6 -> t.with(s("COUNT"), 3).with(s("DELAY_TICKS"), 4).with(s("SECONDARY_DAMAGE_MULTIPLIER"), .6);
-            case 7 -> t.with(s("TARGET_CAP"), 1).with(s("RANGE"), 5).with(s("DAMAGE_MULTIPLIER"), 1.9);
-            case 8 -> t.multiply(s("RADIUS"), 1.75, 3).with(s("TARGET_CAP"), 16)
-                    .multiply(s("DAMAGE_MULTIPLIER"), .65, 1).with(s("KNOCKBACK"), 0);
+            case 0 -> t.with(s("TWISTED_CRESCENDO_DAMAGE_MULTIPLIER"), 1.1);
+            case 1 -> t.with(s("TWISTED_CRESCENDO_RADIUS_BONUS"), .4);
+            case 2 -> t.with(s("TWISTED_CRESCENDO_INTERVAL_BONUS"), -1);
+            case 3 -> t.with(s("TWISTED_CRESCENDO_KNOCKBACK_BONUS"), .15);
+            case 4 -> t.with(s("TWISTED_SYNC_INTERVAL"), 2)
+                    .with(s("TWISTED_SYNC_DAMAGE_MULTIPLIER"), 1.15)
+                    .with(s("TWISTED_SYNC_PULL_STRENGTH"), .2);
+            case 5 -> t.with(s("TWISTED_WOUND_HITS"), 2)
+                    .with(s("TWISTED_WOUND_WINDOW_TICKS"), 60)
+                    .with(s("TWISTED_WOUND_DAMAGE_MULTIPLIER"), 1.1);
+            case 6 -> t.with(s("TWISTED_DOUBLE_INTERVAL"), 3)
+                    .with(s("TWISTED_DOUBLE_DELAY_TICKS"), 4)
+                    .with(s("TWISTED_DOUBLE_DAMAGE_MULTIPLIER"), .6);
+            case 7 -> t.with(s("TWISTED_SOLO_TARGET_CAP"), 1)
+                    .with(s("TWISTED_SOLO_RANGE"), 5)
+                    .with(s("TWISTED_SOLO_DAMAGE_MULTIPLIER"), 1.9);
+            case 8 -> t.with(s("TWISTED_ORCHESTRA_RADIUS_MULTIPLIER"), 1.75)
+                    .with(s("TWISTED_ORCHESTRA_TARGET_CAP"), 16)
+                    .with(s("TWISTED_ORCHESTRA_DAMAGE_MULTIPLIER"), .65)
+                    .with(s("TWISTED_ORCHESTRA_KNOCKBACK_MULTIPLIER"), 0);
             default -> t;
         };
         return switch (slot) {
-            case 0 -> t.add(s("DURATION_TICKS"), 30, 80);
-            case 1 -> t.multiply(s("DAMAGE_MULTIPLIER"), 1.15, 1);
-            case 2 -> t.multiply(s("FINAL_DAMAGE_MULTIPLIER"), 1.2, 1);
-            case 3 -> t.add(s("RADIUS"), .5, 3);
-            case 4 -> t.add(s("KNOCKBACK"), .2, .5);
-            case 5 -> t.with(s("COUNT"), 4).with(s("DELAY_TICKS"), 20);
-            case 6 -> t.with(s("LOCKOUT_TICKS"), 20).with(s("DAMAGE_MULTIPLIER"), 1.2);
-            case 7 -> t.with(s("RADIUS"), 5).with(s("TARGET_CAP"), 16).with(s("DURATION_TICKS"), 40);
-            case 8 -> t.with(s("COUNT"), 3).with(s("DAMAGE_MULTIPLIER"), .55).with(s("RADIUS"), 0);
+            case 0 -> t.with(s("TWISTED_FINALE_WINDOW_BONUS_TICKS"), 30);
+            case 1 -> t.with(s("TWISTED_FINALE_MIN_DAMAGE_MULTIPLIER"), 1.15);
+            case 2 -> t.with(s("TWISTED_FINALE_MAX_DAMAGE_MULTIPLIER"), 1.2);
+            case 3 -> t.with(s("TWISTED_FINALE_RADIUS_BONUS"), .5);
+            case 4 -> t.with(s("TWISTED_FINALE_KNOCKBACK_BONUS"), .2);
+            case 5 -> t.with(s("TWISTED_ENCORE_REFUND_STACKS"), 4)
+                    .with(s("TWISTED_ENCORE_DELAY_TICKS"), 20);
+            case 6 -> t.with(s("TWISTED_PERFECT_WINDOW_TICKS"), 20)
+                    .with(s("TWISTED_PERFECT_DAMAGE_MULTIPLIER"), 1.2);
+            case 7 -> t.with(s("TWISTED_SHATTER_RADIUS"), 5)
+                    .with(s("TWISTED_SHATTER_TARGET_CAP"), 16)
+                    .with(s("TWISTED_SHATTER_WINDOW_TICKS"), 40);
+            case 8 -> t.with(s("TWISTED_SUSTAINED_HIT_COUNT"), 3)
+                    .with(s("TWISTED_SUSTAINED_DAMAGE_MULTIPLIER"), .55)
+                    .with(s("TWISTED_SUSTAINED_CONSUME_RATIO"), .5);
             default -> t;
         };
     }
 
     private static Phase8AbilityTuning shadowsting(Phase8AbilityTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
-            case 0 -> t.add(s("CHANCE"), 8, 25);
-            case 1 -> t.multiply(s("DAMAGE_MULTIPLIER"), 1.12, 1);
-            case 2 -> t.with(s("DELAY_TICKS"), 2);
-            case 3 -> t.with(s("DURATION_TICKS"), 60).with(s("OUTGOING_MULTIPLIER"), 1.08);
-            case 4 -> t.with(s("STATUS_DURATION_TICKS"), 12);
-            case 5 -> t.with(s("COUNT"), 4).with(s("DELAY_TICKS"), 5).with(s("SECONDARY_DAMAGE_MULTIPLIER"), .5);
-            case 6 -> t.with(s("REFUND_TICKS"), 20);
-            case 7 -> t.with(s("COUNT"), 3).with(s("DAMAGE_MULTIPLIER"), .45).add(s("CHANCE"), -15, 25);
-            case 8 -> t.with(s("DAMAGE_MULTIPLIER"), 1.25).with(s("LOCKOUT_TICKS"), 60);
+            case 0 -> t.with(s("SHADOW_CHANCE_BONUS"), 8);
+            case 1 -> t.multiply(s("SHADOW_CLONE_DAMAGE_MULTIPLIER"), 1.12, 1);
+            case 2 -> t.add(s("SHADOW_CLONE_DELAY_BONUS_TICKS"), -1, 0);
+            case 3 -> t.with(s("SHADOW_MARK_DURATION_TICKS"), 60)
+                    .with(s("SHADOW_MARK_OUTGOING_MULTIPLIER"), 1.08);
+            case 4 -> t.with(s("SHADOW_VEIL_DURATION_TICKS"), 12);
+            case 5 -> t.with(s("SHADOW_TWIN_INTERVAL"), 4)
+                    .with(s("SHADOW_TWIN_DELAY_TICKS"), 5)
+                    .with(s("SHADOW_TWIN_DAMAGE_MULTIPLIER"), .5);
+            case 6 -> t.with(s("SHADOW_KILL_REFUND_TICKS"), 20);
+            case 7 -> t.with(s("SHADOW_MIRROR_COUNT"), 3)
+                    .with(s("SHADOW_MIRROR_DAMAGE_MULTIPLIER"), .45)
+                    .with(s("SHADOW_CHANCE_PENALTY"), 15);
+            case 8 -> t.with(s("SHADOW_FLAWLESS_DAMAGE_MULTIPLIER"), 1.25)
+                    .with(s("SHADOW_FLAWLESS_LOCKOUT_TICKS"), 60);
             default -> t;
         };
         if (branch == 1) return switch (slot) {
-            case 0 -> t.add(s("DURATION_TICKS"), 20, 100);
-            case 1 -> t.add(s("INTERVAL_TICKS"), -1, 8);
-            case 2 -> t.add(s("RADIUS"), 2, 10);
-            case 3 -> t.with(s("PER_STACK_MULTIPLIER"), .05).with(s("FINAL_DAMAGE_MULTIPLIER"), 1.25);
-            case 4 -> t.with(s("HEALTH_THRESHOLD"), .4);
-            case 5 -> t.with(s("STATUS_DURATION_TICKS"), 20);
-            case 6 -> t.with(s("RADIUS"), 3).with(s("DAMAGE_MULTIPLIER"), .6).with(s("TARGET_CAP"), 8);
-            case 7 -> t.add(s("DURATION_TICKS"), 60, 100).add(s("INTERVAL_TICKS"), 2, 8)
-                    .with(s("COUNT"), 2).with(s("DAMAGE_MULTIPLIER"), .65);
-            case 8 -> t.with(s("DURATION_TICKS"), 50).with(s("TARGET_CAP"), 1)
-                    .with(s("DAMAGE_MULTIPLIER"), 1.5);
+            case 0 -> t.add(s("SHADOW_DANCE_DURATION_BONUS_TICKS"), 20, 0);
+            case 1 -> t.add(s("SHADOW_DANCE_INTERVAL_BONUS"), -1, 0)
+                    .with(s("SHADOW_DANCE_INTERVAL_FLOOR"), 3);
+            case 2 -> t.add(s("SHADOW_DANCE_RADIUS_BONUS"), 2, 0);
+            case 3 -> t.with(s("SHADOW_CHAIN_DAMAGE_PER_STEP"), .05)
+                    .with(s("SHADOW_CHAIN_STEP_CAP"), 5);
+            case 4 -> t.with(s("SHADOW_LOW_HEALTH_THRESHOLD"), .4);
+            case 5 -> t.with(s("SHADOW_GUARD_AMPLIFIER"), 0);
+            case 6 -> t.with(s("SHADOW_FLOURISH_RADIUS"), 3)
+                    .with(s("SHADOW_FLOURISH_DAMAGE_MULTIPLIER"), .6)
+                    .with(s("SHADOW_FLOURISH_TARGET_CAP"), 8);
+            case 7 -> t.add(s("SHADOW_DANCE_DURATION_BONUS_TICKS"), 60, 0)
+                    .add(s("SHADOW_DANCE_INTERVAL_BONUS"), 2, 0)
+                    .with(s("SHADOW_MACABRE_DAMAGE_MULTIPLIER"), .65);
+            case 8 -> t.with(s("SHADOW_DANCE_DURATION_MULTIPLIER"), .5)
+                    .with(s("SHADOW_WALTZ_DAMAGE_MULTIPLIER"), 1.5);
             default -> t;
         };
         return switch (slot) {
-            case 0 -> t.add(s("RANGE"), 1, 3);
-            case 1 -> t.with(s("SECONDARY_RADIUS"), 2.5).with(s("STATUS_DURATION_TICKS"), 20).with(s("SEARCH_CAP"), 6);
-            case 2 -> t.with(s("SECONDARY_RADIUS"), 3).with(s("LOCKOUT_TICKS"), 40).with(s("SEARCH_CAP"), 6);
-            case 3 -> t.with(s("SECONDARY_DURATION_TICKS"), 6);
-            case 4 -> t.with(s("STATUS_DURATION_TICKS"), 25).with(s("STATUS_AMPLIFIER"), 1);
-            case 5 -> t.with(s("SECONDARY_DURATION_TICKS"), 40).with(s("STATUS_AMPLIFIER"), 1);
-            case 6 -> t.with(s("COUNT"), 3).with(s("ABSORPTION"), 4).with(s("SEARCH_CAP"), 12);
-            case 7 -> t.with(s("SECONDARY_DURATION_TICKS"), 60).with(s("SECONDARY_RADIUS"), 0);
-            case 8 -> t.with(s("SECONDARY_DURATION_TICKS"), 0).with(s("STATUS_DURATION_TICKS"), 30)
-                    .with(s("STATUS_AMPLIFIER"), 2).with(s("COUNT"), 2);
+            case 0 -> t.with(s("SHADOW_ARRIVAL_DISTANCE_BONUS"), 1);
+            case 1 -> t.with(s("SHADOW_SMOKE_RADIUS"), 2.5)
+                    .with(s("SHADOW_SMOKE_DURATION_TICKS"), 20)
+                    .with(s("SHADOW_SMOKE_TARGET_CAP"), 6);
+            case 2 -> t.with(s("SHADOW_SNARE_RADIUS"), 3)
+                    .with(s("SHADOW_SNARE_DURATION_TICKS"), 40)
+                    .with(s("SHADOW_SNARE_AMPLIFIER"), 1)
+                    .with(s("SHADOW_SNARE_TARGET_CAP"), 6);
+            case 3 -> t.add(s("SHADOW_RETURN_BONUS_TICKS"), -2, 0);
+            case 4 -> t.with(s("SHADOW_DISORIENT_DURATION_TICKS"), 25)
+                    .with(s("SHADOW_DISORIENT_AMPLIFIER"), 1);
+            case 5 -> t.with(s("SHADOW_SPEED_DURATION_TICKS"), 40)
+                    .with(s("SHADOW_SPEED_AMPLIFIER"), 1);
+            case 6 -> t.with(s("SHADOW_REPRIEVE_INTERVAL"), 3)
+                    .with(s("SHADOW_REPRIEVE_ABSORPTION"), 4)
+                    .with(s("SHADOW_REPRIEVE_CAP"), 12);
+            case 7 -> t.with(s("SHADOW_NOCTURNE_DURATION_TICKS"), 60);
+            case 8 -> t.with(s("SHADOW_KILLING_RESISTANCE_TICKS"), 30)
+                    .with(s("SHADOW_KILLING_RESISTANCE_AMPLIFIER"), 2)
+                    .with(s("SHADOW_KILLING_SKIPPED_STRIKES"), 2);
             default -> t;
         };
     }
 
     private static Phase8AbilityTuning bloodwake(Phase8AbilityTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
-            case 0 -> t.with(s("COUNT"), 3).with(s("FEVER"), 1);
-            case 1 -> t.add(s("RADIUS"), .5, 4);
-            case 2 -> t.multiply(s("DAMAGE_MULTIPLIER"), 1.12, 1);
-            case 3 -> t.add(s("DURATION_TICKS"), 40, 100);
-            case 4 -> t.with(s("COUNT"), 2).with(s("FEVER"), 1);
-            case 5 -> t.with(s("HEALTH_THRESHOLD"), .35).with(s("DAMAGE_MULTIPLIER"), 1.25);
-            case 6 -> t.with(s("DELAY_TICKS"), 8).with(s("SECONDARY_DAMAGE_MULTIPLIER"), .55).with(s("TARGET_CAP"), 4);
-            case 7 -> t.with(s("RANGE"), 7).with(s("ANGLE"), 0).with(s("TARGET_CAP"), 12)
-                    .with(s("DAMAGE_MULTIPLIER"), 1.35).with(s("FEVER"), 0);
-            case 8 -> t.multiply(s("RADIUS"), .65, 4).with(s("COUNT"), 2).with(s("ABSORPTION"), 8)
-                    .multiply(s("DAMAGE_MULTIPLIER"), .7, 1);
+            case 0 -> t.with(s("BLOOD_VEIN_INTERVAL"), 3).with(s("BLOOD_VEIN_BONUS_STACKS"), 1);
+            case 1 -> t.add(s("BLOOD_BURST_RADIUS_BONUS"), .5, 0);
+            case 2 -> t.multiply(s("BLOOD_BURST_DAMAGE_MULTIPLIER"), 1.12, 1);
+            case 3 -> t.add(s("BLOOD_BLEED_DURATION_BONUS_TICKS"), 40, 0);
+            case 4 -> t.with(s("BLOOD_FEAST_INTERVAL"), 2).with(s("BLOOD_FEAST_FRENZY"), 1);
+            case 5 -> t.with(s("BLOOD_HEMORRHAGE_THRESHOLD"), .35)
+                    .with(s("BLOOD_HEMORRHAGE_MULTIPLIER"), 1.25);
+            case 6 -> t.with(s("BLOOD_CHAIN_DELAY_TICKS"), 8)
+                    .with(s("BLOOD_CHAIN_DAMAGE_MULTIPLIER"), .55)
+                    .with(s("BLOOD_CHAIN_CAP"), 4);
+            case 7 -> t.with(s("BLOOD_CONE_RANGE"), 7)
+                    .with(s("BLOOD_CONE_DOT"), .35)
+                    .with(s("BLOOD_CONE_TARGET_CAP"), 12)
+                    .with(s("BLOOD_SPRAY_DAMAGE_MULTIPLIER"), 1.35);
+            case 8 -> t.with(s("BLOOD_SACRAMENT_RADIUS_MULTIPLIER"), .65)
+                    .with(s("BLOOD_SACRAMENT_FRENZY"), 1)
+                    .with(s("BLOOD_SACRAMENT_ABSORPTION"), 8)
+                    .with(s("BLOOD_SACRAMENT_DAMAGE_MULTIPLIER"), .7);
             default -> t;
         };
         if (branch == 1) return switch (slot) {
-            case 0 -> t.add(s("COOLDOWN_TICKS"), -2, 20);
-            case 1 -> t.add(s("RANGE"), 3, 10);
-            case 2 -> t.add(s("TARGET_CAP"), 2, 6);
-            case 3 -> t.add(s("WINDUP_TICKS"), -6, 24).multiply(s("DAMAGE_MULTIPLIER"), 1.1, 1);
-            case 4 -> t.add(s("COUNT"), 2, 8).with(s("TARGET_CAP"), 12);
-            case 5 -> t.add(s("INTERVAL_TICKS"), -3, 14);
-            case 6 -> t.with(s("COUNT"), 3).with(s("DURATION_TICKS"), 300).with(s("FEVER"), 1);
-            case 7 -> t.with(s("FEVER"), 1).multiply(s("DAMAGE_MULTIPLIER"), .85, 1).add(s("COOLDOWN_TICKS"), 30, 20);
-            case 8 -> t.with(s("FEVER"), 1).multiply(s("DAMAGE_MULTIPLIER"), .8, 1);
+            case 0 -> t.add(s("BLOOD_COOLDOWN_BONUS_TICKS"), -2, 0);
+            case 1 -> t.add(s("BLOOD_WAVE_STEP_BONUS"), 3, 0);
+            case 2 -> t.add(s("BLOOD_SCREAM_TARGET_BONUS"), 2, 0);
+            case 3 -> t.add(s("BLOOD_BLADE_HOVER_BONUS_TICKS"), -6, 0)
+                    .multiply(s("BLOOD_BLADE_DAMAGE_MULTIPLIER"), 1.1, 1);
+            case 4 -> t.add(s("BLOOD_FLY_COUNT_BONUS"), 2, 0).with(s("BLOOD_FLY_COUNT_CAP"), 12);
+            case 5 -> t.add(s("BLOOD_DELUGE_INTERVAL_BONUS"), -3, 0)
+                    .with(s("BLOOD_DELUGE_INTERVAL_FLOOR"), 8);
+            case 6 -> t.with(s("BLOOD_MEMORY_RITES"), 3)
+                    .with(s("BLOOD_MEMORY_WINDOW_TICKS"), 300)
+                    .with(s("BLOOD_MEMORY_FRENZY"), 1);
+            case 7 -> t.multiply(s("BLOOD_RITE_DAMAGE_MULTIPLIER"), .85, 1)
+                    .add(s("BLOOD_COOLDOWN_BONUS_TICKS"), 30, 0);
+            case 8 -> t.multiply(s("BLOOD_RITE_DAMAGE_MULTIPLIER"), .8, 1);
             default -> t;
         };
         return switch (slot) {
-            case 0 -> t.add(s("DURATION_TICKS"), 100, 600);
-            case 1 -> t.add(s("STATUS_AMPLIFIER"), 1, 0);
-            case 2 -> t.add(s("INTERVAL_TICKS"), -8, 40);
-            case 3 -> t.add(s("COUNT"), 1, 2);
-            case 4 -> t.with(s("OUTGOING_MULTIPLIER"), 1);
-            case 5 -> t.with(s("DAMAGE_MULTIPLIER"), 1.08);
-            case 6 -> t.with(s("TARGET_CAP"), 1).with(s("DURATION_TICKS"), 800);
-            case 7 -> t.multiply(s("RADIUS"), 1.6, 4).add(s("DURATION_TICKS"), 200, 600).with(s("COUNT"), 0);
-            case 8 -> t.multiply(s("RADIUS"), .6, 4).multiply(s("COUNT"), 2, 2).with(s("ABSORPTION"), 4)
-                    .with(s("INTERVAL_TICKS"), 80).with(s("STATUS_AMPLIFIER"), 0);
+            case 0 -> t.add(s("BLOOD_STAIN_DURATION_BONUS_TICKS"), 100, 0);
+            case 1 -> t.add(s("BLOOD_STAIN_SLOW_BONUS"), 1, 0).with(s("BLOOD_STAIN_SLOW_CAP"), 1);
+            case 2 -> t.add(s("BLOOD_STAIN_HEAL_INTERVAL_BONUS"), -8, 0)
+                    .with(s("BLOOD_STAIN_HEAL_INTERVAL_FLOOR"), 20);
+            case 3 -> t.add(s("BLOOD_STAIN_HEAL_BONUS"), .5, 0);
+            case 4 -> t.with(s("BLOOD_BLOODBOUND_RESISTANCE"), 1);
+            case 5 -> t.with(s("BLOOD_FOOTING_MULTIPLIER"), 1.08);
+            case 6 -> t.with(s("BLOOD_CONFLUENCE_CAP_TICKS"), 800);
+            case 7 -> t.with(s("BLOOD_SEA_RADIUS_MULTIPLIER"), 1.6)
+                    .add(s("BLOOD_STAIN_DURATION_BONUS_TICKS"), 200, 0);
+            case 8 -> t.with(s("BLOOD_HEARTPOOL_RADIUS_MULTIPLIER"), .6)
+                    .with(s("BLOOD_HEARTPOOL_HEAL_MULTIPLIER"), 2)
+                    .with(s("BLOOD_HEARTPOOL_ABSORPTION"), 4)
+                    .with(s("BLOOD_HEARTPOOL_ABSORPTION_INTERVAL_TICKS"), 80);
             default -> t;
         };
     }
