@@ -56,10 +56,6 @@ public final class MasteryProfileRegistry {
         return reload(documents, readErrors, failedSources, MasteryConfig.SERVER.maximumEarnedPoints);
     }
 
-    public static synchronized ReloadResult reload(Map<Identifier, JsonElement> documents) {
-        return reload(documents, List.of(), Set.of(), 21);
-    }
-
     private static ReloadResult reload(Map<Identifier, JsonElement> documents, List<String> initialErrors,
                                        Set<Identifier> failedSources, int pointBudget) {
         List<String> errors = new ArrayList<>(initialErrors);

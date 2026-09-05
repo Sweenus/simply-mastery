@@ -9,10 +9,4 @@ dependencies {
     modImplementation "dev.architectury:architectury:${rootProject.architectury_api_version}"
     modImplementation "me.fzzyhmstrs:fzzy_config:${rootProject.fzz_config_version}"
     modCompileOnly files(rootProject.simplySwordsCommonJar)
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.11.4'
-    testRuntimeOnly files(rootProject.simplySwordsCommonJar)
-}
-
-tasks.withType(Test).configureEach {
-    useJUnitPlatform()
 }

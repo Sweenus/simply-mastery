@@ -7,32 +7,6 @@ architectury {
     fabric()
 }
 
-sourceSets {
-    coverageTest {
-        compileClasspath += sourceSets.main.output + configurations.compileClasspath
-        runtimeClasspath += output + sourceSets.main.output + configurations.runtimeClasspath
-    }
-}
-
-loom {
-    createRemapConfigurations(sourceSets.coverageTest)
-    mods {
-        simplymastery_coverage_test {
-            sourceSet sourceSets.coverageTest
-        }
-    }
-    runs {
-        coverageServer {
-            server()
-            source sourceSets.main
-            source sourceSets.coverageTest
-            property "fabric-api.gametest"
-            vmArg "-Dsimplymastery.coverageAudit=true"
-            runDir "build/coverage-server"
-        }
-    }
-}
-
 configurations {
     common
     shadowCommon

@@ -61,12 +61,7 @@ final class StormFrostWaterMasterySkillEffect implements AbilitySkillEffectType 
                     cooldown = Math.max(0, (int) Math.round(cooldown
                             * value.get(s("FROSTFALL_COOLDOWN_MULTIPLIER"), 1)));
                 }
-            } else if (profile == 6) {
-                if (branch == 2 && slot == 8) {
-                    cooldown = Math.max(0, cooldown
-                            + value.integer(s("LIVYATAN_ACTIVE_COOLDOWN_BONUS_TICKS"), 0));
-                }
-            } else {
+            } else if (profile != 6) {
                 cooldown = value.integer(s("COOLDOWN_TICKS"), cooldown);
             }
             tuning.set(StormFrostWaterMasteryAbilities.COOLDOWN_TICKS, cooldown);
@@ -504,9 +499,11 @@ final class StormFrostWaterMasterySkillEffect implements AbilitySkillEffectType 
                     .with(s("LIVYATAN_PERFECT_STORM_TARGET_CAP"), 16);
             case 7 -> t.with(s("LIVYATAN_UNBOUND_WAVE_DAMAGE_MULTIPLIER"), 1.3)
                     .with(s("LIVYATAN_UNBOUND_COOLDOWN_MULTIPLIER"), 2);
-            case 8 -> t.with(s("LIVYATAN_CALM_DAMAGE_MULTIPLIER"), 1.5)
-                    .with(s("LIVYATAN_ACTIVE_COOLDOWN_BONUS_TICKS"), 20)
-                    .with(s("LIVYATAN_SUPPRESS_WAVES"), 1);
+            case 8 -> t.with(s("LIVYATAN_CALM_IDLE_TICKS"), 40)
+                    .with(s("LIVYATAN_CALM_RADIUS"), 7)
+                    .with(s("LIVYATAN_CALM_DURATION_TICKS"), 12)
+                    .with(s("LIVYATAN_CALM_DAMAGE_MULTIPLIER"), 2)
+                    .with(s("LIVYATAN_CALM_TARGET_CAP"), 16);
             default -> t;
         };
     }
@@ -548,9 +545,10 @@ final class StormFrostWaterMasterySkillEffect implements AbilitySkillEffectType 
                         case 3, 4, 7 -> definition == StormFrostWaterMasteryAbilities.LIVYATAN_WAVE;
                         case 5 -> definition == StormFrostWaterMasteryAbilities.LIVYATAN_RETURN
                                 || definition == StormFrostWaterMasteryAbilities.LIVYATAN_WAVE;
-                        case 6, 8 -> definition == StormFrostWaterMasteryAbilities.LIVYATAN_THROW
+                        case 6 -> definition == StormFrostWaterMasteryAbilities.LIVYATAN_THROW
                                 || definition == StormFrostWaterMasteryAbilities.LIVYATAN_RETURN
                                 || definition == StormFrostWaterMasteryAbilities.LIVYATAN_WAVE;
+                        case 8 -> definition == StormFrostWaterMasteryAbilities.LIVYATAN_WAVE;
                         default -> false;
                     };
             default -> false;

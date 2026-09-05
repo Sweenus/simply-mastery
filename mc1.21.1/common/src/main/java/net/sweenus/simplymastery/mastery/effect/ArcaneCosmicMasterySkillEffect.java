@@ -58,7 +58,7 @@ final class ArcaneCosmicMasterySkillEffect implements AbilitySkillEffectType {
         if (branch == 0) return switch (slot) {
             case 0 -> t.add(s("CHANCE"), 7, 25);
             case 1 -> t.multiply(s("DAMAGE_MULTIPLIER"), 1.1, 1);
-            case 2 -> t.multiply(s("SPELL_MULTIPLIER"), 1.12, 1);
+            case 2 -> t.with(s("ARCANETHYST_LEVITATION_MELEE_DAMAGE_MULTIPLIER"), 1.12);
             case 3 -> t.with(s("DURATION_TICKS"), 60).with(s("OUTGOING_MULTIPLIER"), 1.1);
             case 4 -> t.with(s("COUNT"), 4).with(s("DELAY_TICKS"), 6).with(s("RADIUS"), 4)
                     .with(s("SECONDARY_DURATION_TICKS"), 30);

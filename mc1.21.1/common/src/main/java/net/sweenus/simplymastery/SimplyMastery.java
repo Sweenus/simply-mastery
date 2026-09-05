@@ -5,7 +5,6 @@ import dev.architectury.utils.EnvExecutor;
 import net.sweenus.simplymastery.client.SimplyMasteryClient;
 import net.sweenus.simplymastery.config.MasteryConfig;
 import net.sweenus.simplymastery.mastery.network.MasteryNetwork;
-import net.sweenus.simplymastery.mastery.definition.MasteryCoverageReport;
 import net.sweenus.simplymastery.mastery.state.MasteryComponents;
 import net.sweenus.simplymastery.mastery.effect.SkillRuntime;
 import net.sweenus.simplymastery.mastery.effect.UniqueAbilityMasteryBridge;
@@ -31,7 +30,6 @@ public final class SimplyMastery {
         StormMasteryRuntime.init();
         UniqueAbilityMasteryBridge.init();
         MasteryProgression.init();
-        MasteryCoverageReport.init();
         MasteryCommands.init();
         EnvExecutor.runInEnv(Env.CLIENT, () -> SimplyMasteryClient::init);
         LOGGER.info("Simply Mastery initialized");

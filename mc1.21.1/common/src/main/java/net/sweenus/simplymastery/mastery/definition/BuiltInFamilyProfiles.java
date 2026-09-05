@@ -5,7 +5,6 @@ import static net.sweenus.simplymastery.mastery.definition.BuiltInFamilyProfiles
 import net.minecraft.util.Identifier;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,15 +25,6 @@ public final class BuiltInFamilyProfiles {
         for (Family family : FAMILIES) {
             profiles.putIfAbsent(id("simplymastery", family.profilePath()), create(family));
         }
-    }
-
-    public static Collection<Family> familiesForCoverage() {
-        return FAMILIES;
-    }
-
-    public static MasteryProfile profile(String path) {
-        return FAMILIES.stream().filter(family -> family.profilePath().equals(path)).findFirst()
-                .map(BuiltInFamilyProfiles::create).orElseThrow();
     }
 
     private static MasteryProfile create(Family family) {
@@ -472,7 +462,7 @@ public final class BuiltInFamilyProfiles {
         return Identifier.of(namespace, path);
     }
 
-    public enum Style {
+    enum Style {
         MOBILITY(0, 1, 2, 3, 9, 4, 6, 2, 10),
         COMBO(1, 2, 0, 3, 6, 9, 11, 2, 10),
         CONTROL(3, 2, 1, 7, 8, 4, 6, 4, 10),
@@ -490,15 +480,15 @@ public final class BuiltInFamilyProfiles {
         }
     }
 
-    public record BranchPlan(String id, String title, Style style) {
+    private record BranchPlan(String id, String title, Style style) {
         BranchPlan withId(String id) {
             return new BranchPlan(id, title, style);
         }
     }
 
-    public record Family(String profilePath, String formFamily, String progressionGroup, String displayName,
+    private record Family(String profilePath, String formFamily, String progressionGroup, String displayName,
                          List<BranchPlan> branches, List<String> items, List<String> formStages) {
-        public Family {
+        private Family {
             branches = List.copyOf(branches);
             items = List.copyOf(items);
             formStages = List.copyOf(formStages);

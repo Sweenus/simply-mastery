@@ -16,3 +16,6 @@ logs/
 *.hprof
 .DS_Store
 .architectury-transformer/
+
+# Local-only development assets
+/.local/

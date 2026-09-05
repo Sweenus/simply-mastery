@@ -209,8 +209,8 @@ final class DeathShadowBloodMasterySkillEffect implements AbilitySkillEffectType
         if (branch == 1) return switch (slot) {
             case 0 -> t.with(s("SOULSTEALER_TARGET_RANGE_BONUS"), 2);
             case 1 -> t.with(s("SOULSTEALER_TARGET_ANGLE_BONUS"), 20);
-            case 2 -> t.with(s("SOULSTEALER_SEARCH_MULTIPLIER"), 1.5)
-                    .with(s("SOULSTEALER_SEARCH_CAP"), 24);
+            case 2 -> t.with(s("SOULSTEALER_WEAKNESS_DURATION_TICKS"), 80)
+                    .with(s("SOULSTEALER_WEAKNESS_AMPLIFIER"), 0);
             case 3 -> t.with(s("SOULSTEALER_VEIL_DURATION_TICKS"), 20);
             case 4 -> t.with(s("SOULSTEALER_HAMSTRING_DURATION_TICKS"), 30)
                     .with(s("SOULSTEALER_HAMSTRING_AMPLIFIER"), 2);
@@ -226,7 +226,8 @@ final class DeathShadowBloodMasterySkillEffect implements AbilitySkillEffectType
         };
         return switch (slot) {
             case 0 -> t.with(s("SOULSTEALER_DAMAGE_PER_DEBT_BONUS"), .08);
-            case 1 -> t.with(s("SOULSTEALER_SPELL_MULTIPLIER"), 1.1);
+            case 1 -> t.with(s("SOULSTEALER_LIFE_LEVY_DEBT_PER_HEALTH"), 2)
+                    .with(s("SOULSTEALER_LIFE_LEVY_MAX_HEAL"), 6);
             case 2 -> t.with(s("SOULSTEALER_ARMOR_IGNORE_RATIO"), .1);
             case 3 -> t.with(s("SOULSTEALER_WITHER_DURATION_TICKS"), 60)
                     .with(s("SOULSTEALER_WITHER_AMPLIFIER"), 0);

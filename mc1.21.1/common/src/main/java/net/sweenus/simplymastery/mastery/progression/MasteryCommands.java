@@ -14,7 +14,6 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.sweenus.simplymastery.config.MasteryConfig;
-import net.sweenus.simplymastery.mastery.definition.MasteryCoverageReport;
 import net.sweenus.simplymastery.mastery.definition.MasteryProfile;
 import net.sweenus.simplymastery.mastery.definition.MasteryProfileRegistry;
 import net.sweenus.simplymastery.mastery.state.MasteryPortfolio;
@@ -40,7 +39,6 @@ public final class MasteryCommands {
         dispatcher.register(
                 CommandManager.literal("simplymastery")
                         .requires(source -> source.hasPermissionLevel(2))
-                        .then(CommandManager.literal("coverage").executes(MasteryCoverageReport::execute))
                         .then(amountNode("grant", Mode.GRANT_XP, Mode.GRANT_POINTS, 1))
                         .then(amountNode("set", Mode.SET_XP, Mode.SET_POINTS, 0))
                         .then(CommandManager.literal("clear")

@@ -71,10 +71,6 @@ subprojects {
         options.release = 21
     }
 
-    loom.runs.configureEach {
-        vmArg "-Dsimplymastery.projectDir=${rootDir}"
-    }
-
     tasks.named('check').configure {
         dependsOn rootProject.tasks.named('verifyDependencyPins')
     }
