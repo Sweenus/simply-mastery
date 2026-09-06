@@ -14,6 +14,7 @@ ext {
     simplySwordsCommonJar = file("${suiteRoot}/SimplySwords/common/build/devlibs/simplyswords-common-${simply_swords_version}-1.21.1-dev.jar")
     simplySwordsFabricJar = file("${suiteRoot}/SimplySwords/fabric/build/libs/simplyswords-fabric-${simply_swords_version}-1.21.1.jar")
     simplySwordsNeoForgeJar = file("${suiteRoot}/SimplySwords/forge/build/libs/simplyswords-forge-${simply_swords_version}-1.21.1.jar")
+    simplyTooltipsCommonJar = file("${suiteRoot}/simplytooltips/common/build/devlibs/SimplyTooltips-common-0.1.5-dev.jar")
     simplyTooltipsFabricJar = file("${suiteRoot}/simplytooltips/fabric/build/libs/SimplyTooltips-fabric-0.1.5.jar")
     simplyTooltipsNeoForgeJar = file("${suiteRoot}/simplytooltips/neoforge/build/libs/SimplyTooltips-neoforge-0.1.5.jar")
 }
@@ -86,7 +87,7 @@ tasks.register('verifyDependencyPins') {
             }
         }
         [simplySwordsCommonJar, simplySwordsFabricJar, simplySwordsNeoForgeJar,
-         simplyTooltipsFabricJar, simplyTooltipsNeoForgeJar].each { artifact ->
+         simplyTooltipsCommonJar, simplyTooltipsFabricJar, simplyTooltipsNeoForgeJar].each { artifact ->
             if (!artifact.isFile()) {
                 throw new GradleException("Missing local development artifact: $artifact")
             }

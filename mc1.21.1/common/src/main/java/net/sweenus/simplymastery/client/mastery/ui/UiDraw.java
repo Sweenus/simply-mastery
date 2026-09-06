@@ -64,13 +64,13 @@ public final class UiDraw {
     // --- squared chrome -----------------------------------------------------
 
     /** The design's inset bevel: a light top/left pair over a dark bottom/right pair. */
-    public static void bevel(DrawContext context, int x0, int y0, int x1, int y1, int thickness,
-                            float alpha) {
+    public static void bevel(DrawContext context, MasteryPalette palette, int x0, int y0, int x1, int y1,
+                            int thickness, float alpha) {
         if (x1 <= x0 || y1 <= y0 || thickness <= 0 || alpha <= 0.004F) {
             return;
         }
-        int light = MasteryTheme.argb(MasteryTheme.BEVEL_LIGHT, MasteryTheme.BEVEL_LIGHT_ALPHA * alpha);
-        int dark = MasteryTheme.argb(MasteryTheme.BEVEL_DARK, MasteryTheme.BEVEL_DARK_ALPHA * alpha);
+        int light = MasteryTheme.argb(palette.BEVEL_LIGHT, palette.BEVEL_LIGHT_ALPHA * alpha);
+        int dark = MasteryTheme.argb(palette.BEVEL_DARK, palette.BEVEL_DARK_ALPHA * alpha);
         int t = Math.min(thickness, Math.min(x1 - x0, y1 - y0) / 2);
         if (t <= 0) {
             return;
@@ -264,13 +264,13 @@ public final class UiDraw {
     }
 
     /** A flat panel: solid fill, a 1px rule and accent corner brackets. No gradient, no radius. */
-    public static void panel(DrawContext context, int x0, int y0, int x1, int y1, int fillRgb,
-                             int accentRgb, float alpha) {
+    public static void panel(DrawContext context, MasteryPalette palette, int x0, int y0, int x1, int y1,
+                             int fillRgb, int accentRgb, float alpha) {
         if (x1 <= x0 || y1 <= y0 || alpha <= 0.004F) {
             return;
         }
         context.fill(x0, y0, x1, y1, MasteryTheme.argb(fillRgb, 0.95F * alpha));
-        boxOutline(context, x0, y0, x1, y1, 1, MasteryTheme.argb(MasteryTheme.RULE, 0.95F * alpha));
+        boxOutline(context, x0, y0, x1, y1, 1, MasteryTheme.argb(palette.RULE, 0.95F * alpha));
         cornerBrackets(context, x0, y0, x1, y1, Math.clamp((x1 - x0) / 12, 4, 10), 1,
                 MasteryTheme.argb(accentRgb, 0.75F * alpha));
     }
@@ -337,8 +337,9 @@ public final class UiDraw {
      * The artboard's segmented progress strip. {@code progress} is a float so animated meters
      * still read as the last cell lights.
      */
-    public static void segmentStrip(DrawContext context, int x, int y, int width, int height, int total,
-                                    float progress, int gap, int fillRgb, float alpha) {
+    public static void segmentStrip(DrawContext context, MasteryPalette palette, int x, int y, int width,
+                                    int height, int total, float progress, int gap, int fillRgb,
+                                    float alpha) {
         if (total <= 0 || width <= 0 || height <= 0 || alpha <= 0.004F) {
             return;
         }
@@ -350,26 +351,27 @@ public final class UiDraw {
             int x1 = Math.max(x0 + 1, x + Math.round((i + 1) * span) - gap);
             float fill = MasteryTheme.clamp01(lit - i);
             if (fill <= 0.001F) {
-                context.fill(x0, y, x1, y + height, MasteryTheme.argb(MasteryTheme.PIP_EMPTY, 0.95F * alpha));
+                context.fill(x0, y, x1, y + height, MasteryTheme.argb(palette.PIP_EMPTY, 0.95F * alpha));
                 continue;
             }
-            context.fill(x0, y, x1, y + height, MasteryTheme.argb(MasteryTheme.PIP_EMPTY, 0.95F * alpha));
+            context.fill(x0, y, x1, y + height, MasteryTheme.argb(palette.PIP_EMPTY, 0.95F * alpha));
             int end = Math.max(x0 + 1, Math.round(x0 + (x1 - x0) * fill));
             context.fill(x0, y, end, y + height, MasteryTheme.argb(fillRgb, 0.95F * alpha));
             if (height >= 3) {
-                context.fill(x0, y, end, y + 1, MasteryTheme.argb(0xFFFFFF, 0.22F * alpha));
-                context.fill(x0, y + height - 1, end, y + height, MasteryTheme.argb(0x000000, 0.30F * alpha));
+                context.fill(x0, y, end, y + 1, MasteryTheme.argb(palette.HIGHLIGHT, 0.22F * alpha));
+                context.fill(x0, y + height - 1, end, y + height,
+                        MasteryTheme.argb(palette.SHADOW, 0.30F * alpha));
             }
         }
     }
 
-    public static void pips(DrawContext context, int x, int y, int total, int filled, int size, int gap,
-                            int fillRgb, float alpha) {
+    public static void pips(DrawContext context, MasteryPalette palette, int x, int y, int total, int filled,
+                            int size, int gap, int fillRgb, float alpha) {
         for (int i = 0; i < total; i++) {
             int x0 = x + i * (size + gap);
             if (i < filled) {
                 context.fill(x0, y, x0 + size, y + size, MasteryTheme.argb(fillRgb, 0.95F * alpha));
-                context.fill(x0, y, x0 + size, y + 1, MasteryTheme.argb(0xFFFFFF, 0.22F * alpha));
+                context.fill(x0, y, x0 + size, y + 1, MasteryTheme.argb(palette.HIGHLIGHT, 0.22F * alpha));
             } else {
                 boxOutline(context, x0, y, x0 + size, y + size, 1,
                         MasteryTheme.argb(fillRgb, 0.35F * alpha));

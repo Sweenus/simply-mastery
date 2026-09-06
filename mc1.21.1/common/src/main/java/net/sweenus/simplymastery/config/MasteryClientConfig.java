@@ -18,6 +18,9 @@ public final class MasteryClientConfig extends me.fzzyhmstrs.fzzy_config.config.
     @ValidatedFloat.Restrict(min = 0.25F, max = 2.0F)
     public float zoomSensitivity = 1.0F;
     public boolean confirmUnlocks = false;
+    public boolean themedFromTooltips = true;
+    @ValidatedFloat.Restrict(min = 0.0F, max = 1.0F)
+    public float branchAccentBlend = 0.5F;
 
     public MasteryClientConfig() {
         super(Identifier.of(SimplyMastery.MOD_ID, "client"));

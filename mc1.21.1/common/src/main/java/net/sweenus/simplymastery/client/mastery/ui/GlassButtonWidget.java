@@ -7,26 +7,36 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Util;
 import net.sweenus.simplymastery.config.MasteryConfig;
 
+import java.util.function.Supplier;
+import java.util.function.ToIntFunction;
+
 public class GlassButtonWidget extends ButtonWidget {
 
-    private final int accentRgb;
+    private final Supplier<MasteryPalette> palette;
+    private final ToIntFunction<MasteryPalette> accent;
     private final boolean primary;
     private final Anim highlight = new Anim(0.0F, 28.0F);
     private long lastFrameMs = Util.getMeasuringTimeMs();
 
-    public GlassButtonWidget(int x, int y, int width, int height, Text message, PressAction onPress, int accentRgb) {
-        this(x, y, width, height, message, onPress, accentRgb, false);
+    public GlassButtonWidget(int x, int y, int width, int height, Text message, PressAction onPress,
+                             Supplier<MasteryPalette> palette, ToIntFunction<MasteryPalette> accent) {
+        this(x, y, width, height, message, onPress, palette, accent, false);
     }
 
     public GlassButtonWidget(int x, int y, int width, int height, Text message, PressAction onPress,
-                             int accentRgb, boolean primary) {
+                             Supplier<MasteryPalette> palette, ToIntFunction<MasteryPalette> accent,
+                             boolean primary) {
         super(x, y, width, height, message, onPress, DEFAULT_NARRATION_SUPPLIER);
-        this.accentRgb = accentRgb;
+        this.palette = palette;
+        this.accent = accent;
         this.primary = primary;
     }
 
     @Override
     protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+        MasteryPalette theme = palette.get();
+        int accentRgb = accent.applyAsInt(theme);
+
         long now = Util.getMeasuringTimeMs();
         float seconds = Math.min(0.1F, (now - lastFrameMs) / 1000.0F);
         lastFrameMs = now;
@@ -39,31 +49,31 @@ public class GlassButtonWidget extends ButtonWidget {
         int y1 = y0 + getHeight();
         float lit = highlight.value();
         float alpha = active ? 1.0F : 0.55F;
-        int accent = active ? accentRgb : MasteryTheme.desaturate(accentRgb, 0.85F);
+        int tint = active ? accentRgb : MasteryTheme.desaturate(accentRgb, 0.85F);
 
         int ink;
         if (primary) {
-            int fill = MasteryTheme.mix(accent, MasteryTheme.ACCENT_HOT, lit);
+            int fill = MasteryTheme.mix(tint, theme.ACCENT_HOT, lit);
             context.fill(x0, y0, x1, y1, MasteryTheme.argb(fill, 0.98F * alpha));
-            UiDraw.bevel(context, x0, y0, x1, y1, 1, alpha);
-            ink = MasteryTheme.ON_ACCENT;
+            UiDraw.bevel(context, theme, x0, y0, x1, y1, 1, alpha);
+            ink = MasteryTheme.ensureContrast(theme.ON_ACCENT, fill, 4.5);
         } else {
             context.fill(x0, y0, x1, y1,
-                    MasteryTheme.argb(MasteryTheme.mix(MasteryTheme.PANEL, MasteryTheme.HOVER_FILL, lit),
+                    MasteryTheme.argb(MasteryTheme.mix(theme.PANEL, theme.HOVER_FILL, lit),
                             0.95F * alpha));
             UiDraw.boxOutline(context, x0, y0, x1, y1, 1,
-                    MasteryTheme.argb(MasteryTheme.mix(MasteryTheme.RULE, accent, lit),
+                    MasteryTheme.argb(MasteryTheme.mix(theme.RULE, tint, lit),
                             (0.85F + 0.15F * lit) * alpha));
             ink = active
-                    ? MasteryTheme.mix(MasteryTheme.INK_SOFT, MasteryTheme.INK, lit)
-                    : MasteryTheme.INK_MUTED;
+                    ? MasteryTheme.mix(theme.INK_SOFT, theme.INK, lit)
+                    : theme.INK_MUTED;
         }
 
         // The hover sweep survives from the old chrome, squared off into a flat accent bar.
         int sweep = Math.round((x1 - x0 - 2) * MasteryTheme.easeOutCubic(lit));
         if (sweep > 0 && !primary) {
             context.fill(x0 + 1, y1 - 2, x0 + 1 + sweep, y1 - 1,
-                    MasteryTheme.argb(accent, 0.9F * alpha));
+                    MasteryTheme.argb(tint, 0.9F * alpha));
         }
 
         MinecraftClient client = MinecraftClient.getInstance();

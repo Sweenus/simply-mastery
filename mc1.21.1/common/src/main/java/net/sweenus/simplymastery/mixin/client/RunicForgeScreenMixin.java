@@ -8,7 +8,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
 import net.sweenus.simplymastery.client.mastery.MasteryScreenSwitch;
 import net.sweenus.simplymastery.client.mastery.ui.GlassButtonWidget;
-import net.sweenus.simplymastery.client.mastery.ui.MasteryTheme;
+import net.sweenus.simplymastery.client.mastery.theme.TooltipThemeSupport;
+import net.sweenus.simplymastery.client.mastery.ui.MasteryPalette;
 import net.sweenus.simplymastery.client.mastery.SimplyMasteryScreen;
 import net.sweenus.simplymastery.config.MasteryConfig;
 import net.sweenus.simplymastery.mastery.RunicForgeMasteryContext;
@@ -27,6 +28,9 @@ public abstract class RunicForgeScreenMixin extends HandledScreen<RunicForgeScre
     @Unique
     private ButtonWidget simplymastery$button;
 
+    @Unique
+    private MasteryPalette simplymastery$palette = MasteryPalette.DEFAULT;
+
     protected RunicForgeScreenMixin(RunicForgeScreenHandler handler, PlayerInventory inventory, Text title) {
         super(handler, inventory, title);
     }
@@ -38,7 +42,7 @@ public abstract class RunicForgeScreenMixin extends HandledScreen<RunicForgeScre
         simplymastery$button = addDrawableChild(new GlassButtonWidget(
                 left + backgroundWidth + 6, top, 78, 20,
                 Text.translatable("screen.simplymastery.open"), button -> simplymastery$open(),
-                MasteryTheme.ACCENT));
+                () -> simplymastery$palette, theme -> theme.ACCENT));
         simplymastery$updateButton();
     }
 
@@ -48,10 +52,22 @@ public abstract class RunicForgeScreenMixin extends HandledScreen<RunicForgeScre
     }
 
     @Unique
+    private void simplymastery$refreshPalette() {
+        if (!MasteryConfig.CLIENT.themedFromTooltips) {
+            simplymastery$palette = MasteryPalette.DEFAULT;
+            return;
+        }
+        simplymastery$palette = TooltipThemeSupport.resolve(RunicForgeMasteryContext.identityStack(handler))
+                .map(TooltipThemeSupport.Resolved::palette)
+                .orElse(MasteryPalette.DEFAULT);
+    }
+
+    @Unique
     private void simplymastery$updateButton() {
         if (simplymastery$button == null) {
             return;
         }
+        simplymastery$refreshPalette();
         ItemStack stateStack = RunicForgeMasteryContext.stateStack(handler);
         boolean supported = MasteryProfileRegistry.resolveClient(
                 RunicForgeMasteryContext.identityStack(handler)).isPresent();

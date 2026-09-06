@@ -48,3 +48,10 @@ mandatory = true
 versionRange = "[1.71.0-1.21.1,)"
 ordering = "AFTER"
 side = "BOTH"
+
+[[dependencies.simplymastery]]
+modId = "simplytooltips"
+mandatory = false
+versionRange = "[0.1.5,)"
+ordering = "AFTER"
+side = "CLIENT"

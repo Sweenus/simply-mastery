@@ -2,47 +2,6 @@ package net.sweenus.simplymastery.client.mastery.ui;
 
 public final class MasteryTheme {
 
-    // Ground and chrome ------------------------------------------------------
-    public static final int GROUND = 0x14100F;
-    public static final int GROUND_DEEP = 0x070605;
-    public static final int FRAME_OUTER = 0x241C19;
-    public static final int FRAME_INNER = 0x0D0A09;
-    public static final int PANEL = 0x0F0C0B;
-    public static final int CARD = 0x191412;
-    public static final int WELL = 0x0A0807;
-
-    // Rules and edges --------------------------------------------------------
-    public static final int RULE = 0x2F2521;
-    public static final int LOCKED_FRAME = 0x332924;
-    public static final int PIP_EMPTY = 0x3A2E28;
-    public static final int LOCKED_DASH = 0x463731;
-    public static final int BRACKET = 0x4A3C34;
-
-    // Ink --------------------------------------------------------------------
-    public static final int DISPLAY = 0xF7F0E2;
-    public static final int INK = 0xECE2D0;
-    public static final int BODY = 0xC9BCAA;
-    public static final int INK_DIM = 0x9C8B78;
-    public static final int INK_SOFT = 0x8A7C6E;
-    public static final int INK_MUTED = 0x7A6A5C;
-    public static final int INK_FAINT = 0x57483F;
-
-    // Nodes ------------------------------------------------------------------
-    public static final int LOCKED_FILL = 0x1D1715;
-    public static final int LOCKED_GLYPH = 0x57483F;
-    public static final int ON_ACCENT = 0x140F0E;
-    public static final int HOVER_FILL = 0x1A1513;
-
-    // Accent (per-lane overrides come from MasteryProfile.Branch.color) -------
-    public static final int ACCENT = 0xEC3013;
-    public static final int ACCENT_HOT = 0xFF563C;
-
-    // Bevel ------------------------------------------------------------------
-    public static final int BEVEL_LIGHT = 0xFFFFFF;
-    public static final int BEVEL_DARK = 0x000000;
-    public static final float BEVEL_LIGHT_ALPHA = 0.26F;
-    public static final float BEVEL_DARK_ALPHA = 0.40F;
-
     private MasteryTheme() {
     }
 
@@ -60,6 +19,10 @@ public final class MasteryTheme {
 
     public static int dim(int rgb, float amount) {
         return mix(rgb, 0x000000, amount);
+    }
+
+    public static int lift(int rgb, float amount) {
+        return mix(rgb, 0xFFFFFF, amount);
     }
 
     public static int desaturate(int rgb, float amount) {
@@ -105,5 +68,102 @@ public final class MasteryTheme {
     public static float flicker(double seconds, double period) {
         double phase = ((seconds % period) + period) % period / period;
         return phase < 0.5 ? 0.9F : 0.55F;
+    }
+
+
+    public static double relativeLuminance(int rgb) {
+        return 0.2126 * linear((rgb >> 16) & 0xFF)
+                + 0.7152 * linear((rgb >> 8) & 0xFF)
+                + 0.0722 * linear(rgb & 0xFF);
+    }
+
+    private static double linear(int channel) {
+        double c = channel / 255.0;
+        return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+    }
+
+    public static double contrastRatio(int rgbA, int rgbB) {
+        double a = relativeLuminance(rgbA);
+        double b = relativeLuminance(rgbB);
+        return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+    }
+
+    public static int ensureContrast(int foreground, int background, double minRatio) {
+        if (contrastRatio(foreground, background) >= minRatio) {
+            return foreground;
+        }
+        int target = relativeLuminance(background) > 0.18 ? 0x000000 : 0xFFFFFF;
+        if (contrastRatio(target, background) < minRatio) {
+            return target;
+        }
+        float low = 0.0F;
+        float high = 1.0F;
+        for (int i = 0; i < 16; i++) {
+            float mid = (low + high) * 0.5F;
+            if (contrastRatio(mix(foreground, target, mid), background) >= minRatio) {
+                high = mid;
+            } else {
+                low = mid;
+            }
+        }
+        return mix(foreground, target, high);
+    }
+
+
+    public static float[] rgbToHsv(int rgb) {
+        float r = ((rgb >> 16) & 0xFF) / 255.0F;
+        float g = ((rgb >> 8) & 0xFF) / 255.0F;
+        float b = (rgb & 0xFF) / 255.0F;
+        float max = Math.max(r, Math.max(g, b));
+        float min = Math.min(r, Math.min(g, b));
+        float span = max - min;
+        float hue = 0.0F;
+        if (span > 1.0E-5F) {
+            if (max == r) {
+                hue = ((g - b) / span) / 6.0F;
+            } else if (max == g) {
+                hue = (2.0F + (b - r) / span) / 6.0F;
+            } else {
+                hue = (4.0F + (r - g) / span) / 6.0F;
+            }
+            hue = (hue % 1.0F + 1.0F) % 1.0F;
+        }
+        return new float[] {hue, max <= 1.0E-5F ? 0.0F : span / max, max};
+    }
+
+    public static int hsvToRgb(float hue, float saturation, float value) {
+        float h = (hue % 1.0F + 1.0F) % 1.0F * 6.0F;
+        float s = clamp01(saturation);
+        float v = clamp01(value);
+        int sector = (int) Math.floor(h);
+        float f = h - sector;
+        float p = v * (1.0F - s);
+        float q = v * (1.0F - s * f);
+        float t = v * (1.0F - s * (1.0F - f));
+        return switch (sector % 6) {
+            case 0 -> pack(v, t, p);
+            case 1 -> pack(q, v, p);
+            case 2 -> pack(p, v, t);
+            case 3 -> pack(p, q, v);
+            case 4 -> pack(t, p, v);
+            default -> pack(v, p, q);
+        };
+    }
+
+    private static int pack(float r, float g, float b) {
+        return (Math.clamp(Math.round(r * 255.0F), 0, 255) << 16)
+                | (Math.clamp(Math.round(g * 255.0F), 0, 255) << 8)
+                | Math.clamp(Math.round(b * 255.0F), 0, 255);
+    }
+
+    public static float hueLerpShortest(float from, float to, float t) {
+        float delta = to - from;
+        if (delta > 0.5F) {
+            delta -= 1.0F;
+        } else if (delta < -0.5F) {
+            delta += 1.0F;
+        }
+        float hue = from + delta * clamp01(t);
+        return (hue % 1.0F + 1.0F) % 1.0F;
     }
 }
