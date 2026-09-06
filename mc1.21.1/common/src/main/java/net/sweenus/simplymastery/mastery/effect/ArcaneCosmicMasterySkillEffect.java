@@ -301,10 +301,10 @@ final class ArcaneCosmicMasterySkillEffect implements AbilitySkillEffectType {
             case 2 -> t.add(s("DURATION_TICKS"), 10, 35);
             case 3 -> t.add(s("KNOCKBACK"), .15, 1);
             case 4 -> t.with(s("PER_STACK_MULTIPLIER"), .04).with(s("STACK_CAP"), 6);
-            case 5 -> t.with(s("COUNT"), 2).with(s("TARGET_CAP"), 6)
+            case 5 -> t.with(s("COUNT"), 2).with(s("SECONDARY_TARGET_CAP"), 6)
                     .with(s("OUTGOING_MULTIPLIER"), 1.1);
             case 6 -> t.with(s("SECONDARY_RADIUS"), 2).with(s("SECONDARY_DAMAGE_MULTIPLIER"), .4)
-                    .with(s("TARGET_CAP"), 4);
+                    .with(s("TERTIARY_TARGET_CAP"), 4);
             case 7 -> t.multiply(s("RADIUS"), 1.6, 5.5).multiply(s("DAMAGE_MULTIPLIER"), .65, 1)
                     .with(s("TARGET_CAP"), 64).with(s("KNOCKBACK"), 0);
             case 8 -> t.multiply(s("RADIUS"), .65, 5.5).with(s("TARGET_CAP"), 1)
