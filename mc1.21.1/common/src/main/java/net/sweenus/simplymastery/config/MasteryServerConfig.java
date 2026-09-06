@@ -12,8 +12,8 @@ public final class MasteryServerConfig extends me.fzzyhmstrs.fzzy_config.config.
 
     public boolean enabled = true;
     @ValidatedInt.Restrict(min = 1, max = 64)
-    public int maximumEarnedPoints = 21;
-    @ValidatedInt.Restrict(min = 0, max = 21)
+    public int maximumEarnedPoints = 20;
+    @ValidatedInt.Restrict(min = 0, max = 18)
     public int verticalSliceStartingPoints = 0;
     @ValidatedInt.Restrict(min = 1, max = 10000)
     public int xpBaseRequirement = 100;

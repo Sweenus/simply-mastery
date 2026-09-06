@@ -4,7 +4,9 @@ import net.minecraft.util.Identifier;
 import net.sweenus.simplymastery.mastery.definition.MasteryProfile;
 import net.sweenus.simplymastery.mastery.state.MasteryState;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -41,6 +43,20 @@ public final class MasteryUiPolicy {
             }
         }
         return plain + groups.size();
+    }
+
+    public static int maxInvestablePoints(MasteryProfile profile, int pointBudget) {
+        int plain = 0;
+        Map<String, Integer> groups = new HashMap<>();
+        for (MasteryProfile.Node node : profile.nodes()) {
+            if (node.choiceGroup().isEmpty()) {
+                plain += node.cost();
+            } else {
+                groups.merge(node.choiceGroup(), node.cost(), Math::max);
+            }
+        }
+        int total = plain + groups.values().stream().mapToInt(Integer::intValue).sum();
+        return Math.max(0, Math.min(pointBudget, total));
     }
 
     public static boolean requiresConfirmation(MasteryProfile.Node node, boolean ordinaryConfirmation) {

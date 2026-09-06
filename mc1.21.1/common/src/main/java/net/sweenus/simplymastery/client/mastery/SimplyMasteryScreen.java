@@ -191,7 +191,7 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
                     state.owns(profile.nodes().get(i).id()));
         }
         animators.advance(step, instant);
-        masteryMeter.target(ownedFraction(profile, state));
+        masteryMeter.target(investedFraction(profile, state));
         masteryMeter.advance(step, instant);
         cardFade.target(hoveredNode >= 0 || selectedNode >= 0 ? 1.0F : 0.0F);
         cardFade.advance(step, instant);
@@ -323,10 +323,6 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
             right = statCell(context, right, floor, ruleTop, ruleBottom,
                     Text.translatable("screen.simplymastery.header.mastery"),
                     masteryCount(profile, state), palette.INK, alpha, true);
-            right = statCell(context, right, floor, ruleTop, ruleBottom,
-                    Text.translatable("screen.simplymastery.header.spent"),
-                    Text.literal(String.format("%02d", state.spentPoints(profile))),
-                    palette.INK, alpha, true);
             statCell(context, right, floor, ruleTop, ruleBottom,
                     Text.translatable("screen.simplymastery.header.available"),
                     Text.literal(String.format("%02d", available)),
@@ -452,9 +448,6 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
                 context.fill(columnLeft, cursor, columnLeft + 3, cursor + 3,
                         MasteryTheme.argb(rgb, 0.95F * rowAlpha));
             }
-            microLabel(context, Text.translatable(sealed
-                            ? "screen.simplymastery.branch.sealed" : "screen.simplymastery.branch.attuned"),
-                    columnLeft + 5, cursor - 1, palette.INK_MUTED, rowAlpha);
             cursor += 6;
         }
         if (cursor + 8 <= bottom) {
@@ -731,7 +724,8 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
         UiDraw.rightText(context, textRenderer, masteryCount(profile, state), textRight, barTop - 9,
                 MasteryTheme.argb(palette.INK, appear), 1.0F, false);
         UiDraw.segmentStrip(context, palette, textLeft, barTop, textRight - textLeft, 4,
-                Math.max(1, MasteryUiPolicy.achievableNodes(profile, null)), progress, 1, accent, appear);
+                Math.max(1, MasteryUiPolicy.maxInvestablePoints(profile, MasteryConfig.SERVER.maximumEarnedPoints)),
+                progress, 1, accent, appear);
         matrices.pop();
     }
 
@@ -1320,7 +1314,7 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
             ownedSnapshot[i] = state.owns(replacement.nodes().get(i).id());
             animators.snapOwned(i, ownedSnapshot[i]);
         }
-        masteryMeter.snap(ownedFraction(replacement, state));
+        masteryMeter.snap(investedFraction(replacement, state));
         hoveredNode = -1;
         selectedNode = -1;
         cardNode = -1;
@@ -1398,14 +1392,8 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
     }
 
     private static Text masteryProgress(MasteryProfile profile, MasteryState state) {
-        int owned = 0;
-        for (MasteryProfile.Node node : profile.nodes()) {
-            if (state.owns(node.id())) {
-                owned++;
-            }
-        }
-        return Text.translatable("screen.simplymastery.mastery_progress", owned,
-                MasteryUiPolicy.achievableNodes(profile, null));
+        return Text.translatable("screen.simplymastery.mastery_progress", state.spentPoints(profile),
+                MasteryUiPolicy.maxInvestablePoints(profile, MasteryConfig.SERVER.maximumEarnedPoints));
     }
 
     /** The chrome accent. Per the design this is one colour; we take it from the first branch. */
@@ -1456,28 +1444,17 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
     }
 
     private static Text masteryCount(MasteryProfile profile, MasteryState state) {
-        int owned = 0;
-        for (MasteryProfile.Node node : profile.nodes()) {
-            if (state.owns(node.id())) {
-                owned++;
-            }
-        }
-        return Text.literal(owned + " / " + MasteryUiPolicy.achievableNodes(profile, null));
+        return Text.literal(state.spentPoints(profile) + " / "
+                + MasteryUiPolicy.maxInvestablePoints(profile, MasteryConfig.SERVER.maximumEarnedPoints));
     }
 
     private static Text profileName(MasteryProfile profile) {
         return Text.translatable("profile.simplymastery." + profile.id().getPath());
     }
 
-    private static float ownedFraction(MasteryProfile profile, MasteryState state) {
-        int owned = 0;
-        for (MasteryProfile.Node node : profile.nodes()) {
-            if (state.owns(node.id())) {
-                owned++;
-            }
-        }
-        int total = MasteryUiPolicy.achievableNodes(profile, null);
-        return total <= 0 ? 0.0F : owned / (float) total;
+    private static float investedFraction(MasteryProfile profile, MasteryState state) {
+        int total = MasteryUiPolicy.maxInvestablePoints(profile, MasteryConfig.SERVER.maximumEarnedPoints);
+        return total <= 0 ? 0.0F : Math.min(1.0F, state.spentPoints(profile) / (float) total);
     }
 
     private static MasteryNodeState nodeState(MasteryProfile profile, MasteryState state,
