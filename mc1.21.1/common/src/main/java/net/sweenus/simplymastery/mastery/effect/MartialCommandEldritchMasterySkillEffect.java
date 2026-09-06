@@ -184,7 +184,7 @@ final class MartialCommandEldritchMasterySkillEffect implements AbilitySkillEffe
             case 2 -> t.add(s("RANGE"), 3, 20);
             case 3 -> t.multiply(s("DAMAGE_MULTIPLIER"), 1.12, 1);
             case 4 -> t.add(s("LOCKOUT_TICKS"), -12, 60);
-            case 5 -> t.with(s("STATUS_DURATION_TICKS"), 60);
+            case 5 -> t.with(s("STATUS_DURATION_TICKS"), 60).with(s("OUTGOING_MULTIPLIER"), 1.15);
             case 6 -> t.with(s("SEARCH_CAP"), 4).with(s("DELAY_TICKS"), 6)
                     .with(s("SECONDARY_DAMAGE_MULTIPLIER"), .55);
             case 7 -> t.with(s("COUNT"), 3).with(s("DAMAGE_MULTIPLIER"), .45);
@@ -213,7 +213,7 @@ final class MartialCommandEldritchMasterySkillEffect implements AbilitySkillEffe
             case 4 -> t.add(s("DELAY_TICKS"), -2, 8).add(s("INTERVAL_TICKS"), -1, 3);
             case 5 -> t.add(s("RADIUS"), .5, 2.5);
             case 6 -> t.multiply(s("FINAL_DAMAGE_MULTIPLIER"), 1.15, 1);
-            case 7 -> t.with(s("DAMAGE_MULTIPLIER"), 2.5)
+            case 7 -> t.with(s("SPELL_MULTIPLIER"), 2.5)
                     .with(s("HEALTH_THRESHOLD"), .8);
             case 8 -> t.with(s("COUNT"), 3).with(s("ANGLE"), 12).with(s("DAMAGE_MULTIPLIER"), .55)
                     .with(s("INCOMING_MULTIPLIER"), 1.25);

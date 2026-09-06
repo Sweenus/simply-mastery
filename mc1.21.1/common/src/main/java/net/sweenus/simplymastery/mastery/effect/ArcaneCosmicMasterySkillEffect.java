@@ -201,7 +201,7 @@ final class ArcaneCosmicMasterySkillEffect implements AbilitySkillEffectType {
             case 4 -> t.with(s("STATUS_DURATION_TICKS"), 30).with(s("STATUS_AMPLIFIER"), 1);
             case 5 -> t.with(s("DURATION_TICKS"), 60).with(s("OUTGOING_MULTIPLIER"), 1.15);
             case 6 -> t.with(s("SECONDARY_DURATION_TICKS"), 20);
-            case 7 -> t.with(s("INTERVAL_TICKS"), 40).with(s("DAMAGE_MULTIPLIER"), 0);
+            case 7 -> t.with(s("INTERVAL_TICKS"), 40).with(s("LOCKOUT_TICKS"), 40);
             case 8 -> t.multiply(s("RADIUS"), .65, 4).with(s("TARGET_CAP"), 6)
                     .with(s("DAMAGE_MULTIPLIER"), .6).multiply(s("KNOCKBACK"), 2, 1);
             default -> t;
@@ -212,10 +212,11 @@ final class ArcaneCosmicMasterySkillEffect implements AbilitySkillEffectType {
             case 2 -> t.add(s("RADIUS"), -.35, .9).multiply(s("SPEED"), 1.2, 1);
             case 3 -> t.with(s("COUNT"), 3).with(s("DELAY_TICKS"), 8).with(s("SECONDARY_DAMAGE_MULTIPLIER"), .55);
             case 4 -> t.add(s("RANGE"), 3, 16);
-            case 5 -> t.add(s("DURATION_TICKS"), 80, 300);
-            case 6 -> t.with(s("ABSORPTION"), 4).with(s("INTERVAL_TICKS"), 80);
-            case 7 -> t.with(s("COUNT"), 2).with(s("DAMAGE_MULTIPLIER"), .65).add(s("WINDUP_TICKS"), 15, 10);
-            case 8 -> t.multiply(s("DURATION_TICKS"), 2, 300).with(s("SPEED"), 0);
+            case 5 -> t.with(s("SECONDARY_DURATION_TICKS"), 80);
+            case 6 -> t.with(s("ABSORPTION"), 4).with(s("INTERVAL_TICKS"), 80)
+                    .with(s("STATUS_DURATION_TICKS"), 80);
+            case 7 -> t.with(s("SECONDARY_COUNT"), 2).with(s("DAMAGE_MULTIPLIER"), .65).add(s("WINDUP_TICKS"), 15, 10);
+            case 8 -> t.multiply(s("DURATION_TICKS"), 2, 300);
             default -> t;
         };
         return switch (slot) {
@@ -224,9 +225,9 @@ final class ArcaneCosmicMasterySkillEffect implements AbilitySkillEffectType {
             case 2 -> t.add(s("INTERVAL_TICKS"), -8, 100);
             case 3 -> t.add(s("WIDTH"), .2, 1);
             case 4 -> t.with(s("STATUS_DURATION_TICKS"), 50).with(s("STATUS_AMPLIFIER"), 0);
-            case 5 -> t.with(s("TARGET_CAP"), 3).with(s("OUTGOING_MULTIPLIER"), 1.2);
+            case 5 -> t.with(s("SECONDARY_TARGET_CAP"), 3).with(s("OUTGOING_MULTIPLIER"), 1.2);
             case 6 -> t.with(s("COUNT"), 3).with(s("SECONDARY_RADIUS"), 2.5)
-                    .with(s("SECONDARY_DAMAGE_MULTIPLIER"), .5).with(s("TARGET_CAP"), 5);
+                    .with(s("SECONDARY_DAMAGE_MULTIPLIER"), .5).with(s("TERTIARY_TARGET_CAP"), 5);
             case 7 -> t.with(s("WIDTH"), 5).with(s("TARGET_CAP"), 10)
                     .multiply(s("DAMAGE_MULTIPLIER"), 1.35, 1).multiply(s("INTERVAL_TICKS"), 1.5, 100);
             case 8 -> t.with(s("HEALTH_THRESHOLD"), .5).multiply(s("DAMAGE_MULTIPLIER"), 1.7, 1);
@@ -239,10 +240,10 @@ final class ArcaneCosmicMasterySkillEffect implements AbilitySkillEffectType {
             case 0 -> t.add(s("CHANCE"), 8, 25);
             case 1 -> t.multiply(s("DAMAGE_MULTIPLIER"), 1.12, 1);
             case 2 -> t.with(s("ARMOR_IGNORE"), .1);
-            case 3 -> t.add(s("CHANCE"), 12, 25);
+            case 3 -> t.with(s("PITY_CHANCE"), 12);
             case 4 -> t.with(s("STATUS_DURATION_TICKS"), 50);
             case 5 -> t.with(s("COUNT"), 5).with(s("DELAY_TICKS"), 5).with(s("SECONDARY_DAMAGE_MULTIPLIER"), .55);
-            case 6 -> t.with(s("STATUS_DURATION_TICKS"), 25).with(s("STATUS_AMPLIFIER"), 1)
+            case 6 -> t.with(s("SECONDARY_STATUS_DURATION_TICKS"), 25).with(s("STATUS_AMPLIFIER"), 1)
                     .with(s("LOCKOUT_TICKS"), 40);
             case 7 -> t.with(s("COUNT"), 3).multiply(s("DAMAGE_MULTIPLIER"), .7, 1);
             case 8 -> t.multiply(s("CHANCE"), .5, 25).multiply(s("DAMAGE_MULTIPLIER"), 2, 1)
@@ -251,7 +252,7 @@ final class ArcaneCosmicMasterySkillEffect implements AbilitySkillEffectType {
         };
         if (branch == 1) return switch (slot) {
             case 0 -> t.add(s("RADIUS"), .75, 4);
-            case 1 -> t.add(s("COUNT"), 1, 4).with(s("TARGET_CAP"), 8);
+            case 1 -> t.with(s("TARGET_CAP"), 8);
             case 2 -> t.add(s("WINDUP_TICKS"), -6, 30);
             case 3 -> t.multiply(s("DAMAGE_MULTIPLIER"), 1.1, 1);
             case 4 -> t.add(s("PULL_STRENGTH"), .2, .35);
@@ -259,7 +260,7 @@ final class ArcaneCosmicMasterySkillEffect implements AbilitySkillEffectType {
             case 6 -> t.with(s("OUTGOING_MULTIPLIER"), 1.15).with(s("COUNT"), 2);
             case 7 -> t.multiply(s("STACK_CAP"), 2, 6).with(s("TARGET_CAP"), 12)
                     .multiply(s("DAMAGE_MULTIPLIER"), .6, 1).with(s("FINAL_DAMAGE_MULTIPLIER"), 0);
-            case 8 -> t.with(s("COUNT"), 1).with(s("WINDUP_TICKS"), 30).with(s("RADIUS"), 4)
+            case 8 -> t.with(s("STACK_CAP"), 1).with(s("RADIUS"), 4)
                     .with(s("DAMAGE_MULTIPLIER"), 2.6);
             default -> t;
         };
@@ -268,13 +269,13 @@ final class ArcaneCosmicMasterySkillEffect implements AbilitySkillEffectType {
             case 1 -> t.multiply(s("FINAL_DAMAGE_MULTIPLIER"), 1.15, 1);
             case 2 -> t.add(s("SECONDARY_RADIUS"), .6, 4);
             case 3 -> t.add(s("KNOCKBACK"), .2, 1);
-            case 4 -> t.with(s("STATUS_DURATION_TICKS"), 8).with(s("STATUS_AMPLIFIER"), 2);
+            case 4 -> t.with(s("TERTIARY_STATUS_DURATION_TICKS"), 8);
             case 5 -> t.with(s("DELAY_TICKS"), 10).with(s("SECONDARY_DAMAGE_MULTIPLIER"), .35);
             case 6 -> t.with(s("SECONDARY_DURATION_TICKS"), 50).with(s("STATUS_AMPLIFIER"), 1)
                     .with(s("TARGET_CAP"), 10);
             case 7 -> t.multiply(s("HEIGHT"), 1.4, 6).multiply(s("DURATION_TICKS"), 1.4, 20)
                     .multiply(s("FINAL_DAMAGE_MULTIPLIER"), 1.8, 1).add(s("COOLDOWN_TICKS"), 80, 120);
-            case 8 -> t.multiply(s("FINAL_DAMAGE_MULTIPLIER"), .55, 1).with(s("SECONDARY_RADIUS"), 5)
+            case 8 -> t.multiply(s("FINAL_DAMAGE_MULTIPLIER"), .55, 1).with(s("TERTIARY_RADIUS"), 5)
                     .with(s("ABSORPTION"), 8).with(s("STATUS_DURATION_TICKS"), 100);
             default -> t;
         };
@@ -328,7 +329,7 @@ final class ArcaneCosmicMasterySkillEffect implements AbilitySkillEffectType {
 
     private static ArcaneCosmicMasteryTuning caelestis(ArcaneCosmicMasteryTuning t, int branch, int slot) {
         if (branch == 0) return switch (slot) {
-            case 0 -> t.add(s("WINDUP_TICKS"), -20, 140);
+            case 0 -> t.with(s("CAELESTIS_EAGER_RIFT_TICKS"), 20);
             case 1 -> t.add(s("INTERVAL_TICKS"), -4, 30);
             case 2 -> t.add(s("TARGET_CAP"), 2, 12);
             case 3 -> t.multiply(s("INCOMING_MULTIPLIER"), 1.15, 1);
@@ -350,14 +351,14 @@ final class ArcaneCosmicMasterySkillEffect implements AbilitySkillEffectType {
             case 5 -> t.with(s("PULL_STRENGTH"), .12).with(s("TERTIARY_INTERVAL_TICKS"), 10)
                     .with(s("SEARCH_CAP"), 16);
             case 6 -> t.with(s("SECONDARY_DAMAGE_MULTIPLIER"), .25).with(s("LOCKOUT_TICKS"), 20)
-                    .with(s("SEARCH_CAP"), 12);
+                    .with(s("CAELESTIS_RIM_DAMAGE_TARGET_CAP"), 12);
             case 7 -> t.add(s("SECONDARY_DURATION_TICKS"), 60, 100).multiply(s("PULL_STRENGTH"), 1.5, .12);
             case 8 -> t.add(s("DURATION_TICKS"), -120, 900).with(s("SECONDARY_COUNT"), 0);
             default -> t;
         };
         return switch (slot) {
             case 0 -> t.add(s("CHANCE"), -1, 5);
-            case 1 -> t.add(s("DELAY_TICKS"), 60, 100);
+            case 1 -> t.add(s("DELAY_TICKS"), 60, 0);
             case 2 -> t.multiply(s("HEAL_MULTIPLIER"), 1.15, 1).with(s("REFUND_TICKS"), 60);
             case 3 -> t.with(s("SECONDARY_RADIUS"), 8).with(s("TERTIARY_STATUS_DURATION_TICKS"), 20);
             case 4 -> t.with(s("SECONDARY_STATUS_DURATION_TICKS"), 120)
