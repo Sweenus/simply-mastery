@@ -258,7 +258,8 @@ final class FireForgeMasterySkillEffect implements AbilitySkillEffectType {
             case 5 -> t.with(s("FLAMEWIND_DRAFT_PER_SEED"), .03).with(s("FLAMEWIND_DRAFT_CAP"), .15)
                     .with(s("FLAMEWIND_DRAFT_RANGE"), 8);
             case 6 -> t.with(s("PULL_STRENGTH"), .2).with(s("FLAMEWIND_KNOCKBACK_MULTIPLIER"), 1.2);
-            case 7 -> t.with(s("INTERVAL_TICKS"), 20).with(s("PERIODIC_DAMAGE_MULTIPLIER"), .3)
+            case 7 -> t.with(s("INTERVAL_TICKS"), 20)
+                    .with(s("FLAMEWIND_PERIODIC_DETONATION_MULTIPLIER"), .3)
                     .multiply(s("FINAL_DAMAGE_MULTIPLIER"), .6, 1);
             case 8 -> t.with(s("PERIODIC_DAMAGE_MULTIPLIER"), 0).with(s("RADIUS"), 5)
                     .multiply(s("FINAL_DAMAGE_MULTIPLIER"), 1.5, 1).with(s("TARGET_CAP"), 12);

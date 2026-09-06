@@ -401,7 +401,8 @@ final class StormSoulMasterySkillEffect implements AbilitySkillEffectType {
             case 3 -> definition == StormSoulMasteryAbilities.SOULSTALKER_TENDRIL
                     || definition == StormSoulMasteryAbilities.SOULSTALKER_STRIDE;
             case 4 -> definition == StormSoulMasteryAbilities.WHISPERWIND_DASH
-                    || definition == StormSoulMasteryAbilities.WHISPERWIND_RESET;
+                    || definition == StormSoulMasteryAbilities.WHISPERWIND_RESET
+                    || definition == StormSoulMasteryAbilities.WHISPERWIND_STILL_WIND;
             case 5 -> definition == StormSoulMasteryAbilities.DREADWHISPER_REAVE
                     || definition == StormSoulMasteryAbilities.DREADWHISPER_WOUND;
             default -> false;
@@ -422,7 +423,10 @@ final class StormSoulMasterySkillEffect implements AbilitySkillEffectType {
                         || definition == StormSoulMasteryAbilities.SOULRENDER_GRAVE;
             };
             case 3 -> definition == StormSoulMasteryAbilities.SOULSTALKER_TENDRIL ? branch == 0 : branch > 0;
-            case 4 -> definition == StormSoulMasteryAbilities.WHISPERWIND_DASH || branch == 2;
+            case 4 -> definition == StormSoulMasteryAbilities.WHISPERWIND_DASH
+                    || definition == StormSoulMasteryAbilities.WHISPERWIND_RESET && branch == 2
+                    || definition == StormSoulMasteryAbilities.WHISPERWIND_STILL_WIND
+                    && (branch == 1 || branch == 2 || branch == 0 && slot >= 7);
             case 5 -> definition == StormSoulMasteryAbilities.DREADWHISPER_REAVE || branch == 1;
             default -> false;
         };

@@ -1102,7 +1102,7 @@
   "skill.simplymastery.whisperwind.transformation.focus": "Dancing Gale",
   "skill.simplymastery.whisperwind.transformation.focus.description": "Refreshes reduce Fatal Flicker cooldown by 3 seconds instead of clearing it, but can occur every second and grant Speed II for 2 seconds.",
   "skill.simplymastery.whisperwind.transformation.release": "Still Wind",
-  "skill.simplymastery.whisperwind.transformation.release.description": "Attacks no longer refresh Fatal Flicker. Instead every third attack within 4 seconds primes a 175% Delayed strike against a single enemy, with no bonus for additional targets.",
+  "skill.simplymastery.whisperwind.transformation.release.description": "Attacks no longer refresh Fatal Flicker. Every third attack in a sequence with no 4 second pause triggers a 175% Delayed strike against that enemy, with no bonus for additional targets.",
   "skill.simplymastery.dreadwhisper.signature.opening": "Sweeping Front",
   "skill.simplymastery.dreadwhisper.signature.opening.description": "Shadow Rend front width is increased to 5 blocks.",
   "skill.simplymastery.dreadwhisper.signature.cadence": "Hungering Edge",
