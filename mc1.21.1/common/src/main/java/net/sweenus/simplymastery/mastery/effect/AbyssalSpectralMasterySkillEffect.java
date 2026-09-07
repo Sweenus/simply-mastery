@@ -110,7 +110,7 @@ final class AbyssalSpectralMasterySkillEffect implements AbilitySkillEffectType 
         if (branch == 0) return switch (slot) {
             case 0 -> t.with(s("RADIUS"), 4.3).with(s("SCAN_RADIUS"), 8);
             case 1 -> t.multiply(s("DAMAGE_MULTIPLIER"), 1.1, 1);
-            case 2 -> t.with(s("PULL_STRENGTH"), .34);
+            case 2 -> t.multiply(s("PULL_STRENGTH"), 1.2, .28);
             case 3 -> t.with(s("DURATION_TICKS"), 900);
             case 4 -> t.with(s("TARGET_CAP"), 8).with(s("CANDIDATE_CAP"), 32);
             case 5 -> t.with(s("ACCELERATE_THRESHOLD_TICKS"), 100)
@@ -121,12 +121,12 @@ final class AbyssalSpectralMasterySkillEffect implements AbilitySkillEffectType 
                     .with(s("DURATION_TICKS"), 600).with(s("RADIUS"), 3)
                     .multiply(s("DAMAGE_MULTIPLIER"), .8, 1);
             case 8 -> mode(t, 4).with(s("RADIUS"), 6).with(s("TARGET_CAP"), 12)
-                    .with(s("PULL_STRENGTH"), .42).with(s("PULSE_INTERVAL_TICKS"), 30)
+                    .with(s("PULL_STRENGTH"), net.sweenus.simplyswords.config.Config.uniqueEffects.devourer.pullStrength * 1.5).with(s("PULSE_INTERVAL_TICKS"), 30)
                     .multiply(s("COOLDOWN_TICKS"), 1.25, 1200);
             default -> t;
         };
         if (branch == 1) return switch (slot) {
-            case 0 -> t.with(s("LOOSE_TARGET_CAP"), 96).with(s("LAUNCH_SPEED"), .42);
+            case 0 -> t.with(s("LOOSE_TARGET_CAP"), 96).multiply(s("LAUNCH_SPEED"), 1.16, .36);
             case 1 -> t.with(s("TENDRIL_CAP"), 5);
             case 2 -> t.with(s("STAIN_TARGET_CAP"), 16).with(s("STAIN_RADIUS"), 1.6);
             case 3 -> t.with(s("STAIN_DURATION_TICKS"), 80).with(s("STAIN_AMPLIFIER"), 1);
@@ -135,7 +135,7 @@ final class AbyssalSpectralMasterySkillEffect implements AbilitySkillEffectType 
             case 6 -> mode(t, 16).with(s("RUPTURE_THRESHOLD_TICKS"), 160)
                     .with(s("SECONDARY_DAMAGE_MULTIPLIER"), .75).with(s("SECONDARY_TARGET_CAP"), 8);
             case 7 -> mode(t, 32).with(s("LOOSE_TARGET_CAP"), 160).with(s("TARGET_CAP"), 3)
-                    .with(s("LAUNCH_SPEED"), .84)
+                    .multiply(s("LAUNCH_SPEED"), 2, .36)
                     .multiply(s("DAMAGE_MULTIPLIER"), .7, 1);
             case 8 -> mode(t, 64).multiply(s("DAMAGE_MULTIPLIER"), 1.75, 1)
                     .with(s("COOLDOWN_REFUND_TICKS"), 20).with(s("COOLDOWN_REFUND_CAP_TICKS"), 160);
@@ -144,7 +144,7 @@ final class AbyssalSpectralMasterySkillEffect implements AbilitySkillEffectType 
         return switch (slot) {
             case 0 -> t.with(s("STATUS_DURATION_TICKS"), 40).with(s("STATUS_AMPLIFIER"), 0);
             case 1 -> t.with(s("REPRISAL_RADIUS"), 4);
-            case 2 -> t.with(s("REPRISAL_PULL"), .38);
+            case 2 -> t.multiply(s("REPRISAL_PULL"), 1.18, .32);
             case 3 -> t.multiply(s("REPRISAL_DAMAGE_MULTIPLIER"), 1.12, 1);
             case 4 -> mode(t, 128).with(s("ROUTED_DAMAGE_BONUS"), .25);
             case 5 -> mode(t, 256).with(s("REVIVE_ABSORPTION"), 3)
@@ -332,7 +332,7 @@ final class AbyssalSpectralMasterySkillEffect implements AbilitySkillEffectType 
                     .with(s("IMPACT_TARGET_CAP"), 4);
             case 7 -> mode(t, 1).with(s("SPEAR_COUNT"), 28).with(s("RADIUS"), 9)
                     .multiply(s("DAMAGE_MULTIPLIER"), .65, 1).multiply(s("COOLDOWN_TICKS"), 1.2, 600);
-            case 8 -> mode(t, 2).with(s("SPEAR_COUNT"), 6).with(s("RADIUS"), 2)
+            case 8 -> mode(t, 2).with(s("SPEAR_COUNT"), 6)
                     .multiply(s("DAMAGE_MULTIPLIER"), 2.5, 1).with(s("IMPACT_DAMAGE_MULTIPLIER"), 0)
                     .with(s("IMPACT_TARGET_CAP"), 0).add(s("COOLDOWN_TICKS"), 100, 600);
             default -> t;
@@ -341,9 +341,9 @@ final class AbyssalSpectralMasterySkillEffect implements AbilitySkillEffectType 
             case 0 -> t.with(s("ORBIT_CAP"), 7);
             case 1 -> t.with(s("RECOVERY_RADIUS"), 2);
             case 2 -> t.with(s("ORBIT_DURATION_TICKS"), 1100);
-            case 3 -> t.with(s("LAUNCH_SPEED"), 1.55);
+            case 3 -> t.multiply(s("LAUNCH_SPEED"), 1.15, 1.35);
             case 4 -> t.with(s("LAUNCH_RANGE"), 28).with(s("PROJECTILE_LIFETIME"), 100);
-            case 5 -> t.with(s("HOMING_RANGE"), 5).with(s("HOMING_TURN_DEGREES"), 9);
+            case 5 -> t.with(s("HOMING_RANGE"), 5).multiply(s("HOMING_TURN_DEGREES"), 9.0 / 7.0, 7);
             case 6 -> t.with(s("BONUS_PER_TRIGGER"), .04).with(s("BONUS_CAP"), .24);
             case 7 -> mode(t, 4).with(s("ORBIT_CAP"), 12).with(s("LAUNCH_COUNT"), 2)
                     .with(s("PROJECTILE_DAMAGE_MULTIPLIER"), .65).with(s("ORBIT_DURATION_TICKS"), 600);

@@ -51,6 +51,11 @@ final class LongPathFinalFormsMasterySkillEffect implements AbilitySkillEffectTy
                     tuning.get(LongPathFinalFormsMasteryAbilities.COOLDOWN_TICKS)
                             + value.integer(s("PHOENIX_COOLDOWN_TICKS"), 300));
         }
+        if (profile == 2 && branch == 2 && slot == 8
+                && definition == LongPathFinalFormsMasteryAbilities.HARBINGER_STANDARD) {
+            tuning.set(LongPathFinalFormsMasteryAbilities.COOLDOWN_TICKS,
+                    tuning.get(LongPathFinalFormsMasteryAbilities.COOLDOWN_TICKS) + 80);
+        }
         if (definition.cooldownKey().isPresent()) {
             tuning.set(LongPathFinalFormsMasteryAbilities.COOLDOWN_TICKS,
                     value.integer(s("COOLDOWN_TICKS"), tuning.get(LongPathFinalFormsMasteryAbilities.COOLDOWN_TICKS)));
@@ -225,7 +230,7 @@ final class LongPathFinalFormsMasterySkillEffect implements AbilitySkillEffectTy
             case 7 -> mode(t, 65536).with(s("CHANCE"), 100).with(s("PLAGUE_DAMAGE_MULTIPLIER"), .8)
                     .with(s("PLAGUE_WEAKNESS_TICKS"), 120);
             case 8 -> mode(t, 131072).with(s("EXECUTION_DAMAGE_MULTIPLIER"), 1.4)
-                    .with(s("EXECUTION_COOLDOWN_TICKS"), 80).add(s("COOLDOWN_TICKS"), 80, 700);
+                    .with(s("EXECUTION_COOLDOWN_TICKS"), 80);
             default -> t;
         };
     }

@@ -266,7 +266,7 @@ final class NatureSwarmMasterySkillEffect implements AbilitySkillEffectType {
             case 7 -> t.with(s("CHOMP_COLOSSAL_DAMAGE_MULTIPLIER"), 2.5)
                     .with(s("CHOMP_COLOSSAL_SPLASH_MULTIPLIER"), 1)
                     .with(s("CHOMP_COLOSSAL_SPLASH_RADIUS"), 3)
-                    .with(s("CHOMP_COLOSSAL_COOLDOWN_MULTIPLIER"), 3);
+                    .with(s("CHOMP_COLOSSAL_COOLDOWN_MULTIPLIER"), 3).with(s("CHOMP_COLOSSAL_MINIMUM_TICKS"), 600);
             case 8 -> t.with(s("CHOMP_RELEASE_COUNT"), 4)
                     .with(s("CHOMP_RELEASE_DAMAGE_MULTIPLIER"), .45)
                     .with(s("CHOMP_RELEASE_LIFESPAN_TICKS"), 160);
@@ -307,8 +307,11 @@ final class NatureSwarmMasterySkillEffect implements AbilitySkillEffectType {
                     .with(s("CHOMP_RESCUE_RESISTANCE_AMPLIFIER"), 1);
             case 6 -> t.with(s("CHOMP_FIRST_BITE_REFUND_PERCENT"), 25);
             case 7 -> t.with(s("CHOMP_ETERNAL_LIFESPAN_TICKS"), 600)
-                    .with(s("CHOMP_ETERNAL_AURA_RADIUS"), 6);
-            case 8 -> t.with(s("CHOMP_RAVAGER_DAMAGE_MULTIPLIER"), 2);
+                    .with(s("CHOMP_ETERNAL_AURA_RADIUS"), 6).with(s("CHOMP_ETERNAL_HEALTH"), 70)
+                    .with(s("CHOMP_ETERNAL_INTERCEPTION"), .5);
+            case 8 -> t.with(s("CHOMP_RAVAGER_DAMAGE_MULTIPLIER"), 1.25)
+                    .with(s("CHOMP_RAVAGER_SCALE"), 2).with(s("CHOMP_WAVE_CHARGE_TICKS"), 10)
+                    .with(s("CHOMP_RAVAGER_LIFESPAN_TICKS"), 1800);
             default -> t;
         };
     }
@@ -323,9 +326,11 @@ final class NatureSwarmMasterySkillEffect implements AbilitySkillEffectType {
                     : definition == NatureSwarmMasteryAbilities.WAXWEAVER_REVIVAL && branch == 2;
             case 2 -> definition == NatureSwarmMasteryAbilities.HIVEHEART_PROC ? branch == 0
                     : definition == NatureSwarmMasteryAbilities.HIVEHEART_SWARM && branch != 0;
-            case 3 -> definition == NatureSwarmMasteryAbilities.CHOMPOLOTL_PROC ? branch == 0
+            case 3 -> definition == NatureSwarmMasteryAbilities.CHOMPOLOTL_PROC
+                    ? branch == 0 || branch == 1 && slot < 7
                     : (definition == NatureSwarmMasteryAbilities.CHOMPOLOTL_RALLY
-                    || definition == NatureSwarmMasteryAbilities.CHOMPOLOTL_GUARDIAN) && branch != 0;
+                    || definition == NatureSwarmMasteryAbilities.CHOMPOLOTL_GUARDIAN)
+                    && (branch != 0 || slot != 1 && slot < 7);
             default -> false;
         };
     }
