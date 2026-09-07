@@ -170,7 +170,7 @@ final class MartialCommandEldritchMasterySkillEffect implements AbilitySkillEffe
             case 4 -> t.with(s("STATUS_DURATION_TICKS"), 20).with(s("STATUS_AMPLIFIER"), 1);
             case 5 -> t.with(s("OUTGOING_MULTIPLIER"), 1.25);
             case 6 -> t.with(s("TARGET_CAP"), 6).with(s("SECONDARY_DAMAGE_MULTIPLIER"), 1.25);
-            case 7 -> t.multiply(s("TRAVEL_DISTANCE_MULTIPLIER"), 3, 1).with(s("DAMAGE_MULTIPLIER"), 0);
+            case 7 -> t.multiply(s("TRAVEL_DISTANCE_MULTIPLIER"), 3, 1);
             case 8 -> t.multiply(s("SPEED"), .75, 1).multiply(s("DAMAGE_MULTIPLIER"), 1.75, 1)
                     .multiply(s("KNOCKBACK"), 2, 1).with(s("STATUS_AMPLIFIER"), 2);
             default -> t;

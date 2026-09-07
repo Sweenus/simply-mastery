@@ -279,52 +279,43 @@ final class AbyssalSpectralMasterySkillEffect implements AbilitySkillEffectType 
             case 2 -> t.with(s("LOYALTY"), 2);
             case 3 -> t.with(s("STATUS_DURATION_TICKS"), 60).with(s("STATUS_AMPLIFIER"), 0);
             case 4 -> t.with(s("FLIGHT_DAMAGE_PER_TICK"), .65).with(s("FLIGHT_DAMAGE_CAP_TICKS"), 40);
-            case 5 -> t.with(s("PIERCE_COUNT"), 1).with(s("PIERCE_DAMAGE_MULTIPLIER"), .65);
+            case 5 -> mode(t, 16384);
             case 6 -> t.with(s("IMPACT_DAMAGE_MULTIPLIER"), .35).with(s("IMPACT_RADIUS"), 2.5)
                     .with(s("IMPACT_TARGET_CAP"), 5).with(s("BURST_LOCKOUT_TICKS"), 20);
-            case 7 -> mode(t, 1).multiply(s("PROJECTILE_SPEED"), 2.3 / 1.5, 1.5).with(s("LOYALTY"), 0)
+            case 7 -> mode(t, 1).multiply(s("PROJECTILE_SPEED"), 1.25, 1.5)
                     .with(s("PIERCE_COUNT"), 4).with(s("PIERCE_DAMAGE_MULTIPLIER"), .75)
-                    .with(s("RETURN_DELAY_TICKS"), 80).add(s("COOLDOWN_TICKS"), 40, 20);
-            case 8 -> mode(t, 2).multiply(s("PROJECTILE_DAMAGE_MULTIPLIER"), 2.25, 1).with(s("PIERCE_COUNT"), 0)
-                    .with(s("STATUS_AMPLIFIER"), 1).with(s("STATUS_DURATION_TICKS"), 80)
-                    .with(s("LOYALTY"), 1).with(s("RETURN_DELAY_TICKS"), 30);
+                    .add(s("COOLDOWN_TICKS"), 40, 20);
+            case 8 -> mode(t, 2).add(s("COOLDOWN_TICKS"), 50, 20);
             default -> t;
         };
         if (branch == 1) return switch (slot) {
-            case 0 -> t.with(s("DASH_DURATION_TICKS"), 14);
-            case 1 -> t.with(s("DASH_SPEED"), 1.55);
-            case 2 -> t.multiply(s("DASH_TARGET_RANGE"), 1.25, 14.4);
-            case 3 -> mode(t, 4).with(s("DASH_CONTACT_DAMAGE_MULTIPLIER"), .25)
-                    .with(s("DASH_CONTACT_TARGET_CAP"), 6);
-            case 4 -> mode(t, 8).with(s("HOMING_TURN_DEGREES"), 8).with(s("DASH_STEERING_TICKS"), 10);
-            case 5 -> mode(t, 16).with(s("ARRIVAL_RANGE"), 2).with(s("ARRIVAL_DAMAGE_MULTIPLIER"), .7);
-            case 6 -> t.add(s("COOLDOWN_TICKS"), -6, 20);
-            case 7 -> mode(t, 32).with(s("DASH_CONTACT_TARGET_CAP"), 10)
-                    .with(s("DASH_CONTACT_DAMAGE_MULTIPLIER"), .5)
-                    .with(s("DASH_STATUS_DURATION_TICKS"), 20).with(s("DASH_STATUS_AMPLIFIER"), 0)
-                    .add(s("COOLDOWN_TICKS"), 20, 20);
-            case 8 -> mode(t, 64).with(s("DASH_TARGET_RANGE"), 12)
-                    .with(s("ARRIVAL_DAMAGE_MULTIPLIER"), 1.6)
-                    .add(s("COOLDOWN_TICKS"), 40, 20).multiply(s("PROJECTILE_SPEED"), .75, 1.65);
+            case 0 -> t.add(s("DASH_DURATION_TICKS"), 20, 100);
+            case 1 -> t.multiply(s("DASH_SPEED"), 1.15, 1.35)
+                    .multiply(s("DASH_TARGET_RANGE"), 1.15, 32);
+            case 2 -> mode(t, 256);
+            case 3 -> mode(t, 4).with(s("DASH_CONTACT_DAMAGE_MULTIPLIER"), .35)
+                    .with(s("DASH_CONTACT_TARGET_CAP"), 8);
+            case 4 -> mode(t, 8);
+            case 5 -> mode(t, 16).with(s("ARRIVAL_RANGE"), 2.5).with(s("ARRIVAL_DAMAGE_MULTIPLIER"), .75);
+            case 6 -> mode(t, 32768);
+            case 7 -> mode(t, 32).with(s("HOMING_TURN_DEGREES"), 6)
+                    .multiply(s("PROJECTILE_DAMAGE_MULTIPLIER"), .8, 1).add(s("COOLDOWN_TICKS"), 200, 20);
+            case 8 -> mode(t, 64).add(s("COOLDOWN_TICKS"), 40, 20);
             default -> t;
         };
         return switch (slot) {
             case 0 -> t.with(s("HASTE_DURATION_TICKS"), 110);
             case 1 -> t.with(s("MELEE_BONUS_PER_STACK"), .08);
-            case 2 -> mode(t, 128).add(s("HASTE_DURATION_TICKS"), 60, 80);
-            case 3 -> mode(t, 256).with(s("PROJECTILE_DAMAGE_REDUCTION"), .2)
-                    .with(s("PROJECTILE_GUARD_TICKS"), 40);
+            case 2 -> mode(t, 128);
+            case 3 -> mode(t, 1024).with(s("ALTERNATION_WINDOW_TICKS"), 60)
+                    .with(s("ALTERNATION_BONUS_PER_STACK"), .05).with(s("ALTERNATION_BONUS_CAP"), .2);
             case 4 -> mode(t, 512).with(s("KILL_HASTE_DURATION_TICKS"), 100)
                     .with(s("KILL_HASTE_AMPLIFIER"), 2).with(s("KILL_COOLDOWN_REFUND_TICKS"), 20);
-            case 5 -> mode(t, 1024).with(s("ALTERNATION_WINDOW_TICKS"), 60)
-                    .with(s("ALTERNATION_BONUS_PER_STACK"), .05).with(s("ALTERNATION_BONUS_CAP"), .2);
-            case 6 -> mode(t, 2048).with(s("COOLDOWN_REFUND_TICKS"), 10)
+            case 5 -> mode(t, 2048).with(s("COOLDOWN_REFUND_TICKS"), 10)
                     .with(s("COOLDOWN_REFUND_CAP_TICKS"), 40);
-            case 7 -> mode(t, 4096).with(s("HASTE_DURATION_TICKS"), 80).with(s("HASTE_AMPLIFIER"), 3)
-                    .multiply(s("COOLDOWN_TICKS"), .5, 20).multiply(s("DAMAGE_MULTIPLIER"), .8, 1);
-            case 8 -> mode(t, 8192).with(s("HASTE_DURATION_TICKS"), 0)
-                    .with(s("RETURN_MELEE_WINDOW_TICKS"), 80).with(s("RETURN_MELEE_DAMAGE_MULTIPLIER"), 1)
-                    .add(s("COOLDOWN_TICKS"), 20, 20);
+            case 6 -> mode(t, 65536);
+            case 7 -> mode(t, 4096).add(s("COOLDOWN_TICKS"), 20, 20);
+            case 8 -> mode(t, 8192).add(s("COOLDOWN_TICKS"), 40, 20);
             default -> t;
         };
     }
@@ -390,7 +381,8 @@ final class AbyssalSpectralMasterySkillEffect implements AbilitySkillEffectType 
                     || definition == AbyssalSpectralMasteryAbilities.WICKPIERCER_REVIVE;
             case 3 -> definition == AbyssalSpectralMasteryAbilities.GLOAMPIERCER_AMBUSH
                     || definition == AbyssalSpectralMasteryAbilities.GLOAMPIERCER_BARRAGE;
-            case 4 -> definition == AbyssalSpectralMasteryAbilities.WRAITHFANG_THROW;
+            case 4 -> definition == AbyssalSpectralMasteryAbilities.WRAITHFANG_THROW
+                    || definition == AbyssalSpectralMasteryAbilities.WRAITHFANG_MELEE;
             case 5 -> definition == AbyssalSpectralMasteryAbilities.WRAITHMAW_MUSTER;
             default -> false;
         };

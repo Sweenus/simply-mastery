@@ -45,6 +45,12 @@ final class LongPathFinalFormsMasterySkillEffect implements AbilitySkillEffectTy
             default -> value;
         };
         tuning.set(LongPathFinalFormsMasteryAbilities.TUNING, value);
+        if (profile == 1 && branch == 2 && slot == 7
+                && definition == LongPathFinalFormsMasteryAbilities.SUNFIRE_STANDARD) {
+            tuning.set(LongPathFinalFormsMasteryAbilities.COOLDOWN_TICKS,
+                    tuning.get(LongPathFinalFormsMasteryAbilities.COOLDOWN_TICKS)
+                            + value.integer(s("PHOENIX_COOLDOWN_TICKS"), 300));
+        }
         if (definition.cooldownKey().isPresent()) {
             tuning.set(LongPathFinalFormsMasteryAbilities.COOLDOWN_TICKS,
                     value.integer(s("COOLDOWN_TICKS"), tuning.get(LongPathFinalFormsMasteryAbilities.COOLDOWN_TICKS)));
@@ -57,7 +63,7 @@ final class LongPathFinalFormsMasterySkillEffect implements AbilitySkillEffectTy
         if (aura && (branch > 0 || slot >= 6)) return t;
         if (branch == 0) return switch (slot) {
             case 0 -> aura ? t.with(s("AURA_INTERVAL_TICKS"), 30) : t;
-            case 1 -> t.with(s("RADIUS"), 3.5).with(s("TARGET_CAP"), 24);
+            case 1 -> t.with(s("RADIUS"), 3.5);
             case 2 -> t.multiply(s("DAMAGE_MULTIPLIER"), 1.1, 1);
             case 3 -> mode(t, 1).with(s("SLOW_DURATION_TICKS"), 60).with(s("REPEAT_WINDOW_TICKS"), 40);
             case 4 -> mode(t, 2).with(s("PER_TARGET_BONUS"), .03).with(s("BONUS_CAP"), .24);
@@ -76,7 +82,7 @@ final class LongPathFinalFormsMasterySkillEffect implements AbilitySkillEffectTy
             case 0 -> t.with(s("CHANCE"), 12);
             case 1 -> t.with(s("HEAL_AMOUNT"), .75);
             case 2 -> t.with(s("ABSORPTION_CAP"), 10);
-            case 3 -> mode(t, 64).with(s("CHARGE_LOCKOUT_TICKS"), 10).with(s("CHARGE_PER_HIT"), 2);
+            case 3 -> mode(t, 64).with(s("CHARGE_LOCKOUT_TICKS"), 10).with(s("CHARGE_PER_HIT"), 3);
             case 4 -> mode(t, 128).with(s("RESISTANCE_CHARGE_STEP"), 4)
                     .with(s("RESISTANCE_STEP_TICKS"), 40).with(s("RESISTANCE_DURATION_CAP_TICKS"), 120);
             case 5 -> mode(t, 256).with(s("HEAL_MULTIPLIER"), .5).with(s("TEMP_ABSORPTION_CAP"), 4)
@@ -96,12 +102,11 @@ final class LongPathFinalFormsMasterySkillEffect implements AbilitySkillEffectTy
             case 2 -> t.with(s("DURATION_TICKS"), 240);
             case 3 -> mode(t, 4096).with(s("INTERRUPT_RESISTANCE_TICKS"), 20);
             case 4 -> mode(t, 8192).with(s("SPEED"), 1.5);
-            case 5 -> mode(t, 16384).with(s("RETARGET_RANGE"), 8).with(s("RETARGET_CAP"), 1)
+            case 5 -> mode(t, 16384).with(s("RETARGET_RANGE"), 8).with(s("SELECTION_RETARGET_CAP"), 1)
                     .with(s("RETARGET_WINDOW_TICKS"), 80);
             case 6 -> t.with(s("COOLDOWN_TICKS"), 600);
             case 7 -> mode(t, 32768).with(s("RETARGET_RANGE"), 8).with(s("RETARGET_CAP"), 4)
-                    .with(s("RETARGET_DAMAGE_PENALTY"), .15).with(s("RETARGET_DAMAGE_FLOOR"), .4)
-                    .with(s("ABSORPTION_CAP"), 0);
+                    .with(s("RETARGET_DAMAGE_PENALTY"), .15).with(s("RETARGET_DAMAGE_FLOOR"), .4);
             case 8 -> mode(t, 65536).with(s("RECALL_DAMAGE_MULTIPLIER"), 1.25)
                     .with(s("RECALL_RADIUS"), 4).with(s("RECALL_COOLDOWN_TICKS"), 100);
             default -> t;
@@ -122,7 +127,7 @@ final class LongPathFinalFormsMasterySkillEffect implements AbilitySkillEffectTy
             case 5 -> mode(t, 2).with(s("CYCLE_PULSE_COUNT"), 4).with(s("CYCLE_DAMAGE_MULTIPLIER"), 1.4)
                     .with(s("GLOWING_DURATION_TICKS"), 60);
             case 6 -> mode(t, 4).with(s("EARLY_WINDOW_TICKS"), 100).with(s("EARLY_DAMAGE_MULTIPLIER"), 1.2);
-            case 7 -> mode(t, 8).with(s("MOVEMENT_SPEED"), .35).with(s("RADIUS"), 5)
+            case 7 -> mode(t, 8).with(s("RADIUS"), 5)
                     .multiply(s("DAMAGE_MULTIPLIER"), .75, 1);
             case 8 -> mode(t, 16).with(s("RADIUS"), 9).with(s("INTERVAL_TICKS"), 15)
                     .multiply(s("DAMAGE_MULTIPLIER"), 1.6, 1).with(s("LIFETIME_MULTIPLIER"), .65);
@@ -151,8 +156,7 @@ final class LongPathFinalFormsMasterySkillEffect implements AbilitySkillEffectTy
             case 2 -> mode(t, 2048).with(s("FIRE_RESISTANCE_TICKS"), 80);
             case 3 -> mode(t, 4096).with(s("RESERVE_CAP"), 4).with(s("RESERVE_THRESHOLD"), .5)
                     .with(s("RESERVE_ABSORPTION_TICKS"), 100);
-            case 4 -> mode(t, 8192).with(s("REPRISAL_FIRE_TICKS"), 40)
-                    .with(s("REPRISAL_LOCKOUT_TICKS"), 40);
+            case 4 -> mode(t, 8192).with(s("REPRISAL_FIRE_TICKS"), 40);
             case 5 -> mode(t, 16384).with(s("GUARD_RANGE"), 7).with(s("DAMAGE_REDUCTION"), .15)
                     .with(s("KNOCKBACK_RESISTANCE"), .2);
             case 6 -> mode(t, 32768).with(s("REKINDLE_THRESHOLD"), .3)

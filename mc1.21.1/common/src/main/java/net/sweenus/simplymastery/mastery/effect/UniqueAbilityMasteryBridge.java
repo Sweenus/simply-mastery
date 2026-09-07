@@ -13,11 +13,15 @@ import net.sweenus.simplyswords.api.ability.UniqueAbilityDefinition;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityObserver;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityTuning;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public final class UniqueAbilityMasteryBridge {
     private static final Identifier OWNER_ID = Identifier.of(SimplyMastery.MOD_ID, "mastery_nodes");
+    private static final Logger LOGGER = LoggerFactory.getLogger("Simply Mastery");
 
     private UniqueAbilityMasteryBridge() {
     }
@@ -40,7 +44,12 @@ public final class UniqueAbilityMasteryBridge {
             if (!state.owns(node.id()) || MasteryConfig.SERVER.disabledEffects.contains(node.effect().type())) continue;
             SkillEffectType type = SkillEffectRegistry.get(node.effect().type());
             if (!(type instanceof AbilitySkillEffectType abilityType)) continue;
-            abilityType.tune(context, definition, tuning, node);
+            try {
+                abilityType.tune(context, definition, tuning, node);
+            } catch (RuntimeException exception) {
+                LOGGER.error("Mastery node {} failed to tune {}", node.id(), definition.id(), exception);
+                continue;
+            }
             effects.add(new OwnedAbilityEffect(abilityType, node));
         }
         if (effects.isEmpty()) return UniqueAbilityObserver.NONE;
