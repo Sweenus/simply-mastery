@@ -2235,7 +2235,7 @@
   "skill.simplymastery.chompolotl.transformation.focus": "Eternal Friend",
   "skill.simplymastery.chompolotl.transformation.focus.description": "Summoning instead creates a single Eternal Friend with 70 health that lasts 30 seconds and takes half of the damage you would take within 6 blocks, until its health runs out. It cannot attack, perch, or be ridden.",
   "skill.simplymastery.chompolotl.transformation.release": "Azure Ravager",
-  "skill.simplymastery.chompolotl.transformation.release.description": "Summoning instead creates a rideable blue Axolotl that lasts 90 seconds and bites for 25% more. Hold jump to release a wave, sprint to leap. It cannot perch and grants no aura, cleansing, or rescue.",
+  "skill.simplymastery.chompolotl.transformation.release.description": "Summoning instead creates a rideable blue Axolotl that lasts 90 seconds and bites for 25% more. Hold jump to release a wave, sprint to leap. It cannot perch and grants no aura, cleansing, or rescue. Ability cooldown is increased to 180 seconds.",
   "skill.simplymastery.toxic_longsword.signature.opening": "Septic Alchemy",
   "skill.simplymastery.toxic_longsword.signature.opening.description": "Chance to convert an enemy's beneficial effect into an ailment is increased by 10%. Fever gained per melee hit is unchanged.",
   "skill.simplymastery.toxic_longsword.signature.cadence": "Lingering Fever",

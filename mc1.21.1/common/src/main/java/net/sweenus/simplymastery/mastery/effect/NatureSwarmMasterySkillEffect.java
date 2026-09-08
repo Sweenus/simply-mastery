@@ -311,7 +311,8 @@ final class NatureSwarmMasterySkillEffect implements AbilitySkillEffectType {
                     .with(s("CHOMP_ETERNAL_INTERCEPTION"), .5);
             case 8 -> t.with(s("CHOMP_RAVAGER_DAMAGE_MULTIPLIER"), 1.25)
                     .with(s("CHOMP_RAVAGER_SCALE"), 2).with(s("CHOMP_WAVE_CHARGE_TICKS"), 10)
-                    .with(s("CHOMP_RAVAGER_LIFESPAN_TICKS"), 1800);
+                    .with(s("CHOMP_RAVAGER_LIFESPAN_TICKS"), 1800)
+                    .with(s("COOLDOWN_TICKS"), 3600);
             default -> t;
         };
     }
