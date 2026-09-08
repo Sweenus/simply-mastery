@@ -117,7 +117,8 @@ final class AbyssalSpectralMasterySkillEffect implements AbilitySkillEffectType 
                     .with(s("ACCELERATED_INTERVAL_TICKS"), 16);
             case 6 -> mode(t, 1).with(s("IMPACT_DAMAGE_MULTIPLIER"), 1.25).with(s("IMPACT_RADIUS"), 4.5)
                     .with(s("IMPACT_TARGET_CAP"), 12);
-            case 7 -> mode(t, 2).with(s("FOLLOW_RANGE"), 10).with(s("MOVEMENT_SPEED"), .25)
+            case 7 -> mode(t, 2).with(s("FOLLOW_RANGE"), 10).with(s("FOLLOW_MIN_RANGE"), 2)
+                    .with(s("FOLLOW_SWITCH_LOCKOUT_TICKS"), 60).with(s("MOVEMENT_SPEED"), .06)
                     .with(s("DURATION_TICKS"), 600).with(s("RADIUS"), 3)
                     .multiply(s("DAMAGE_MULTIPLIER"), .8, 1);
             case 8 -> mode(t, 4).with(s("RADIUS"), 6).with(s("TARGET_CAP"), 12)

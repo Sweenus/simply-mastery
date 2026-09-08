@@ -256,7 +256,6 @@ final class StormSoulMasterySkillEffect implements AbilitySkillEffectType {
                     .multiply(s("COOLDOWN_MULTIPLIER"), 1.2, 1)
                     .multiply(s("FOOTFALL_DAMAGE_MULTIPLIER"), .75, 1);
             case 8 -> t.with(s("RIFT_RANGE"), 12).with(s("RIFT_STAIN_RADIUS"), 2)
-                    .with(s("LEAP_CHARGE_THRESHOLD"), .95)
                     .multiply(s("STRIDE_DURATION_TICKS"), .75, 800)
                     .with(s("RIFT_LOCKOUT_TICKS"), 60);
             default -> t;
@@ -340,7 +339,8 @@ final class StormSoulMasterySkillEffect implements AbilitySkillEffectType {
         if (branch == 0) return switch (slot) {
             case 0 -> t.with(s("REND_WIDTH"), 5);
             case 1 -> t.multiply(s("REND_DAMAGE_MULTIPLIER"), 1.1, 1);
-            case 2 -> t.with(s("REND_SPEED"), 1.76);
+            case 2 -> t.multiply(s("REND_SPEED"), 1.1,
+                    net.sweenus.simplyswords.config.Config.uniqueEffects.dreadwhisper.dashSpeed);
             case 3 -> t.with(s("REND_RANGE"), 23);
             case 4 -> t.with(s("LEECH_RATIO"), .4).with(s("LEECH_CAP"), 18);
             case 5 -> t.with(s("COLLISION_MULTIPLIER"), .4).with(s("COLLISION_RADIUS"), 3)
@@ -369,8 +369,7 @@ final class StormSoulMasterySkillEffect implements AbilitySkillEffectType {
                     .with(s("SPREAD_DURATION_TICKS"), 120)
                     .multiply(s("WOUND_DAMAGE_MULTIPLIER"), .7, 1);
             case 8 -> t.with(s("WOUND_DURATION_TICKS"), 80)
-                    .multiply(s("WOUND_DAMAGE_MULTIPLIER"), 2.5, 1)
-                    .with(s("FINAL_WORD_LOCKOUT_TICKS"), 40);
+                    .multiply(s("WOUND_DAMAGE_MULTIPLIER"), 2.5, 1);
             default -> t;
         };
         return switch (slot) {
@@ -385,7 +384,7 @@ final class StormSoulMasterySkillEffect implements AbilitySkillEffectType {
             case 6 -> t.with(s("FOOTPRINT_TICKS"), 60).with(s("FOOTPRINT_PROJECTILE_REDUCTION"), .25);
             case 7 -> t.with(s("LIVING_SHADOW_TICKS"), 100).with(s("LIVING_SHADOW_INTERVAL"), 20)
                     .with(s("LIVING_SHADOW_MULTIPLIER"), .2).with(s("LIVING_SHADOW_TARGET_CAP"), 12);
-            case 8 -> t.multiply(s("REND_DAMAGE_MULTIPLIER"), 0, 1).with(s("REND_RANGE"), 30)
+            case 8 -> mode(t, 1).with(s("REND_RANGE"), 30)
                     .with(s("VOID_COLLAPSE_MULTIPLIER"), 1.6).with(s("VOID_COLLAPSE_RADIUS"), 12)
                     .with(s("VOID_COLLAPSE_TARGET_CAP"), 12).with(s("LEECH_RATIO"), 0);
             default -> t;
@@ -430,7 +429,8 @@ final class StormSoulMasterySkillEffect implements AbilitySkillEffectType {
                     || definition == StormSoulMasteryAbilities.WHISPERWIND_RESET && branch == 2
                     || definition == StormSoulMasteryAbilities.WHISPERWIND_STILL_WIND
                     && (branch == 1 || branch == 2 || branch == 0 && slot >= 7);
-            case 5 -> definition == StormSoulMasteryAbilities.DREADWHISPER_REAVE || branch == 1;
+            case 5 -> definition == StormSoulMasteryAbilities.DREADWHISPER_REAVE
+                    || branch == 1 || branch == 2 && slot == 3;
             default -> false;
         };
     }
