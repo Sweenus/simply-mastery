@@ -237,13 +237,15 @@ final class AbyssalSpectralMasterySkillEffect implements AbilitySkillEffectType 
             };
         }
         if (branch == 1) {
+            if (slot == 4) return t.with(s("EXPLOSION_RADIUS"), 3).with(s("SECONDARY_TARGET_CAP"), 8);
             if (definition != AbyssalSpectralMasteryAbilities.GLOAMPIERCER_BARRAGE) return t;
             return switch (slot) {
             case 0 -> t.with(s("SPEAR_COUNT"), 20);
             case 1 -> t.with(s("CLONE_COUNT"), 6);
             case 2 -> t.with(s("FIRE_DELAY_TICKS"), 10).with(s("THRESHOLD"), 10);
-            case 3 -> t.with(s("PROJECTILE_SPEED"), 1.7).multiply(s("PROJECTILE_DAMAGE_MULTIPLIER"), 1.08, 1);
-            case 4 -> t.with(s("EXPLOSION_RADIUS"), 3).with(s("SECONDARY_TARGET_CAP"), 8);
+            case 3 -> t.multiply(s("PROJECTILE_SPEED"), 1.10,
+                    net.sweenus.simplyswords.config.Config.uniqueEffects.gloampiercer.projectileSpeed)
+                    .multiply(s("PROJECTILE_DAMAGE_MULTIPLIER"), 1.08, 1);
             case 5 -> t.with(s("INTERVAL_TICKS"), 2);
             case 6 -> t.with(s("CHANNEL_DURATION_TICKS"), 52).with(s("COOLDOWN_TICKS"), 420);
             case 7 -> mode(t, 16).with(s("SPEAR_COUNT"), 30).with(s("RADIUS"), 10)
@@ -257,15 +259,19 @@ final class AbyssalSpectralMasterySkillEffect implements AbilitySkillEffectType 
         }
         return switch (slot) {
             case 0 -> t.with(s("STAIN_RADIUS"), 1.8);
-            case 1 -> t.with(s("STAIN_DURATION_TICKS"), 300);
+            case 1 -> t.with(s("STAIN_DURATION_TICKS"), 300)
+                    .with(s("GLOAM_GROWTH_DURATION_TICKS"), 300);
             case 2 -> t.with(s("STAIN_AMPLIFIER"), 1).with(s("STATUS_DURATION_TICKS"), 60);
             case 3 -> t.with(s("BONUS_PER_TRIGGER"), .15);
             case 4 -> t.with(s("TRIGGER_RADIUS"), 1.5).with(s("EMBEDDED_DURATION_TICKS"), 140);
             case 5 -> mode(t, 64).with(s("CHAIN_RANGE"), 5).with(s("CHAIN_DELAY_TICKS"), 4);
             case 6 -> mode(t, 128).with(s("TARGET_CAP"), 6).with(s("PULL_STRENGTH"), 1);
             case 7 -> mode(t, 256).with(s("GLOAM_MOVE_RANGE"), 6).with(s("MOVEMENT_SPEED"), .15)
-                    .with(s("STAIN_DURATION_TICKS"), 200).multiply(s("DAMAGE_MULTIPLIER"), .75, 1);
+                    .with(s("STAIN_DURATION_TICKS"), 200)
+                    .with(s("GLOAM_GROWTH_DURATION_TICKS"), 200)
+                    .multiply(s("DAMAGE_MULTIPLIER"), .75, 1);
             case 8 -> mode(t, 512).with(s("STAIN_AMPLIFIER"), 0).with(s("STAIN_DURATION_TICKS"), 100)
+                    .with(s("GLOAM_GROWTH_DURATION_TICKS"), 100)
                     .with(s("IMPACT_DAMAGE_MULTIPLIER"), .8).with(s("IMPACT_RADIUS"), 2.5)
                     .with(s("IMPACT_TARGET_CAP"), 6);
             default -> t;

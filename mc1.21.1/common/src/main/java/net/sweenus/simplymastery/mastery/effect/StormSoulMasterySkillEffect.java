@@ -244,14 +244,15 @@ final class StormSoulMasterySkillEffect implements AbilitySkillEffectType {
         };
         if (branch == 1) return switch (slot) {
             case 0 -> t.with(s("STRIDE_DURATION_TICKS"), 900);
-            case 1 -> t.multiply(s("MOVEMENT_SPEED"), 1.1, .215).multiply(s("CLIMB_SPEED"), 1.1, .3);
+            case 1 -> t.multiply(s("MOVEMENT_SPEED"), 1.1, net.sweenus.simplyswords.config.Config.uniqueEffects.soulstalker.movementSpeed)
+                    .multiply(s("CLIMB_SPEED"), 1.1, net.sweenus.simplyswords.config.Config.uniqueEffects.soulstalker.climbSpeed);
             case 2 -> t.with(s("FOOTFALL_RADIUS"), 1).multiply(s("FOOTFALL_DAMAGE_MULTIPLIER"), 1.1, 1);
             case 3 -> t.with(s("TRAIL_STAIN_DURATION_TICKS"), 320);
             case 4 -> t.with(s("TRAIL_SLOW_AMPLIFIER"), 1).with(s("TRAIL_SLOW_DURATION_TICKS"), 60);
             case 5 -> t.with(s("MOMENTUM_DISTANCE"), 8).with(s("MOMENTUM_BONUS"), .15);
             case 6 -> t.with(s("COOLDOWN_TICKS"), 1020);
             case 7 -> t.add(s("STRIDE_DURATION_TICKS"), 400, 800)
-                    .multiply(s("TRAIL_STAIN_WIDTH"), 1.5, 1.25)
+                    .multiply(s("TRAIL_STAIN_WIDTH"), 1.5, net.sweenus.simplyswords.config.Config.uniqueEffects.soulstalker.stainTrailWidth)
                     .multiply(s("COOLDOWN_MULTIPLIER"), 1.2, 1)
                     .multiply(s("FOOTFALL_DAMAGE_MULTIPLIER"), .75, 1);
             case 8 -> t.with(s("RIFT_RANGE"), 12).with(s("RIFT_STAIN_RADIUS"), 2)
@@ -264,19 +265,21 @@ final class StormSoulMasterySkillEffect implements AbilitySkillEffectType {
             case 0 -> t.with(s("CLEAVE_RANGE"), 18);
             case 1 -> t.with(s("CLEAVE_FINAL_WIDTH"), 3.8);
             case 2 -> t.multiply(s("CLEAVE_DAMAGE_MULTIPLIER"), 1.12, 1);
-            case 3 -> t.with(s("CLEAVE_SWING_COOLDOWN_TICKS"), 1);
+            case 3 -> t.multiply(s("CLEAVE_COOLDOWN_MULTIPLIER"), .9, 1);
             case 4 -> t.multiply(s("LEAP_IMPACT_DAMAGE_MULTIPLIER"), 1.2, 1)
                     .with(s("LEAP_IMPACT_RADIUS"), 3);
-            case 5 -> t.multiply(s("LEAP_IMPACT_KNOCKBACK"), 1.25, .7).with(s("LEAP_IMPACT_LIFT"), .28);
+            case 5 -> t.multiply(s("LEAP_IMPACT_KNOCKBACK"), 1.25, net.sweenus.simplyswords.config.Config.uniqueEffects.soulstalker.leapImpactKnockback)
+                    .with(s("LEAP_IMPACT_LIFT"), .28);
             case 6 -> t.with(s("CLEAVE_HIT_BONUS"), .04).with(s("CLEAVE_HIT_STACK_CAP"), 5)
                     .with(s("CLEAVE_HIT_BONUS_CAP"), .2);
             case 7 -> t.with(s("CLEAVE_RANGE"), 24).with(s("CLEAVE_FINAL_WIDTH"), 5)
+                    .with(s("CLEAVE_INITIAL_WIDTH"), 5)
                     .multiply(s("CLEAVE_DAMAGE_MULTIPLIER"), .8, 1).with(s("CLEAVE_TARGET_CAP"), 16)
-                    .multiply(s("COOLDOWN_MULTIPLIER"), 2, 1);
+                    .multiply(s("CLEAVE_COOLDOWN_MULTIPLIER"), 2, 1);
             case 8 -> t.with(s("LEAP_CHARGE_THRESHOLD"), .95)
                     .with(s("LEAP_CHARGED_DAMAGE_MULTIPLIER"), 2).with(s("LEAP_CHARGED_RADIUS"), 4)
                     .with(s("LEAP_STAIN_RADIUS"), 2).with(s("LEAP_STAIN_DURATION_TICKS"), 240)
-                    .multiply(s("CLEAVE_DAMAGE_MULTIPLIER"), .7, 1);
+                    .with(s("METEOR_CLEAVE_PENALTY"), .7);
             default -> t;
         };
     }
