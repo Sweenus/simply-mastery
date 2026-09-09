@@ -5,14 +5,13 @@ import net.sweenus.simplymastery.mastery.definition.MasteryProfile;
 import net.sweenus.simplymastery.mastery.definition.MasteryCohort;
 import net.sweenus.simplyswords.api.ability.LongPathFinalFormsMasteryTuning;
 import net.sweenus.simplyswords.api.ability.LongPathFinalFormsMasteryAbilities;
-import net.sweenus.simplyswords.api.ability.UniqueAbilityContext;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityDefinition;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityTuning;
 
 import java.util.List;
 import java.util.Set;
 
-final class LongPathFinalFormsMasterySkillEffect implements AbilitySkillEffectType {
+final class LongPathFinalFormsMasterySkillEffect implements StaticAbilitySkillEffectType {
     private static final Identifier ID = MasteryCohort.LONG_PATH_FINAL_FORMS.effectId();
 
     @Override
@@ -30,7 +29,7 @@ final class LongPathFinalFormsMasterySkillEffect implements AbilitySkillEffectTy
     }
 
     @Override
-    public void tune(UniqueAbilityContext context, UniqueAbilityDefinition definition,
+    public void tuneStatic(UniqueAbilityDefinition definition,
                      UniqueAbilityTuning.Builder tuning, MasteryProfile.Node node) {
         int kind = parameter(node, "kind", -1);
         if (kind < 0 || kind >= 81 || !matches(kind / 27, definition)) return;

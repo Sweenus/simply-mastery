@@ -5,13 +5,12 @@ import net.sweenus.simplymastery.mastery.definition.MasteryProfile;
 import net.sweenus.simplymastery.mastery.definition.MasteryCohort;
 import net.sweenus.simplyswords.api.ability.AbyssalSpectralMasteryTuning;
 import net.sweenus.simplyswords.api.ability.AbyssalSpectralMasteryAbilities;
-import net.sweenus.simplyswords.api.ability.UniqueAbilityContext;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityDefinition;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityTuning;
 
 import java.util.List;
 
-final class AbyssalSpectralMasterySkillEffect implements AbilitySkillEffectType {
+final class AbyssalSpectralMasterySkillEffect implements StaticAbilitySkillEffectType {
     private static final Identifier ID = MasteryCohort.ABYSSAL_SPECTRAL.effectId();
 
     @Override
@@ -29,7 +28,7 @@ final class AbyssalSpectralMasterySkillEffect implements AbilitySkillEffectType 
     }
 
     @Override
-    public void tune(UniqueAbilityContext context, UniqueAbilityDefinition definition,
+    public void tuneStatic(UniqueAbilityDefinition definition,
                      UniqueAbilityTuning.Builder tuning, MasteryProfile.Node node) {
         int kind = parameter(node, "kind", -1);
         if (kind < 0 || kind >= 162 || !matches(kind / 27, definition)) return;

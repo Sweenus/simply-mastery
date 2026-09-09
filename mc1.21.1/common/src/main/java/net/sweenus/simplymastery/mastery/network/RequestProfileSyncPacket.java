@@ -43,7 +43,7 @@ public final class RequestProfileSyncPacket extends BaseC2SMessage {
                 if (protocolVersion == MasteryNetwork.PROTOCOL_VERSION
                         && player.currentScreenHandler instanceof RunicForgeScreenHandler handler
                         && handler.syncId == screenSyncId && handler.canUse(player)) {
-                    MasteryNetwork.sync(player);
+                    MasteryNetwork.requestSync(player);
                 }
             });
         }

@@ -5,14 +5,13 @@ import net.sweenus.simplymastery.mastery.definition.MasteryProfile;
 import net.sweenus.simplymastery.mastery.definition.MasteryCohort;
 import net.sweenus.simplyswords.api.ability.DeathShadowBloodMasteryTuning;
 import net.sweenus.simplyswords.api.ability.DeathShadowBloodMasteryAbilities;
-import net.sweenus.simplyswords.api.ability.UniqueAbilityContext;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityDefinition;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityTuning;
 
 import java.util.List;
 import java.util.Set;
 
-final class DeathShadowBloodMasterySkillEffect implements AbilitySkillEffectType {
+final class DeathShadowBloodMasterySkillEffect implements StaticAbilitySkillEffectType {
     private static final Identifier ID = MasteryCohort.DEATH_SHADOW_BLOOD.effectId();
 
     @Override
@@ -30,7 +29,7 @@ final class DeathShadowBloodMasterySkillEffect implements AbilitySkillEffectType
     }
 
     @Override
-    public void tune(UniqueAbilityContext context, UniqueAbilityDefinition definition,
+    public void tuneStatic(UniqueAbilityDefinition definition,
                      UniqueAbilityTuning.Builder tuning, MasteryProfile.Node node) {
         int kind = node.effect().parameters().getOrDefault("kind", -1);
         if (kind < 0 || kind >= 162) return;

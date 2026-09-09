@@ -8,7 +8,7 @@ import net.sweenus.simplyswords.api.ability.*;
 import java.util.List;
 import java.util.Set;
 
-final class MartialCommandEldritchMasterySkillEffect implements AbilitySkillEffectType {
+final class MartialCommandEldritchMasterySkillEffect implements StaticAbilitySkillEffectType {
     private static final Identifier ID = MasteryCohort.MARTIAL_COMMAND_ELDRITCH.effectId();
 
     @Override
@@ -25,7 +25,7 @@ final class MartialCommandEldritchMasterySkillEffect implements AbilitySkillEffe
     }
 
     @Override
-    public void tune(UniqueAbilityContext context, UniqueAbilityDefinition definition,
+    public void tuneStatic(UniqueAbilityDefinition definition,
                      UniqueAbilityTuning.Builder tuning, MasteryProfile.Node node) {
         int kind = node.effect().parameters().getOrDefault("kind", -1);
         if (kind < 0 || kind >= 135) return;

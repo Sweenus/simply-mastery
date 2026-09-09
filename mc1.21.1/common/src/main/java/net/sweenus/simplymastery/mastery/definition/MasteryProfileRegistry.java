@@ -7,7 +7,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
-import net.sweenus.simplymastery.config.MasteryConfig;
 import net.sweenus.simplyswords.api.AwakeningFormFamily;
 import net.sweenus.simplyswords.api.AwakeningFormRegistry;
 import org.slf4j.Logger;
@@ -53,11 +52,11 @@ public final class MasteryProfileRegistry {
                         failedSources.add(entry.getKey());
                     }
                 });
-        return reload(documents, readErrors, failedSources, MasteryConfig.SERVER.maximumEarnedPoints);
+        return reload(documents, readErrors, failedSources);
     }
 
     private static ReloadResult reload(Map<Identifier, JsonElement> documents, List<String> initialErrors,
-                                       Set<Identifier> failedSources, int pointBudget) {
+                                       Set<Identifier> failedSources) {
         List<String> errors = new ArrayList<>(initialErrors);
         Map<Identifier, MasteryProfile> accepted = new LinkedHashMap<>();
         Map<Identifier, Identifier> nextSources = new LinkedHashMap<>();
@@ -77,7 +76,7 @@ public final class MasteryProfileRegistry {
                 return;
             }
             try {
-                MasteryProfileValidator.validate(parsed, pointBudget);
+                MasteryProfileValidator.validate(parsed);
             } catch (ProfileValidationException exception) {
                 exception.errors().forEach(error -> errors.add(source + ": " + error));
                 retainSource(source, accepted, nextSources);
@@ -98,7 +97,7 @@ public final class MasteryProfileRegistry {
 
         List<MasteryProfile> candidate = sorted(accepted.values());
         try {
-            MasteryProfileValidator.validateRegistry(candidate, pointBudget);
+            MasteryProfileValidator.validateRegistry(candidate);
         } catch (ProfileValidationException exception) {
             errors.addAll(exception.errors());
             logErrors(errors, "Rejected mastery profile reload; retaining epoch " + server.epoch());
@@ -134,6 +133,11 @@ public final class MasteryProfileRegistry {
         return server;
     }
 
+    public static synchronized void clearServer() {
+        server = Snapshot.empty();
+        sourceProfiles = Map.of();
+    }
+
     public static Snapshot client() {
         return client;
     }
@@ -141,7 +145,7 @@ public final class MasteryProfileRegistry {
     public static synchronized boolean installClient(int epoch, List<MasteryProfile> profiles) {
         if (epoch < client.epoch()) return false;
         try {
-            MasteryProfileValidator.validateRegistry(profiles, 21);
+            MasteryProfileValidator.validateRegistry(profiles);
         } catch (ProfileValidationException exception) {
             exception.errors().forEach(error -> LOGGER.error("Rejected canonical profile sync: {}", error));
             return false;

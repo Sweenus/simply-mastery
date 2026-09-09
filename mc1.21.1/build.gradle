@@ -70,6 +70,7 @@ subprojects {
 
     tasks.withType(JavaCompile).configureEach {
         options.release = 21
+        dependsOn rootProject.tasks.named('verifyLocalDependencies')
     }
 
     tasks.named('check').configure {
@@ -93,4 +94,10 @@ tasks.register('verifyDependencyPins') {
             }
         }
     }
+}
+
+tasks.register('verifyLocalDependencies', Exec) {
+    onlyIf { new File(rootDir.parentFile, 'docs/build_dependencies.py').isFile() }
+    workingDir rootDir.parentFile
+    commandLine 'python3', 'docs/build_dependencies.py', '--verify'
 }

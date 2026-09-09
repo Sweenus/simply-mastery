@@ -102,7 +102,8 @@ public record MasteryState(int schemaVersion, Identifier profileId, int profileV
     }
 
     public MasteryState grantPoints(int amount, int maximumPoints) {
-        return withProgress(masteryXp, earnedPoints + Math.max(0, amount), maximumPoints);
+        return withProgress(masteryXp, (int) Math.min(Integer.MAX_VALUE,
+                (long) earnedPoints + Math.max(0, amount)), maximumPoints);
     }
 
     public MasteryState respec() {

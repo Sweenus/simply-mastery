@@ -150,21 +150,21 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
         }
         refreshPalette();
         MasteryProfileRegistry.Snapshot snapshot = MasteryProfileRegistry.client();
-        if (snapshot.epoch() != definitionEpoch) {
-            MasteryProfile replacement = snapshot.resolve(identityStack())
-                    .map(MasteryProfileRegistry.Resolution::profile).orElse(null);
-            if (replacement == null) {
-                backToForge();
-                return;
-            }
+        MasteryProfile replacement = snapshot.resolve(identityStack())
+                .map(MasteryProfileRegistry.Resolution::profile).orElse(null);
+        if (replacement == null) {
+            backToForge();
+            return;
+        }
+        if (snapshot.epoch() != definitionEpoch || !replacement.id().equals(profile.id())) {
             definitionEpoch = snapshot.epoch();
             pendingActionId = -1L;
+            feedbackActionId = -1L;
+            feedbackTimer = 0.0F;
             profile = replacement;
             // The node a prompt refers to may not exist in the replacement definition.
             closePrompt();
             rebuildProfile(replacement);
-        } else if (snapshot.resolve(identityStack()).isEmpty()) {
-            backToForge();
         }
     }
 
@@ -813,8 +813,7 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
             case CONFLICT -> palette.ACCENT_HOT;
             case LOCKED -> palette.INK_MUTED;
         };
-        Text stateTag = Text.translatable("screen.simplymastery.node_state."
-                + nodeState.name().toLowerCase(), node.cost());
+        Text stateTag = nodeStatusText(profile, state, node, nodeState);
 
         UiDraw.text(context, textRenderer, UiDraw.fit(textRenderer, Text.translatable(node.nameKey()),
                         cardWidth - 12), textX, cardY + 6,
@@ -1459,12 +1458,22 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
 
     private static MasteryNodeState nodeState(MasteryProfile profile, MasteryState state,
                                                MasteryProfile.Node node) {
+        if (!state.owns(node.id()) && (!MasteryConfig.SERVER.enabled
+                || MasteryConfig.SERVER.disabledProfiles.contains(profile.id()))) return MasteryNodeState.LOCKED;
         return MasteryUiPolicy.nodeState(profile, state, node);
     }
 
     private static Text nodeStatusText(MasteryProfile profile, MasteryState state, MasteryProfile.Node node,
                                        MasteryNodeState nodeState) {
+        if (!MasteryConfig.SERVER.enabled || MasteryConfig.SERVER.disabledProfiles.contains(profile.id())) {
+            return Text.translatable("screen.simplymastery.node_state.disabled");
+        }
         if (nodeState == MasteryNodeState.LOCKED) {
+            int routeCost = MasteryUiPolicy.minimumRouteCost(profile, node);
+            if (routeCost > MasteryConfig.SERVER.maximumEarnedPoints) {
+                return Text.translatable("screen.simplymastery.node_state.budget", routeCost,
+                        MasteryConfig.SERVER.maximumEarnedPoints);
+            }
             if (!state.unlockedNodeIds().containsAll(node.requires())) {
                 return Text.translatable("screen.simplymastery.node_state.prerequisites", node.cost());
             }

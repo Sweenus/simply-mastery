@@ -39,8 +39,16 @@ public abstract class RunicForgeScreenMixin extends HandledScreen<RunicForgeScre
     private void simplymastery$addButton(CallbackInfo callback) {
         int left = (width - backgroundWidth) / 2;
         int top = (height - backgroundHeight) / 2;
+        int buttonWidth = Math.min(110, Math.max(78,
+                textRenderer.getWidth(Text.translatable("screen.simplymastery.open")) + 12));
+        int buttonX = left + backgroundWidth + 6;
+        int buttonY = top;
+        if (buttonX + buttonWidth > width - 4) {
+            buttonX = Math.clamp(left + backgroundWidth - buttonWidth, 4, Math.max(4, width - buttonWidth - 4));
+            buttonY = Math.max(4, top - 24);
+        }
         simplymastery$button = addDrawableChild(new GlassButtonWidget(
-                left + backgroundWidth + 6, top, 78, 20,
+                buttonX, buttonY, buttonWidth, 20,
                 Text.translatable("screen.simplymastery.open"), button -> simplymastery$open(),
                 () -> simplymastery$palette, theme -> theme.ACCENT));
         simplymastery$updateButton();
@@ -72,9 +80,14 @@ public abstract class RunicForgeScreenMixin extends HandledScreen<RunicForgeScre
         boolean supported = MasteryProfileRegistry.resolveClient(
                 RunicForgeMasteryContext.identityStack(handler)).isPresent();
         boolean cursorEmpty = handler.getCursorStack().isEmpty();
+        boolean profileDisabled = MasteryProfileRegistry.resolveClient(
+                RunicForgeMasteryContext.identityStack(handler))
+                .map(profile -> MasteryConfig.SERVER.disabledProfiles.contains(profile.id())).orElse(false);
         simplymastery$button.active = MasteryConfig.SERVER.enabled && supported && cursorEmpty;
         Text tooltip = !MasteryConfig.SERVER.enabled
                 ? Text.translatable("screen.simplymastery.open.disabled")
+                : profileDisabled
+                ? Text.translatable("screen.simplymastery.open.profile_disabled")
                 : supported
                 ? cursorEmpty
                 ? Text.translatable("screen.simplymastery.open.tooltip")

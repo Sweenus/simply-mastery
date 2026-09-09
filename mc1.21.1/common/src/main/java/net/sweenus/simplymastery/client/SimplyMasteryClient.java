@@ -9,6 +9,7 @@ public final class SimplyMasteryClient {
     }
 
     public static void init() {
+        MasteryCooldownTooltip.init();
         ClientPlayerEvent.CLIENT_PLAYER_QUIT.register(player -> MasteryProfileRegistry.clearClient());
     }
 }

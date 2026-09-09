@@ -5,14 +5,13 @@ import net.sweenus.simplymastery.mastery.definition.MasteryProfile;
 import net.sweenus.simplymastery.mastery.definition.MasteryCohort;
 import net.sweenus.simplyswords.api.ability.FireForgeMasteryTuning;
 import net.sweenus.simplyswords.api.ability.FireForgeMasteryAbilities;
-import net.sweenus.simplyswords.api.ability.UniqueAbilityContext;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityDefinition;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityTuning;
 
 import java.util.List;
 import java.util.Set;
 
-final class FireForgeMasterySkillEffect implements AbilitySkillEffectType {
+final class FireForgeMasterySkillEffect implements StaticAbilitySkillEffectType {
     private static final Identifier ID = MasteryCohort.FIRE_FORGE.effectId();
 
     @Override
@@ -30,7 +29,7 @@ final class FireForgeMasterySkillEffect implements AbilitySkillEffectType {
     }
 
     @Override
-    public void tune(UniqueAbilityContext context, UniqueAbilityDefinition definition,
+    public void tuneStatic(UniqueAbilityDefinition definition,
                      UniqueAbilityTuning.Builder tuning, MasteryProfile.Node node) {
         int kind = node.effect().parameters().getOrDefault("kind", -1);
         if (kind < 0 || kind >= 162) return;
@@ -39,6 +38,9 @@ final class FireForgeMasterySkillEffect implements AbilitySkillEffectType {
         int slot = kind % 9;
         if (!matches(profile, branch, definition)) return;
         FireForgeMasteryTuning value = tuning.get(FireForgeMasteryAbilities.TUNING);
+        if (definition.cooldownKey().isPresent() && !value.has(s("COOLDOWN_TICKS"))) {
+            value = value.with(s("COOLDOWN_TICKS"), tuning.get(FireForgeMasteryAbilities.COOLDOWN_TICKS));
+        }
         value = mode(value, 1 << (branch * 9 + slot));
         value = switch (profile) {
             case 0 -> hearthflame(value, branch, slot);

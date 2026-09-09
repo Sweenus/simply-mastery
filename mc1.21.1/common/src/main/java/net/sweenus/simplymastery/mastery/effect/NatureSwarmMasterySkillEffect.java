@@ -5,14 +5,13 @@ import net.sweenus.simplymastery.mastery.definition.MasteryProfile;
 import net.sweenus.simplymastery.mastery.definition.MasteryCohort;
 import net.sweenus.simplyswords.api.ability.NatureSwarmMasteryTuning;
 import net.sweenus.simplyswords.api.ability.NatureSwarmMasteryAbilities;
-import net.sweenus.simplyswords.api.ability.UniqueAbilityContext;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityDefinition;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityTuning;
 
 import java.util.List;
 import java.util.Set;
 
-final class NatureSwarmMasterySkillEffect implements AbilitySkillEffectType {
+final class NatureSwarmMasterySkillEffect implements StaticAbilitySkillEffectType {
     private static final Identifier ID = MasteryCohort.NATURE_SWARM.effectId();
 
     @Override
@@ -30,7 +29,7 @@ final class NatureSwarmMasterySkillEffect implements AbilitySkillEffectType {
     }
 
     @Override
-    public void tune(UniqueAbilityContext context, UniqueAbilityDefinition definition,
+    public void tuneStatic(UniqueAbilityDefinition definition,
                      UniqueAbilityTuning.Builder tuning, MasteryProfile.Node node) {
         int kind = node.effect().parameters().getOrDefault("kind", -1);
         if (kind < 0 || kind >= 108) return;

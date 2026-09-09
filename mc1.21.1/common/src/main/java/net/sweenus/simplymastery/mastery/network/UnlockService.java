@@ -73,7 +73,7 @@ public final class UnlockService {
         }
         new UnlockResultPacket(result, request.clientActionId(), revision).sendTo(player);
         if (result == UnlockResult.STALE_DEFINITION || result == UnlockResult.UNSUPPORTED_WEAPON) {
-            MasteryNetwork.sync(player);
+            MasteryNetwork.requestSync(player);
         }
     }
 
@@ -107,6 +107,10 @@ public final class UnlockService {
                 RunicForgeMasteryContext.identityStack(handler)).orElse(null);
         if (profile == null || !profile.id().equals(request.profileId())) {
             return UnlockResult.UNSUPPORTED_WEAPON;
+        }
+        if (request.operation() == UnlockNodePacket.Operation.UNLOCK
+                && MasteryConfig.SERVER.disabledProfiles.contains(profile.id())) {
+            return UnlockResult.DISABLED;
         }
         if (request.definitionEpoch() != MasteryProfileRegistry.server().epoch()) {
             return UnlockResult.STALE_DEFINITION;

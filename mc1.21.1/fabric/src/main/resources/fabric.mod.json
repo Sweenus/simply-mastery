@@ -24,9 +24,7 @@
     "java": ">=21",
     "architectury": ">=13.0.11",
     "fzzy_config": ">=0.7.6",
-    "simplyswords": ">=1.71.0-1.21.1"
-  },
-  "recommends": {
-    "simplytooltips": "*"
+    "simplyswords": ">=1.71.0-1.21.1",
+    "simplytooltips": ">=0.1.5"
   }
 }

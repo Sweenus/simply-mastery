@@ -18,6 +18,10 @@ public final class MasteryProfileValidator {
     }
 
     public static void validate(MasteryProfile profile, int pointBudget) {
+        validate(profile);
+    }
+
+    public static void validate(MasteryProfile profile) {
         List<String> errors = new ArrayList<>();
         if (profile.schema() != MasteryProfile.CURRENT_SCHEMA) {
             errors.add("profile " + profile.id() + ": unsupported schema " + profile.schema());
@@ -49,7 +53,7 @@ public final class MasteryProfileValidator {
         }
         validateSelectors(profile, errors);
         validatePrerequisites(profile, nodes, errors);
-        validateBranches(profile, nodes, pointBudget, errors);
+        validateBranches(profile, nodes, errors);
         validateCapstoneSpacing(profile, errors);
         validateMigrations(profile, errors);
         if (!errors.isEmpty()) {
@@ -58,12 +62,16 @@ public final class MasteryProfileValidator {
     }
 
     public static void validateRegistry(List<MasteryProfile> profiles, int pointBudget) {
+        validateRegistry(profiles);
+    }
+
+    public static void validateRegistry(List<MasteryProfile> profiles) {
         List<String> errors = new ArrayList<>();
         if (profiles.size() > 256) errors.add("profile registry may not contain more than 256 profiles");
         Set<Identifier> ids = new HashSet<>();
         for (MasteryProfile profile : profiles) {
             try {
-                validate(profile, pointBudget);
+                validate(profile);
             } catch (ProfileValidationException exception) {
                 errors.addAll(exception.errors());
             }
@@ -184,7 +192,7 @@ public final class MasteryProfileValidator {
     }
 
     private static void validateBranches(MasteryProfile profile, Map<String, MasteryProfile.Node> nodes,
-                                         int pointBudget, List<String> errors) {
+                                         List<String> errors) {
         for (MasteryProfile.Branch branch : profile.branches()) {
             List<MasteryProfile.Node> branchNodes = profile.nodes().stream()
                     .filter(node -> node.branch().equals(branch.id())).toList();
@@ -224,10 +232,6 @@ public final class MasteryProfileValidator {
                 }
                 int cheapest = capstones.stream().mapToInt(node -> routeCost(node, nodes, new HashSet<>())).min()
                         .orElse(Integer.MAX_VALUE);
-                if (cheapest > pointBudget) {
-                    errors.add("profile " + profile.id() + ", branch " + branch.id()
-                            + ": cheapest capstone route costs " + cheapest + " points, budget is " + pointBudget);
-                }
                 if (profile.version() >= 2 && (cheapest < 6 || cheapest > 8)) {
                     errors.add("profile " + profile.id() + ", branch " + branch.id()
                             + ": cheapest capstone route must cost 6-8 points, found " + cheapest);

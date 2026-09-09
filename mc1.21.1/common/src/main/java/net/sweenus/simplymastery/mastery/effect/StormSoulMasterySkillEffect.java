@@ -5,7 +5,6 @@ import net.sweenus.simplymastery.mastery.definition.MasteryProfile;
 import net.sweenus.simplymastery.mastery.definition.MasteryCohort;
 import net.sweenus.simplyswords.api.ability.StormSoulMasteryTuning;
 import net.sweenus.simplyswords.api.ability.StormSoulMasteryAbilities;
-import net.sweenus.simplyswords.api.ability.UniqueAbilityContext;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityDefinition;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityEvent;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityPhase;
@@ -14,7 +13,7 @@ import net.sweenus.simplyswords.api.ability.UniqueAbilityTuning;
 import java.util.List;
 import java.util.Set;
 
-final class StormSoulMasterySkillEffect implements AbilitySkillEffectType {
+final class StormSoulMasterySkillEffect implements StaticAbilitySkillEffectType {
     private static final Identifier ID = MasteryCohort.STORM_SOUL.effectId();
 
     @Override
@@ -32,7 +31,7 @@ final class StormSoulMasterySkillEffect implements AbilitySkillEffectType {
     }
 
     @Override
-    public void tune(UniqueAbilityContext context, UniqueAbilityDefinition definition,
+    public void tuneStatic(UniqueAbilityDefinition definition,
                      UniqueAbilityTuning.Builder tuning, MasteryProfile.Node node) {
         int kind = parameter(node, "kind", -1);
         if (kind < 0 || kind >= 162 || !matches(kind / 27, definition)) return;
@@ -41,6 +40,11 @@ final class StormSoulMasterySkillEffect implements AbilitySkillEffectType {
         int slot = kind % 9;
         if (!applies(profile, branch, slot, definition)) return;
         StormSoulMasteryTuning value = tuning.get(StormSoulMasteryAbilities.TUNING);
+        if (definition.cooldownKey().isPresent() && !value.has(s("COOLDOWN_BASE_TICKS"))) {
+            int base = tuning.get(StormSoulMasteryAbilities.COOLDOWN_TICKS);
+            value = value.with(s("COOLDOWN_BASE_TICKS"), base);
+            if (!value.has(s("COOLDOWN_TICKS"))) value = value.with(s("COOLDOWN_TICKS"), base);
+        }
         value = switch (profile) {
             case 0 -> stormscale(value, branch, slot);
             case 1 -> ionbound(value, branch, slot);
@@ -50,9 +54,6 @@ final class StormSoulMasterySkillEffect implements AbilitySkillEffectType {
             case 5 -> dreadwhisper(value, branch, slot);
             default -> value;
         };
-        if (definition.cooldownKey().isPresent() && !value.has(s("COOLDOWN_BASE_TICKS"))) {
-            value = value.with(s("COOLDOWN_BASE_TICKS"), tuning.get(StormSoulMasteryAbilities.COOLDOWN_TICKS));
-        }
         tuning.set(StormSoulMasteryAbilities.TUNING, value);
         if (definition.cooldownKey().isPresent()) {
             int base = value.integer(s("COOLDOWN_BASE_TICKS"),

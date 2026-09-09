@@ -9,6 +9,9 @@
   "screen.simplymastery.open": "Mastery",
   "screen.simplymastery.open.tooltip": "Open this weapon's mastery tree",
   "screen.simplymastery.open.disabled": "Mastery is disabled by the server",
+  "screen.simplymastery.open.profile_disabled": "This tree is disabled by the server. View allocations or respec.",
+  "screen.simplymastery.node_state.disabled": "Disabled by server",
+  "screen.simplymastery.node_state.budget": "Route needs %s points; server limit: %s",
   "screen.simplymastery.open.cursor": "Place the held item before opening Mastery",
   "screen.simplymastery.open.empty": "Insert a supported unique weapon",
   "screen.simplymastery.open.unsupported": "This weapon has no mastery profile",
@@ -3207,5 +3210,7 @@
   "skill.simplymastery.dreadtide.transformation.focus": "Embrace the Tide",
   "skill.simplymastery.dreadtide.transformation.focus.description": "Corruption never drops below 75 and Void Assault deals 25% increased damage, but your maximum health is reduced by 4 hearts while Dreadtide is held.",
   "skill.simplymastery.dreadtide.transformation.release": "Cleanse the Void",
-  "skill.simplymastery.dreadtide.transformation.release.description": "Void Assault consumes all Corruption, gaining 0.05 seconds of duration per point, but Voidcloak cannot generate for 10 seconds."
+  "skill.simplymastery.dreadtide.transformation.release.description": "Void Assault consumes all Corruption, gaining 0.05 seconds of duration per point, but Voidcloak cannot generate for 10 seconds.",
+  "tooltip.simplymastery.base_cooldown": "Base cooldown: %ss (varies with mastery and conditions)",
+  "tooltip.simplymastery.mastered_cooldown": "Ability cooldown: %ss (before situational refunds)"
 }

@@ -5,14 +5,13 @@ import net.sweenus.simplymastery.mastery.definition.MasteryProfile;
 import net.sweenus.simplymastery.mastery.definition.MasteryCohort;
 import net.sweenus.simplyswords.api.ability.StormFrostWaterMasteryTuning;
 import net.sweenus.simplyswords.api.ability.StormFrostWaterMasteryAbilities;
-import net.sweenus.simplyswords.api.ability.UniqueAbilityContext;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityDefinition;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityTuning;
 
 import java.util.List;
 import java.util.Set;
 
-final class StormFrostWaterMasterySkillEffect implements AbilitySkillEffectType {
+final class StormFrostWaterMasterySkillEffect implements StaticAbilitySkillEffectType {
     private static final Identifier ID = MasteryCohort.STORM_FROST_WATER.effectId();
 
     @Override
@@ -30,7 +29,7 @@ final class StormFrostWaterMasterySkillEffect implements AbilitySkillEffectType 
     }
 
     @Override
-    public void tune(UniqueAbilityContext context, UniqueAbilityDefinition definition,
+    public void tuneStatic(UniqueAbilityDefinition definition,
                      UniqueAbilityTuning.Builder tuning, MasteryProfile.Node node) {
         int kind = node.effect().parameters().getOrDefault("kind", -1);
         int branch = kind % 27 / 9;

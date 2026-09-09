@@ -58,8 +58,15 @@ public record MasteryPortfolio(int schemaVersion, List<GroupProgress> groups,
     }
 
     public MasteryPortfolio reconcile(MasteryProfile profile, int initialPoints) {
+        return reconcile(profile, initialPoints, Integer.MAX_VALUE);
+    }
+
+    public MasteryPortfolio reconcile(MasteryProfile profile, int initialPoints, int maximumPoints) {
         MasteryPortfolio current = ensureGroup(profile.progressionGroupId(), initialPoints);
         GroupProgress group = current.group(profile.progressionGroupId()).orElseThrow();
+        current = current.withProgress(profile.progressionGroupId(), initialPoints, group.masteryXp(),
+                group.earnedPoints(), maximumPoints);
+        group = current.group(profile.progressionGroupId()).orElseThrow();
         ProfileLoadout loadout = current.loadout(profile.id())
                 .orElse(new ProfileLoadout(profile.id(), profile.version(), List.of()));
         MasteryState migrated = MasteryStateMigrator.migrate(new MasteryState(
@@ -68,7 +75,9 @@ public record MasteryPortfolio(int schemaVersion, List<GroupProgress> groups,
         ProfileLoadout resolved = new ProfileLoadout(profile.id(), migrated.profileVersion(),
                 migrated.unlockedNodeIds());
         if (current.loadout(profile.id()).filter(resolved::equals).isPresent()) return current;
-        return current.putLoadout(resolved);
+        current = current.putLoadout(resolved);
+        return new MasteryPortfolio(current.schemaVersion, current.groups, current.loadouts,
+                Math.max(current.mutationRevision, migrated.mutationRevision()));
     }
 
     public MasteryState activeView(MasteryProfile profile, int initialPoints) {
@@ -126,7 +135,7 @@ public record MasteryPortfolio(int schemaVersion, List<GroupProgress> groups,
         MasteryPortfolio current = ensureGroup(groupId, initialPoints);
         GroupProgress group = current.group(groupId).orElseThrow();
         return current.withProgress(groupId, initialPoints, group.masteryXp(),
-                group.earnedPoints() + Math.max(0, amount), maximumPoints);
+                (int) Math.min(Integer.MAX_VALUE, (long) group.earnedPoints() + Math.max(0, amount)), maximumPoints);
     }
 
     private MasteryPortfolio ensureGroup(Identifier id, int initialPoints) {

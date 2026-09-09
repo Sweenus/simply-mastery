@@ -45,6 +45,16 @@ public final class MasteryUiPolicy {
         return plain + groups.size();
     }
 
+    public static int minimumRouteCost(MasteryProfile profile, MasteryProfile.Node node) {
+        return routeCost(profile, node, new HashSet<>());
+    }
+
+    private static int routeCost(MasteryProfile profile, MasteryProfile.Node node, Set<String> visited) {
+        if (!visited.add(node.id())) return 0;
+        return node.cost() + node.requires().stream().map(profile::node).flatMap(Optional::stream)
+                .mapToInt(parent -> routeCost(profile, parent, visited)).sum();
+    }
+
     public static int maxInvestablePoints(MasteryProfile profile, int pointBudget) {
         int plain = 0;
         Map<String, Integer> groups = new HashMap<>();

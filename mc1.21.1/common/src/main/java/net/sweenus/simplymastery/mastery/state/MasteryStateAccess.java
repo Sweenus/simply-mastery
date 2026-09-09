@@ -3,6 +3,7 @@ package net.sweenus.simplymastery.mastery.state;
 import net.minecraft.item.ItemStack;
 import net.sweenus.simplymastery.mastery.definition.MasteryProfile;
 import net.sweenus.simplymastery.mastery.definition.MasteryProfileRegistry;
+import net.sweenus.simplymastery.config.MasteryConfig;
 
 import net.minecraft.util.Identifier;
 
@@ -17,7 +18,8 @@ public final class MasteryStateAccess {
             portfolio = MasteryPortfolio.importLegacy(stack.get(MasteryComponents.MASTERY_STATE.get()),
                     profile.progressionGroupId(), initialPoints);
         }
-        MasteryPortfolio reconciled = portfolio.reconcile(profile, initialPoints);
+        MasteryPortfolio reconciled = portfolio.reconcile(profile, initialPoints,
+                MasteryConfig.SERVER.maximumEarnedPoints);
         MasteryState state = reconciled.activeView(profile, initialPoints);
         if (!reconciled.equals(stack.get(MasteryComponents.MASTERY_PORTFOLIO.get()))) {
             stack.set(MasteryComponents.MASTERY_PORTFOLIO.get(), reconciled);
@@ -44,7 +46,8 @@ public final class MasteryStateAccess {
             portfolio = MasteryPortfolio.importLegacy(stack.get(MasteryComponents.MASTERY_STATE.get()),
                     profile.progressionGroupId(), state.earnedPoints());
         }
-        MasteryPortfolio updated = portfolio.withState(profile, state, state.earnedPoints());
+        MasteryPortfolio updated = portfolio.withState(profile, state, state.earnedPoints())
+                .reconcile(profile, state.earnedPoints(), MasteryConfig.SERVER.maximumEarnedPoints);
         stack.set(MasteryComponents.MASTERY_PORTFOLIO.get(), updated);
         stack.set(MasteryComponents.MASTERY_STATE.get(), updated.activeView(profile, state.earnedPoints()));
     }

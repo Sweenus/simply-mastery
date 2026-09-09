@@ -16,42 +16,42 @@ Every unique weapon remembers.
 
 [[dependencies.simplymastery]]
 modId = "neoforge"
-mandatory = true
+type = "required"
 versionRange = "[21.1.219,)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.simplymastery]]
 modId = "minecraft"
-mandatory = true
+type = "required"
 versionRange = "[1.21.1,1.21.2)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.simplymastery]]
 modId = "architectury"
-mandatory = true
+type = "required"
 versionRange = "[13.0.11,)"
 ordering = "AFTER"
 side = "BOTH"
 
 [[dependencies.simplymastery]]
 modId = "fzzy_config"
-mandatory = true
+type = "required"
 versionRange = "[0.7.6,)"
 ordering = "AFTER"
 side = "BOTH"
 
 [[dependencies.simplymastery]]
 modId = "simplyswords"
-mandatory = true
+type = "required"
 versionRange = "[1.71.0-1.21.1,)"
 ordering = "AFTER"
 side = "BOTH"
 
 [[dependencies.simplymastery]]
 modId = "simplytooltips"
-mandatory = false
+type = "required"
 versionRange = "[0.1.5,)"
 ordering = "AFTER"
 side = "CLIENT"

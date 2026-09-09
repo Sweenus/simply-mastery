@@ -8,6 +8,7 @@ public final class MasteryProfileReloadListener implements SynchronousResourceRe
 
     @Override
     public void reload(ResourceManager manager) {
+        MasteryNetwork.prepareProfileReload();
         MasteryProfileRegistry.ReloadResult result = MasteryProfileRegistry.reload(manager);
         if (result.installed()) MasteryNetwork.syncAllPlayers();
     }
