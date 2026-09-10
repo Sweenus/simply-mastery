@@ -610,21 +610,20 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
         switch (nodeState) {
             case OWNED -> {
                 if (capstone) {
-                    drawNodeIcon(context, node, index, cx, cy - half * 0.18F, glyphSize, glyphColor);
-                    checkGlyph(context, cx, cy + half * 0.44F, glyphSize * 0.6F, glyphColor);
+                    drawCapstoneIcon(context, index, cx, cy, glyphSize, glyphColor);
                 } else {
                     checkGlyph(context, cx, cy, glyphSize, glyphColor);
                 }
             }
             case CONFLICT -> {
-                drawNodeIcon(context, node, index, cx, cy, glyphSize,
+                drawUnlockableIcon(context, index, cx, cy, glyphSize,
                         MasteryTheme.argb(palette.LOCKED_GLYPH, 0.6F * alpha));
                 UiDraw.segment(context, cx - half * 0.6F, cy + half * 0.6F,
                         cx + half * 0.6F, cy - half * 0.6F, 2.0F,
                         MasteryTheme.argb(palette.ACCENT_HOT, 0.9F * alpha));
             }
             case LOCKED -> lockGlyph(context, cx, cy, glyphSize, glyphColor);
-            case REACHABLE -> drawNodeIcon(context, node, index, cx, cy, glyphSize, glyphColor);
+            case REACHABLE -> drawUnlockableIcon(context, index, cx, cy, glyphSize, glyphColor);
         }
 
         if (burst > 0.0F) {
@@ -920,29 +919,44 @@ public final class SimplyMasteryScreen extends HandledScreen<RunicForgeScreenHan
 
     // --- glyphs -------------------------------------------------------------
 
-    private void drawNodeIcon(DrawContext context, MasteryProfile.Node node, int index, float cx, float cy,
-                              float size, int argb) {
-        Identifier icon = nodeIcons[index];
-        if (icon != null) {
-            UiDraw.textureIcon(context, icon, cx, cy, Math.max(6, Math.round(size * 2.0F)));
-        } else {
-            sigil(context, node.id(), cx, cy, size, argb);
+    private void drawCapstoneIcon(DrawContext context, int index, float cx, float cy,
+                                  float size, int argb) {
+        if (!drawIconTexture(context, index, cx, cy, size)) {
+            capstoneGlyph(context, cx, cy, size, argb);
         }
     }
 
-    private static void sigil(DrawContext context, String id, float cx, float cy, float size, int argb) {
-        int hash = id.hashCode() * 0x9E3779B9;
-        float thickness = Math.max(1.0F, size * 0.26F);
-        UiDraw.segment(context, cx, cy - size, cx, cy + size, thickness, argb);
-        for (int branch = 0; branch < 2; branch++) {
-            int bits = hash >>> (branch * 9);
-            float stemY = ((bits & 3) - 1.5F) / 1.5F;
-            float side = (bits & 4) == 0 ? -1.0F : 1.0F;
-            float reach = 0.5F + ((bits >> 3) & 1) * 0.5F;
-            float drop = (((bits >> 4) & 3) - 1.5F) / 1.5F;
-            UiDraw.segment(context, cx, cy + stemY * size,
-                    cx + side * reach * size, cy + (stemY + drop * 0.7F) * size, thickness, argb);
+    private void drawUnlockableIcon(DrawContext context, int index, float cx, float cy,
+                                    float size, int argb) {
+        if (!drawIconTexture(context, index, cx, cy, size)) {
+            plusGlyph(context, cx, cy, size, argb);
         }
+    }
+
+    private boolean drawIconTexture(DrawContext context, int index, float cx, float cy, float size) {
+        Identifier icon = nodeIcons[index];
+        if (icon == null) {
+            return false;
+        }
+        UiDraw.textureIcon(context, icon, cx, cy, Math.max(6, Math.round(size * 2.0F)));
+        return true;
+    }
+
+    private static void capstoneGlyph(DrawContext context, float cx, float cy, float size, int argb) {
+        int extent = Math.max(2, Math.round(size * 0.8F));
+        int x = Math.round(cx);
+        int y = Math.round(cy);
+        for (int dy = -extent; dy <= extent; dy++) {
+            int run = extent - Math.abs(dy);
+            context.fill(x - run, y + dy, x + run + 1, y + dy + 1, argb);
+        }
+    }
+
+    private static void plusGlyph(DrawContext context, float cx, float cy, float size, int argb) {
+        float thickness = Math.max(1.0F, size * 0.3F);
+        float arm = size * 0.85F;
+        UiDraw.segment(context, cx - arm, cy, cx + arm, cy, thickness, argb);
+        UiDraw.segment(context, cx, cy - arm, cx, cy + arm, thickness, argb);
     }
 
     private static void checkGlyph(DrawContext context, float cx, float cy, float size, int argb) {
