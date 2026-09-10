@@ -3,43 +3,43 @@ loaderVersion = "[47,)"
 license = "All Rights Reserved"
 
 [[mods]]
-modId = "simplymastery"
+modId = "simplyswordsmastery"
 version = "${version}"
-displayName = "Simply Mastery"
+displayName = "Simply Swords: Mastery"
 authors = "Sweenus"
 description = '''
 Every unique weapon remembers.
 '''
 
-[[dependencies.simplymastery]]
+[[dependencies.simplyswordsmastery]]
 modId = "forge"
 mandatory = true
 versionRange = "[47.4.9,)"
 ordering = "NONE"
 side = "BOTH"
 
-[[dependencies.simplymastery]]
+[[dependencies.simplyswordsmastery]]
 modId = "minecraft"
 mandatory = true
 versionRange = "[1.20.1,1.20.2)"
 ordering = "NONE"
 side = "BOTH"
 
-[[dependencies.simplymastery]]
+[[dependencies.simplyswordsmastery]]
 modId = "architectury"
 mandatory = true
 versionRange = "[9.2.14,)"
 ordering = "AFTER"
 side = "BOTH"
 
-[[dependencies.simplymastery]]
+[[dependencies.simplyswordsmastery]]
 modId = "fzzy_config"
 mandatory = true
 versionRange = "[0.7.6,)"
 ordering = "AFTER"
 side = "BOTH"
 
-[[dependencies.simplymastery]]
+[[dependencies.simplyswordsmastery]]
 modId = "simplyswords"
 mandatory = true
 versionRange = "[1.70.0,)"

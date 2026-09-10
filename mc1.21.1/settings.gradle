@@ -8,7 +8,7 @@ pluginManagement {
     }
 }
 
-rootProject.name = "SimplyMastery"
+rootProject.name = "SimplySwordsMastery"
 
 include("common")
 include("fabric")

@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "priority": -100,
+  "advancement": "minecraft:nether/obtain_blaze_rod",
+  "weapon": {
+    "tag": "simplyswordsmastery:starter_reward_weapons"
+  },
+  "reward": {
+    "xp": 100
+  }
+}

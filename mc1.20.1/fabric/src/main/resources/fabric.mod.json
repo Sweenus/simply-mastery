@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "id": "simplymastery",
+  "id": "simplyswordsmastery",
   "version": "${version}",
-  "name": "Simply Mastery",
+  "name": "Simply Swords: Mastery",
   "description": "Every unique weapon remembers.",
   "authors": [
     "Sweenus"
@@ -11,7 +11,7 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "net.sweenus.simplymastery.fabric.SimplyMasteryFabric"
+      "net.sweenus.simplyswordsmastery.fabric.SimplySwordsMasteryFabric"
     ]
   },
   "depends": {

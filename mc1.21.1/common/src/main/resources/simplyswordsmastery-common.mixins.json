@@ -1,0 +1,24 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.sweenus.simplyswordsmastery.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "client.HandledScreenMixin",
+    "client.RunicForgeScreenMixin"
+  ],
+  "mixins": [
+    "LivingEntityDamageMixin",
+    "RunicForgeProgressionMixin",
+    "PlayerWeaponIdentityMixin",
+    "ItemStackIdentityMixin",
+    "WeaponAbilityIdentityMixin",
+    "DataPackContentsMasteryMixin",
+    "CombatEncounterMixin",
+    "AdvancementRewardMixin",
+    "ForgeRewardsAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

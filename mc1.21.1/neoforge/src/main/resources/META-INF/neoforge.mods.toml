@@ -3,53 +3,53 @@ loaderVersion = "[4,)"
 license = "All Rights Reserved"
 
 [[mixins]]
-config = "simplymastery-common.mixins.json"
+config = "simplyswordsmastery-common.mixins.json"
 
 [[mods]]
-modId = "simplymastery"
+modId = "simplyswordsmastery"
 version = "${version}"
-displayName = "Simply Mastery"
+displayName = "Simply Swords: Mastery"
 authors = "Sweenus"
 description = '''
 Every unique weapon remembers.
 '''
 
-[[dependencies.simplymastery]]
+[[dependencies.simplyswordsmastery]]
 modId = "neoforge"
 type = "required"
 versionRange = "[21.1.219,)"
 ordering = "NONE"
 side = "BOTH"
 
-[[dependencies.simplymastery]]
+[[dependencies.simplyswordsmastery]]
 modId = "minecraft"
 type = "required"
 versionRange = "[1.21.1,1.21.2)"
 ordering = "NONE"
 side = "BOTH"
 
-[[dependencies.simplymastery]]
+[[dependencies.simplyswordsmastery]]
 modId = "architectury"
 type = "required"
 versionRange = "[13.0.11,)"
 ordering = "AFTER"
 side = "BOTH"
 
-[[dependencies.simplymastery]]
+[[dependencies.simplyswordsmastery]]
 modId = "fzzy_config"
 type = "required"
 versionRange = "[0.7.6,)"
 ordering = "AFTER"
 side = "BOTH"
 
-[[dependencies.simplymastery]]
+[[dependencies.simplyswordsmastery]]
 modId = "simplyswords"
 type = "required"
 versionRange = "[1.71.0-1.21.1,)"
 ordering = "AFTER"
 side = "BOTH"
 
-[[dependencies.simplymastery]]
+[[dependencies.simplyswordsmastery]]
 modId = "simplytooltips"
 type = "required"
 versionRange = "[0.1.5,)"
