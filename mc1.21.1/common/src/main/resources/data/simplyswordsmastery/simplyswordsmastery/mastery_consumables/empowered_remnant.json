@@ -2,13 +2,13 @@
   "version": 1,
   "priority": -100,
   "ingredient": {
-    "id": "minecraft:diamond"
+    "id": "simplyswords:empowered_remnant"
   },
   "quantity": 1,
   "weapon": {
     "tag": "simplyswordsmastery:starter_reward_weapons"
   },
   "reward": {
-    "xp": 50
+    "xp": 1000
   }
 }
