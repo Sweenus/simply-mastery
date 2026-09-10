@@ -1,6 +1,6 @@
 {
   "mod.simplyswordsmastery.name": "Simply Swords: Mastery",
-  "mod.simplyswordsmastery.description": "Every unique weapon remembers.",
+  "mod.simplyswordsmastery.description": "Adds mastery trees to Simply Swords unique weapons. Earn mastery points for your weapon through combat, and invest those points to alter its abilities as you see fit.",
   "commands.simplyswordsmastery.result": "%s — %s: %s mastery XP, %s points",
   "commands.simplyswordsmastery.unchanged": "%s — %s already at %s mastery XP, %s points",
   "commands.simplyswordsmastery.failed.disabled": "Simply Swords: Mastery is disabled by the server",

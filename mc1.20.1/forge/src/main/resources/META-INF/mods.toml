@@ -8,7 +8,7 @@ version = "${version}"
 displayName = "Simply Swords: Mastery"
 authors = "Sweenus"
 description = '''
-Every unique weapon remembers.
+Adds mastery trees to Simply Swords unique weapons. Earn mastery points for your weapon through combat, and invest those points to alter its abilities as you see fit.
 '''
 
 [[dependencies.simplyswordsmastery]]

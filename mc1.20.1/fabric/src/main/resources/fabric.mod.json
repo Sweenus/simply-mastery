@@ -3,7 +3,7 @@
   "id": "simplyswordsmastery",
   "version": "${version}",
   "name": "Simply Swords: Mastery",
-  "description": "Every unique weapon remembers.",
+  "description": "Adds mastery trees to Simply Swords unique weapons. Earn mastery points for your weapon through combat, and invest those points to alter its abilities as you see fit.",
   "authors": [
     "Sweenus"
   ],
