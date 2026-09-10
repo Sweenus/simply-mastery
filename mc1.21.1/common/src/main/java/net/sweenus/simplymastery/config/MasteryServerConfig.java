@@ -46,6 +46,10 @@ public final class MasteryServerConfig extends me.fzzyhmstrs.fzzy_config.config.
     public int xpBaseRequirement = 100;
     @ValidatedInt.Restrict(min = 0, max = 10000)
     public int xpRequirementGrowth = 35;
+    @ValidatedInt.Restrict(min = 1, max = 64)
+    public int xpCurveUnchangedPoints = 4;
+    @ValidatedInt.Restrict(min = 1, max = 100)
+    public int xpCurveFinalMultiplier = 8;
     @ValidatedInt.Restrict(min = 0, max = 1000)
     public int killBaseXp = 10;
     @ValidatedInt.Restrict(min = 0, max = 100)

@@ -79,7 +79,7 @@ public final class RewardDefinitionLoader {
             if (object.has(reward)) requireFields(object.get(reward), Set.of("xp", "points"), reward);
         }
         if (object.has("curve")) {
-            requireFields(object.get("curve"), Set.of("base", "growth", "costs"), "curve");
+            requireFields(object.get("curve"), Set.of("base", "growth", "costs", "unchanged_points", "final_multiplier"), "curve");
         }
     }
 

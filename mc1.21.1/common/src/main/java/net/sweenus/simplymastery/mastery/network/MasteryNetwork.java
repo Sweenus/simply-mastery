@@ -17,7 +17,7 @@ import java.util.UUID;
 
 public final class MasteryNetwork {
 
-    public static final int PROTOCOL_VERSION = 6;
+    public static final int PROTOCOL_VERSION = 7;
     public static final SimpleNetworkManager NETWORK = SimpleNetworkManager.create(SimplyMastery.MOD_ID);
     public static final MessageType UNLOCK_NODE = NETWORK.registerC2S("unlock_node", UnlockNodePacket::new);
     public static final MessageType UNLOCK_RESULT = NETWORK.registerS2C("unlock_result", UnlockResultPacket::new);
