@@ -4,6 +4,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.damage.DamageTypes;
+import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.sweenus.simplymastery.SimplyMastery;
@@ -70,7 +71,7 @@ final class BrimstoneAbilitySkillEffects implements AbilitySkillEffectType {
                             parameter(node, "damage_percent", 115) / 100.0));
             case KINDLING_BLOWS -> {
                 if (definition == BuiltinUniqueAbilities.BRIMSTONE_ERUPTION) {
-                    int stacks = BrimstoneMasteryRuntime.value(context.stack(),
+                    int stacks = BrimstoneMasteryRuntime.value(context.actor(), context.stack(),
                             BrimstoneMasteryRuntime.KINDLING, tick).amount();
                     tuning.add(BuiltinUniqueAbilities.BRIMSTONE_PROC_CHANCE,
                             stacks * parameter(node, "chance_per_stack", 5));
@@ -78,7 +79,7 @@ final class BrimstoneAbilitySkillEffects implements AbilitySkillEffectType {
             }
             case FLASHPOINT -> {
                 if (definition == BuiltinUniqueAbilities.BRIMSTONE_ERUPTION
-                        && BrimstoneMasteryRuntime.value(context.stack(), BrimstoneMasteryRuntime.KINDLING, tick).amount()
+                        && BrimstoneMasteryRuntime.value(context.actor(), context.stack(), BrimstoneMasteryRuntime.KINDLING, tick).amount()
                         >= parameter(node, "required_stacks", 3)) {
                     tuning.set(BuiltinUniqueAbilities.BRIMSTONE_PROC_CHANCE, 100);
                 }
@@ -187,18 +188,18 @@ final class BrimstoneAbilitySkillEffects implements AbilitySkillEffectType {
         if (event.execution().definition() == BuiltinUniqueAbilities.BRIMSTONE_RITE) {
             if (event.phase() == UniqueAbilityPhase.START) {
                 int duration = event.execution().tuning().get(BuiltinUniqueAbilities.BRIMSTONE_RITE_DURATION_TICKS) + 18;
-                BrimstoneMasteryRuntime.set(context.stack(), BrimstoneMasteryRuntime.RITE_ACTIVE,
+                BrimstoneMasteryRuntime.set(context.actor(), context.stack(), BrimstoneMasteryRuntime.RITE_ACTIVE,
                         1, tick + duration, tick);
             } else if (event.phase() == UniqueAbilityPhase.FINISH || event.phase() == UniqueAbilityPhase.CANCEL) {
-                clearRite(context.stack());
+                clearRite(context.actor(), context.stack());
             }
         }
         if (event.execution().definition() == BuiltinUniqueAbilities.BRIMSTONE_ERUPTION) {
             if (kind == Kind.KINDLING_BLOWS && event.phase() == UniqueAbilityPhase.CANCEL) {
-                BrimstoneMasteryRuntime.advance(context.stack(), BrimstoneMasteryRuntime.KINDLING, tick,
+                BrimstoneMasteryRuntime.advance(context.actor(), context.stack(), BrimstoneMasteryRuntime.KINDLING, tick,
                         parameter(node, "max_stacks", 3), parameter(node, "window_ticks", 80));
             } else if (kind == Kind.KINDLING_BLOWS && event.phase() == UniqueAbilityPhase.START) {
-                BrimstoneMasteryRuntime.clear(context.stack(), BrimstoneMasteryRuntime.KINDLING);
+                BrimstoneMasteryRuntime.clear(context.actor(), context.stack(), BrimstoneMasteryRuntime.KINDLING);
             }
             return;
         }
@@ -246,23 +247,23 @@ final class BrimstoneAbilitySkillEffects implements AbilitySkillEffectType {
         UniqueAbilityContext context = event.execution().context();
         switch (kind) {
             case HEAT_SINK -> {
-                int stacks = BrimstoneMasteryRuntime.value(context.stack(),
+                int stacks = BrimstoneMasteryRuntime.value(context.actor(), context.stack(),
                         BrimstoneMasteryRuntime.HEAT_SINK, tick).amount();
                 if (stacks > 0) {
                     context.actor().addStatusEffect(new StatusEffectInstance(StatusEffects.ABSORPTION,
                             parameter(node, "duration_ticks", 80), stacks - 1,
                             false, false, true), context.actor());
-                    BrimstoneMasteryRuntime.clear(context.stack(), BrimstoneMasteryRuntime.HEAT_SINK);
+                    BrimstoneMasteryRuntime.clear(context.actor(), context.stack(), BrimstoneMasteryRuntime.HEAT_SINK);
                 }
             }
             case FORGED_RESOLVE -> {
                 if (context.actor().getHealth() * 100.0F / context.actor().getMaxHealth()
                         <= parameter(node, "health_percent", 40)
-                        && BrimstoneMasteryRuntime.value(context.stack(),
+                        && BrimstoneMasteryRuntime.value(context.actor(), context.stack(),
                         BrimstoneMasteryRuntime.FORGED_RESOLVE, tick).amount() == 0) {
-                    long expiry = BrimstoneMasteryRuntime.value(context.stack(),
+                    long expiry = BrimstoneMasteryRuntime.value(context.actor(), context.stack(),
                             BrimstoneMasteryRuntime.RITE_ACTIVE, tick).expiresAt();
-                    BrimstoneMasteryRuntime.set(context.stack(), BrimstoneMasteryRuntime.FORGED_RESOLVE,
+                    BrimstoneMasteryRuntime.set(context.actor(), context.stack(), BrimstoneMasteryRuntime.FORGED_RESOLVE,
                             1, Math.max(tick + 1, expiry), tick);
                     context.actor().addStatusEffect(new StatusEffectInstance(StatusEffects.RESISTANCE,
                             parameter(node, "resistance_ticks", 60), 0, false, false, true), context.actor());
@@ -284,15 +285,15 @@ final class BrimstoneAbilitySkillEffects implements AbilitySkillEffectType {
     @Override
     public void onDamageReceived(SkillEffectContext.DamageReceived context, MasteryProfile.Node node) {
         long tick = context.tick();
-        if (BrimstoneMasteryRuntime.value(context.stack(), BrimstoneMasteryRuntime.RITE_ACTIVE, tick).amount() == 0) return;
+        if (BrimstoneMasteryRuntime.value(context.actor(), context.stack(), BrimstoneMasteryRuntime.RITE_ACTIVE, tick).amount() == 0) return;
         switch (kind) {
-            case HEAT_SINK -> BrimstoneMasteryRuntime.advance(context.stack(),
+            case HEAT_SINK -> BrimstoneMasteryRuntime.advance(context.actor(), context.stack(),
                     BrimstoneMasteryRuntime.HEAT_SINK, tick, parameter(node, "max_stacks", 2),
                     parameter(node, "window_ticks", 80));
             case FURNACE_REPRISAL -> reprisal(context, node);
             case ASHEN_STEP -> {
-                if (BrimstoneMasteryRuntime.value(context.stack(), BrimstoneMasteryRuntime.ASHEN_STEP, tick).amount() > 0) return;
-                BrimstoneMasteryRuntime.set(context.stack(), BrimstoneMasteryRuntime.ASHEN_STEP, 1,
+                if (BrimstoneMasteryRuntime.value(context.actor(), context.stack(), BrimstoneMasteryRuntime.ASHEN_STEP, tick).amount() > 0) return;
+                BrimstoneMasteryRuntime.set(context.actor(), context.stack(), BrimstoneMasteryRuntime.ASHEN_STEP, 1,
                         tick + parameter(node, "cooldown_ticks", 100), tick);
                 context.player().addStatusEffect(new StatusEffectInstance(StatusEffects.SPEED,
                         parameter(node, "duration_ticks", 60), 0, false, false, true));
@@ -309,8 +310,8 @@ final class BrimstoneAbilitySkillEffects implements AbilitySkillEffectType {
                 && !context.source().isOf(DamageTypes.MOB_ATTACK)
                 || !SimplySwordsAPI.isValidAbilityTarget(attacker, context.player())) return;
         long tick = context.tick();
-        if (BrimstoneMasteryRuntime.value(context.stack(), BrimstoneMasteryRuntime.REPRISAL, tick).amount() > 0) return;
-        BrimstoneMasteryRuntime.set(context.stack(), BrimstoneMasteryRuntime.REPRISAL, 1,
+        if (BrimstoneMasteryRuntime.value(context.actor(), context.stack(), BrimstoneMasteryRuntime.REPRISAL, tick).amount() > 0) return;
+        BrimstoneMasteryRuntime.set(context.actor(), context.stack(), BrimstoneMasteryRuntime.REPRISAL, 1,
                 tick + parameter(node, "cooldown_ticks", 20), tick);
         int percent = parameter(node, "damage_percent", 20);
         float pulse = BuiltinUniqueAbilities.BRIMSTONE_RITE_PULSE_DAMAGE_MULTIPLIER.defaultValue().floatValue();
@@ -328,10 +329,10 @@ final class BrimstoneAbilitySkillEffects implements AbilitySkillEffectType {
                         stack, target, damage, SpellScalingProfile.FIRE));
     }
 
-    private static void clearRite(net.minecraft.item.ItemStack stack) {
-        BrimstoneMasteryRuntime.clear(stack, BrimstoneMasteryRuntime.RITE_ACTIVE);
-        BrimstoneMasteryRuntime.clear(stack, BrimstoneMasteryRuntime.HEAT_SINK);
-        BrimstoneMasteryRuntime.clear(stack, BrimstoneMasteryRuntime.FORGED_RESOLVE);
+    private static void clearRite(LivingEntity actor, ItemStack stack) {
+        BrimstoneMasteryRuntime.clear(actor, stack, BrimstoneMasteryRuntime.RITE_ACTIVE);
+        BrimstoneMasteryRuntime.clear(actor, stack, BrimstoneMasteryRuntime.HEAT_SINK);
+        BrimstoneMasteryRuntime.clear(actor, stack, BrimstoneMasteryRuntime.FORGED_RESOLVE);
     }
 
     private static void eruption(UniqueAbilityDefinition definition, Runnable action) {

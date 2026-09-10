@@ -13,6 +13,7 @@ import net.sweenus.simplymastery.mastery.state.MasteryState;
 public sealed interface SkillEffectContext {
 
     ServerPlayerEntity player();
+    default LivingEntity actor() { return player(); }
     ItemStack stack();
     Hand hand();
     MasteryProfile profile();

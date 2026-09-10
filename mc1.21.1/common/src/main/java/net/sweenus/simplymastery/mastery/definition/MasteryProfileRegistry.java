@@ -7,6 +7,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
+import net.sweenus.simplymastery.mastery.reward.ProgressionPolicy;
+import net.sweenus.simplymastery.mastery.reward.ResolvedRewardDefinitions;
 import net.sweenus.simplyswords.api.AwakeningFormFamily;
 import net.sweenus.simplyswords.api.AwakeningFormRegistry;
 import org.slf4j.Logger;
@@ -29,15 +31,13 @@ public final class MasteryProfileRegistry {
     private static final Logger LOGGER = LoggerFactory.getLogger("Simply Mastery/Profiles");
     private static volatile Snapshot server = Snapshot.empty();
     private static volatile Snapshot client = Snapshot.empty();
-    private static Map<Identifier, Identifier> sourceProfiles = Map.of();
 
     private MasteryProfileRegistry() {
     }
 
-    public static synchronized ReloadResult reload(ResourceManager resources) {
+    public static synchronized Prepared prepare(ResourceManager resources) {
         Map<Identifier, JsonElement> documents = new LinkedHashMap<>();
         List<String> readErrors = new ArrayList<>();
-        Set<Identifier> failedSources = new java.util.LinkedHashSet<>();
         resources.findResources(RESOURCE_PATH, id -> id.getPath().endsWith(".json"))
                 .entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(entry -> {
                     try (InputStream input = entry.getValue().getInputStream()) {
@@ -49,17 +49,14 @@ public final class MasteryProfileRegistry {
                         documents.put(entry.getKey(), JsonParser.parseString(new String(data, StandardCharsets.UTF_8)));
                     } catch (Exception exception) {
                         readErrors.add(entry.getKey() + ": " + exception.getMessage());
-                        failedSources.add(entry.getKey());
                     }
                 });
-        return reload(documents, readErrors, failedSources);
+        return prepare(documents, readErrors);
     }
 
-    private static ReloadResult reload(Map<Identifier, JsonElement> documents, List<String> initialErrors,
-                                       Set<Identifier> failedSources) {
+    private static Prepared prepare(Map<Identifier, JsonElement> documents, List<String> initialErrors) {
         List<String> errors = new ArrayList<>(initialErrors);
         Map<Identifier, MasteryProfile> accepted = new LinkedHashMap<>();
-        Map<Identifier, Identifier> nextSources = new LinkedHashMap<>();
 
         documents.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(entry -> {
             Identifier source = entry.getKey();
@@ -72,26 +69,20 @@ public final class MasteryProfileRegistry {
                 parsed = null;
             }
             if (parsed == null) {
-                retainSource(source, accepted, nextSources);
                 return;
             }
             try {
                 MasteryProfileValidator.validate(parsed);
             } catch (ProfileValidationException exception) {
                 exception.errors().forEach(error -> errors.add(source + ": " + error));
-                retainSource(source, accepted, nextSources);
                 return;
             }
             MasteryProfile duplicate = accepted.putIfAbsent(parsed.id(), parsed);
             if (duplicate != null) {
                 errors.add(source + ": duplicate profile id " + parsed.id());
-                retainSource(source, accepted, nextSources);
                 return;
             }
-            nextSources.put(source, parsed.id());
         });
-
-        for (Identifier source : failedSources) retainSource(source, accepted, nextSources);
 
         BuiltInFamilyProfiles.addMissing(accepted);
 
@@ -101,32 +92,26 @@ public final class MasteryProfileRegistry {
         } catch (ProfileValidationException exception) {
             errors.addAll(exception.errors());
             logErrors(errors, "Rejected mastery profile reload; retaining epoch " + server.epoch());
-            return new ReloadResult(false, server, errors);
+            return new Prepared(Optional.empty(), errors);
         }
 
-        Snapshot previous = server;
-        Snapshot next = new Snapshot(previous.epoch() + 1, candidate);
-        server = next;
-        sourceProfiles = Map.copyOf(nextSources);
-        logErrors(errors, "Loaded " + candidate.size() + " mastery profiles at epoch " + next.epoch());
-        return new ReloadResult(true, next, errors);
+        if (!errors.isEmpty()) {
+            logErrors(errors, "Rejected mastery profile reload; retaining epoch " + server.epoch());
+            return new Prepared(Optional.empty(), errors);
+        }
+        return new Prepared(Optional.of(new Snapshot(server.epoch() + 1, candidate)), List.of());
     }
 
-    private static void retainSource(Identifier source, Map<Identifier, MasteryProfile> accepted,
-                                     Map<Identifier, Identifier> nextSources) {
-        Identifier previousId = sourceProfiles.get(source);
-        if (previousId == null) return;
-        MasteryProfile previous = server.profiles().get(previousId);
-        if (previous != null) {
-            accepted.putIfAbsent(previousId, previous);
-            nextSources.put(source, previousId);
-        }
+    public static synchronized void installServer(Snapshot snapshot) {
+        server = snapshot;
+        LOGGER.info("Installed {} mastery profiles and reward policies at epoch {}",
+                snapshot.profiles().size(), snapshot.epoch());
     }
 
     private static void logErrors(List<String> errors, String success) {
         for (String error : errors) LOGGER.error("Mastery definition error: {}", error);
         if (errors.isEmpty()) LOGGER.info(success);
-        else LOGGER.warn("{} with {} retained/disabled invalid resource(s)", success, errors.size());
+        else LOGGER.warn("{} ({} errors)", success, errors.size());
     }
 
     public static Snapshot server() {
@@ -135,14 +120,15 @@ public final class MasteryProfileRegistry {
 
     public static synchronized void clearServer() {
         server = Snapshot.empty();
-        sourceProfiles = Map.of();
     }
 
     public static Snapshot client() {
         return client;
     }
 
-    public static synchronized boolean installClient(int epoch, List<MasteryProfile> profiles) {
+    public static synchronized boolean installClient(int epoch, List<MasteryProfile> profiles,
+            Map<Identifier, ProgressionPolicy> policies,
+            ProgressionPolicy fallback) {
         if (epoch < client.epoch()) return false;
         try {
             MasteryProfileValidator.validateRegistry(profiles);
@@ -150,7 +136,7 @@ public final class MasteryProfileRegistry {
             exception.errors().forEach(error -> LOGGER.error("Rejected canonical profile sync: {}", error));
             return false;
         }
-        client = new Snapshot(epoch, profiles);
+        client = new Snapshot(epoch, Snapshot.index(profiles), policies, fallback, null);
         return true;
     }
 
@@ -174,13 +160,25 @@ public final class MasteryProfileRegistry {
         return profiles.stream().sorted(Comparator.comparing(profile -> profile.id().toString())).toList();
     }
 
-    public record Snapshot(int epoch, Map<Identifier, MasteryProfile> profiles) {
+    public record Snapshot(int epoch, Map<Identifier, MasteryProfile> profiles,
+                           Map<Identifier, ProgressionPolicy> policies,
+                           ProgressionPolicy fallback,
+                           ResolvedRewardDefinitions rewards) {
+        public Snapshot(int epoch, Map<Identifier, MasteryProfile> profiles) {
+            this(epoch, profiles, Map.of(), ProgressionPolicy.defaults(), null);
+        }
+
+        public ProgressionPolicy policy(Identifier group) {
+            return policies.getOrDefault(group, fallback);
+        }
+
         public Snapshot(int epoch, Collection<MasteryProfile> profiles) {
             this(epoch, index(profiles));
         }
 
         public Snapshot {
             profiles = Map.copyOf(profiles);
+            policies = Map.copyOf(policies);
         }
 
         public static Snapshot empty() {
@@ -306,9 +304,7 @@ public final class MasteryProfileRegistry {
         }
     }
 
-    public record ReloadResult(boolean installed, Snapshot snapshot, List<String> errors) {
-        public ReloadResult {
-            errors = List.copyOf(errors);
-        }
+    public record Prepared(Optional<Snapshot> candidate, List<String> errors) {
+        public Prepared { errors = List.copyOf(errors); }
     }
 }

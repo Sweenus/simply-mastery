@@ -5,6 +5,9 @@ import dev.architectury.utils.EnvExecutor;
 import net.sweenus.simplymastery.client.SimplyMasteryClient;
 import net.sweenus.simplymastery.config.MasteryConfig;
 import net.sweenus.simplymastery.mastery.network.MasteryNetwork;
+import net.sweenus.simplymastery.mastery.progression.MasteryProvenance;
+import net.sweenus.simplymastery.mastery.progression.MasteryRewardService;
+import net.sweenus.simplymastery.mastery.progression.ProgressionOwnership;
 import net.sweenus.simplymastery.mastery.state.MasteryComponents;
 import net.sweenus.simplymastery.mastery.effect.SkillRuntime;
 import net.sweenus.simplymastery.mastery.effect.UniqueAbilityMasteryBridge;
@@ -25,10 +28,13 @@ public final class SimplyMastery {
     public static void init() {
         MasteryComponents.register();
         MasteryConfig.init();
+        ProgressionOwnership.init();
         MasteryNetwork.init();
         SkillRuntime.init();
         StormMasteryRuntime.init();
         UniqueAbilityMasteryBridge.init();
+        MasteryRewardService.init();
+        MasteryProvenance.init();
         MasteryProgression.init();
         MasteryCommands.init();
         EnvExecutor.runInEnv(Env.CLIENT, () -> SimplyMasteryClient::init);

@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "priority": -100,
+  "selector": {
+    "id": "minecraft:wither"
+  },
+  "first_kill": {
+    "xp": 100
+  }
+}

@@ -13,6 +13,7 @@ public final class MasteryLayout {
     }
 
     public final MasteryProfile profile;
+    public final MasteryChrome.Frame frame;
     public final int screenWidth;
     public final int screenHeight;
     public final boolean compact;
@@ -38,10 +39,13 @@ public final class MasteryLayout {
 
     public final int backButtonX;
     public final int backButtonWidth;
+    public final int rewardsButtonX;
+    public final int rewardsButtonWidth;
     public final int respecButtonX;
     public final int respecButtonWidth;
     public final int closeButtonX;
     public final int closeButtonWidth;
+    public final int buttonY;
     public final int headerContentLeft;
     public final int headerContentRight;
     public final int laneLabelRight;
@@ -69,54 +73,41 @@ public final class MasteryLayout {
             indexById.put(nodes.get(i).id(), i);
         }
 
-        int marginX = Math.max(10, Math.round(screenWidth * 0.025F));
-        int marginY = Math.max(8, Math.round(screenHeight * 0.025F));
-        int headerHeight = Math.clamp(Math.round(screenHeight * 0.095F), 32, 48);
-        headerLeft = marginX;
-        headerTop = marginY;
-        headerRight = screenWidth - marginX;
-        headerBottom = headerTop + headerHeight;
+        this.frame = MasteryChrome.frame(screenWidth, screenHeight);
+        headerLeft = frame.headerLeft();
+        headerTop = frame.headerTop();
+        headerRight = frame.headerRight();
+        headerBottom = frame.headerBottom();
 
-        backButtonWidth = Math.min(56, Math.max(38, screenWidth / 12));
-        closeButtonWidth = Math.min(64, Math.max(46, screenWidth / 12));
-        respecButtonWidth = Math.min(78, Math.max(58, screenWidth / 10));
-        backButtonX = headerLeft + 7;
-        closeButtonX = headerRight - 7 - closeButtonWidth;
-        respecButtonX = closeButtonX - 6 - respecButtonWidth;
-        headerContentLeft = backButtonX + backButtonWidth + 13;
-        headerContentRight = respecButtonX - 12;
+        backButtonWidth = frame.backButtonWidth();
+        closeButtonWidth = frame.closeButtonWidth();
+        respecButtonWidth = frame.respecButtonWidth();
+        rewardsButtonWidth = frame.rewardsButtonWidth();
+        backButtonX = frame.backButtonX();
+        closeButtonX = frame.closeButtonX();
+        respecButtonX = frame.respecButtonX();
+        rewardsButtonX = frame.rewardsButtonX();
+        headerContentLeft = frame.headerContentLeft();
+        headerContentRight = frame.headerContentRight();
+        buttonY = frame.buttonY();
 
-        int bodyTop = headerBottom + Math.max(5, Math.round(screenHeight * 0.02F));
-        int bodyBottom = screenHeight - marginY;
-        int desiredShowcaseLeft = Math.round(screenWidth * 0.715F);
-        compact = screenWidth - marginX - desiredShowcaseLeft < 104;
-        dockDetail = compact;
+        compact = frame.compact();
+        dockDetail = frame.dockDetail();
+        dockHeight = frame.dockHeight();
 
-        statusBottom = bodyBottom;
-        statusTop = bodyBottom - 18;
-        dockHeight = dockDetail ? Math.clamp(Math.round(screenHeight * 0.28F), 58, 128) : 0;
+        statusTop = frame.statusTop();
+        statusBottom = frame.statusBottom();
+        statusLeft = frame.statusLeft();
+        statusRight = frame.statusRight();
 
-        canvasTop = bodyTop;
-        canvasLeft = marginX;
-        if (compact) {
-            canvasRight = screenWidth - marginX;
-            showcaseLeft = 0;
-            showcaseRight = 0;
-            showcaseTop = 0;
-            showcaseBottom = 0;
-            statusLeft = canvasLeft;
-            statusRight = canvasRight;
-            canvasBottom = Math.max(canvasTop + 60, statusTop - 6 - dockHeight - 6);
-        } else {
-            canvasRight = Math.round(screenWidth * 0.695F);
-            showcaseLeft = desiredShowcaseLeft;
-            showcaseRight = screenWidth - marginX;
-            showcaseTop = bodyTop;
-            showcaseBottom = statusTop - 6;
-            statusLeft = canvasLeft;
-            statusRight = showcaseRight;
-            canvasBottom = statusTop - 6;
-        }
+        canvasLeft = frame.canvasLeft();
+        canvasTop = frame.canvasTop();
+        canvasRight = frame.canvasRight();
+        canvasBottom = frame.canvasBottom();
+        showcaseLeft = frame.showcaseLeft();
+        showcaseTop = frame.showcaseTop();
+        showcaseRight = frame.showcaseRight();
+        showcaseBottom = frame.showcaseBottom();
 
         laneLabelRight = canvasLeft + Math.clamp(Math.round((canvasRight - canvasLeft) * 0.2F), 46, 84);
 

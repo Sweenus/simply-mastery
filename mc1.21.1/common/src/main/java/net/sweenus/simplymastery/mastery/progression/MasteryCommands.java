@@ -90,22 +90,28 @@ public final class MasteryCommands {
                     player.getDisplayName(), stack.getName()));
             return false;
         }
-        int initialPoints = Math.min(MasteryConfig.SERVER.verticalSliceStartingPoints,
-                MasteryConfig.SERVER.maximumEarnedPoints);
-        MasteryProfile profile = resolution.visibleProfile().orElse(null);
-        boolean changed;
-        MasteryPortfolio.GroupProgress progress;
-        if (profile == null) {
-            changed = applyToGroup(stack, resolution.groupId(), initialPoints, mode, amount);
-            progress = groupProgress(stack, resolution.groupId(), initialPoints);
-        } else {
-            MasteryState state = MasteryStateAccess.read(stack, profile, initialPoints);
-            MasteryState updated = applyToState(state, initialPoints, mode, amount);
-            changed = updated != state;
-            if (changed) MasteryStateAccess.write(stack, profile, updated);
-            progress = new MasteryPortfolio.GroupProgress(profile.progressionGroupId(), updated.masteryXp(),
-                    updated.earnedPoints());
-        }
+        int initialPoints = MasteryRewardService.initialPoints(resolution.groupId());
+        MasteryRewardService.synchronize(player.getServer(), stack);
+        Identifier group = resolution.groupId();
+        MasteryPortfolio.GroupProgress current = MasteryRewardService.progress(player, stack, group);
+        boolean changed = switch (mode) {
+            case GRANT_XP -> MasteryRewardService.award(player, stack, group, amount, 0);
+            case GRANT_POINTS -> MasteryRewardService.award(player, stack, group, 0, amount);
+            case SET_XP -> MasteryRewardService.setXp(player, stack, group, amount);
+            case SET_POINTS -> MasteryRewardService.set(player, stack, group, current.masteryXp(), amount);
+            case CLEAR -> {
+                boolean cleared = false;
+                MasteryProfile profile = resolution.visibleProfile().orElse(null);
+                if (profile != null) {
+                    MasteryState state = MasteryStateAccess.read(player, stack, profile, initialPoints);
+                    MasteryState reset = state.respec();
+                    cleared = !reset.equals(state);
+                    MasteryStateAccess.write(player, stack, profile, reset);
+                }
+                yield MasteryRewardService.set(player, stack, group, 0, initialPoints) || cleared;
+            }
+        };
+        MasteryPortfolio.GroupProgress progress = MasteryRewardService.progress(player, stack, group);
         if (changed) {
             player.getInventory().markDirty();
             player.currentScreenHandler.sendContentUpdates();
@@ -114,36 +120,6 @@ public final class MasteryCommands {
                         : "commands.simplymastery.unchanged", player.getDisplayName(), stack.getName(),
                 progress.masteryXp(), progress.earnedPoints()), true);
         return changed;
-    }
-
-    private static MasteryState applyToState(MasteryState state, int initialPoints, Mode mode, int amount) {
-        int maximumPoints = MasteryConfig.SERVER.maximumEarnedPoints;
-        return switch (mode) {
-            case GRANT_XP -> state.awardXp(amount, maximumPoints, MasteryConfig.SERVER.xpBaseRequirement,
-                    MasteryConfig.SERVER.xpRequirementGrowth);
-            case GRANT_POINTS -> state.grantPoints(amount, maximumPoints);
-            case SET_XP -> state.withProgress(amount, state.earnedPoints(), maximumPoints);
-            case SET_POINTS -> state.withProgress(state.masteryXp(), amount, maximumPoints);
-            case CLEAR -> state.respec().withProgress(0, initialPoints, maximumPoints);
-        };
-    }
-
-    private static boolean applyToGroup(ItemStack stack, Identifier groupId, int initialPoints, Mode mode,
-                                        int amount) {
-        int maximumPoints = MasteryConfig.SERVER.maximumEarnedPoints;
-        MasteryPortfolio.GroupProgress current = groupProgress(stack, groupId, initialPoints);
-        return switch (mode) {
-            case GRANT_XP -> MasteryStateAccess.bankXp(stack, groupId, initialPoints, amount, maximumPoints,
-                    MasteryConfig.SERVER.xpBaseRequirement, MasteryConfig.SERVER.xpRequirementGrowth);
-            case GRANT_POINTS -> MasteryStateAccess.grantPoints(stack, groupId, initialPoints, amount,
-                    maximumPoints);
-            case SET_XP -> MasteryStateAccess.setProgress(stack, groupId, initialPoints, amount,
-                    current.earnedPoints(), maximumPoints);
-            case SET_POINTS -> MasteryStateAccess.setProgress(stack, groupId, initialPoints,
-                    current.masteryXp(), amount, maximumPoints);
-            case CLEAR -> MasteryStateAccess.setProgress(stack, groupId, initialPoints, 0, initialPoints,
-                    maximumPoints);
-        };
     }
 
     private static MasteryPortfolio.GroupProgress groupProgress(ItemStack stack, Identifier groupId,

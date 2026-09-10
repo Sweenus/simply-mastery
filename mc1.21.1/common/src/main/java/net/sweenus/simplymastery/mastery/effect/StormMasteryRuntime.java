@@ -1,6 +1,7 @@
 package net.sweenus.simplymastery.mastery.effect;
 
 import dev.architectury.event.events.common.TickEvent;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.world.ServerWorld;
 import net.sweenus.simplymastery.mastery.state.MasteryRuntimeState;
@@ -36,30 +37,30 @@ public final class StormMasteryRuntime {
         });
     }
 
-    static MasteryRuntimeState.Value value(ItemStack stack, String key, long tick) {
-        return MasteryStateAccess.runtime(stack).get(key, tick);
+    static MasteryRuntimeState.Value value(LivingEntity actor, ItemStack stack, String key, long tick) {
+        return PersonalRuntime.read(actor, stack).get(key, tick);
     }
 
-    static void set(ItemStack stack, String key, int amount, long expiresAt, long tick) {
-        MasteryStateAccess.writeRuntime(stack,
-                MasteryStateAccess.runtime(stack).put(key, amount, expiresAt, tick));
+    static void set(LivingEntity actor, ItemStack stack, String key, int amount, long expiresAt, long tick) {
+        PersonalRuntime.write(actor, stack,
+                PersonalRuntime.read(actor, stack).put(key, amount, expiresAt, tick));
     }
 
-    static void clear(ItemStack stack, String key) {
-        MasteryStateAccess.writeRuntime(stack, MasteryStateAccess.runtime(stack).clear(key));
+    static void clear(LivingEntity actor, ItemStack stack, String key) {
+        PersonalRuntime.write(actor, stack, PersonalRuntime.read(actor, stack).clear(key));
     }
 
-    static int advance(ItemStack stack, String key, long tick, int maximum, int windowTicks) {
-        MasteryRuntimeState.Value current = value(stack, key, tick);
+    static int advance(LivingEntity actor, ItemStack stack, String key, long tick, int maximum, int windowTicks) {
+        MasteryRuntimeState.Value current = value(actor, stack, key, tick);
         int next = Math.min(maximum, current.amount() + 1);
-        set(stack, key, next, tick + windowTicks, tick);
+        set(actor, stack, key, next, tick + windowTicks, tick);
         return next;
     }
 
-    static long extend(ItemStack stack, String key, long tick, int extension, int maximumRemaining) {
-        MasteryRuntimeState.Value current = value(stack, key, tick);
+    static long extend(LivingEntity actor, ItemStack stack, String key, long tick, int extension, int maximumRemaining) {
+        MasteryRuntimeState.Value current = value(actor, stack, key, tick);
         long deadline = extendedDeadline(current.expiresAt(), tick, extension, maximumRemaining);
-        set(stack, key, current.amount(), deadline, tick);
+        set(actor, stack, key, current.amount(), deadline, tick);
         return deadline;
     }
 

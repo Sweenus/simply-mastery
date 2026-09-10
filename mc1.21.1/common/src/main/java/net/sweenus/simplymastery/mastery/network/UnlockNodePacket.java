@@ -6,9 +6,14 @@ import dev.architectury.networking.simple.MessageType;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
+import net.sweenus.simplymastery.mastery.progression.ProgressionOwner;
+
+import java.util.UUID;
 
 public final class UnlockNodePacket extends BaseC2SMessage {
 
+    private final UUID weaponId;
+    private final ProgressionOwner.Kind ownership;
     private final int protocolVersion;
     private final int screenSyncId;
     private final int definitionEpoch;
@@ -19,20 +24,25 @@ public final class UnlockNodePacket extends BaseC2SMessage {
     private final long clientActionId;
 
     public UnlockNodePacket(int screenSyncId, int definitionEpoch, long expectedMutationRevision,
-                            Identifier profileId, String nodeId, long clientActionId) {
+                            Identifier profileId, String nodeId, long clientActionId, UUID weaponId,
+                            ProgressionOwner.Kind ownership) {
         this(MasteryNetwork.PROTOCOL_VERSION, screenSyncId, definitionEpoch, expectedMutationRevision,
-                profileId, nodeId, Operation.UNLOCK, clientActionId);
+                profileId, nodeId, Operation.UNLOCK, clientActionId, weaponId, ownership);
     }
 
     public static UnlockNodePacket respec(int screenSyncId, int definitionEpoch, long expectedMutationRevision,
-                                          Identifier profileId, long clientActionId) {
+                                          Identifier profileId, long clientActionId, UUID weaponId,
+                                          ProgressionOwner.Kind ownership) {
         return new UnlockNodePacket(MasteryNetwork.PROTOCOL_VERSION, screenSyncId, definitionEpoch,
-                expectedMutationRevision, profileId, "", Operation.RESPEC, clientActionId);
+                expectedMutationRevision, profileId, "", Operation.RESPEC, clientActionId, weaponId, ownership);
     }
 
     private UnlockNodePacket(int protocolVersion, int screenSyncId, int definitionEpoch,
                              long expectedMutationRevision, Identifier profileId, String nodeId,
-                             Operation operation, long clientActionId) {
+                             Operation operation, long clientActionId, UUID weaponId,
+                             ProgressionOwner.Kind ownership) {
+        this.weaponId = weaponId;
+        this.ownership = ownership;
         this.protocolVersion = protocolVersion;
         this.screenSyncId = screenSyncId;
         this.definitionEpoch = definitionEpoch;
@@ -45,7 +55,8 @@ public final class UnlockNodePacket extends BaseC2SMessage {
 
     public UnlockNodePacket(RegistryByteBuf buf) {
         this(buf.readVarInt(), buf.readVarInt(), buf.readVarInt(), buf.readVarLong(),
-                buf.readIdentifier(), buf.readString(64), buf.readEnumConstant(Operation.class), buf.readVarLong());
+                buf.readIdentifier(), buf.readString(64), buf.readEnumConstant(Operation.class), buf.readVarLong(), buf.readUuid(),
+                buf.readEnumConstant(ProgressionOwner.Kind.class));
     }
 
     @Override
@@ -63,6 +74,8 @@ public final class UnlockNodePacket extends BaseC2SMessage {
         buf.writeString(nodeId, 64);
         buf.writeEnumConstant(operation);
         buf.writeVarLong(clientActionId);
+        buf.writeUuid(weaponId);
+        buf.writeEnumConstant(ownership);
     }
 
     @Override
@@ -71,6 +84,9 @@ public final class UnlockNodePacket extends BaseC2SMessage {
             context.queue(() -> UnlockService.handle(player, this));
         }
     }
+
+    UUID weaponId() { return weaponId; }
+    ProgressionOwner.Kind ownership() { return ownership; }
 
     int protocolVersion() {
         return protocolVersion;

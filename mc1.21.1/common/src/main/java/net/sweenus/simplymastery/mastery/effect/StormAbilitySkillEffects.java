@@ -95,8 +95,8 @@ final class StormAbilitySkillEffects implements AbilitySkillEffectType {
                 if (definition == BuiltinUniqueAbilities.STORMS_EDGE_REFRESH) {
                     boolean sprinting = sprintRefreshEligible(context.actor() instanceof ServerPlayerEntity,
                             context.actor().isSprinting(), StormMasteryRuntime.value(
-                                    context.stack(), StormMasteryRuntime.SPRINT_HIT, tick).amount());
-                    StormMasteryRuntime.clear(context.stack(), StormMasteryRuntime.SPRINT_HIT);
+                                    context.actor(), context.stack(), StormMasteryRuntime.SPRINT_HIT, tick).amount());
+                    StormMasteryRuntime.clear(context.actor(), context.stack(), StormMasteryRuntime.SPRINT_HIT);
                     if (sprinting) {
                         tuning.set(BuiltinUniqueAbilities.REFRESH_CHANCE, parameter(node, "sprint_chance", 40));
                     }
@@ -104,14 +104,14 @@ final class StormAbilitySkillEffects implements AbilitySkillEffectType {
             }
             case BUILDING_VOLTAGE -> {
                 if (definition == BuiltinUniqueAbilities.STORMS_EDGE_REFRESH) {
-                    int stacks = StormMasteryRuntime.value(context.stack(), StormMasteryRuntime.VOLTAGE, tick).amount();
+                    int stacks = StormMasteryRuntime.value(context.actor(), context.stack(), StormMasteryRuntime.VOLTAGE, tick).amount();
                     tuning.add(BuiltinUniqueAbilities.REFRESH_CHANCE,
                             stacks * parameter(node, "chance_per_stack", 5));
                 }
             }
             case FEEDBACK_LOOP -> {
                 if (definition == BuiltinUniqueAbilities.STORMBREAK
-                        && StormMasteryRuntime.value(context.stack(), StormMasteryRuntime.FEEDBACK, tick).amount() > 0) {
+                        && StormMasteryRuntime.value(context.actor(), context.stack(), StormMasteryRuntime.FEEDBACK, tick).amount() > 0) {
                     double factor = parameter(node, "damage_percent", 120) / 100.0;
                     tuning.multiply(BuiltinUniqueAbilities.CORRIDOR_DAMAGE_SCALING, factor)
                             .multiply(BuiltinUniqueAbilities.CORRIDOR_SPELL_SCALING, factor)
@@ -121,7 +121,7 @@ final class StormAbilitySkillEffects implements AbilitySkillEffectType {
             }
             case PERPETUAL_MOTION -> {
                 if (definition == BuiltinUniqueAbilities.STORMBREAK
-                        && StormMasteryRuntime.value(context.stack(), StormMasteryRuntime.OVERDRIVE, tick).amount() > 0) {
+                        && StormMasteryRuntime.value(context.actor(), context.stack(), StormMasteryRuntime.OVERDRIVE, tick).amount() > 0) {
                     tuning.set(BuiltinUniqueAbilities.STORMBREAK_COOLDOWN_TICKS,
                             (int) Math.round(tuning.get(BuiltinUniqueAbilities.STORMBREAK_COOLDOWN_TICKS)
                                     * parameter(node, "cooldown_percent", 70) / 100.0));
@@ -151,10 +151,10 @@ final class StormAbilitySkillEffects implements AbilitySkillEffectType {
     public void onAbilityEvent(UniqueAbilityEvent event, MasteryProfile.Node node) {
         if (event.phase() == UniqueAbilityPhase.START) {
             if (kind == Kind.FEEDBACK_LOOP && event.execution().definition() == BuiltinUniqueAbilities.STORMBREAK) {
-                StormMasteryRuntime.clear(event.execution().context().stack(), StormMasteryRuntime.FEEDBACK);
+                StormMasteryRuntime.clear(event.execution().context().actor(), event.execution().context().stack(), StormMasteryRuntime.FEEDBACK);
             } else if (kind == Kind.PERPETUAL_MOTION
                     && event.execution().definition() == BuiltinUniqueAbilities.STORMBREAK) {
-                StormMasteryRuntime.clear(event.execution().context().stack(), StormMasteryRuntime.OVERDRIVE);
+                StormMasteryRuntime.clear(event.execution().context().actor(), event.execution().context().stack(), StormMasteryRuntime.OVERDRIVE);
             }
             return;
         }
@@ -182,9 +182,9 @@ final class StormAbilitySkillEffects implements AbilitySkillEffectType {
                     int duration = parameter(node, "duration_ticks", 40);
                     int amplifier = parameter(node, "amplifier", 2);
                     long current = StormMasteryRuntime.value(
-                            context.stack(), StormMasteryRuntime.PURSUIT, tick).expiresAt();
+                            context.actor(), context.stack(), StormMasteryRuntime.PURSUIT, tick).expiresAt();
                     long deadline = StormMasteryRuntime.refreshedDeadline(current, tick, duration);
-                    StormMasteryRuntime.set(context.stack(), StormMasteryRuntime.PURSUIT,
+                    StormMasteryRuntime.set(context.actor(), context.stack(), StormMasteryRuntime.PURSUIT,
                             amplifier + 1, deadline, tick);
                     context.actor().addStatusEffect(new StatusEffectInstance(StatusEffects.SPEED,
                             (int) Math.max(1, deadline - tick), amplifier, false, false, true), context.actor());
@@ -192,23 +192,23 @@ final class StormAbilitySkillEffects implements AbilitySkillEffectType {
             }
             case BUILDING_VOLTAGE -> {
                 if (event.eventId().equals(BuiltinUniqueAbilities.MELEE_HIT)) {
-                    StormMasteryRuntime.advance(context.stack(), StormMasteryRuntime.VOLTAGE, tick,
+                    StormMasteryRuntime.advance(context.actor(), context.stack(), StormMasteryRuntime.VOLTAGE, tick,
                             parameter(node, "max_stacks", 4), parameter(node, "window_ticks", 60));
                 } else if (event.eventId().equals(BuiltinUniqueAbilities.REFRESH_PROC)) {
-                    StormMasteryRuntime.clear(context.stack(), StormMasteryRuntime.VOLTAGE);
+                    StormMasteryRuntime.clear(context.actor(), context.stack(), StormMasteryRuntime.VOLTAGE);
                 }
             }
             case LIVE_WIRE -> liveWire(event, node, tick);
             case FEEDBACK_LOOP -> {
                 if (event.eventId().equals(BuiltinUniqueAbilities.REFRESH_PROC)) {
-                    StormMasteryRuntime.set(context.stack(), StormMasteryRuntime.FEEDBACK, 1,
+                    StormMasteryRuntime.set(context.actor(), context.stack(), StormMasteryRuntime.FEEDBACK, 1,
                             tick + parameter(node, "window_ticks", 100), tick);
                 }
             }
             case QUICKENING_CURRENT -> quickening(event, node, tick);
             case PERPETUAL_MOTION -> {
                 if (event.eventId().equals(BuiltinUniqueAbilities.REFRESH_PROC)) {
-                    StormMasteryRuntime.set(context.stack(), StormMasteryRuntime.OVERDRIVE, 1,
+                    StormMasteryRuntime.set(context.actor(), context.stack(), StormMasteryRuntime.OVERDRIVE, 1,
                             tick + parameter(node, "window_ticks", 120), tick);
                 }
             }
@@ -258,15 +258,15 @@ final class StormAbilitySkillEffects implements AbilitySkillEffectType {
     public void onAttack(SkillEffectContext.Attack context, MasteryProfile.Node node) {
         if (kind != Kind.STATIC_RESERVE || !context.player().isSprinting()) return;
         long tick = context.player().getServerWorld().getTime();
-        StormMasteryRuntime.set(context.stack(), StormMasteryRuntime.SPRINT_HIT, 1, tick + 2L, tick);
+        StormMasteryRuntime.set(context.actor(), context.stack(), StormMasteryRuntime.SPRINT_HIT, 1, tick + 2L, tick);
     }
 
     private static void liveWire(UniqueAbilityEvent event, MasteryProfile.Node node, long tick) {
         if (!event.eventId().equals(BuiltinUniqueAbilities.MELEE_HIT) || event.target() == null) return;
         UniqueAbilityContext context = event.execution().context();
-        if (StormMasteryRuntime.value(context.stack(), StormMasteryRuntime.PURSUIT, tick).amount() == 0
-                || StormMasteryRuntime.value(context.stack(), StormMasteryRuntime.LIVE_WIRE, tick).amount() > 0) return;
-        StormMasteryRuntime.set(context.stack(), StormMasteryRuntime.LIVE_WIRE, 1,
+        if (StormMasteryRuntime.value(context.actor(), context.stack(), StormMasteryRuntime.PURSUIT, tick).amount() == 0
+                || StormMasteryRuntime.value(context.actor(), context.stack(), StormMasteryRuntime.LIVE_WIRE, tick).amount() > 0) return;
+        StormMasteryRuntime.set(context.actor(), context.stack(), StormMasteryRuntime.LIVE_WIRE, 1,
                 tick + parameter(node, "cooldown_ticks", 10), tick);
         damage(context, event.target(), scaled(event, true, parameter(node, "damage_percent", 20)));
     }
@@ -275,11 +275,11 @@ final class StormAbilitySkillEffects implements AbilitySkillEffectType {
         LivingEntity target = event.target();
         UniqueAbilityContext context = event.execution().context();
         if (!quickeningDamageEvent(event.eventId()) || target == null || target.isAlive()
-                || StormMasteryRuntime.value(context.stack(), StormMasteryRuntime.PURSUIT, tick).amount() == 0) return;
-        long deadline = StormMasteryRuntime.extend(context.stack(), StormMasteryRuntime.PURSUIT, tick,
+                || StormMasteryRuntime.value(context.actor(), context.stack(), StormMasteryRuntime.PURSUIT, tick).amount() == 0) return;
+        long deadline = StormMasteryRuntime.extend(context.actor(), context.stack(), StormMasteryRuntime.PURSUIT, tick,
                 parameter(node, "extension_ticks", 40), parameter(node, "max_remaining_ticks", 120));
         int amplifier = Math.max(0,
-                StormMasteryRuntime.value(context.stack(), StormMasteryRuntime.PURSUIT, tick).amount() - 1);
+                StormMasteryRuntime.value(context.actor(), context.stack(), StormMasteryRuntime.PURSUIT, tick).amount() - 1);
         context.actor().addStatusEffect(new StatusEffectInstance(StatusEffects.SPEED,
                 (int) Math.max(1, deadline - tick), amplifier, false, false, true), context.actor());
     }
@@ -325,12 +325,12 @@ final class StormAbilitySkillEffects implements AbilitySkillEffectType {
         if (!event.eventId().equals(BuiltinUniqueAbilities.MELEE_HIT) || event.target() == null) return;
         UniqueAbilityContext context = event.execution().context();
         if (!StormMasteryRuntime.ionized(context.world(), context.actor().getUuid(), event.target().getUuid())
-                || StormMasteryRuntime.value(context.stack(), StormMasteryRuntime.ARC_LASH, tick).amount() > 0) return;
+                || StormMasteryRuntime.value(context.actor(), context.stack(), StormMasteryRuntime.ARC_LASH, tick).amount() > 0) return;
         List<LivingEntity> chain = nearbyChainTargets(context, event.target(),
                 1, parameter(node, "range_tenths", 50) / 10.0);
         LivingEntity target = chain.stream().filter(candidate -> candidate != event.target()).findFirst().orElse(null);
         if (target == null) return;
-        StormMasteryRuntime.set(context.stack(), StormMasteryRuntime.ARC_LASH, 1,
+        StormMasteryRuntime.set(context.actor(), context.stack(), StormMasteryRuntime.ARC_LASH, 1,
                 tick + parameter(node, "cooldown_ticks", 20), tick);
         if (damage(context, target, scaled(event, true, parameter(node, "damage_percent", 30)))) {
             SimplySwordsAPI.spawnAbilityLightningBolt(context.world(),

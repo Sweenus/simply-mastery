@@ -3,6 +3,10 @@ package net.sweenus.simplymastery.mastery.effect;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.Identifier;
+import net.sweenus.simplymastery.mastery.definition.MasteryProfileRegistry;
+import net.sweenus.simplymastery.mastery.progression.PersonalProgression;
+import net.sweenus.simplymastery.mastery.progression.ProgressionOwnership;
 import net.sweenus.simplymastery.mastery.state.MasteryCooldownState;
 import net.sweenus.simplymastery.mastery.state.MasteryStateAccess;
 
@@ -19,6 +23,15 @@ public final class SkillEffectAccess {
     }
 
     public boolean startCooldown(String nodeId, long tick, int durationTicks) {
+        if (ProgressionOwnership.personal(player.getServer())) {
+            var profile = MasteryProfileRegistry.server().profiles()
+                    .get(Identifier.of(profileKey));
+            if (profile == null) return false;
+            var node = profile.node(nodeId).orElse(null);
+            if (node == null) return false;
+            return PersonalProgression.startCooldown(
+                    player, profile, node.effect().type().toString(), tick, durationTicks);
+        }
         MasteryCooldownState cooldowns = MasteryStateAccess.cooldowns(stack);
         String key = profileKey + "/" + nodeId;
         if (!cooldowns.ready(key, tick)) return false;

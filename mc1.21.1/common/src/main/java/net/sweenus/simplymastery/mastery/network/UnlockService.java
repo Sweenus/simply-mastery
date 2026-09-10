@@ -11,6 +11,12 @@ import net.sweenus.simplymastery.config.MasteryConfig;
 import net.sweenus.simplymastery.mastery.RunicForgeMasteryContext;
 import net.sweenus.simplymastery.mastery.definition.MasteryProfile;
 import net.sweenus.simplymastery.mastery.definition.MasteryProfileRegistry;
+import net.sweenus.simplymastery.mastery.effect.PersonalRuntime;
+import net.sweenus.simplymastery.mastery.progression.MasteryRewardService;
+import net.sweenus.simplymastery.mastery.progression.ProgressionOwnership;
+import net.sweenus.simplymastery.mastery.state.MasteryComponents;
+import net.sweenus.simplymastery.mastery.state.MasteryCooldownState;
+import net.sweenus.simplymastery.mastery.state.MasteryRuntimeState;
 import net.sweenus.simplymastery.mastery.state.MasteryState;
 import net.sweenus.simplymastery.mastery.state.MasteryStateAccess;
 import net.sweenus.simplymastery.mastery.effect.SkillRuntime;
@@ -20,6 +26,7 @@ import dev.architectury.event.events.common.PlayerEvent;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Predicate;
 
@@ -40,14 +47,15 @@ public final class UnlockService {
         if (result == UnlockResult.SUCCESS) {
             RunicForgeScreenHandler handler = (RunicForgeScreenHandler) player.currentScreenHandler;
             ItemStack stack = RunicForgeMasteryContext.stateStack(handler);
+            MasteryRewardService.synchronize(player.getServer(), stack);
             MasteryProfile profile = MasteryProfileRegistry.resolveServer(
                     RunicForgeMasteryContext.identityStack(handler)).orElseThrow();
             int initialPoints = Math.min(MasteryConfig.SERVER.verticalSliceStartingPoints,
-                    MasteryConfig.SERVER.maximumEarnedPoints);
-            MasteryState state = MasteryStateAccess.read(stack, profile, initialPoints);
-            if (state.earnedPoints() > MasteryConfig.SERVER.maximumEarnedPoints) {
+                    MasteryProfileRegistry.server().policy(profile.progressionGroupId()).pointCap());
+            MasteryState state = MasteryStateAccess.read(player, stack, profile, initialPoints);
+            if (state.earnedPoints() > MasteryProfileRegistry.server().policy(profile.progressionGroupId()).pointCap()) {
                 state = new MasteryState(state.schemaVersion(), state.profileId(), state.profileVersion(),
-                        state.masteryXp(), MasteryConfig.SERVER.maximumEarnedPoints,
+                        state.masteryXp(), MasteryProfileRegistry.server().policy(profile.progressionGroupId()).pointCap(),
                         state.unlockedNodeIds(), state.mutationRevision());
             }
             revision = state.mutationRevision();
@@ -63,7 +71,7 @@ public final class UnlockService {
                     result = UnlockRules.validate(profile, state, node, request.expectedMutationRevision());
                     if (result == UnlockResult.SUCCESS) {
                         MasteryState updated = state.unlock(node.id());
-                        MasteryStateAccess.write(stack, profile, updated);
+                        MasteryStateAccess.write(player, stack, profile, updated);
                         handler.getForgeInventory().markDirty();
                         handler.sendContentUpdates();
                         revision = updated.mutationRevision();
@@ -103,6 +111,11 @@ public final class UnlockService {
         if (!handler.canUse(player)) {
             return UnlockResult.OUT_OF_RANGE;
         }
+        if (request.ownership() != ProgressionOwnership.mode(player.getServer())
+                || !Objects.equals(request.weaponId(), RunicForgeMasteryContext.stateStack(handler)
+                .get(MasteryComponents.WEAPON_ID.get()))) {
+            return UnlockResult.STALE_STATE;
+        }
         MasteryProfile profile = MasteryProfileRegistry.resolveServer(
                 RunicForgeMasteryContext.identityStack(handler)).orElse(null);
         if (profile == null || !profile.id().equals(request.profileId())) {
@@ -127,11 +140,14 @@ public final class UnlockService {
         boolean free = player.isCreative() && MasteryConfig.SERVER.creativeRespecIsFree;
         int cost = MasteryConfig.SERVER.respecCostCount;
         if (!free && !consumeIfPresent(player.getInventory(), payment, cost)) return UnlockResult.PAYMENT_MISSING;
-        MasteryStateAccess.write(stack, profile, state.respec());
-        MasteryStateAccess.writeCooldowns(stack,
-                net.sweenus.simplymastery.mastery.state.MasteryCooldownState.EMPTY);
-        MasteryStateAccess.writeRuntime(stack,
-                net.sweenus.simplymastery.mastery.state.MasteryRuntimeState.EMPTY);
+        MasteryStateAccess.write(player, stack, profile, state.respec());
+        if (!ProgressionOwnership.personal(player.getServer())) {
+            MasteryStateAccess.writeCooldowns(stack,
+                    MasteryCooldownState.EMPTY);
+            MasteryStateAccess.writeRuntime(stack,
+                    MasteryRuntimeState.EMPTY);
+        }
+        PersonalRuntime.clear(player.getServer(), player.getUuid());
         SkillRuntime.clear(player);
         StormMasteryRuntime.clear(player.getUuid());
         handler.getForgeInventory().markDirty();

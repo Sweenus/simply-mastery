@@ -1,25 +1,54 @@
 package net.sweenus.simplymastery.mastery.state;
 
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.sweenus.simplymastery.mastery.definition.MasteryProfile;
 import net.sweenus.simplymastery.mastery.definition.MasteryProfileRegistry;
 import net.sweenus.simplymastery.config.MasteryConfig;
 
 import net.minecraft.util.Identifier;
+import net.sweenus.simplymastery.mastery.progression.MasteryRewardService;
+import net.sweenus.simplymastery.mastery.progression.PersonalProgression;
+import net.sweenus.simplymastery.mastery.progression.ProgressionOwnership;
 
 public final class MasteryStateAccess {
 
     private MasteryStateAccess() {
     }
 
+    public static MasteryState read(ServerPlayerEntity player,
+                                   ItemStack stack, MasteryProfile profile, int initialPoints) {
+        if (ProgressionOwnership.personal(player.getServer())) {
+            return PersonalProgression.read(player, profile);
+        }
+        if (MasteryRewardService.accessible(player, stack)) {
+            MasteryRewardService.synchronize(player.getServer(), stack);
+        }
+        return read(stack, profile, initialPoints);
+    }
+
+    public static void write(ServerPlayerEntity player,
+                             ItemStack stack, MasteryProfile profile, MasteryState state) {
+        if (ProgressionOwnership.personal(player.getServer())) {
+            PersonalProgression.writeAllocations(player, profile, state);
+        } else {
+            write(stack, profile, state);
+        }
+    }
+
     public static MasteryState read(ItemStack stack, MasteryProfile profile, int initialPoints) {
+        return read(stack, profile, initialPoints,
+                MasteryProfileRegistry.server().policy(profile.progressionGroupId()).pointCap());
+    }
+
+    public static MasteryState read(ItemStack stack, MasteryProfile profile, int initialPoints, int cap) {
+        initialPoints = Math.min(initialPoints, cap);
         MasteryPortfolio portfolio = stack.get(MasteryComponents.MASTERY_PORTFOLIO.get());
         if (portfolio == null) {
             portfolio = MasteryPortfolio.importLegacy(stack.get(MasteryComponents.MASTERY_STATE.get()),
                     profile.progressionGroupId(), initialPoints);
         }
-        MasteryPortfolio reconciled = portfolio.reconcile(profile, initialPoints,
-                MasteryConfig.SERVER.maximumEarnedPoints);
+        MasteryPortfolio reconciled = portfolio.reconcile(profile, initialPoints, cap);
         MasteryState state = reconciled.activeView(profile, initialPoints);
         if (!reconciled.equals(stack.get(MasteryComponents.MASTERY_PORTFOLIO.get()))) {
             stack.set(MasteryComponents.MASTERY_PORTFOLIO.get(), reconciled);
@@ -47,7 +76,7 @@ public final class MasteryStateAccess {
                     profile.progressionGroupId(), state.earnedPoints());
         }
         MasteryPortfolio updated = portfolio.withState(profile, state, state.earnedPoints())
-                .reconcile(profile, state.earnedPoints(), MasteryConfig.SERVER.maximumEarnedPoints);
+                .reconcile(profile, state.earnedPoints(), MasteryProfileRegistry.server().policy(profile.progressionGroupId()).pointCap());
         stack.set(MasteryComponents.MASTERY_PORTFOLIO.get(), updated);
         stack.set(MasteryComponents.MASTERY_STATE.get(), updated.activeView(profile, state.earnedPoints()));
     }

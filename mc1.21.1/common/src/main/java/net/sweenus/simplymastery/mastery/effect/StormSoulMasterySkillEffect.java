@@ -446,9 +446,9 @@ final class StormSoulMasterySkillEffect implements StaticAbilitySkillEffectType 
         String key = "execution/" + event.execution().definition().id().getPath();
         long tick = event.execution().context().world().getTime();
         if (event.phase() == UniqueAbilityPhase.START) {
-            StormSoulMasteryRuntime.set(event.execution().context().stack(), key, 1, tick + 1200, tick);
+            StormSoulMasteryRuntime.set(event.execution().context().actor(), event.execution().context().stack(), key, 1, tick + 1200, tick);
         } else if (event.phase() == UniqueAbilityPhase.FINISH || event.phase() == UniqueAbilityPhase.CANCEL) {
-            StormSoulMasteryRuntime.clear(event.execution().context().stack(), key);
+            StormSoulMasteryRuntime.clear(event.execution().context().actor(), event.execution().context().stack(), key);
         }
     }
 

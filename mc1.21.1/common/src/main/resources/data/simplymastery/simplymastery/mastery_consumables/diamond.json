@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "priority": -100,
+  "ingredient": {
+    "id": "minecraft:diamond"
+  },
+  "quantity": 1,
+  "weapon": {
+    "tag": "simplymastery:starter_reward_weapons"
+  },
+  "reward": {
+    "xp": 50
+  }
+}

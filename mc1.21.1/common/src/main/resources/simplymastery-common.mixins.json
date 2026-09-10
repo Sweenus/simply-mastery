@@ -8,7 +8,15 @@
     "client.RunicForgeScreenMixin"
   ],
   "mixins": [
-    "LivingEntityDamageMixin"
+    "LivingEntityDamageMixin",
+    "RunicForgeProgressionMixin",
+    "PlayerWeaponIdentityMixin",
+    "ItemStackIdentityMixin",
+    "WeaponAbilityIdentityMixin",
+    "DataPackContentsMasteryMixin",
+    "CombatEncounterMixin",
+    "AdvancementRewardMixin",
+    "ForgeRewardsAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

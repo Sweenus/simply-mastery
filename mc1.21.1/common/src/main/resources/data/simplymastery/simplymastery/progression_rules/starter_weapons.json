@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "priority": -100,
+  "selector": {
+    "tag": "simplymastery:starter_reward_weapons"
+  },
+  "xp_percent": 100
+}

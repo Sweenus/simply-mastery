@@ -5,14 +5,41 @@ import me.fzzyhmstrs.fzzy_config.validation.collection.ValidatedSet;
 import me.fzzyhmstrs.fzzy_config.validation.minecraft.ValidatedIdentifier;
 import net.minecraft.util.Identifier;
 import net.sweenus.simplymastery.SimplyMastery;
+import net.sweenus.simplymastery.mastery.progression.ProgressionOwner;
 
 import java.util.List;
 
 public final class MasteryServerConfig extends me.fzzyhmstrs.fzzy_config.config.Config {
 
     public boolean enabled = true;
+    public ProgressionOwner.Kind progressionOwnership =
+            ProgressionOwner.Kind.WEAPON;
+    public boolean meleeXpEnabled = true;
+    public boolean abilityXpEnabled = true;
+    public boolean projectileXpEnabled = true;
+    public boolean summonXpEnabled = true;
+    public boolean damageOverTimeXpEnabled = true;
+    @ValidatedInt.Restrict(min = 0, max = 10000)
+    public int meleeXpPercent = 100;
+    @ValidatedInt.Restrict(min = 0, max = 10000)
+    public int abilityXpPercent = 100;
+    @ValidatedInt.Restrict(min = 0, max = 10000)
+    public int projectileXpPercent = 100;
+    @ValidatedInt.Restrict(min = 0, max = 10000)
+    public int summonXpPercent = 100;
+    @ValidatedInt.Restrict(min = 0, max = 10000)
+    public int damageOverTimeXpPercent = 100;
+    public boolean damageXpEnabled = true;
+    public boolean contributionSharingEnabled = true;
+    @ValidatedInt.Restrict(min = 0, max = 100)
+    public int damageXpBudgetPercent = 20;
+    @ValidatedInt.Restrict(min = 1, max = 72000)
+    public int contributionWindowTicks = 600;
+    public boolean firstKillRewardsEnabled = true;
+    public boolean masteryConsumablesEnabled = true;
+    public boolean advancementRewardsEnabled = true;
     @ValidatedInt.Restrict(min = 1, max = 64)
-    public int maximumEarnedPoints = 20;
+    public int maximumEarnedPoints = 18;
     @ValidatedInt.Restrict(min = 0, max = 18)
     public int verticalSliceStartingPoints = 0;
     @ValidatedInt.Restrict(min = 1, max = 10000)

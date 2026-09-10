@@ -19,8 +19,7 @@ import net.sweenus.simplymastery.mastery.definition.MasteryProfile;
 import net.sweenus.simplymastery.mastery.definition.MasteryProfileRegistry;
 import net.sweenus.simplymastery.mastery.effect.SkillOriginGuard;
 import net.sweenus.simplymastery.mastery.effect.SkillRuntime;
-import net.sweenus.simplymastery.mastery.state.MasteryState;
-import net.sweenus.simplymastery.mastery.state.MasteryStateAccess;
+import net.sweenus.simplymastery.mastery.state.MasteryComponents;
 import net.sweenus.simplyswords.api.SimplySwordsAPI;
 
 import java.util.ArrayDeque;
@@ -66,40 +65,18 @@ public final class MasteryProgression {
         }
         ItemStack stack = exactSourceStack(player, source);
         if (stack == null || stack.isEmpty()) return EventResult.pass();
+        if (!stack.contains(MasteryComponents.WEAPON_ID.get())
+                && !MasteryRewardService.accessible(player, stack)) return EventResult.pass();
         MasteryProfileRegistry.ProgressionResolution resolution =
                 MasteryProfileRegistry.resolveProgressionServer(stack).orElse(null);
         if (resolution == null || (!resolution.profileIds().isEmpty() && resolution.profileIds().stream()
                 .allMatch(MasteryConfig.SERVER.disabledProfiles::contains))) {
             return EventResult.pass();
         }
+        MasteryRewardService.synchronize(player.getServer(), stack);
         MasteryProfile profile = resolution.visibleProfile().orElse(null);
         if (profile != null && !MasteryConfig.SERVER.disabledProfiles.contains(profile.id())
                 && !SkillOriginGuard.active()) SkillRuntime.onKill(player, target, stack);
-        if (!eligible(player, target)) return EventResult.pass();
-        long tick = player.getServerWorld().getServer().getOverworld().getTime();
-        int repeats = recordKill(player, target, tick);
-        boolean boss = target instanceof WitherEntity || target instanceof EnderDragonEntity;
-        int xp = calculateXp(target.getMaxHealth(), target instanceof HostileEntity, boss, repeats,
-                MasteryConfig.SERVER);
-        if (xp <= 0) return EventResult.pass();
-        int initialPoints = Math.min(MasteryConfig.SERVER.verticalSliceStartingPoints,
-                MasteryConfig.SERVER.maximumEarnedPoints);
-        boolean changed;
-        if (profile == null) {
-            changed = MasteryStateAccess.bankXp(stack, resolution.groupId(), initialPoints, xp,
-                    MasteryConfig.SERVER.maximumEarnedPoints, MasteryConfig.SERVER.xpBaseRequirement,
-                    MasteryConfig.SERVER.xpRequirementGrowth);
-        } else {
-            MasteryState state = MasteryStateAccess.read(stack, profile, initialPoints);
-            MasteryState updated = state.awardXp(xp, MasteryConfig.SERVER.maximumEarnedPoints,
-                    MasteryConfig.SERVER.xpBaseRequirement, MasteryConfig.SERVER.xpRequirementGrowth);
-            changed = updated != state;
-            if (changed) MasteryStateAccess.write(stack, profile, updated);
-        }
-        if (changed) {
-            player.getInventory().markDirty();
-            player.currentScreenHandler.sendContentUpdates();
-        }
         return EventResult.pass();
     }
 
@@ -110,8 +87,11 @@ public final class MasteryProgression {
                 || ((ServerPlayerEntity) target).isSpectator());
         boolean ownedTame = target instanceof TameableEntity tameable
                 && (tameable.isOwner(player) || player.getUuid().equals(tameable.getOwnerUuid()));
-        boolean hostileOrBoss = target instanceof HostileEntity || target instanceof WitherEntity
-                || target instanceof EnderDragonEntity;
+        var definitions = MasteryProfileRegistry.server().rewards();
+        boolean boss = definitions == null ? target instanceof WitherEntity || target instanceof EnderDragonEntity
+                : definitions.entity(EntityType.getId(target.getType())).flatMap(rule -> rule.value().boss())
+                .orElse(target instanceof WitherEntity || target instanceof EnderDragonEntity);
+        boolean hostileOrBoss = target instanceof HostileEntity || boss;
         return eligibleClassification(target == player || target.isTeammate(player), ownedTame,
                 playerTarget, invalidPvp, hostileOrBoss, MasteryConfig.SERVER);
     }

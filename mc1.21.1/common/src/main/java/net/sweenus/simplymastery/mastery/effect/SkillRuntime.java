@@ -90,6 +90,7 @@ public final class SkillRuntime {
         ATTACK_DEDUPLICATION.keySet().removeIf(key -> key.player.equals(id));
         HELD.remove(id);
         StormMasteryRuntime.clear(id);
+        PersonalRuntime.clear(player.getServer(), id);
     }
 
     private static void tick(ServerPlayerEntity player) {
@@ -176,8 +177,8 @@ public final class SkillRuntime {
         if (stack == null || stack.isEmpty()) return null;
         MasteryProfile profile = MasteryProfileRegistry.resolveServer(stack).orElse(null);
         if (profile == null || MasteryConfig.SERVER.disabledProfiles.contains(profile.id())) return null;
-        MasteryState state = MasteryStateAccess.read(stack, profile,
-                Math.min(MasteryConfig.SERVER.verticalSliceStartingPoints, MasteryConfig.SERVER.maximumEarnedPoints));
+        MasteryState state = MasteryStateAccess.read(player, stack, profile,
+                Math.min(MasteryConfig.SERVER.verticalSliceStartingPoints, MasteryProfileRegistry.server().policy(profile.progressionGroupId()).pointCap()));
         return new Resolved(stack, hand, profile, state);
     }
 

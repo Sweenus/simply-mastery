@@ -5,6 +5,7 @@ import net.sweenus.simplymastery.SimplyMastery;
 import net.sweenus.simplymastery.config.MasteryConfig;
 import net.sweenus.simplymastery.mastery.definition.MasteryProfile;
 import net.sweenus.simplymastery.mastery.definition.MasteryProfileRegistry;
+import net.sweenus.simplymastery.mastery.progression.ProgressionOwnership;
 import net.sweenus.simplymastery.mastery.state.MasteryState;
 import net.sweenus.simplymastery.mastery.state.MasteryStateAccess;
 import net.sweenus.simplyswords.api.ability.UniqueAbilityApi;
@@ -37,8 +38,13 @@ public final class UniqueAbilityMasteryBridge {
         if (profile == null || MasteryConfig.SERVER.disabledProfiles.contains(profile.id())) {
             return UniqueAbilityObserver.NONE;
         }
-        MasteryState state = MasteryStateAccess.read(context.stack(), profile,
-                Math.min(MasteryConfig.SERVER.verticalSliceStartingPoints, MasteryConfig.SERVER.maximumEarnedPoints));
+        if (ProgressionOwnership.personal(context.world().getServer())
+                && context.sourcePlayer() == null) return UniqueAbilityObserver.NONE;
+        MasteryState state = context.sourcePlayer() == null
+                ? MasteryStateAccess.read(context.stack(), profile, Math.min(MasteryConfig.SERVER.verticalSliceStartingPoints,
+                        MasteryProfileRegistry.server().policy(profile.progressionGroupId()).pointCap()))
+                : MasteryStateAccess.read(context.sourcePlayer(), context.stack(), profile,
+                Math.min(MasteryConfig.SERVER.verticalSliceStartingPoints, MasteryProfileRegistry.server().policy(profile.progressionGroupId()).pointCap()));
         List<OwnedAbilityEffect> effects = new ArrayList<>();
         for (MasteryProfile.Node node : profile.nodes()) {
             if (!state.owns(node.id()) || MasteryConfig.SERVER.disabledEffects.contains(node.effect().type())) continue;

@@ -3,6 +3,7 @@ package net.sweenus.simplymastery.client;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.sweenus.simplymastery.client.mastery.PersonalMasteryView;
 import net.sweenus.simplymastery.config.MasteryConfig;
 import net.sweenus.simplymastery.mastery.definition.MasteryProfile;
 import net.sweenus.simplymastery.mastery.definition.MasteryProfileRegistry;
@@ -43,13 +44,10 @@ public final class MasteryCooldownTooltip {
         if (!MasteryConfig.SERVER.enabled) return null;
         MasteryProfile profile = MasteryProfileRegistry.resolveClient(stack).orElse(null);
         if (profile == null || MasteryConfig.SERVER.disabledProfiles.contains(profile.id())) return null;
-        int initial = Math.min(MasteryConfig.SERVER.verticalSliceStartingPoints, MasteryConfig.SERVER.maximumEarnedPoints);
-        MasteryPortfolio portfolio = stack.get(MasteryComponents.MASTERY_PORTFOLIO.get());
-        if (portfolio == null) {
-            portfolio = MasteryPortfolio.importLegacy(stack.get(MasteryComponents.MASTERY_STATE.get()),
-                    profile.progressionGroupId(), initial);
-        }
-        MasteryPortfolio.ProfileLoadout loadout = portfolio.loadout(profile.id()).orElse(null);
+        int initial = Math.min(MasteryConfig.SERVER.verticalSliceStartingPoints, MasteryProfileRegistry.client().policy(profile.progressionGroupId()).pointCap());
+        var state = PersonalMasteryView.read(stack, profile, initial);
+        MasteryPortfolio.ProfileLoadout loadout = new MasteryPortfolio.ProfileLoadout(
+                state.profileId(), state.profileVersion(), state.unlockedNodeIds());
         if (loadout == null) return null;
         List<MasteryProfile.Node> owned = profile.nodes().stream()
                 .filter(node -> loadout.unlockedNodeIds().contains(node.id()) && !MasteryConfig.SERVER.disabledEffects.contains(node.effect().type()))

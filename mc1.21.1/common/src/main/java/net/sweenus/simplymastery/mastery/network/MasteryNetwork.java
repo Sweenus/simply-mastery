@@ -8,6 +8,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.sweenus.simplymastery.SimplyMastery;
 import net.sweenus.simplymastery.mastery.definition.MasteryProfileRegistry;
+import net.sweenus.simplymastery.mastery.reward.AdvancementEntitlements;
+import net.sweenus.simplymastery.mastery.reward.ForgeRewards;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,12 +17,15 @@ import java.util.UUID;
 
 public final class MasteryNetwork {
 
-    public static final int PROTOCOL_VERSION = 3;
+    public static final int PROTOCOL_VERSION = 6;
     public static final SimpleNetworkManager NETWORK = SimpleNetworkManager.create(SimplyMastery.MOD_ID);
     public static final MessageType UNLOCK_NODE = NETWORK.registerC2S("unlock_node", UnlockNodePacket::new);
     public static final MessageType UNLOCK_RESULT = NETWORK.registerS2C("unlock_result", UnlockResultPacket::new);
     public static final MessageType REQUEST_PROFILE_SYNC = NETWORK.registerC2S("request_profile_sync", RequestProfileSyncPacket::new);
     public static final MessageType PROFILE_SYNC = NETWORK.registerS2C("profile_sync", ProfileSyncPacket::new);
+    public static final MessageType PERSONAL_STATE = NETWORK.registerS2C("personal_state", PersonalStatePacket::new);
+    public static final MessageType REWARD_ACTION = NETWORK.registerC2S("reward_action", RewardActionPacket::new);
+    public static final MessageType REWARD_DISPLAY = NETWORK.registerS2C("reward_display", RewardDisplayPacket::new);
     private static volatile MinecraftServer server;
     private static final long REQUEST_INTERVAL_NANOS = 2_000_000_000L;
     private static final Map<UUID, Long> LAST_SYNCS = new HashMap<>();
@@ -32,6 +37,8 @@ public final class MasteryNetwork {
 
     public static void init() {
         UnlockService.init();
+        ForgeRewards.init();
+        PersonalStateSync.init();
         LifecycleEvent.SERVER_BEFORE_START.register(value -> server = value);
         LifecycleEvent.SERVER_STOPPED.register(value -> {
             if (server == value) {
@@ -48,12 +55,14 @@ public final class MasteryNetwork {
     }
 
     public static void sync(ServerPlayerEntity player) {
+        AdvancementEntitlements.baseline(player, player.getAdvancementTracker());
         ProfileSyncPacket packet;
         synchronized (MasteryNetwork.class) {
             LAST_SYNCS.put(player.getUuid(), System.nanoTime());
             packet = currentPacket();
         }
         packet.sendTo(player);
+        PersonalStateSync.reset(player);
     }
 
     public static void requestSync(ServerPlayerEntity player) {
@@ -66,6 +75,7 @@ public final class MasteryNetwork {
             packet = currentPacket();
         }
         packet.sendTo(player);
+        PersonalStateSync.reset(player);
     }
 
     public static synchronized void prepareProfileReload() {
