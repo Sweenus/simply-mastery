@@ -14,7 +14,7 @@ Adds mastery trees to Simply Swords unique weapons. Earn mastery points for your
 [[dependencies.simplyswordsmastery]]
 modId = "forge"
 mandatory = true
-versionRange = "[47.4.9,)"
+versionRange = "[47.1,)"
 ordering = "NONE"
 side = "BOTH"
 

@@ -1,7 +1,10 @@
 package net.sweenus.simplyswordsmastery.mastery.network;
 
+import dev.architectury.networking.NetworkManager;
 import dev.architectury.networking.simple.MessageType;
 import dev.architectury.networking.simple.SimpleNetworkManager;
+import dev.architectury.platform.Platform;
+import dev.architectury.utils.Env;
 import dev.architectury.event.events.common.LifecycleEvent;
 import dev.architectury.event.events.common.PlayerEvent;
 import net.minecraft.server.MinecraftServer;
@@ -36,6 +39,12 @@ public final class MasteryNetwork {
     }
 
     public static void init() {
+        if (Platform.getEnvironment() == Env.SERVER) {
+            NetworkManager.registerS2CPayloadType(UNLOCK_RESULT.getId());
+            NetworkManager.registerS2CPayloadType(PROFILE_SYNC.getId());
+            NetworkManager.registerS2CPayloadType(PERSONAL_STATE.getId());
+            NetworkManager.registerS2CPayloadType(REWARD_DISPLAY.getId());
+        }
         UnlockService.init();
         ForgeRewards.init();
         PersonalStateSync.init();
