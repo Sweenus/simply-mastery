@@ -5,7 +5,9 @@
   "compatibilityLevel": "JAVA_21",
   "client": [
     "client.HandledScreenMixin",
-    "client.RunicForgeScreenMixin"
+    "client.RunicForgeScreenMixin",
+    "client.HeldItemRendererMixin",
+    "client.BetterCombatItemComparisonMixin"
   ],
   "mixins": [
     "LivingEntityDamageMixin",
