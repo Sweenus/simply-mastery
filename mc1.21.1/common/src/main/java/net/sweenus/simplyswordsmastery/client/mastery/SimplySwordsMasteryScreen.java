@@ -1,9 +1,8 @@
 package net.sweenus.simplyswordsmastery.client.mastery;
 
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.Element;
-import net.minecraft.client.gui.screen.ingame.HandledScreen;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.screen.narration.NarrationPart;
 import net.minecraft.client.util.math.MatrixStack;
@@ -49,13 +48,14 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.ToIntFunction;
 
-public final class SimplySwordsMasteryScreen extends HandledScreen<RunicForgeScreenHandler> {
+public final class SimplySwordsMasteryScreen extends Screen {
 
     private static final AtomicLong ACTION_IDS = new AtomicLong();
     private static final float FEEDBACK_SECONDS = 3.2F;
     private static final int CARD_LINES = 8;
     private static final float MICRO_SCALE = MasteryChrome.MICRO_SCALE;
 
+    private final RunicForgeScreenHandler handler;
     private final PlayerInventory playerInventory;
     private final FrameClock clock = new FrameClock();
     private final MasteryPaletteSource paletteSource = new MasteryPaletteSource();
@@ -98,12 +98,12 @@ public final class SimplySwordsMasteryScreen extends HandledScreen<RunicForgeScr
     private float canvasZoom = 1.0F;
     private float canvasPanX;
     private float canvasPanY;
-    private boolean switchingView;
     private MasteryProfile profile;
     private int definitionEpoch = -1;
 
     public SimplySwordsMasteryScreen(RunicForgeScreenHandler handler, PlayerInventory playerInventory, Text title) {
-        super(handler, playerInventory, title);
+        super(title);
+        this.handler = handler;
         this.playerInventory = playerInventory;
     }
 
@@ -148,12 +148,12 @@ public final class SimplySwordsMasteryScreen extends HandledScreen<RunicForgeScr
     }
 
     @Override
-    protected void handledScreenTick() {
+    public void tick() {
         if (client == null || client.player == null) {
             return;
         }
-        if (!handler.canUse(client.player)) {
-            close();
+        if (client.player.currentScreenHandler != handler || !handler.canUse(client.player)) {
+            client.player.closeHandledScreen();
             return;
         }
         refreshPalette();
@@ -174,6 +174,24 @@ public final class SimplySwordsMasteryScreen extends HandledScreen<RunicForgeScr
             closePrompt();
             rebuildProfile(replacement);
         }
+    }
+
+    @Override
+    public void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {
+    }
+
+    @Override
+    public boolean shouldPause() {
+        return false;
+    }
+
+    @Override
+    public void close() {
+        if (client == null || client.player == null) {
+            super.close();
+            return;
+        }
+        client.player.closeHandledScreen();
     }
 
     @Override
@@ -211,7 +229,7 @@ public final class SimplySwordsMasteryScreen extends HandledScreen<RunicForgeScr
         }
 
         itemHoverRight = itemHoverLeft;
-        drawBackground(context, delta, mouseX, mouseY);
+        drawMasteryBackground(context);
         drawCanvas(context, profile, state);
         if (layout.compact) {
             drawCompactBadge(context);
@@ -219,11 +237,7 @@ public final class SimplySwordsMasteryScreen extends HandledScreen<RunicForgeScr
             drawShowcase(context, profile, state);
         }
         drawHeader(context, profile, state);
-        for (Element child : children()) {
-            if (child instanceof Drawable drawable && child != promptConfirm && child != promptCancel) {
-                drawable.render(context, mouseX, mouseY, delta);
-            }
-        }
+        super.render(context, mouseX, mouseY, delta);
 
         MatrixStack matrices = context.getMatrices();
         matrices.push();
@@ -272,8 +286,7 @@ public final class SimplySwordsMasteryScreen extends HandledScreen<RunicForgeScr
         matrices.pop();
     }
 
-    @Override
-    protected void drawBackground(DrawContext context, float delta, int mouseX, int mouseY) {
+    private void drawMasteryBackground(DrawContext context) {
         float appear = MasteryTheme.easeOutCubic(entranceSeconds / 0.16F);
         int accent = accentRgb();
         MasteryChrome.background(context, palette, width, height, accent, seconds(), motion(), appear);
@@ -1149,13 +1162,6 @@ public final class SimplySwordsMasteryScreen extends HandledScreen<RunicForgeScr
         addElementNarrations(builder.nextMessage());
     }
 
-    @Override
-    public void removed() {
-        if (!switchingView) {
-            super.removed();
-        }
-    }
-
     // --- state --------------------------------------------------------------
 
     private void requestUnlock(int index) {
@@ -1280,22 +1286,15 @@ public final class SimplySwordsMasteryScreen extends HandledScreen<RunicForgeScr
 
     private void openRewards() {
         if (client == null) return;
-        switchingView = true;
-        try {
-            MasteryScreenSwitch.run(handler, () -> client.setScreen(new MasteryRewardsScreen(handler, this)));
-        } finally {
-            switchingView = false;
-        }
+        MasteryScreenSwitch.run(handler, () -> client.setScreen(new MasteryRewardsScreen(handler, this)));
     }
 
     private void backToForge() {
         if (client == null) {
             return;
         }
-        switchingView = true;
         MasteryScreenSwitch.run(handler,
                 () -> client.setScreen(new RunicForgeScreen(handler, playerInventory, title)));
-        switchingView = false;
     }
 
     private MasteryState state(MasteryProfile profile) {
