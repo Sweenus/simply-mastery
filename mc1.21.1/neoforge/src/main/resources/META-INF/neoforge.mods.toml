@@ -1,6 +1,6 @@
 modLoader = "javafml"
 loaderVersion = "[4,)"
-license = "All Rights Reserved"
+license = "Timefall Development License 1.2"
 
 [[mixins]]
 config = "simplyswordsmastery-common.mixins.json"
@@ -13,6 +13,7 @@ authors = "Sweenus"
 description = '''
 Adds mastery trees to Simply Swords unique weapons. Earn mastery points for your weapon through combat, and invest those points to alter its abilities as you see fit.
 '''
+logoFile = "icon.png"
 
 [[dependencies.simplyswordsmastery]]
 modId = "neoforge"
